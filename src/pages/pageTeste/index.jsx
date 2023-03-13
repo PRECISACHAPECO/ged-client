@@ -14,7 +14,7 @@ const PageTest = () => {
 
     async function handleClickSubmit() {
         try {
-            const response = await api.post('/register', { name })
+            const response = await api.post('register', { name })
             console.log(response.data.message)
             setIsRegistered(true)
             setTimeout(() => {
@@ -27,7 +27,7 @@ const PageTest = () => {
 
     async function handleDelete(id) {
         try {
-            const response = await api.delete(`/register/${id}`)
+            const response = await api.delete(`register/${id}`)
             console.log('Deletado com sucesso')
             setIsRegistered(true)
             setTimeout(() => {
@@ -40,7 +40,7 @@ const PageTest = () => {
 
     async function handleDeleteAll() {
         try {
-            const response = await api.delete('/register')
+            const response = await api.delete('register')
             console.log('Deletado com sucesso')
             setIsRegistered(true)
             setTimeout(() => {
@@ -54,7 +54,7 @@ const PageTest = () => {
     useEffect(() => {
         async function getUsers() {
             try {
-                const response = await api.get('/register')
+                const response = await api.get('register')
                 console.log(response.data)
                 setUsers(response.data)
             } catch (error) {
