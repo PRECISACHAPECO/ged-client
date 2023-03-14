@@ -1,30 +1,43 @@
 const navigation = () => {
-  return [
-    {
-      title: 'Home',
-      path: '/home',
-      icon: 'mdi:home-outline',
-    },
-    {
-      title: 'Second Page',
-      path: '/second-page',
-      icon: 'mdi:email-outline',
-    },
-    {
-      path: '/acl',
-      action: 'read',
-      subject: 'acl-page',
-      title: 'Access Control',
-      icon: 'mdi:shield-outline',
-    },
-    {
-      path: '/pageTeste',
-      action: 'read',
-      subject: 'atividade',
-      title: 'Page Teste',
-      icon: 'mdi:shield-outline',
-    },
-  ]
+    return [
+        {
+            title: 'Home',
+            path: '/home',
+            icon: 'mdi:home-outline',
+        },
+        {
+            title: 'Second Page',
+            path: '/second-page',
+            icon: 'mdi:email-outline',
+        },
+        {
+            path: '/acl',
+            action: 'read',
+            subject: 'acl-page',
+            title: 'Access Control',
+            icon: 'mdi:shield-outline',
+        },
+        {
+            title: 'Cadastros',
+            icon: 'mdi:home-outline',
+            badgeContent: 'new',
+            badgeColor: 'error',
+            children: [
+                {
+                    title: 'Atividade',
+                    path: '/cadastros/atividade'
+                },
+                {
+                    title: 'Analytics',
+                    path: '/dashboards/analytics'
+                },
+                {
+                    title: 'eCommerce',
+                    path: '/dashboards/ecommerce'
+                }
+            ]
+        },
+    ]
 }
 
 export default navigation

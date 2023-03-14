@@ -1,16 +1,16 @@
 // ** To use core palette, uncomment the below import
-// import corePalette from 'src/@core/theme/palette'
+import corePalette from 'src/@core/theme/palette'
 // ** To use mode (light/dark/semi-dark), skin(default/bordered), direction(ltr/rtl), etc. for conditional styles, uncomment below line
-// import { useSettings } from 'src/@core/hooks/useSettings'
+import { useSettings } from 'src/@core/hooks/useSettings'
 const UserThemeOptions = () => {
   // ** To use mode (light/dark/semi-dark), skin(default/bordered), direction(ltr/rtl), etc. for conditional styles, uncomment below line
-  // const { settings } = useSettings()
+  const { settings } = useSettings()
   // ** To use mode (light/dark/semi-dark), skin(default/bordered), direction(ltr/rtl), etc. for conditional styles, uncomment below line
-  // const { mode, skin } = settings
+  const { mode, skin } = settings
   // ** To use core palette, uncomment the below line
-  // const palette = corePalette(mode, skin)
+  const palette = corePalette(mode, skin)
   return {
-    /*
+    
     palette:{
       primary: {
         light: '#787EFF',
@@ -109,7 +109,7 @@ const UserThemeOptions = () => {
     },
     typography: {
       fontFamily:
-        '"Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+        '-apple-system, "Montserrat", BlinkMacSystemFont, Poppins, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
     },
     shadows: mode === 'light' ? [
       'none',
@@ -167,7 +167,7 @@ const UserThemeOptions = () => {
     zIndex: {
       appBar: 1200,
       drawer: 1100
-    } */
+    } 
   }
 }
 
