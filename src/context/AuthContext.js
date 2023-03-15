@@ -27,6 +27,7 @@ const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(defaultProvider.user)
     const [loading, setLoading] = useState(defaultProvider.loading)
 
+
     // ** Hooks
     const router = useRouter()
     useEffect(() => {
@@ -107,7 +108,7 @@ const AuthProvider = ({ children }) => {
         setLoading,
         login: handleLogin,
         logout: handleLogout,
-        register: handleRegister
+        register: handleRegister,
     }
 
     return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>

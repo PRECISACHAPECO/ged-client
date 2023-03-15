@@ -21,6 +21,7 @@ const Chip = props => {
     error: { ...bgColors.errorLight },
     warning: { ...bgColors.warningLight },
     info: { ...bgColors.infoLight }
+
   }
   const propsToPass = { ...props }
   propsToPass.rounded = undefined
