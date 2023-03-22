@@ -7,6 +7,8 @@ import { useRouter } from 'next/router'
 
 // ** Configs
 import { configColumns } from 'src/configs/defaultConfigs'
+import { Button } from '@mui/material'
+import Link from 'next/link'
 
 const Atividade = () => {
     const [result, setResult] = useState(null)
@@ -42,7 +44,16 @@ const Atividade = () => {
 
     const columns = configColumns(currentLink, arrColumns)
 
-    return <>{result && <TableFilter title='Atividades' rows={result} columns={columns} />}</>
+    return (
+        <>
+            {result && <TableFilter title='Atividades' rows={result} columns={columns} />}
+            <Link href='/cadastros/atividade/novo/'>
+                <Button variant='contained' color='primary'>
+                    Novo
+                </Button>
+            </Link>
+        </>
+    )
 }
 
 export default Atividade

@@ -54,5 +54,20 @@ const configColumns = (currentLink, arrColumns) => {
     })
 }
 
-export { configColumns, statusDefault }
+// Função que recebe uma rota, quebra pela barra e obtem a última parte da rota
+const formType = (route) => {
+    const arrRoute = route.split('/')
+    const lastPart = arrRoute[arrRoute.length - 1]
+    return lastPart == 'novo' ? 'new' : 'edit'
+}
+
+// Função que recebe uma rota, quebra pela / e remove a ultima parte, retornando a rota anterior
+
+const backRoute = (route) => {
+    const arrRoute = route.split('/')
+    arrRoute.pop()
+    return arrRoute.join('/')
+}
+
+export { configColumns, formType, backRoute, statusDefault }
 
