@@ -10,56 +10,58 @@ import QuickSearchToolbar from 'src/views/table/data-grid/QuickSearchToolbar'
 
 const escapeRegExp = value => {
     return value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
+
 }
 
 const TableColumns = ({ title, rows, columns }) => {
     // ** States
     const [data] = useState(rows)
-    const [pageSize, setPageSize] = useState(7)
+    const [pageSize, setPageSize] = useState(10)
     const [searchText, setSearchText] = useState('')
     const [filteredData, setFilteredData] = useState([])
 
     const handleSearch = searchValue => {
         setSearchText(searchValue)
-        const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
-
+        const searchWords = searchValue.toLowerCase().split(' ').filter(word => word !== '')
+        
         const filteredRows = data.filter(row => {
-            return Object.keys(row).some(field => {
-                // @ts-ignore
-                return searchRegex.test(row[field].toString())
+            return searchWords.every(word => {
+                return Object.keys(row).some(field => {
+                    return row[field].toString().toLowerCase().indexOf(word) !== -1
+                })
             })
         })
-        if (searchValue.length) {
+        console.log('num caract: ', searchText.length)
+
+        if (searchValue.length && filteredRows.length > 0) {
             setFilteredData(filteredRows)
         } else {
             setFilteredData([])
         }
     }
 
+
     return (
-        <Card>
-            <CardHeader title={title} />
-            <DataGrid
-                localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-                autoHeight
-                columns={columns}
-                pageSize={pageSize}
-                rowsPerPageOptions={[20, 30, 40, 50, 100, 200]}
-                components={{ Toolbar: QuickSearchToolbar }}
-                rows={filteredData.length ? filteredData : data}
-                onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-                componentsProps={{
-                    baseButton: {
-                        variant: 'outlined'
-                    },
-                    toolbar: {
-                        value: searchText,
-                        clearSearch: () => handleSearch(''),
-                        onChange: event => handleSearch(event.target.value)
-                    }
-                }}
-            />
-        </Card>
+        <DataGrid
+            localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
+            autoHeight
+            columns={columns}
+            pageSize={pageSize}
+            rowsPerPageOptions={[10, 20, 30, 40, 50, 100]}
+            components={{ Toolbar: QuickSearchToolbar }}
+            rows={searchText ? filteredData : data}
+            onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+            componentsProps={{
+                baseButton: {
+                    variant: 'outlined'
+                },
+                toolbar: {
+                    value: searchText,
+                    clearSearch: () => handleSearch(''),
+                    onChange: event => handleSearch(event.target.value)
+                }
+            }}
+        />
     )
 }
 

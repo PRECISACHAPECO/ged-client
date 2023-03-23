@@ -1,14 +1,16 @@
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
 import TableFilter from 'src/views/table/data-grid/TableFilter'
+import { CardContent, CardHeader } from '@mui/material'
 
 // ** Next
 import { useRouter } from 'next/router'
 
 // ** Configs
 import { configColumns } from 'src/configs/defaultConfigs'
-import { Button } from '@mui/material'
+import { Button, Card } from '@mui/material'
 import Link from 'next/link'
+import ListHeader from 'src/components/ListHeader'
 
 // import axios from 'axios'
 
@@ -19,11 +21,12 @@ const Atividade = () => {
 
     useEffect(() => {
         const getList = async () => {
-            await api.get('/atividade').then(response => {
+            await api.get(currentLink).then(response => {
                 setResult(response.data)
             })
         }
         getList()
+        
     }, [])
 
     const arrColumns = [
@@ -48,13 +51,18 @@ const Atividade = () => {
 
     return (
         <>
-
-            {result && <TableFilter title='Atividades List Updated' rows={result} columns={columns} />}
-            <Link href='/cadastros/atividade/novo/'>
-                <Button variant='contained' color='primary'>
-                    Novo
-                </Button>
-            </Link>
+            <h2>Atividade</h2>
+            <Card>
+                <CardContent>
+                    <ListHeader btnNew btnPrint />
+                    {result && <TableFilter title='Atividades List Updated' rows={result} columns={columns} />}
+                    <Link href={`${router.pathname}/novo/`}>
+                        <Button variant='contained' color='primary'>
+                            Novo
+                        </Button>
+                    </Link>
+                </CardContent>
+            </Card>
         </>
     )
 }

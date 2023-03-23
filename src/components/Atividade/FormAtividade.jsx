@@ -12,12 +12,14 @@ import toast from 'react-hot-toast'
 import DialogForm from 'src/components/Dialog'
 import { formType } from 'src/configs/defaultConfigs'
 import FormHeader from '../FormHeader'
+import { backRoute } from 'src/configs/defaultConfigs'
 
 const FormAtividade = () => {
     const [open, setOpen] = useState(false)
     const { id } = Router.query
     const router = Router
     const type = formType(router.pathname) // Verifica se é novo ou edição
+    const staticUrl = backRoute(router.pathname) // Url sem ID 
 
     const schema = yup.object().shape({
         nome: yup.string().required('Campo obrigatório')
@@ -38,16 +40,12 @@ const FormAtividade = () => {
     const onSubmit = async data => {
         try {
             if (type === 'new') {
-                await api.post(`atividade/novo`, data)
+                await api.post(`${staticUrl}/novo`, data)
+                router.push(staticUrl)
                 toast.success('Dados cadastrados com sucesso!')
-                data = {
-                    ...data,
-                    status: 1
-                }
                 reset(data)
             } else if (type === 'edit') {
-                console.log('onSubmit: ', data)
-                await api.put(`atividade/${id}`, data)
+                await api.put(`${staticUrl}/${id}`, data)
                 toast.success('Dados atualizados com sucesso!')
             }
         } catch (error) {
@@ -62,8 +60,8 @@ const FormAtividade = () => {
     // Função que deleta os dados
     const handleClickDelete = async () => {
         try {
-            await api.delete(`atividade/${id}`)
-            router.push('/cadastros/atividade')
+            await api.delete(`${staticUrl}/${id}`)
+            router.push(staticUrl)
             toast.error('Dados deletados com sucesso!')
         } catch (error) {
             console.log(error)
@@ -80,7 +78,7 @@ const FormAtividade = () => {
     useEffect(() => {
         const getAtividade = async () => {
             try {
-                const response = await api.get(`atividade/${id}`)
+                const response = await api.get(`${staticUrl}/${id}`)
                 reset(response.data)
             } catch (error) {
                 console.log(error)

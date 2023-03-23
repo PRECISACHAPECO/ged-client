@@ -27,7 +27,14 @@ const FormHeader = ({ btnCancel, btnSave, handleSubmit, btnDelete, onclickDelete
                     )}
 
                     {btnDelete && (
-                        <Button type='button' onClick={onclickDelete} variant='outlined' color='error' size='medium' sx={{ mt: 2, ml: 2 }}>
+                        <Button
+                            type='button'
+                            onClick={onclickDelete}
+                            variant='outlined'
+                            color='error'
+                            size='medium'
+                            sx={{ mt: 2, ml: 2 }}
+                        >
                             Excluir
                         </Button>
                     )}
@@ -38,7 +45,7 @@ const FormHeader = ({ btnCancel, btnSave, handleSubmit, btnDelete, onclickDelete
                         <Button
                             onClick={handleSubmit}
                             type='submit'
-                            variant='contained'
+                            variant='outlined'
                             size='medium'
                             color='primary'
                             sx={{ mt: 2, mr: 2 }}

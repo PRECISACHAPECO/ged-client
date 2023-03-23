@@ -24,7 +24,7 @@ const DialogForm = ({ title, text, handleClose, openModal, handleSubmit, btnCanc
                         </Button>
                     )}
                     {btnConfirmar && (
-                        <Button variant='contained' color='primary' onClick={handleSubmit}>
+                        <Button variant='outlined' color='primary' onClick={handleSubmit}>
                             Salvar
                         </Button>
                     )}
