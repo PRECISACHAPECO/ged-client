@@ -10,6 +10,8 @@ import { configColumns } from 'src/configs/defaultConfigs'
 import { Button } from '@mui/material'
 import Link from 'next/link'
 
+// import axios from 'axios'
+
 const Atividade = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
@@ -17,7 +19,7 @@ const Atividade = () => {
 
     useEffect(() => {
         const getList = async () => {
-            await api.get('atividade').then(response => {
+            await api.get('/atividade').then(response => {
                 setResult(response.data)
             })
         }
@@ -46,6 +48,7 @@ const Atividade = () => {
 
     return (
         <>
+
             {result && <TableFilter title='Atividades' rows={result} columns={columns} />}
             <Link href='/cadastros/atividade/novo/'>
                 <Button variant='contained' color='primary'>

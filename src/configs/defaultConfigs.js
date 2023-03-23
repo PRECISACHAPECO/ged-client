@@ -58,6 +58,7 @@ const configColumns = (currentLink, arrColumns) => {
 const formType = (route) => {
     const arrRoute = route.split('/')
     const lastPart = arrRoute[arrRoute.length - 1]
+
     return lastPart == 'novo' ? 'new' : 'edit'
 }
 
@@ -66,6 +67,7 @@ const formType = (route) => {
 const backRoute = (route) => {
     const arrRoute = route.split('/')
     arrRoute.pop()
+
     return arrRoute.join('/')
 }
 
