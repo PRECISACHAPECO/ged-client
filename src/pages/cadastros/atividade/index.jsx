@@ -49,7 +49,7 @@ const Atividade = () => {
     return (
         <>
 
-            {result && <TableFilter title='Atividades' rows={result} columns={columns} />}
+            {result && <TableFilter title='Atividades List Updated' rows={result} columns={columns} />}
             <Link href='/cadastros/atividade/novo/'>
                 <Button variant='contained' color='primary'>
                     Novo
