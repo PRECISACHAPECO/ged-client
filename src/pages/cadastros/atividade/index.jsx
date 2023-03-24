@@ -3,6 +3,8 @@ import { api } from 'src/configs/api'
 import TableFilter from 'src/views/table/data-grid/TableFilter'
 import { CardContent, CardHeader } from '@mui/material'
 
+import Loading from 'src/components/Loading'
+
 // ** Next
 import { useRouter } from 'next/router'
 
@@ -26,7 +28,6 @@ const Atividade = () => {
             })
         }
         getList()
-        
     }, [])
 
     const arrColumns = [
@@ -52,17 +53,25 @@ const Atividade = () => {
     return (
         <>
             <h2>Atividade</h2>
-            <Card>
-                <CardContent>
-                    <ListHeader btnNew btnPrint />
-                    {result && <TableFilter title='Atividades List Updated' rows={result} columns={columns} />}
-                    <Link href={`${router.pathname}/novo/`}>
-                        <Button variant='contained' color='primary'>
-                            Novo
-                        </Button>
-                    </Link>
-                </CardContent>
-            </Card>
+            {!result && <Loading />}
+            {result && (
+                <>
+                    <Card>
+                        <CardContent>
+                            {/* <ListHeader btnNew btnPrint /> */}
+                            <TableFilter
+                                title='Atividades List Updated'
+                                rows={result}
+                                columns={columns}
+                                buttonsHeader={{
+                                    btnNew: true,
+                                    btnPrint: false,
+                                }}
+                            />
+                        </CardContent>
+                    </Card>
+                </>
+            )}
         </>
     )
 }

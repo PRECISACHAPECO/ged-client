@@ -13,7 +13,8 @@ const escapeRegExp = value => {
 
 }
 
-const TableColumns = ({ title, rows, columns }) => {
+const TableColumns = ({ title, rows, columns, buttonsHeader }) => {
+    
     // ** States
     const [data] = useState(rows)
     const [pageSize, setPageSize] = useState(10)
@@ -31,15 +32,13 @@ const TableColumns = ({ title, rows, columns }) => {
                 })
             })
         })
-        console.log('num caract: ', searchText.length)
-
+        
         if (searchValue.length && filteredRows.length > 0) {
             setFilteredData(filteredRows)
         } else {
             setFilteredData([])
         }
     }
-
 
     return (
         <DataGrid
@@ -58,7 +57,8 @@ const TableColumns = ({ title, rows, columns }) => {
                 toolbar: {
                     value: searchText,
                     clearSearch: () => handleSearch(''),
-                    onChange: event => handleSearch(event.target.value)
+                    onChange: event => handleSearch(event.target.value),
+                    buttonsHeader: buttonsHeader
                 }
             }}
         />
