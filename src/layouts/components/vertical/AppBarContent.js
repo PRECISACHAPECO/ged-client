@@ -9,26 +9,33 @@ import Icon from 'src/@core/components/icon'
 import ModeToggler from 'src/@core/layouts/components/shared-components/ModeToggler'
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
 
+import { FormatContext } from 'src/context/FormatContext'
+import { useContext } from 'react'
+
 const AppBarContent = props => {
-  // ** Props
-  const { hidden, settings, saveSettings, toggleNavVisibility } = props
+    // ** Props
+    const { hidden, settings, saveSettings, toggleNavVisibility } = props
+    const { title } = useContext(FormatContext)
 
-  return (
-    <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <Box className='actions-left' sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
-        {hidden ? (
-          <IconButton color='inherit' sx={{ ml: -2.75 }} onClick={toggleNavVisibility}>
-            <Icon icon='mdi:menu' />
-          </IconButton>
-        ) : null}
+    return (
+        <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box className='actions-left' sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
+                {hidden ? (
+                    <IconButton color='inherit' sx={{ ml: -2.75 }} onClick={toggleNavVisibility}>
+                        <Icon icon='mdi:menu' />
+                    </IconButton>
+                ) : null}
 
-        <ModeToggler settings={settings} saveSettings={saveSettings} />
-      </Box>
-      <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
-        <UserDropdown settings={settings} />
-      </Box>
-    </Box>
-  )
+                <ModeToggler settings={settings} saveSettings={saveSettings} />
+            </Box>
+            <Box>
+                <h2 style={{ margin: "0px" }}>{title}</h2>
+            </Box>
+            <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
+                <UserDropdown settings={settings} />
+            </Box>
+        </Box>
+    )
 }
 
 export default AppBarContent

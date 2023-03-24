@@ -9,21 +9,20 @@ import ListHeader from 'src/components/ListHeader'
 import Icon from 'src/@core/components/icon'
 
 const QuickSearchToolbar = (props) => {
-    
+
     return (
         <Box
             sx={{
-                gap: 2,
                 display: 'flex',
                 flexWrap: 'wrap',
-                alignItems: 'center',
+                alignItems: 'baseline',
                 justifyContent: 'space-between',
-                p: theme => theme.spacing(2, 5, 4, 5)
+                p: theme => theme.spacing(8, 0, 0, 0),
             }}
         >
-            <Box>
+            <Box sx={{ display: 'flex', gap: '8px', textAlig: "end" }}>
                 <TextField
-                    size='small'
+                    size='medium'
                     value={props.value}
                     onChange={props.onChange}
                     placeholder='Buscar…'
@@ -35,7 +34,7 @@ const QuickSearchToolbar = (props) => {
                             </Box>
                         ),
                         endAdornment: (
-                            <IconButton size='small' title='Clear' aria-label='Clear' onClick={props.clearSearch}>
+                            <IconButton size='medium' title='Clear' aria-label='Clear' onClick={props.clearSearch}>
                                 <Icon icon='mdi:close' fontSize={20} />
                             </IconButton>
                         )
@@ -54,7 +53,6 @@ const QuickSearchToolbar = (props) => {
             </Box>
 
             <Box>
-                {/* Buttons headers */}
                 <ListHeader btnNew={props.buttonsHeader.btnNew} btnPrint={props.buttonsHeader.btnPrint} />
             </Box>
         </Box>

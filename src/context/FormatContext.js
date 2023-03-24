@@ -1,11 +1,13 @@
-import { createContext } from 'react'
+import { createContext, useState } from 'react'
 
 const FormatContext = createContext({})
 
 const FormatProvider = ({ children }) => {
+    const [title, setTitle] = useState('Home')
 
     const values = {
-        name: "jonatan"
+        title,
+        setTitle
     }
 
     return <FormatContext.Provider value={values}>{children}</FormatContext.Provider>

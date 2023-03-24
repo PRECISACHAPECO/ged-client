@@ -1,7 +1,8 @@
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
 import TableFilter from 'src/views/table/data-grid/TableFilter'
-import { CardContent, CardHeader } from '@mui/material'
+import { CardContent } from '@mui/material'
+import { FormatContext } from 'src/context/FormatContext'
 
 import Loading from 'src/components/Loading'
 
@@ -10,9 +11,7 @@ import { useRouter } from 'next/router'
 
 // ** Configs
 import { configColumns } from 'src/configs/defaultConfigs'
-import { Button, Card } from '@mui/material'
-import Link from 'next/link'
-import ListHeader from 'src/components/ListHeader'
+import { Card } from '@mui/material'
 
 // import axios from 'axios'
 
@@ -20,11 +19,13 @@ const Atividade = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
+    const { setTitle } = useContext(FormatContext)
 
     useEffect(() => {
         const getList = async () => {
             await api.get(currentLink).then(response => {
                 setResult(response.data)
+                setTitle('Atividade')
             })
         }
         getList()
@@ -52,20 +53,17 @@ const Atividade = () => {
 
     return (
         <>
-            <h2>Atividade</h2>
             {!result && <Loading />}
             {result && (
                 <>
                     <Card>
-                        <CardContent>
-                            {/* <ListHeader btnNew btnPrint /> */}
+                        <CardContent sx={{ pt: '0' }}>
                             <TableFilter
-                                title='Atividades List Updated'
                                 rows={result}
                                 columns={columns}
                                 buttonsHeader={{
                                     btnNew: true,
-                                    btnPrint: false,
+                                    btnPrint: true
                                 }}
                             />
                         </CardContent>

@@ -13,8 +13,8 @@ const escapeRegExp = value => {
 
 }
 
-const TableColumns = ({ title, rows, columns, buttonsHeader }) => {
-    
+const TableColumns = ({ rows, columns, buttonsHeader }) => {
+
     // ** States
     const [data] = useState(rows)
     const [pageSize, setPageSize] = useState(10)
@@ -24,7 +24,7 @@ const TableColumns = ({ title, rows, columns, buttonsHeader }) => {
     const handleSearch = searchValue => {
         setSearchText(searchValue)
         const searchWords = searchValue.toLowerCase().split(' ').filter(word => word !== '')
-        
+
         const filteredRows = data.filter(row => {
             return searchWords.every(word => {
                 return Object.keys(row).some(field => {
@@ -32,7 +32,7 @@ const TableColumns = ({ title, rows, columns, buttonsHeader }) => {
                 })
             })
         })
-        
+
         if (searchValue.length && filteredRows.length > 0) {
             setFilteredData(filteredRows)
         } else {
@@ -51,9 +51,10 @@ const TableColumns = ({ title, rows, columns, buttonsHeader }) => {
             rows={searchText ? filteredData : data}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
             componentsProps={{
-                baseButton: {
-                    variant: 'outlined'
-                },
+                // baseButton: {
+                //     variant: 'outlined',
+                //     size: '36px'
+                // },
                 toolbar: {
                     value: searchText,
                     clearSearch: () => handleSearch(''),

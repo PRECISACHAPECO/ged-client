@@ -1,17 +1,14 @@
-// ** React Imports
-import { Fragment, useState } from 'react'
-
-// ** MUI Imports
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
+import Icon from 'src/@core/components/icon'
 
 const DialogForm = ({ title, text, handleClose, openModal, handleSubmit, btnCancelar, btnConfirmar }) => {
     return (
-        <Fragment>
+        <>
             <Dialog open={openModal} onClose={handleClose} aria-labelledby='form-dialog-title'>
                 <DialogTitle id='form-dialog-title'>{title}</DialogTitle>
                 <DialogContent>
@@ -19,18 +16,28 @@ const DialogForm = ({ title, text, handleClose, openModal, handleSubmit, btnCanc
                 </DialogContent>
                 <DialogActions className='dialog-actions-dense'>
                     {btnCancelar && (
-                        <Button variant='outlined' color='error' onClick={handleClose}>
+                        <Button
+                            variant='outlined'
+                            color='primary'
+                            startIcon={<Icon icon='material-symbols:cancel' />}
+                            onClick={handleClose}
+                        >
                             Cancelar
                         </Button>
                     )}
                     {btnConfirmar && (
-                        <Button variant='outlined' color='primary' onClick={handleSubmit}>
-                            Salvar
+                        <Button
+                            variant='outlined'
+                            color='error'
+                            startIcon={<Icon icon='line-md:circle-to-confirm-circle-transition' />}
+                            onClick={handleSubmit}
+                        >
+                            Confirmar
                         </Button>
                     )}
                 </DialogActions>
             </Dialog>
-        </Fragment>
+        </>
     )
 }
 

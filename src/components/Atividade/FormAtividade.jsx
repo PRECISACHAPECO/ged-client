@@ -1,8 +1,7 @@
 import Router from 'next/router'
 import { useEffect, useState } from 'react'
 import { api } from 'src/configs/api'
-import Link from 'next/link'
-import { Card, CardContent, CardHeader, Grid, FormControl, TextField, Button } from '@mui/material'
+import { Card, CardContent, Grid, FormControl, TextField, Button, FormControlLabel } from '@mui/material'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -13,13 +12,14 @@ import DialogForm from 'src/components/Dialog'
 import { formType } from 'src/configs/defaultConfigs'
 import FormHeader from '../FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
+import { toastMessage } from 'src/configs/defaultConfigs'
 
 const FormAtividade = () => {
     const [open, setOpen] = useState(false)
     const { id } = Router.query
     const router = Router
     const type = formType(router.pathname) // Verifica se é novo ou edição
-    const staticUrl = backRoute(router.pathname) // Url sem ID 
+    const staticUrl = backRoute(router.pathname) // Url sem ID
 
     const schema = yup.object().shape({
         nome: yup.string().required('Campo obrigatório')
@@ -42,15 +42,16 @@ const FormAtividade = () => {
             if (type === 'new') {
                 await api.post(`${staticUrl}/novo`, data)
                 router.push(staticUrl)
-                toast.success('Dados cadastrados com sucesso!')
+                toast.success(toastMessage.successNew)
                 reset(data)
             } else if (type === 'edit') {
                 await api.put(`${staticUrl}/${id}`, data)
-                toast.success('Dados atualizados com sucesso!')
+                toast.success(toastMessage.successUpdate)
+                console.log('editado')
             }
         } catch (error) {
             if (error.response && error.response.status === 409) {
-                toast.error('Atividade já cadastrada!')
+                toast.error(toastMessage.errorRepeated)
             } else {
                 console.log(error)
             }
@@ -62,9 +63,14 @@ const FormAtividade = () => {
         try {
             await api.delete(`${staticUrl}/${id}`)
             router.push(staticUrl)
-            toast.error('Dados deletados com sucesso!')
+            toast.success(toastMessage.successDelete)
         } catch (error) {
-            console.log(error)
+            if (error.response && error.response.status === 409) {
+                toast.error(toastMessage.pendingDelete)
+                setOpen(false)
+            } else {
+                console.log(error)
+            }
         }
     }
 
@@ -89,7 +95,6 @@ const FormAtividade = () => {
 
     return (
         <>
-            <h2>Atividade Updated</h2>
             <Card>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <FormHeader
@@ -101,7 +106,7 @@ const FormAtividade = () => {
                     />
                     <CardContent>
                         <Grid container spacing={5}>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} md={11}>
                                 <FormControl fullWidth>
                                     <Controller
                                         name='nome'
@@ -123,16 +128,23 @@ const FormAtividade = () => {
                                         </FormHelperText>
                                     )}
                                 </FormControl>
-                                <FormControl fullWidth>
+                            </Grid>
+
+                            <Grid item xs={12} md={1}>
+                                <FormControl>
                                     <Controller
                                         name='status'
                                         control={control}
                                         rules={{ required: false }}
                                         render={({ field: { value, onChange } }) => (
-                                            <Switch
+                                            <FormControlLabel
                                                 checked={value == '1' ? true : false}
                                                 onChange={onChange}
                                                 inputProps={{ 'aria-label': 'controlled' }}
+                                                label='Status'
+                                                labelPlacement='top'
+                                                sx={{ mr: 8 }}
+                                                control={<Switch />}
                                             />
                                         )}
                                     />
@@ -142,20 +154,21 @@ const FormAtividade = () => {
                                         </FormHelperText>
                                     )}
                                 </FormControl>
-                                <DialogForm
-                                    text='Tem certeza que deseja excluir?'
-                                    title='Excluir atividade'
-                                    openModal={open}
-                                    handleClose={handleClose}
-                                    handleSubmit={handleClickDelete}
-                                    btnCancelar
-                                    btnConfirmar
-                                />
                             </Grid>
                         </Grid>
                     </CardContent>
                 </form>
             </Card>
+
+            <DialogForm
+                text='Tem certeza que deseja excluir?'
+                title='Excluir atividade'
+                openModal={open}
+                handleClose={handleClose}
+                handleSubmit={handleClickDelete}
+                btnCancelar
+                btnConfirmar
+            />
         </>
     )
 }

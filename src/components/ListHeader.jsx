@@ -3,13 +3,16 @@ import Router from 'next/router'
 import { CardContent, Button, Box } from '@mui/material'
 import Link from 'next/link'
 
+// ** Icon Imports
+import Icon from 'src/@core/components/icon'
+
 const ListHeader = ({ btnNew, btnPrint }) => {
     const router = Router
 
     return (
         <>
-            <CardContent sx={{ display: 'flex', justifyContent: 'end' }}>
-                <Box>
+            <CardContent sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', p: '0', m: '0' }}>
+                <Box sx={{ display: 'flex', gap: '8px' }}>
                     {btnPrint && (
                         <Button
                             onClick={() => window.print()}
@@ -17,7 +20,7 @@ const ListHeader = ({ btnNew, btnPrint }) => {
                             variant='outlined'
                             color='primary'
                             size='medium'
-                            sx={{ mt: 2, mr: 2, py: 2 }}
+                            startIcon={<Icon icon='mdi:printer' />}
                         >
                             Imprimir
                         </Button>
@@ -30,7 +33,7 @@ const ListHeader = ({ btnNew, btnPrint }) => {
                                 variant='outlined'
                                 color='primary'
                                 size='medium'
-                                sx={{ mt: 2, mr: 2, py: 2 }}
+                                startIcon={<Icon icon='ic:outline-plus' />}
                             >
                                 Novo
                             </Button>

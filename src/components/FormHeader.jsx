@@ -10,18 +10,12 @@ const FormHeader = ({ btnCancel, btnSave, handleSubmit, btnDelete, onclickDelete
 
     return (
         <>
-            <CardContent sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-                <Box>
+            <CardContent sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', gap: '8px' }}>
                     {btnCancel && (
                         <Link href={backRoute(router.pathname)}>
-                            <Button
-                                type='button'
-                                variant='outlined'
-                                color='primary'
-                                size='medium'
-                                sx={{ mt: 2, mr: 2, py: 2 }}
-                            >
-                                <Icon icon='material-symbols:arrow-back-rounded' fontSize={20} />
+                            <Button type='button' variant='outlined' color='primary' size='medium'>
+                                <Icon icon='material-symbols:arrow-back-rounded' />
                             </Button>
                         </Link>
                     )}
@@ -33,14 +27,14 @@ const FormHeader = ({ btnCancel, btnSave, handleSubmit, btnDelete, onclickDelete
                             variant='outlined'
                             color='error'
                             size='medium'
-                            sx={{ mt: 2, ml: 2 }}
+                            startIcon={<Icon icon='material-symbols:delete-outline' />}
                         >
                             Excluir
                         </Button>
                     )}
                 </Box>
 
-                <Box>
+                <Box sx={{ display: 'flex', gap: '8px' }}>
                     {btnSave && (
                         <Button
                             onClick={handleSubmit}
@@ -48,7 +42,7 @@ const FormHeader = ({ btnCancel, btnSave, handleSubmit, btnDelete, onclickDelete
                             variant='outlined'
                             size='medium'
                             color='primary'
-                            sx={{ mt: 2, mr: 2 }}
+                            startIcon={<Icon icon='material-symbols:save' />}
                         >
                             Salvar
                         </Button>

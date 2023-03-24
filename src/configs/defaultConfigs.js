@@ -54,6 +54,19 @@ const configColumns = (currentLink, arrColumns) => {
     })
 }
 
+const toastMessage = {
+    successNew: 'Dados salvos com sucesso!',
+    successUpdate: 'Dados atualizados com sucesso!',
+    errorNew: 'Erro ao salvar os dados!',
+    errorRepeated: 'Dados já existentes!',
+    errorUpdate: 'Erro ao atualizar os dados!',
+    errorDelete: 'Erro ao excluir os dados!',
+    successDelete: 'Dados excluídos com sucesso!',
+    pendingDelete: 'Dado não pode ser excluido, pois já está sendo utilizado!',
+    errorGet: 'Erro ao obter os dados!',
+    successGet: 'Dados obtidos com sucesso!',
+}
+
 // Função que recebe uma rota, quebra pela barra e obtem a última parte da rota
 const formType = (route) => {
     const arrRoute = route.split('/')
@@ -71,5 +84,5 @@ const backRoute = (route) => {
     return arrRoute.join('/')
 }
 
-export { configColumns, formType, backRoute, statusDefault }
+export { configColumns, formType, backRoute, statusDefault, toastMessage }
 

@@ -16,12 +16,12 @@ const ServerSideToolbar = props => {
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'space-between',
-        p: theme => theme.spacing(2, 5, 4, 5)
+        p: theme => theme.spacing(2, 5, 4, 5),
       }}
     >
       <GridToolbarExport printOptions={{ disableToolbarButton: true }} />
       <TextField
-        size='small'
+        size='medium'
         value={props.value}
         onChange={props.onChange}
         placeholder='Search…'

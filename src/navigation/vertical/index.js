@@ -25,7 +25,8 @@ const navigation = () => {
             children: [
                 {
                     title: 'Atividade',
-                    path: '/cadastros/atividade'
+                    path: '/cadastros/atividade',
+                    action: 'read',
                 },
                 {
                     title: 'Analytics',
