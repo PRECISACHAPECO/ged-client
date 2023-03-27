@@ -29,13 +29,24 @@ const navigation = () => {
                     action: 'read',
                 },
                 {
-                    title: 'Analytics',
-                    path: '/dashboards/analytics'
-                },
-                {
-                    title: 'eCommerce',
-                    path: '/dashboards/ecommerce'
+                    title: 'Item',
+                    path: '/cadastros/item',
+                    action: 'read',
                 }
+            ]
+        },
+
+        {
+            title: 'Configurações',
+            icon: 'mdi:home-outline',
+            badgeContent: 'new',
+            badgeColor: 'error',
+            children: [
+                {
+                    title: 'Formulários',
+                    path: '/configuracoes/formularios',
+                    action: 'read',
+                },
             ]
         },
     ]

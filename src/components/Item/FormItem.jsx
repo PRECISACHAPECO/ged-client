@@ -14,7 +14,7 @@ import FormHeader from '../FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { toastMessage } from 'src/configs/defaultConfigs'
 
-const FormAtividade = () => {
+const FormItem = () => {
     const [open, setOpen] = useState(false)
     const { id } = Router.query
     const router = Router
@@ -167,4 +167,4 @@ const FormAtividade = () => {
     )
 }
 
-export default FormAtividade
+export default FormItem
