@@ -2,7 +2,25 @@ import React, { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { Card, CardContent, FormControl, Grid, TextField } from '@mui/material'
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    Checkbox,
+    Divider,
+    FormControl,
+    FormControlLabel,
+    Grid,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemSecondaryAction,
+    ListItemText,
+    Switch,
+    TextField,
+    Typography
+} from '@mui/material'
 import Router from 'next/router'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
@@ -19,110 +37,122 @@ const FormParametrosFornecedor = () => {
             api.get(`${staticUrl}/fornecedor`).then(response => {
                 console.log('res: ', response.data)
                 setFields(response.data)
+                // reset(response.data)
             })
         }
         getData()
     }, [])
 
-    // const validationSchema = yup.object().shape(
-    //     fields.reduce((schema, field) => {
-    //         const fieldSchema = yup.string()
-    //         if (field.obrigatorio == 1) {
-    //             console.log('ENTROU IF')
-    //             fieldSchema.required(`${field.nomeColuna} é obrigatório`)
-    //         }
-    //         return {
-    //             ...schema,
-    //             [field.nomeColuna]: fieldSchema
-    //         }
-    //     }, {})
-    // )
-    // const validationSchema = yup.object().shape(
-    //     fields.reduce((schema, field) => {
-    //         const { nomeColuna, obrigatorio } = field
-
-    //         const fieldSchema = yup.string()
-
-    //         console.log('obrigatorio: ', obrigatorio)
-
-    //         if (obrigatorio == 1) {
-    //             fieldSchema.required(`${nomeColuna} é obrigatório`)
-    //         }
-
-    //         console.log('==> ', fieldSchema)
-
-    //         return {
-    //             ...schema,
-    //             [nomeColuna]: fieldSchema
-    //         }
-    //     }, {})
-    // )
-
-    // const validationSchema = yup.object().shape(
-    //     fields.reduce((schema, field) => {
-    //         return {
-    //             ...schema,
-    //             [field.nomeColuna]: yup.string().required(`${field.nomeColuna} é obrigatório`)
-    //         }
-    //     }, {})
-    // )
-    const validationSchema = yup.object().shape(
-        fields.reduce((schema, field) => {
-            if (field.obrigatorio == '1') {
-                // console.log('OBRIGATORIO')
-                schema[field.nomeColuna] = yup.string().required(`${field.nomeCampo} é obrigatório`)
-            } else {
-                schema[field.nomeColuna] = yup.string()
-            }
-
-            return schema
-        }, {})
-    )
-
     const {
         control,
         handleSubmit,
         formState: { errors }
-    } = useForm({
-        resolver: yupResolver(validationSchema)
-    })
+        // reset
+    } = useForm()
 
-    const onSubmit = data => {
-        console.log(data)
+    const onSubmit = async data => {
+        console.log('onSubmit:', data)
+        try {
+            await api.put(`${staticUrl}/fornecedor`, data).then(response => {
+                console.log('editado: ', response.data)
+            })
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     return (
         <Card>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <FormHeader
-                    btnCancel
-                    btnSave
-                    handleSubmit={() => handleSubmit(onSubmit)}
-                />
+                <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} />
                 <CardContent>
-                    <Grid container spacing={5}>
-                        {fields.map((field, index) => (
-                            <Grid key={index} item xs={12} md={3}>
-                                <FormControl fullWidth>
-                                    <Controller
-                                        name={field.nomeColuna}
-                                        control={control}
-                                        render={({ field: { value, onChange } }) => (
-                                            <TextField
-                                                value={value ?? ''}
-                                                label={field.nomeCampo}
-                                                onChange={onChange}
-                                                placeholder={field.nomeCampo}
-                                                aria-describedby='validation-schema-nome'
-                                                error={!!errors[field.nomeColuna]}
-                                                helperText={errors[field.nomeColuna]?.message}
+                    {/* Lista campos */}
+                    <List component='nav' aria-label='main mailbox'>
+                        <Grid container spacing={2}>
+                            {/* Cabeçalho */}
+                            <ListItem divider disablePadding>
+                                <ListItemButton>
+                                    <Grid item md={4}>
+                                        <Typography sx={{ fontSize: '16px', fontWeight: '500' }}>
+                                            Nome do Campo
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item md={3}>
+                                        <Typography sx={{ fontSize: '16px', fontWeight: '500' }}>
+                                            Mostra no Formulário
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item md={3}>
+                                        <Typography sx={{ fontSize: '16px', fontWeight: '500' }}>
+                                            Obrigatório
+                                        </Typography>
+                                    </Grid>
+                                </ListItemButton>
+                            </ListItem>
+
+                            {fields.map((field, index) => (
+                                <>
+                                    <ListItem divider disablePadding>
+                                        <ListItemButton>
+                                            {/* Hidden value */}
+                                            <Controller
+                                                name='parFornecedorID'
+                                                control={control}
+                                                defaultValue='hidden value'
+                                                render={({ field: { value, onChange } }) => (
+                                                    <input type='hidden' value={value} onChange={onChange} />
+                                                )}
                                             />
-                                        )}
-                                    />
-                                </FormControl>
-                            </Grid>
-                        ))}
-                    </Grid>
+
+                                            {/* Nome do campo */}
+                                            <Grid item md={4}>
+                                                {field.nomeCampo}
+                                            </Grid>
+
+                                            {/* Mostra no formulário */}
+                                            <Grid item md={3}>
+                                                <FormControl fullWidth>
+                                                    <Controller
+                                                        name={[field.nomeColuna]}
+                                                        control={control}
+                                                        render={({ field: { value, onChange } }) => (
+                                                            <FormControlLabel
+                                                                checked={value == '1' ? true : false}
+                                                                onChange={onChange}
+                                                                inputProps={{ 'aria-label': 'controlled' }}
+                                                                labelPlacement='left'
+                                                                sx={{ mr: 8 }}
+                                                                control={<Checkbox />}
+                                                            />
+                                                        )}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            {/* Obrigatório */}
+                                            {/* <Grid item md={3}>
+                                                <FormControl fullWidth>
+                                                    <Controller
+                                                        name={field.nomeColuna + '-obrigatorio'}
+                                                        control={control}
+                                                        render={({ field: { value, onChange } }) => (
+                                                            <FormControlLabel
+                                                                checked={value == '1' ? true : false}
+                                                                onChange={onChange}
+                                                                inputProps={{ 'aria-label': 'controlled' }}
+                                                                labelPlacement='left'
+                                                                sx={{ mr: 8 }}
+                                                                control={<Checkbox />}
+                                                            />
+                                                        )}
+                                                    />
+                                                </FormControl>
+                                            </Grid> */}
+                                        </ListItemButton>
+                                    </ListItem>
+                                </>
+                            ))}
+                        </Grid>
+                    </List>
                 </CardContent>
             </form>
         </Card>
