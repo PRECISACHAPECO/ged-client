@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -53,7 +54,7 @@ const FormParametrosFornecedor = () => {
     const onSubmit = async data => {
         console.log('onSubmit:', data)
         try {
-            await api.put(`${staticUrl}/fornecedor`, data).then(response => {
+            await api.put(`${staticUrl}/fornecedor`, data.fields).then(response => {
                 console.log('editado: ', response.data)
             })
         } catch (error) {
@@ -94,26 +95,23 @@ const FormParametrosFornecedor = () => {
                                 <>
                                     <ListItem divider disablePadding>
                                         <ListItemButton>
-                                            {/* Hidden value */}
                                             <Controller
-                                                name='parFornecedorID'
+                                                name={`fields.[${index}].parFornecedorID`}
                                                 control={control}
-                                                defaultValue='hidden value'
+                                                defaultValue={field.parFornecedorID}
                                                 render={({ field: { value, onChange } }) => (
                                                     <input type='hidden' value={value} onChange={onChange} />
                                                 )}
                                             />
 
-                                            {/* Nome do campo */}
                                             <Grid item md={4}>
                                                 {field.nomeCampo}
                                             </Grid>
 
-                                            {/* Mostra no formulário */}
                                             <Grid item md={3}>
                                                 <FormControl fullWidth>
                                                     <Controller
-                                                        name={[field.nomeColuna]}
+                                                        name={`fields.[${index}].mostra`}
                                                         control={control}
                                                         render={({ field: { value, onChange } }) => (
                                                             <FormControlLabel
@@ -128,11 +126,11 @@ const FormParametrosFornecedor = () => {
                                                     />
                                                 </FormControl>
                                             </Grid>
-                                            {/* Obrigatório */}
-                                            {/* <Grid item md={3}>
+                                            
+                                            <Grid item md={3}>
                                                 <FormControl fullWidth>
                                                     <Controller
-                                                        name={field.nomeColuna + '-obrigatorio'}
+                                                        name={`fields.[${index}].obrigatorio`}
                                                         control={control}
                                                         render={({ field: { value, onChange } }) => (
                                                             <FormControlLabel
@@ -146,7 +144,7 @@ const FormParametrosFornecedor = () => {
                                                         )}
                                                     />
                                                 </FormControl>
-                                            </Grid> */}
+                                            </Grid>
                                         </ListItemButton>
                                     </ListItem>
                                 </>
