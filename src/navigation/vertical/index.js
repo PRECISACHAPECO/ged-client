@@ -6,18 +6,6 @@ const navigation = () => {
             icon: 'mdi:home-outline',
         },
         {
-            title: 'Second Page',
-            path: '/second-page',
-            icon: 'mdi:email-outline',
-        },
-        {
-            path: '/acl',
-            action: 'read',
-            subject: 'acl-page',
-            title: 'Access Control',
-            icon: 'mdi:shield-outline',
-        },
-        {
             title: 'Cadastros',
             icon: 'mdi:home-outline',
             badgeContent: 'new',
@@ -45,6 +33,11 @@ const navigation = () => {
                 {
                     title: 'Formulários',
                     path: '/configuracoes/formularios',
+                    action: 'read',
+                },
+                {
+                    title: 'Unidade',
+                    path: '/configuracoes/unidade',
                     action: 'read',
                 },
             ]
