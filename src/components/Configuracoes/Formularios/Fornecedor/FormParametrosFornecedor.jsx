@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -45,6 +44,7 @@ const FormParametrosFornecedor = () => {
     }, [])
 
     const {
+        register,
         control,
         handleSubmit,
         formState: { errors }
@@ -95,13 +95,11 @@ const FormParametrosFornecedor = () => {
                                 <>
                                     <ListItem divider disablePadding>
                                         <ListItemButton>
-                                            <Controller
+                                            <input
+                                                type='hidden'
                                                 name={`fields.[${index}].parFornecedorID`}
-                                                control={control}
                                                 defaultValue={field.parFornecedorID}
-                                                render={({ field: { value, onChange } }) => (
-                                                    <input type='hidden' value={value} onChange={onChange} />
-                                                )}
+                                                {...register(`fields.[${index}].parFornecedorID`)}
                                             />
 
                                             <Grid item md={4}>
@@ -109,41 +107,19 @@ const FormParametrosFornecedor = () => {
                                             </Grid>
 
                                             <Grid item md={3}>
-                                                <FormControl fullWidth>
-                                                    <Controller
-                                                        name={`fields.[${index}].mostra`}
-                                                        control={control}
-                                                        render={({ field: { value, onChange } }) => (
-                                                            <FormControlLabel
-                                                                checked={value == '1' ? true : false}
-                                                                onChange={onChange}
-                                                                inputProps={{ 'aria-label': 'controlled' }}
-                                                                labelPlacement='left'
-                                                                sx={{ mr: 8 }}
-                                                                control={<Checkbox />}
-                                                            />
-                                                        )}
-                                                    />
-                                                </FormControl>
+                                                <Checkbox
+                                                    name={`fields.[${index}].mostra`}
+                                                    {...register(`fields.[${index}].mostra`)}
+                                                    defaultChecked={fields[index].mostra == 1 ? true : false}
+                                                />
                                             </Grid>
-                                            
+
                                             <Grid item md={3}>
-                                                <FormControl fullWidth>
-                                                    <Controller
-                                                        name={`fields.[${index}].obrigatorio`}
-                                                        control={control}
-                                                        render={({ field: { value, onChange } }) => (
-                                                            <FormControlLabel
-                                                                checked={value == '1' ? true : false}
-                                                                onChange={onChange}
-                                                                inputProps={{ 'aria-label': 'controlled' }}
-                                                                labelPlacement='left'
-                                                                sx={{ mr: 8 }}
-                                                                control={<Checkbox />}
-                                                            />
-                                                        )}
-                                                    />
-                                                </FormControl>
+                                                <Checkbox
+                                                    name={`fields.[${index}].obrigatorio`}
+                                                    {...register(`fields.[${index}].obrigatorio`)}
+                                                    defaultChecked={fields[index].obrigatorio == 1 ? true : false}
+                                                />
                                             </Grid>
                                         </ListItemButton>
                                     </ListItem>
