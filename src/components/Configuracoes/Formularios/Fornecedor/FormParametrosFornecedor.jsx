@@ -1,26 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    Checkbox,
-    Divider,
-    FormControl,
-    FormControlLabel,
-    Grid,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemSecondaryAction,
-    ListItemText,
-    Switch,
-    TextField,
-    Typography
-} from '@mui/material'
+import { useForm } from 'react-hook-form'
+import { Card, CardContent, Checkbox, Grid, List, ListItem, ListItemButton, Typography } from '@mui/material'
 import Router from 'next/router'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
@@ -37,7 +17,6 @@ const FormParametrosFornecedor = () => {
             api.get(`${staticUrl}/fornecedor`).then(response => {
                 console.log('res: ', response.data)
                 setFields(response.data)
-                // reset(response.data)
             })
         }
         getData()
@@ -45,9 +24,9 @@ const FormParametrosFornecedor = () => {
 
     const {
         register,
-        control,
         handleSubmit,
         formState: { errors }
+
         // reset
     } = useForm()
 

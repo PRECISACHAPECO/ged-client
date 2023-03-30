@@ -1,38 +1,46 @@
 import Router from 'next/router'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from 'src/configs/api'
-import { Card, CardContent, Grid, FormControl, TextField, FormControlLabel } from '@mui/material'
+import { Card, CardContent, Grid, FormControl, TextField, Typography } from '@mui/material'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { FormHelperText } from '@mui/material'
-import Switch from '@mui/material/Switch'
 import toast from 'react-hot-toast'
 import DialogForm from 'src/components/Dialog'
 import { formType } from 'src/configs/defaultConfigs'
 import FormHeader from '../../FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { toastMessage } from 'src/configs/defaultConfigs'
-import SwitchBase from '@mui/material/internal/SwitchBase'
-// ** CleaveJS Imports
-import { format } from 'date-fns'
-import Cleave from 'cleave.js'
-import 'cleave.js/dist/addons/cleave-phone.br'
+import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
+import { validationCNPJ } from 'src/configs/validations'
+import { formatDate } from 'src/configs/conversions'
 
 const FormUnidade = () => {
     const [open, setOpen] = useState(false)
+    const [data, setData] = useState('')
     const { id } = Router.query
     const router = Router
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
 
-    const dateFormat = 'dd/MM/yyyy'
-    const inputRef = useRef(null)
-
     const schema = yup.object().shape({
         nomeFantasia: yup.string().required(''),
         razaoSocial: yup.string().nullable(),
-        cnpj: yup.string().nullable(),
+        cnpj: yup
+            .string()
+            .nullable()
+
+            // .required()
+            .test('', '', function (value) {
+                const { errorCnpj } = this.parent
+                if (errorCnpj) {
+                    return false
+                }
+
+                return validationCNPJ(value)
+            }),
+        errorCnpj: yup.boolean().notRequired(),
         responsavel: yup.string().nullable(),
         email: yup.string().nullable(),
         dataCadastro: yup.string().nullable(),
@@ -52,15 +60,38 @@ const FormUnidade = () => {
         control,
         handleSubmit,
         formState: { errors },
-        reset
+        reset,
+        watch // Para ver o valor do campo
     } = useForm({
         // defaultValues: {},
         // mode: 'onChange',
         resolver: yupResolver(schema)
     })
 
+    // Função que busca o CEP
+    const handleCep = async cep => {
+        if (cep.length == 9) {
+            // Obter apenas núemros da string
+            const cepNumber = cep.replace(/\D/g, '')
+            api.get('https://viacep.com.br/ws/' + cepNumber + '/json/').then(response => {
+                reset({
+                    ...watch(),
+                    logradouro: response.data.logradouro,
+                    bairro: response.data.bairro,
+                    cidade: response.data.localidade,
+                    uf: response.data.uf
+                })
+            })
+        }
+    }
+
     // Função que atualiza os dados ou cria novo dependendo do tipo da rota
-    const onSubmit = async data => {
+    const onSubmit = async datas => {
+        const data = {
+            ...datas,
+            dataCadastro: formatDate(datas.dataCadastro, 'YYYY-MM-DD')
+        }
+
         try {
             if (type === 'new') {
                 await api.post(`${staticUrl}/novo`, data)
@@ -104,17 +135,12 @@ const FormUnidade = () => {
             try {
                 const response = await api.get(`${staticUrl}/${id}`)
                 reset(response.data)
+                setData(response.data)
             } catch (error) {
                 console.log(error)
             }
         }
         getData()
-        if (inputRef.current) {
-            new Cleave(inputRef.current, {
-                date: true,
-                datePattern: ['d', 'm', 'Y']
-            })
-        }
     }, [])
 
     return (
@@ -210,19 +236,21 @@ const FormUnidade = () => {
                                         control={control}
                                         render={({ field: { value, onChange } }) => (
                                             <TextField
-                                                value={value ?? ''}
+                                                value={cnpjMask(value ?? '')}
                                                 label='CNPJ'
                                                 onChange={onChange}
                                                 placeholder='CNPJ'
                                                 error={Boolean(errors.cnpj)}
                                                 aria-describedby='validation-schema-cnpj'
+                                                inputProps={{ maxLength: 18 }}
                                             />
                                         )}
                                     />
                                     {errors.cnpj && (
-                                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-cnpj'>
-                                            {errors.cnpj.message}
-                                        </FormHelperText>
+                                        <FormHelperText
+                                            sx={{ color: 'error.main' }}
+                                            id='validation-schema-cnpj'
+                                        ></FormHelperText>
                                     )}
                                 </FormControl>
                             </Grid>
@@ -278,45 +306,17 @@ const FormUnidade = () => {
                             <Grid item xs={12} md={4}>
                                 <FormControl fullWidth>
                                     <Controller
-                                        name='dataCadastro'
-                                        control={control}
-                                        render={({ field: { value, onChange } }) => (
-                                            <TextField
-                                                value={value ?? ''}
-                                                // value={value ? format(new Date(value), dateFormat) : ''}
-                                                label='Data de cadastro'
-                                                onChange={onChange}
-                                                inputRef={inputRef}
-                                                placeholder='Data de cadastro'
-                                                error={Boolean(errors.dataCadastro)}
-                                                aria-describedby='validation-schema-dataCadastro'
-                                            />
-                                        )}
-                                    />
-                                    {errors.dataCadastro && (
-                                        <FormHelperText
-                                            sx={{ color: 'error.main' }}
-                                            id='validation-schema-dataCadastro'
-                                        >
-                                            {errors.dataCadastro.message}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            </Grid>
-
-                            <Grid item xs={12} md={4}>
-                                <FormControl fullWidth>
-                                    <Controller
                                         name='telefone1'
                                         control={control}
                                         render={({ field: { value, onChange } }) => (
                                             <TextField
-                                                value={value ?? ''}
+                                                value={cellPhoneMask(value ?? '')}
                                                 label='Telefone 1'
                                                 onChange={onChange}
                                                 placeholder='Telefone 1'
                                                 error={Boolean(errors.telefone1)}
                                                 aria-describedby='validation-schema-telefone1'
+                                                inputProps={{ maxLength: 16 }}
                                             />
                                         )}
                                     />
@@ -335,12 +335,13 @@ const FormUnidade = () => {
                                         control={control}
                                         render={({ field: { value, onChange } }) => (
                                             <TextField
-                                                value={value ?? ''}
+                                                value={cellPhoneMask(value ?? '')}
                                                 label='Telefone 2'
                                                 onChange={onChange}
                                                 placeholder='Telefone 2'
                                                 error={Boolean(errors.telefone2)}
                                                 aria-describedby='validation-schema-telefone2'
+                                                inputProps={{ maxLength: 16 }}
                                             />
                                         )}
                                     />
@@ -359,12 +360,16 @@ const FormUnidade = () => {
                                         control={control}
                                         render={({ field: { value, onChange } }) => (
                                             <TextField
-                                                value={value ?? ''}
+                                                value={cepMask(value ?? '')}
                                                 label='CEP'
-                                                onChange={onChange}
+                                                onChange={e => {
+                                                    onChange(e)
+                                                    handleCep(e.target.value)
+                                                }}
                                                 placeholder='CEP'
                                                 error={Boolean(errors.cep)}
                                                 aria-describedby='validation-schema-cep'
+                                                inputProps={{ maxLength: 9 }}
                                             />
                                         )}
                                     />
@@ -479,12 +484,13 @@ const FormUnidade = () => {
                                         control={control}
                                         render={({ field: { value, onChange } }) => (
                                             <TextField
-                                                value={value ?? ''}
                                                 label='Cidade'
                                                 onChange={onChange}
                                                 placeholder='Cidade'
                                                 error={Boolean(errors.cidade)}
                                                 aria-describedby='validation-schema-cidade'
+                                                value={value ?? ''}
+                                                defaultValue='aaaaa'
                                             />
                                         )}
                                     />
@@ -503,12 +509,13 @@ const FormUnidade = () => {
                                         control={control}
                                         render={({ field: { value, onChange } }) => (
                                             <TextField
-                                                value={value ?? ''}
+                                                value={ufMask(value ?? '')}
                                                 label='UF'
                                                 onChange={onChange}
                                                 placeholder='UF'
                                                 error={Boolean(errors.uf)}
                                                 aria-describedby='validation-schema-uf'
+                                                inputProps={{ maxLength: 2 }}
                                             />
                                         )}
                                     />
@@ -523,6 +530,13 @@ const FormUnidade = () => {
                     </CardContent>
                 </form>
             </Card>
+            {type === 'edit' && (
+                <Typography variant='caption' sx={{ display: 'flex', justifyContent: 'end', p: 4 }}>
+                    Data de cadastro:
+                    {formatDate(data.dataCadastro, 'DD/MM/YYYY')}
+                </Typography>
+            )}
+
             <DialogForm
                 text='Tem certeza que deseja excluir?'
                 title='Excluir dado'
