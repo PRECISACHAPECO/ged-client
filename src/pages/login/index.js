@@ -104,6 +104,11 @@ const defaultValues = {
 	email: 'admin@materialize.com'
 }
 
+// const defaultValues = {
+// 	password: '12345',
+// 	email: 'jonatan@gmail.com'
+// }
+
 const LoginPage = () => {
 	const [rememberMe, setRememberMe] = useState(true)
 	const [showPassword, setShowPassword] = useState(false)

@@ -1,5 +1,6 @@
 // ** React Imports
 import { createContext, useEffect, useState } from 'react'
+import { api } from 'src/configs/api'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -26,6 +27,8 @@ const AuthProvider = ({ children }) => {
     // ** States
     const [user, setUser] = useState(defaultProvider.user)
     const [loading, setLoading] = useState(defaultProvider.loading)
+
+
 
 
     // ** Hooks
@@ -75,6 +78,7 @@ const AuthProvider = ({ children }) => {
                 params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
                 const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
                 router.replace(redirectURL)
+                router.push('/home')
             })
             .catch(err => {
                 if (errorCallback) errorCallback(err)
