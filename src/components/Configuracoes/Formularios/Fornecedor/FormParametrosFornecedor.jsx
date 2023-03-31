@@ -1,6 +1,19 @@
-import React, { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
+
 import { useForm } from 'react-hook-form'
-import { Box, Card, CardContent, Checkbox, Grid, List, ListItem, ListItemButton, Typography } from '@mui/material'
+import {
+    Box,
+    Card,
+    CardContent,
+    Checkbox,
+    FormControl,
+    Grid,
+    List,
+    ListItem,
+    ListItemButton,
+    TextField,
+    Typography
+} from '@mui/material'
 import Router from 'next/router'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
@@ -30,6 +43,7 @@ const FormParametrosFornecedor = () => {
                 }
             )
         }
+
         // Obtem os blocos do formulário
         const getBlocks = () => {
             api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, { headers: { 'function-name': 'getBlocks' } }).then(
@@ -47,25 +61,30 @@ const FormParametrosFornecedor = () => {
         register,
         handleSubmit,
         formState: { errors }
-        // reset
     } = useForm()
 
     const onSubmit = async data => {
-        console.log('onSubmit:', data)
-        try {
-            await api.put(`${staticUrl}/fornecedor/${user.unidadeID}`, data.headers).then(response => {
-                console.log('editado: ', response.data)
-            })
-        } catch (error) {
-            console.log(error)
+        const dataForm = {
+            header: data.headers,
+            blocks: data.blocks
         }
+
+        console.log('onSubmit: ', dataForm)
+
+        // try {
+        //     await api.put(`${staticUrl}/fornecedor/${user.unidadeID}`, data.headers).then(response => {
+        //         console.log('editado: ', response.data)
+        //     })
+        // } catch (error) {
+        //     console.log(error)
+        // }
     }
 
     return (
         <>
-            {/* Cabeçalho */}
-            <Card>
-                <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                {/* Cabeçalho */}
+                <Card>
                     <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} />
                     <CardContent>
                         {/* Lista campos */}
@@ -75,17 +94,17 @@ const FormParametrosFornecedor = () => {
                                 <ListItem divider disablePadding>
                                     <ListItemButton>
                                         <Grid item md={4}>
-                                            <Typography sx={{ fontSize: '16px', fontWeight: '500' }}>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
                                                 Nome do Campo
                                             </Typography>
                                         </Grid>
                                         <Grid item md={3}>
-                                            <Typography sx={{ fontSize: '16px', fontWeight: '500' }}>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
                                                 Mostra no Formulário
                                             </Typography>
                                         </Grid>
                                         <Grid item md={3}>
-                                            <Typography sx={{ fontSize: '16px', fontWeight: '500' }}>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
                                                 Obrigatório
                                             </Typography>
                                         </Grid>
@@ -129,24 +148,123 @@ const FormParametrosFornecedor = () => {
                             </Grid>
                         </List>
                     </CardContent>
-                </form>
-            </Card>
+                </Card>
 
-            {/* Blocos */}
-            <Box container>
-                <Card>
-                    <CardContent>
-                        <p>Opa...</p>
-                    </CardContent>
-                </Card>
-            </Box>
-            <Box container>
-                <Card>
-                    <CardContent>
-                        <p>Opa...</p>
-                    </CardContent>
-                </Card>
-            </Box>
+                {/* Blocos */}
+                {blocks &&
+                    blocks.map((block, index) => (
+                        <Card key={index} md={12} sx={{ mt: 4 }}>
+                            <CardContent>
+                                {/* Header */}
+                                <Grid container spacing={4}>
+                                    <Grid item xs={12} md={2}>
+                                        <TextField
+                                            label='Sequência'
+                                            placeholder='Sequência'
+                                            name={`blocks.[${index}].sequencia`}
+                                            defaultValue={block.dados.ordem}
+                                            {...register(`blocks.[${index}].sequencia`)}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} md={6}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label='Nome do Bloco'
+                                                placeholder='Nome do Bloco'
+                                                name={`blocks.[${index}].nome`}
+                                                defaultValue={block.dados.nome}
+                                                {...register(`blocks.[${index}].nome`)}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+
+                                    <Grid item xs={12} md={2}>
+                                        <Typography variant='body2'>Observação</Typography>
+                                        <Checkbox
+                                            name={`blocks.[${index}].obs`}
+                                            {...register(`blocks.[${index}].obs`)}
+                                            defaultChecked={blocks[index].dados.obs == 1 ? true : false}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} md={2}>
+                                        <Typography variant='body2'>Ativo</Typography>
+                                        <Checkbox
+                                            name={`blocks.[${index}].status`}
+                                            {...register(`blocks.[${index}].status`)}
+                                            defaultChecked={blocks[index].dados.status == 1 ? true : false}
+                                        />
+                                    </Grid>
+                                </Grid>
+
+                                <Grid container spacing={4}>
+                                    {/* Atividade */}
+                                    <Grid item xs={12} md={4}>
+                                        <ListItem disablePadding>
+                                            <ListItemButton>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Mostrar esse bloco se atividade for:
+                                                </Typography>
+                                            </ListItemButton>
+                                        </ListItem>
+                                        {block.atividades &&
+                                            block.atividades.map((atividade, indexAtividade) => (
+                                                <ListItem key={indexAtividade} disablePadding>
+                                                    <ListItemButton>
+                                                        <Grid item md={1}>
+                                                            <Checkbox
+                                                                name={`blocks.[${index}][${indexAtividade}].atividade`}
+                                                                {...register(
+                                                                    `blocks.[${index}][${indexAtividade}].atividade`
+                                                                )}
+                                                                defaultChecked={atividade.checked == 1 ? true : false}
+                                                            />
+                                                        </Grid>
+
+                                                        <Grid item md={11}>
+                                                            {atividade.nome}
+                                                        </Grid>
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            ))}
+                                    </Grid>
+
+                                    {/* Fabricante/Importador */}
+                                    <Grid item xs={12} md={4}>
+                                        <ListItem disablePadding>
+                                            <ListItemButton>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Mostrar esse bloco quando é:
+                                                </Typography>
+                                            </ListItemButton>
+                                        </ListItem>
+                                        {block.categrias &&
+                                            block.categrias.map((categoria, indexCategoria) => (
+                                                <ListItem key={indexCategoria} disablePadding>
+                                                    <ListItemButton>
+                                                        <Grid item md={1}>
+                                                            <Checkbox
+                                                                name={`blocks.[${index}][${indexCategoria}].categoria`}
+                                                                {...register(
+                                                                    `blocks.[${index}][${indexCategoria}].categoria`
+                                                                )}
+                                                                defaultChecked={categoria.checked == 1 ? true : false}
+                                                            />
+                                                        </Grid>
+
+                                                        <Grid item md={11}>
+                                                            {categoria.nome}
+                                                        </Grid>
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            ))}
+                                    </Grid>
+                                </Grid>
+                            </CardContent>
+                        </Card>
+                    ))}
+            </form>
         </>
     )
 }
