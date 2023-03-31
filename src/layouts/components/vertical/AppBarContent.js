@@ -9,14 +9,14 @@ import Icon from 'src/@core/components/icon'
 import ModeToggler from 'src/@core/layouts/components/shared-components/ModeToggler'
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
 
-import { FormatContext } from 'src/context/FormatContext'
+import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext } from 'react'
 import { AuthContext } from 'src/context/AuthContext'
 
 const AppBarContent = props => {
     // ** Props
     const { hidden, settings, saveSettings, toggleNavVisibility } = props
-    const { title } = useContext(FormatContext)
+    const { title } = useContext(ParametersContext)
     const { user } = useContext(AuthContext)
 
     return (
@@ -32,7 +32,7 @@ const AppBarContent = props => {
             </Box>
             <Box>
                 <h2 style={{ margin: "0px" }}>{title}</h2>
-                <small >{ JSON.stringify(user) }</small>
+                <small >{JSON.stringify(user)}</small>
             </Box>
             <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
                 <UserDropdown settings={settings} />

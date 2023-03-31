@@ -1,9 +1,9 @@
 import FormUnidade from 'src/components/Configuracoes/unidade/FormUnidade'
-import { FormatContext } from 'src/context/FormatContext'
+import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext, useEffect } from 'react'
 
 const UnidadeNovo = () => {
-    const { setTitle } = useContext(FormatContext)
+    const { setTitle } = useContext(ParametersContext)
 
     useEffect(() => {
         setTitle('Unidade')

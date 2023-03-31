@@ -5,12 +5,12 @@ import Typography from '@mui/material/Typography'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 
-import { FormatContext } from 'src/context/FormatContext'
+import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext, useEffect } from 'react'
 
 
 const Home = () => {
-    const { setTitle } = useContext(FormatContext)
+    const { setTitle } = useContext(ParametersContext)
 
     useEffect(() => {
         setTitle('Home')

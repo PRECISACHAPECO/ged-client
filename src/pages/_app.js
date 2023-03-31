@@ -32,7 +32,7 @@ import Spinner from 'src/@core/components/spinner'
 
 // ** Contexts
 import { AuthProvider } from 'src/context/AuthContext'
-import { FormatProvider } from 'src/context/FormatContext'
+import { ParametersProvider } from 'src/context/ParametersContext'
 import { SettingsConsumer, SettingsProvider } from 'src/@core/context/settingsContext'
 
 // ** Styled Components
@@ -105,7 +105,7 @@ const App = props => {
                 <meta name='keywords' content='Material Design, MUI, Admin Template, React Admin Template' />
                 <meta name='viewport' content='initial-scale=1, width=device-width' />
             </Head>
-            <FormatProvider>
+            <ParametersProvider>
                 <AuthProvider>
                     <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
                         <SettingsConsumer>
@@ -128,7 +128,7 @@ const App = props => {
                         </SettingsConsumer>
                     </SettingsProvider>
                 </AuthProvider>
-            </FormatProvider>
+            </ParametersProvider>
         </CacheProvider>
     )
 }

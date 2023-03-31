@@ -8,7 +8,7 @@ const navigation = () => {
         {
             title: 'Cadastros',
             icon: 'ph:note-pencil',
-            badgeContent: 'new',
+            // badgeContent: 'novo',
             badgeColor: 'error',
             children: [
                 {
@@ -29,7 +29,7 @@ const navigation = () => {
         {
             title: 'Configurações',
             icon: 'ph:gear',
-            badgeContent: 'new',
+            badgeContent: 'novo',
             badgeColor: 'error',
             children: [
                 {

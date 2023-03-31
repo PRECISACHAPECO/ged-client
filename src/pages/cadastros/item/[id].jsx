@@ -1,9 +1,9 @@
 import FormAtividade from 'src/components/Atividade/FormAtividade'
-import { FormatContext } from 'src/context/FormatContext'
+import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext, useEffect } from 'react'
 
 const AtividadeForm = () => {
-    const { setTitle } = useContext(FormatContext)
+    const { setTitle } = useContext(ParametersContext)
 
     useEffect(() => {
         setTitle('Atividade')

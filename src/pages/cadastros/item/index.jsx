@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
 import TableFilter from 'src/views/table/data-grid/TableFilter'
 import { CardContent } from '@mui/material'
-import { FormatContext } from 'src/context/FormatContext'
+import { ParametersContext } from 'src/context/ParametersContext'
 
 import Loading from 'src/components/Loading'
 
@@ -19,7 +19,7 @@ const Item = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
-    const { setTitle } = useContext(FormatContext)
+    const { setTitle } = useContext(ParametersContext)
 
     useEffect(() => {
         const getList = async () => {
