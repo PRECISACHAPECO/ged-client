@@ -3,6 +3,7 @@ import { useState, useEffect, useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import {
     Box,
+    Button,
     Card,
     CardContent,
     Checkbox,
@@ -20,6 +21,8 @@ import { api } from 'src/configs/api'
 import FormHeader from 'src/components/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
+
+// import Icon from 'src/@core/components/Icon'
 
 const FormParametrosFornecedor = () => {
     const { user } = useContext(AuthContext)
@@ -198,6 +201,7 @@ const FormParametrosFornecedor = () => {
                                     </Grid>
                                 </Grid>
 
+                                {/* Atividades e Importador/Fabricante */}
                                 <Grid container spacing={4}>
                                     {/* Atividade */}
                                     <Grid item xs={12} md={4}>
@@ -261,9 +265,154 @@ const FormParametrosFornecedor = () => {
                                             ))}
                                     </Grid>
                                 </Grid>
+
+                                {/* Itens */}
+                                <Grid container spacing={4} sx={{ mt: 4 }}>
+                                    {block.itens &&
+                                        block.itens.map((item, indexItem) => (
+                                            <>
+                                                <Grid item xs={12} md={1}>
+                                                    <FormControl fullWidth>
+                                                        <TextField
+                                                            label='Sequência'
+                                                            placeholder='Sequência'
+                                                            name={`blocks.[${index}].itens.[${indexItem}].sequencia`}
+                                                            defaultValue={item.ordem}
+                                                            {...register(
+                                                                `blocks.[${index}].itens.[${indexItem}].sequencia`
+                                                            )}
+                                                        />
+                                                    </FormControl>
+                                                </Grid>
+
+                                                <Grid item xs={12} md={6}>
+                                                    <FormControl fullWidth>
+                                                        <TextField
+                                                            label='Descrição'
+                                                            placeholder='Descrição'
+                                                            name={`blocks.[${index}].itens.[${indexItem}].nome`}
+                                                            defaultValue={item.nome}
+                                                            {...register(`blocks.[${index}].itens.[${indexItem}].nome`)}
+                                                        />
+                                                    </FormControl>
+                                                </Grid>
+
+                                                <Grid item xs={12} md={2}>
+                                                    <FormControl fullWidth>
+                                                        <TextField
+                                                            label='Alternativa'
+                                                            placeholder='Alternativa'
+                                                            name={`blocks.[${index}].itens.[${indexItem}].alternativa`}
+                                                            defaultValue={item.alternativa}
+                                                            {...register(
+                                                                `blocks.[${index}].itens.[${indexItem}].alternativa`
+                                                            )}
+                                                        />
+                                                    </FormControl>
+                                                </Grid>
+
+                                                <Grid item md={1}>
+                                                    <Typography variant='body2'>Obs</Typography>
+                                                    <Checkbox
+                                                        name={`blocks.[${index}][${indexItem}].obs`}
+                                                        {...register(`blocks.[${index}].itens.[${indexItem}].obs`)}
+                                                        defaultChecked={item.obs == 1 ? true : false}
+                                                    />
+                                                </Grid>
+
+                                                <Grid item md={1}>
+                                                    <Typography variant='body2'>Ativo</Typography>
+                                                    <Checkbox
+                                                        name={`blocks.[${index}][${indexItem}].status`}
+                                                        {...register(`blocks.[${index}].itens.[${indexItem}].status`)}
+                                                        defaultChecked={item.status == 1 ? true : false}
+                                                    />
+                                                </Grid>
+
+                                                <Grid item md={1}>
+                                                    <Typography variant='body2'>Obrigatório</Typography>
+                                                    <Checkbox
+                                                        name={`blocks.[${index}][${indexItem}].obrigatorio`}
+                                                        {...register(
+                                                            `blocks.[${index}].itens.[${indexItem}].obrigatorio`
+                                                        )}
+                                                        defaultChecked={item.obrigatorio == 1 ? true : false}
+                                                    />
+                                                </Grid>
+                                            </>
+                                        ))}
+
+                                    {/* Botão inserir item */}
+                                    <Grid item xs={12} md={12}>
+                                        <Button
+                                            variant='outlined'
+                                            color='primary'
+                                            onClick={() => {
+                                                const newBlock = [...blocks]
+                                                newBlock[index].itens.push({
+                                                    ordem: newBlock[index].itens.length + 1,
+                                                    nome: '',
+                                                    alternativa: '',
+                                                    obs: 1,
+                                                    status: 1,
+                                                    obrigatorio: 1
+                                                })
+                                                setBlocks(newBlock)
+                                            }}
+                                        >
+                                            Inserir Item
+                                        </Button>
+                                    </Grid>
+                                </Grid>
                             </CardContent>
                         </Card>
                     ))}
+
+                {/* Botão inserir bloco */}
+                <Grid item xs={12} md={12} sx={{ mt: 4 }}>
+                    <Button
+                        variant='outlined'
+                        color='primary'
+                        onClick={() => {
+                            const newBlock = [...blocks]
+                            newBlock.push({
+                                dados: {
+                                    ordem: newBlock.length + 1,
+                                    nome: '',
+                                    status: 1
+                                },
+                                atividades: [
+                                    // Obter atividades do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
+                                    ...blocks[0].atividades.map(atividade => ({
+                                        ...atividade,
+                                        checked: 0
+                                    }))
+                                ],
+                                categrias: [
+                                    // Obter categorias do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
+                                    ...blocks[0].categrias.map(categoria => ({
+                                        ...categoria,
+                                        checked: 0
+                                    }))
+                                ],
+                                itens: [
+                                    // Obter primeiro item do primeiro bloco
+                                    {
+                                        ordem: 1,
+                                        nome: '',
+                                        alternativa: '',
+                                        obs: 1,
+                                        status: 1,
+                                        obrigatorio: 1
+                                    }
+                                ]
+                            })
+                            setBlocks(newBlock)
+                        }}
+                    >
+                        Inserir Bloco
+                    </Button>
+                </Grid>
             </form>
         </>
     )
