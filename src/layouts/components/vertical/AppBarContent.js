@@ -11,11 +11,13 @@ import UserDropdown from 'src/@core/layouts/components/shared-components/UserDro
 
 import { FormatContext } from 'src/context/FormatContext'
 import { useContext } from 'react'
+import { AuthContext } from 'src/context/AuthContext'
 
 const AppBarContent = props => {
     // ** Props
     const { hidden, settings, saveSettings, toggleNavVisibility } = props
     const { title } = useContext(FormatContext)
+    const { user } = useContext(AuthContext)
 
     return (
         <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -30,6 +32,7 @@ const AppBarContent = props => {
             </Box>
             <Box>
                 <h2 style={{ margin: "0px" }}>{title}</h2>
+                <small >{ JSON.stringify(user) }</small>
             </Box>
             <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
                 <UserDropdown settings={settings} />
