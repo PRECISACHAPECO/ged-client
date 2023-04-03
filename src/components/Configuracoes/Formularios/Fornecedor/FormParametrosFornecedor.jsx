@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react'
 
 import { useForm } from 'react-hook-form'
 import {
+    Autocomplete,
     Box,
     Button,
     Card,
@@ -26,13 +27,18 @@ import { AuthContext } from 'src/context/AuthContext'
 
 const FormParametrosFornecedor = () => {
     const { user } = useContext(AuthContext)
-
+    const [aux, setValue] = useState(null)
     const [headers, setHeaders] = useState([])
+    const [optionsItens, setOptionsItens] = useState([])
     const [blocks, setBlocks] = useState([])
+    const [orientacoes, setOrientacoes] = useState([])
 
     const router = Router
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const { setTitle } = useContext(ParametersContext)
+
+    const top100Films = [{ title: 'forrest' }, { title: 'batman' }, { title: 'avatar' }]
+    const selectedOptions = [{ nome: 'É realizada conscientização dos colaboradores sobre higiene pessoal?' }]
 
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
@@ -47,6 +53,16 @@ const FormParametrosFornecedor = () => {
             )
         }
 
+        // Obtem as opções pra seleção da listagem dos selects de itens e alternativas
+        const getOptionsItens = () => {
+            api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, {
+                headers: { 'function-name': 'getOptionsItens' }
+            }).then(response => {
+                console.log('getOptionsItens: ', response.data)
+                setOptionsItens(response.data)
+            })
+        }
+
         // Obtem os blocos do formulário
         const getBlocks = () => {
             api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, { headers: { 'function-name': 'getBlocks' } }).then(
@@ -56,11 +72,25 @@ const FormParametrosFornecedor = () => {
                 }
             )
         }
+
+        // Obtem os blocos do formulário
+        const getOrientacoes = () => {
+            api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, {
+                headers: { 'function-name': 'getOrientacoes' }
+            }).then(response => {
+                console.log('getOrientacoes: ', response.data)
+                setOrientacoes(response.data)
+            })
+        }
+
         getHeader()
+        getOptionsItens()
         getBlocks()
+        getOrientacoes()
     }, [])
 
     const {
+        reset,
         register,
         handleSubmit,
         formState: { errors }
@@ -287,19 +317,49 @@ const FormParametrosFornecedor = () => {
 
                                                 <Grid item xs={12} md={6}>
                                                     <FormControl fullWidth>
-                                                        <TextField
-                                                            label='Descrição'
-                                                            placeholder='Descrição'
-                                                            name={`blocks.[${index}].itens.[${indexItem}].nome`}
-                                                            defaultValue={item.nome}
-                                                            {...register(`blocks.[${index}].itens.[${indexItem}].nome`)}
-                                                        />
+                                                        {console.log('Tem item: ', blocks[index].itens[indexItem].nome)}
+                                                        {blocks[index].itens[indexItem].nome !== '' && (
+                                                            <Autocomplete
+                                                                options={optionsItens.itens}
+                                                                defaultValue={blocks[index].itens[indexItem]}
+                                                                id='autocomplete-outlined'
+                                                                getOptionLabel={option => option.nome || ''}
+                                                                renderInput={params => (
+                                                                    <TextField
+                                                                        {...params}
+                                                                        name={`blocks.[${index}].itens.[${indexItem}].nome`}
+                                                                        label='Item'
+                                                                        placeholder='Item'
+                                                                        {...register(
+                                                                            `blocks.[${index}].itens.[${indexItem}].nome`
+                                                                        )}
+                                                                    />
+                                                                )}
+                                                            />
+                                                        )}
                                                     </FormControl>
                                                 </Grid>
 
                                                 <Grid item xs={12} md={2}>
                                                     <FormControl fullWidth>
-                                                        <TextField
+                                                        <Autocomplete
+                                                            options={optionsItens.alternativas}
+                                                            defaultValue={blocks[index].itens[indexItem]}
+                                                            id='autocomplete-outlined'
+                                                            getOptionLabel={option => option.alternativa || ''}
+                                                            renderInput={params => (
+                                                                <TextField
+                                                                    {...params}
+                                                                    name={`blocks.[${index}].itens.[${indexItem}].alternativa`}
+                                                                    label='Alternativa'
+                                                                    placeholder='Alternativa'
+                                                                    {...register(
+                                                                        `blocks.[${index}].itens.[${indexItem}].alternativa`
+                                                                    )}
+                                                                />
+                                                            )}
+                                                        />
+                                                        {/* <TextField
                                                             label='Alternativa'
                                                             placeholder='Alternativa'
                                                             name={`blocks.[${index}].itens.[${indexItem}].alternativa`}
@@ -307,7 +367,7 @@ const FormParametrosFornecedor = () => {
                                                             {...register(
                                                                 `blocks.[${index}].itens.[${indexItem}].alternativa`
                                                             )}
-                                                        />
+                                                        /> */}
                                                     </FormControl>
                                                 </Grid>
 
@@ -348,11 +408,10 @@ const FormParametrosFornecedor = () => {
                                             variant='outlined'
                                             color='primary'
                                             onClick={() => {
+                                                // Inserir novo item com novo autoComplete
                                                 const newBlock = [...blocks]
                                                 newBlock[index].itens.push({
                                                     ordem: newBlock[index].itens.length + 1,
-                                                    nome: '',
-                                                    alternativa: '',
                                                     obs: 1,
                                                     status: 1,
                                                     obrigatorio: 1
@@ -399,8 +458,6 @@ const FormParametrosFornecedor = () => {
                                     // Obter primeiro item do primeiro bloco
                                     {
                                         ordem: 1,
-                                        nome: '',
-                                        alternativa: '',
                                         obs: 1,
                                         status: 1,
                                         obrigatorio: 1
@@ -413,6 +470,26 @@ const FormParametrosFornecedor = () => {
                         Inserir Bloco
                     </Button>
                 </Grid>
+
+                {/* Orientações */}
+                <Card md={12} sx={{ mt: 4 }}>
+                    <CardContent>
+                        <Grid container spacing={4}>
+                            <Grid item xs={12} md={12}>
+                                <TextField
+                                    label='Orientações'
+                                    placeholder='Orientações'
+                                    rows={4}
+                                    multiline
+                                    fullWidth
+                                    name={`orientacoes`}
+                                    defaultValue={orientacoes}
+                                    {...register(`orientacoes`)}
+                                />
+                            </Grid>
+                        </Grid>
+                    </CardContent>
+                </Card>
             </form>
         </>
     )

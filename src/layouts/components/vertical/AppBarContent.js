@@ -32,6 +32,7 @@ const AppBarContent = props => {
             </Box>
             <Box>
                 <h2 style={{ margin: "0px" }}>{title}</h2>
+
                 {/* <small >{JSON.stringify(user)}</small> */}
             </Box>
             <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
