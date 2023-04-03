@@ -22,16 +22,18 @@ import { api } from 'src/configs/api'
 import FormHeader from 'src/components/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
+import toast from 'react-hot-toast'
+import { toastMessage } from 'src/configs/defaultConfigs'
 
 // import Icon from 'src/@core/components/Icon'
 
 const FormParametrosFornecedor = () => {
     const { user } = useContext(AuthContext)
-    const [aux, setValue] = useState(null)
     const [headers, setHeaders] = useState([])
     const [optionsItens, setOptionsItens] = useState([])
     const [blocks, setBlocks] = useState([])
     const [orientacoes, setOrientacoes] = useState()
+    const [refresh, setRefresh] = useState(false)
 
     const router = Router
     const staticUrl = backRoute(router.pathname) // Url sem ID
@@ -39,6 +41,32 @@ const FormParametrosFornecedor = () => {
 
     const top100Films = [{ title: 'forrest' }, { title: 'batman' }, { title: 'avatar' }]
     const selectedOptions = [{ nome: 'É realizada conscientização dos colaboradores sobre higiene pessoal?' }]
+
+    const {
+        setValue,
+        register,
+        handleSubmit,
+        formState: { errors }
+    } = useForm()
+
+    const onSubmit = async data => {
+        const dataForm = {
+            header: data.headers,
+            blocks: data.blocks,
+            orientacoes: data.orientacoes
+        }
+
+        console.log('onSubmit: ', dataForm)
+
+        try {
+            await api.put(`${staticUrl}/fornecedor/${user.unidadeID}`, dataForm).then(response => {
+                toast.success(toastMessage.successUpdate)
+                setRefresh(!refresh)
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
@@ -82,38 +110,12 @@ const FormParametrosFornecedor = () => {
                 setOrientacoes(response.data.obs)
             })
         }
-        console.log('orientaçoes', orientacoes)
 
         getHeader()
         getOptionsItens()
         getBlocks()
         getOrientacoes()
     }, [])
-
-    const {
-        reset,
-        register,
-        handleSubmit,
-        formState: { errors }
-    } = useForm()
-
-    const onSubmit = async data => {
-        const dataForm = {
-            header: data.headers,
-            blocks: data.blocks,
-            orientacoes: data.orientacoes
-        }
-
-        console.log('onSubmit: ', dataForm)
-
-        // try {
-        //     await api.put(`${staticUrl}/fornecedor/${user.unidadeID}`, data.headers).then(response => {
-        //         console.log('editado: ', response.data)
-        //     })
-        // } catch (error) {
-        //     console.log(error)
-        // }
-    }
 
     return (
         <>
@@ -148,7 +150,7 @@ const FormParametrosFornecedor = () => {
 
                                 {headers.map((header, index) => (
                                     <>
-                                        <ListItem divider disablePadding>
+                                        <ListItem key={index} divider disablePadding>
                                             <ListItemButton>
                                                 <input
                                                     type='hidden'
@@ -191,6 +193,13 @@ const FormParametrosFornecedor = () => {
                         <Card key={index} md={12} sx={{ mt: 4 }}>
                             <CardContent>
                                 {/* Header */}
+                                <input
+                                    type='hidden'
+                                    name={`blocks.[${index}].parFornecedorBlocoID`}
+                                    defaultValue={block.dados.parFornecedorBlocoID}
+                                    {...register(`blocks.[${index}].parFornecedorBlocoID`)}
+                                />
+
                                 <Grid container spacing={4}>
                                     <Grid item xs={12} md={2}>
                                         <TextField
@@ -248,11 +257,20 @@ const FormParametrosFornecedor = () => {
                                             block.atividades.map((atividade, indexAtividade) => (
                                                 <ListItem key={indexAtividade} disablePadding>
                                                     <ListItemButton>
+                                                        <input
+                                                            type='hidden'
+                                                            name={`blocks.[${index}].atividades[${indexAtividade}].atividadeID`}
+                                                            defaultValue={atividade.atividadeID}
+                                                            {...register(
+                                                                `blocks.[${index}].atividades[${indexAtividade}].atividadeID`
+                                                            )}
+                                                        />
+
                                                         <Grid item md={1}>
                                                             <Checkbox
-                                                                name={`blocks.[${index}][${indexAtividade}].atividade`}
+                                                                name={`blocks.[${index}].atividades[${indexAtividade}].checked`}
                                                                 {...register(
-                                                                    `blocks.[${index}][${indexAtividade}].atividade`
+                                                                    `blocks.[${index}].atividades[${indexAtividade}].checked`
                                                                 )}
                                                                 defaultChecked={atividade.checked == 1 ? true : false}
                                                             />
@@ -275,15 +293,24 @@ const FormParametrosFornecedor = () => {
                                                 </Typography>
                                             </ListItemButton>
                                         </ListItem>
-                                        {block.categrias &&
-                                            block.categrias.map((categoria, indexCategoria) => (
+                                        {block.categorias &&
+                                            block.categorias.map((categoria, indexCategoria) => (
                                                 <ListItem key={indexCategoria} disablePadding>
                                                     <ListItemButton>
+                                                        <input
+                                                            type='hidden'
+                                                            name={`blocks.[${index}].categorias[${indexCategoria}].categoriaID`}
+                                                            defaultValue={categoria.categoriaID}
+                                                            {...register(
+                                                                `blocks.[${index}].categorias[${indexCategoria}].categoriaID`
+                                                            )}
+                                                        />
+
                                                         <Grid item md={1}>
                                                             <Checkbox
-                                                                name={`blocks.[${index}][${indexCategoria}].categoria`}
+                                                                name={`blocks.[${index}].categorias[${indexCategoria}].checked`}
                                                                 {...register(
-                                                                    `blocks.[${index}][${indexCategoria}].categoria`
+                                                                    `blocks.[${index}].categorias[${indexCategoria}].checked`
                                                                 )}
                                                                 defaultChecked={categoria.checked == 1 ? true : false}
                                                             />
@@ -303,6 +330,15 @@ const FormParametrosFornecedor = () => {
                                     {block.itens &&
                                         block.itens.map((item, indexItem) => (
                                             <>
+                                                <input
+                                                    type='hidden'
+                                                    name={`blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`}
+                                                    defaultValue={item.parFornecedorBlocoItemID}
+                                                    {...register(
+                                                        `blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`
+                                                    )}
+                                                />
+
                                                 <Grid item xs={12} md={1}>
                                                     <FormControl fullWidth>
                                                         <TextField
@@ -325,6 +361,12 @@ const FormParametrosFornecedor = () => {
                                                                 defaultValue={blocks[index].itens[indexItem]}
                                                                 id='autocomplete-outlined'
                                                                 getOptionLabel={option => option.nome || ''}
+                                                                onChange={(event, value) => {
+                                                                    setValue(
+                                                                        `blocks.[${index}].itens.[${indexItem}].itemID`,
+                                                                        value?.itemID
+                                                                    )
+                                                                }}
                                                                 renderInput={params => (
                                                                     <TextField
                                                                         {...params}
@@ -348,6 +390,12 @@ const FormParametrosFornecedor = () => {
                                                             defaultValue={blocks[index].itens[indexItem]}
                                                             id='autocomplete-outlined'
                                                             getOptionLabel={option => option.alternativa || ''}
+                                                            onChange={(event, value) => {
+                                                                setValue(
+                                                                    `blocks.[${index}].itens.[${indexItem}].alternativaID`,
+                                                                    value?.alternativaID
+                                                                )
+                                                            }}
                                                             renderInput={params => (
                                                                 <TextField
                                                                     {...params}
@@ -360,15 +408,6 @@ const FormParametrosFornecedor = () => {
                                                                 />
                                                             )}
                                                         />
-                                                        {/* <TextField
-                                                            label='Alternativa'
-                                                            placeholder='Alternativa'
-                                                            name={`blocks.[${index}].itens.[${indexItem}].alternativa`}
-                                                            defaultValue={item.alternativa}
-                                                            {...register(
-                                                                `blocks.[${index}].itens.[${indexItem}].alternativa`
-                                                            )}
-                                                        /> */}
                                                     </FormControl>
                                                 </Grid>
 
@@ -448,9 +487,9 @@ const FormParametrosFornecedor = () => {
                                         checked: 0
                                     }))
                                 ],
-                                categrias: [
+                                categorias: [
                                     // Obter categorias do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
-                                    ...blocks[0].categrias.map(categoria => ({
+                                    ...blocks[0].categorias.map(categoria => ({
                                         ...categoria,
                                         checked: 0
                                     }))
@@ -484,7 +523,7 @@ const FormParametrosFornecedor = () => {
                                     multiline
                                     fullWidth
                                     name={`orientacoes`}
-                                    defaultValue={orientacoes}
+                                    defaultValue={orientacoes ?? ''}
                                     {...register(`orientacoes`)}
                                 />
                             </Grid>
