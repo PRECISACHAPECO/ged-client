@@ -31,7 +31,7 @@ const FormParametrosFornecedor = () => {
     const [headers, setHeaders] = useState([])
     const [optionsItens, setOptionsItens] = useState([])
     const [blocks, setBlocks] = useState([])
-    const [orientacoes, setOrientacoes] = useState([])
+    const [orientacoes, setOrientacoes] = useState()
 
     const router = Router
     const staticUrl = backRoute(router.pathname) // Url sem ID
@@ -79,9 +79,10 @@ const FormParametrosFornecedor = () => {
                 headers: { 'function-name': 'getOrientacoes' }
             }).then(response => {
                 console.log('getOrientacoes: ', response.data)
-                setOrientacoes(response.data)
+                setOrientacoes(response.data.obs)
             })
         }
+        console.log('orientaçoes', orientacoes)
 
         getHeader()
         getOptionsItens()
@@ -99,7 +100,8 @@ const FormParametrosFornecedor = () => {
     const onSubmit = async data => {
         const dataForm = {
             header: data.headers,
-            blocks: data.blocks
+            blocks: data.blocks,
+            orientacoes: data.orientacoes
         }
 
         console.log('onSubmit: ', dataForm)
@@ -317,7 +319,6 @@ const FormParametrosFornecedor = () => {
 
                                                 <Grid item xs={12} md={6}>
                                                     <FormControl fullWidth>
-                                                        {console.log('Tem item: ', blocks[index].itens[indexItem].nome)}
                                                         {blocks[index].itens[indexItem].nome !== '' && (
                                                             <Autocomplete
                                                                 options={optionsItens.itens}
