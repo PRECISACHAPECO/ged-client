@@ -5,12 +5,29 @@ const navigation = () => {
             path: '/home',
             icon: 'mdi:home-outline',
         },
+
+        {
+            title: 'POP-01',
+            icon: 'material-symbols:filter-list-rounded',
+
+            badgeContent: 'novo',
+            badgeColor: 'error',
+            children: [
+                {
+                    icon: 'mdi:truck-fast-outline',
+                    title: 'Fornecedor',
+                    path: '/pop01/fornecedor',
+                    action: 'read',
+                },
+            ]
+        },
+
         {
             title: 'Cadastros',
             icon: 'ph:note-pencil',
 
             // badgeContent: 'novo',
-            badgeColor: 'error',
+            // badgeColor: 'error',
             children: [
                 {
                     icon: 'fluent:food-grains-24-regular',
@@ -30,8 +47,8 @@ const navigation = () => {
         {
             title: 'Configurações',
             icon: 'ph:gear',
-            badgeContent: 'novo',
-            badgeColor: 'error',
+            // badgeContent: 'novo',
+            // badgeColor: 'error',
             children: [
                 {
                     icon: 'fluent:form-24-regular',
