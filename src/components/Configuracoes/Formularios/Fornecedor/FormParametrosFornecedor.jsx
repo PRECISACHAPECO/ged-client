@@ -3,7 +3,6 @@ import { useState, useEffect, useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import {
     Autocomplete,
-    Box,
     Button,
     Card,
     CardContent,
@@ -24,23 +23,20 @@ import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
 import toast from 'react-hot-toast'
 import { toastMessage } from 'src/configs/defaultConfigs'
-
-// import Icon from 'src/@core/components/Icon'
+import Loading from 'src/components/Loading'
+import Icon from 'src/@core/components/icon'
 
 const FormParametrosFornecedor = () => {
     const { user } = useContext(AuthContext)
-    const [headers, setHeaders] = useState([])
+    const [headers, setHeaders] = useState()
     const [optionsItens, setOptionsItens] = useState([])
-    const [blocks, setBlocks] = useState([])
+    const [blocks, setBlocks] = useState()
     const [orientacoes, setOrientacoes] = useState()
-    const [refresh, setRefresh] = useState(false)
+    const [loading, setLoading] = useState()
 
     const router = Router
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const { setTitle } = useContext(ParametersContext)
-
-    const top100Films = [{ title: 'forrest' }, { title: 'batman' }, { title: 'avatar' }]
-    const selectedOptions = [{ nome: 'É realizada conscientização dos colaboradores sobre higiene pessoal?' }]
 
     const {
         setValue,
@@ -56,16 +52,63 @@ const FormParametrosFornecedor = () => {
             orientacoes: data.orientacoes
         }
 
-        console.log('onSubmit: ', dataForm)
-
+        // console.log('onSubmit: ', dataForm)
+        setLoading(true)
         try {
             await api.put(`${staticUrl}/fornecedor/${user.unidadeID}`, dataForm).then(response => {
                 toast.success(toastMessage.successUpdate)
-                setRefresh(!refresh)
+                setLoading(false)
             })
         } catch (error) {
             console.log(error)
+            setLoading(false)
         }
+    }
+
+    const addItem = index => {
+        const newBlock = [...blocks]
+        newBlock[index].itens.push({
+            ordem: newBlock[index].itens.length + 1,
+            obs: 1,
+            status: 1,
+            obrigatorio: 1
+        })
+        setBlocks(newBlock)
+    }
+
+    const addBlock = () => {
+        const newBlock = [...blocks]
+        newBlock.push({
+            dados: {
+                ordem: newBlock.length + 1,
+                nome: '',
+                status: 1
+            },
+            atividades: [
+                // Obter atividades do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
+                ...blocks[0].atividades.map(atividade => ({
+                    ...atividade,
+                    checked: 0
+                }))
+            ],
+            categorias: [
+                // Obter categorias do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
+                ...blocks[0].categorias.map(categoria => ({
+                    ...categoria,
+                    checked: 0
+                }))
+            ],
+            itens: [
+                // Obter primeiro item do primeiro bloco
+                {
+                    ordem: 1,
+                    obs: 1,
+                    status: 1,
+                    obrigatorio: 1
+                }
+            ]
+        })
+        setBlocks(newBlock)
     }
 
     useEffect(() => {
@@ -119,75 +162,81 @@ const FormParametrosFornecedor = () => {
 
     return (
         <>
+            {loading && <Loading />}
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Cabeçalho */}
-                <Card>
-                    <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} />
-                    <CardContent>
-                        {/* Lista campos */}
-                        <List component='nav' aria-label='main mailbox'>
-                            <Grid container spacing={2}>
-                                {/* Cabeçalho */}
-                                <ListItem divider disablePadding>
-                                    <ListItemButton>
-                                        <Grid item md={4}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Nome do Campo
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item md={3}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Mostra no Formulário
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item md={3}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Obrigatório
-                                            </Typography>
-                                        </Grid>
-                                    </ListItemButton>
-                                </ListItem>
+                {headers && (
+                    <Card>
+                        <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} />
+                        <CardContent>
+                            {/* Lista campos */}
+                            <List component='nav' aria-label='main mailbox'>
+                                <Grid container spacing={2}>
+                                    {/* Cabeçalho */}
+                                    <ListItem divider disablePadding>
+                                        <ListItemButton>
+                                            <Grid item md={4}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Nome do Campo
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item md={3}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Mostra no Formulário
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item md={3}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Obrigatório
+                                                </Typography>
+                                            </Grid>
+                                        </ListItemButton>
+                                    </ListItem>
 
-                                {headers.map((header, index) => (
-                                    <>
-                                        <ListItem key={index} divider disablePadding>
-                                            <ListItemButton>
-                                                <input
-                                                    type='hidden'
-                                                    name={`headers.[${index}].parFornecedorID`}
-                                                    defaultValue={header.parFornecedorID}
-                                                    {...register(`headers.[${index}].parFornecedorID`)}
-                                                />
-
-                                                <Grid item md={4}>
-                                                    {header.nomeCampo}
-                                                </Grid>
-
-                                                <Grid item md={3}>
-                                                    <Checkbox
-                                                        name={`headers.[${index}].mostra`}
-                                                        {...register(`headers.[${index}].mostra`)}
-                                                        defaultChecked={headers[index].mostra == 1 ? true : false}
+                                    {headers.map((header, index) => (
+                                        <>
+                                            <ListItem key={index} divider disablePadding>
+                                                <ListItemButton>
+                                                    <input
+                                                        type='hidden'
+                                                        name={`headers.[${index}].parFornecedorID`}
+                                                        defaultValue={header.parFornecedorID}
+                                                        {...register(`headers.[${index}].parFornecedorID`)}
                                                     />
-                                                </Grid>
 
-                                                <Grid item md={3}>
-                                                    <Checkbox
-                                                        name={`headers.[${index}].obrigatorio`}
-                                                        {...register(`headers.[${index}].obrigatorio`)}
-                                                        defaultChecked={headers[index].obrigatorio == 1 ? true : false}
-                                                    />
-                                                </Grid>
-                                            </ListItemButton>
-                                        </ListItem>
-                                    </>
-                                ))}
-                            </Grid>
-                        </List>
-                    </CardContent>
-                </Card>
+                                                    <Grid item md={4}>
+                                                        {header.nomeCampo}
+                                                    </Grid>
+
+                                                    <Grid item md={3}>
+                                                        <Checkbox
+                                                            name={`headers.[${index}].mostra`}
+                                                            {...register(`headers.[${index}].mostra`)}
+                                                            defaultChecked={headers[index].mostra == 1 ? true : false}
+                                                        />
+                                                    </Grid>
+
+                                                    <Grid item md={3}>
+                                                        <Checkbox
+                                                            name={`headers.[${index}].obrigatorio`}
+                                                            {...register(`headers.[${index}].obrigatorio`)}
+                                                            defaultChecked={
+                                                                headers[index].obrigatorio == 1 ? true : false
+                                                            }
+                                                        />
+                                                    </Grid>
+                                                </ListItemButton>
+                                            </ListItem>
+                                        </>
+                                    ))}
+                                </Grid>
+                            </List>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Blocos */}
+                {!blocks && <Loading />}
                 {blocks &&
                     blocks.map((block, index) => (
                         <Card key={index} md={12} sx={{ mt: 4 }}>
@@ -224,20 +273,20 @@ const FormParametrosFornecedor = () => {
                                     </Grid>
 
                                     <Grid item xs={12} md={2}>
-                                        <Typography variant='body2'>Observação</Typography>
-                                        <Checkbox
-                                            name={`blocks.[${index}].obs`}
-                                            {...register(`blocks.[${index}].obs`)}
-                                            defaultChecked={blocks[index].dados.obs == 1 ? true : false}
-                                        />
-                                    </Grid>
-
-                                    <Grid item xs={12} md={2}>
                                         <Typography variant='body2'>Ativo</Typography>
                                         <Checkbox
                                             name={`blocks.[${index}].status`}
                                             {...register(`blocks.[${index}].status`)}
                                             defaultChecked={blocks[index].dados.status == 1 ? true : false}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} md={2}>
+                                        <Typography variant='body2'>Observação</Typography>
+                                        <Checkbox
+                                            name={`blocks.[${index}].obs`}
+                                            {...register(`blocks.[${index}].obs`)}
+                                            defaultChecked={blocks[index].dados.obs == 1 ? true : false}
                                         />
                                     </Grid>
                                 </Grid>
@@ -412,20 +461,22 @@ const FormParametrosFornecedor = () => {
                                                 </Grid>
 
                                                 <Grid item md={1}>
-                                                    <Typography variant='body2'>Obs</Typography>
-                                                    <Checkbox
-                                                        name={`blocks.[${index}][${indexItem}].obs`}
-                                                        {...register(`blocks.[${index}].itens.[${indexItem}].obs`)}
-                                                        defaultChecked={item.obs == 1 ? true : false}
-                                                    />
-                                                </Grid>
-
-                                                <Grid item md={1}>
                                                     <Typography variant='body2'>Ativo</Typography>
                                                     <Checkbox
                                                         name={`blocks.[${index}][${indexItem}].status`}
                                                         {...register(`blocks.[${index}].itens.[${indexItem}].status`)}
                                                         defaultChecked={item.status == 1 ? true : false}
+                                                    />
+                                                </Grid>
+
+                                                <Grid item md={1}>
+                                                    <Typography variant='body2'>Obs</Typography>
+                                                    <Checkbox
+                                                        name={`blocks.[${index}][${indexItem}].obs`}
+                                                        // disabled checkbox se blocks.[${index}][${indexItem}].status for false
+                                                        disabled={item.status == 0 ? true : false}
+                                                        {...register(`blocks.[${index}].itens.[${indexItem}].obs`)}
+                                                        defaultChecked={item.obs == 1 ? true : false}
                                                     />
                                                 </Grid>
 
@@ -447,16 +498,9 @@ const FormParametrosFornecedor = () => {
                                         <Button
                                             variant='outlined'
                                             color='primary'
+                                            startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
                                             onClick={() => {
-                                                // Inserir novo item com novo autoComplete
-                                                const newBlock = [...blocks]
-                                                newBlock[index].itens.push({
-                                                    ordem: newBlock[index].itens.length + 1,
-                                                    obs: 1,
-                                                    status: 1,
-                                                    obrigatorio: 1
-                                                })
-                                                setBlocks(newBlock)
+                                                addItem(index)
                                             }}
                                         >
                                             Inserir Item
@@ -472,39 +516,9 @@ const FormParametrosFornecedor = () => {
                     <Button
                         variant='outlined'
                         color='primary'
+                        startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
                         onClick={() => {
-                            const newBlock = [...blocks]
-                            newBlock.push({
-                                dados: {
-                                    ordem: newBlock.length + 1,
-                                    nome: '',
-                                    status: 1
-                                },
-                                atividades: [
-                                    // Obter atividades do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
-                                    ...blocks[0].atividades.map(atividade => ({
-                                        ...atividade,
-                                        checked: 0
-                                    }))
-                                ],
-                                categorias: [
-                                    // Obter categorias do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
-                                    ...blocks[0].categorias.map(categoria => ({
-                                        ...categoria,
-                                        checked: 0
-                                    }))
-                                ],
-                                itens: [
-                                    // Obter primeiro item do primeiro bloco
-                                    {
-                                        ordem: 1,
-                                        obs: 1,
-                                        status: 1,
-                                        obrigatorio: 1
-                                    }
-                                ]
-                            })
-                            setBlocks(newBlock)
+                            addBlock()
                         }}
                     >
                         Inserir Bloco
