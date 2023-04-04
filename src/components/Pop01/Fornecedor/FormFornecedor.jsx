@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react'
+import * as React from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
@@ -12,6 +13,12 @@ import { AuthContext } from 'src/context/AuthContext'
 import { Loading } from 'src/components/Loading'
 import { toastMessage } from 'src/configs/defaultConfigs'
 import toast from 'react-hot-toast'
+
+// Date
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 
 const FormFornecedor = () => {
     const { user } = useContext(AuthContext)
@@ -37,7 +44,6 @@ const FormFornecedor = () => {
     }, [])
 
     // criar validação DINAMICA com reduce no Yup, varrendo campos fields e validando os valores vindos em defaultValues
-
     const defaultValues =
         data &&
         fields.reduce((defaultValues, field) => {
@@ -46,14 +52,11 @@ const FormFornecedor = () => {
         }, {})
 
     const {
+        register,
         control,
         handleSubmit,
-        formState: { errors },
-        mode
-    } = useForm({
-        defaultValues,
-        mode: 'onBlur'
-    })
+        formState: { errors }
+    } = useForm()
 
     console.log('errors: ', errors)
 
@@ -78,25 +81,31 @@ const FormFornecedor = () => {
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} />
                     <CardContent>
-                        <Grid container spacing={5}>
+                        <Grid container spacing={4}>
+                            <Grid item xs={12} md={3}>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DemoContainer components={['DatePicker']}>
+                                        <DatePicker label='Basic date picker' />
+                                    </DemoContainer>
+                                </LocalizationProvider>
+                            </Grid>
+                        </Grid>
+
+                        <Grid container spacing={4}>
                             {fields &&
                                 fields.map((field, index) => (
                                     <Grid key={index} item xs={12} md={3}>
                                         <FormControl fullWidth>
-                                            <Controller
-                                                name={field.nomeColuna}
-                                                control={control}
-                                                rules={{ required: field.obrigatorio == 1 ? true : false }}
-                                                render={({ field: { value, onChange } }) => (
-                                                    <TextField
-                                                        value={defaultValues[field.nomeColuna] ?? ''}
-                                                        label={field.nomeCampo}
-                                                        onChange={onChange}
-                                                        placeholder={field.nomeCampo}
-                                                        aria-describedby='validation-schema-nome'
-                                                        error={!!errors[field.nomeColuna]}
-                                                    />
-                                                )}
+                                            <TextField
+                                                label={field.nomeCampo}
+                                                placeholder={field.nomeCampo}
+                                                name={`header.${field.nomeColuna}`}
+                                                defaultValue={defaultValues[field.nomeColuna] ?? ''}
+                                                aria-describedby='validation-schema-nome'
+                                                error={errors?.header?.[field.nomeColuna] ? true : false}
+                                                {...register(`header.${field.nomeColuna}`, {
+                                                    required: !!field.obrigatorio
+                                                })}
                                             />
                                         </FormControl>
                                     </Grid>
