@@ -1,20 +1,20 @@
-// ** React Imports
-import { useEffect, useState } from 'react'
+// // ** React Imports
+// import { useEffect, useState } from 'react'
 
-// ** Axios Import
-import axios from 'axios'
+// // ** Axios Import
+// import axios from 'axios'
 
-const ServerSideNavItems = () => {
-  // ** State
-  const [menuItems, setMenuItems] = useState([])
-  useEffect(() => {
-    axios.get('/api/vertical-nav/data').then(response => {
-      const menuArray = response.data
-      setMenuItems(menuArray)
-    })
-  }, [])
+// const ServerSideNavItems = () => {
+//   // ** State
+//   const [menuItems, setMenuItems] = useState([])
+//   useEffect(() => {
+//     axios.get('/api/vertical-nav/data').then(response => {
+//       const menuArray = response.data
+//       setMenuItems(menuArray)
+//     })
+//   }, [])
 
-  return { menuItems }
-}
+//   return { menuItems }
+// }
 
-export default ServerSideNavItems
+// export default ServerSideNavItems
