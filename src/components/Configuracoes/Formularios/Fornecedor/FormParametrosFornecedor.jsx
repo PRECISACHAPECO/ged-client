@@ -8,6 +8,7 @@ import {
     CardContent,
     Checkbox,
     FormControl,
+    FormControlLabel,
     Grid,
     List,
     ListItem,
@@ -315,19 +316,20 @@ const FormParametrosFornecedor = () => {
                                                             )}
                                                         />
 
-                                                        <Grid item md={1}>
-                                                            <Checkbox
-                                                                name={`blocks.[${index}].atividades[${indexAtividade}].checked`}
-                                                                {...register(
-                                                                    `blocks.[${index}].atividades[${indexAtividade}].checked`
-                                                                )}
-                                                                defaultChecked={atividade.checked == 1 ? true : false}
-                                                            />
-                                                        </Grid>
-
-                                                        <Grid item md={11}>
-                                                            {atividade.nome}
-                                                        </Grid>
+                                                        <FormControlLabel
+                                                            control={
+                                                                <Checkbox
+                                                                    name={`blocks.[${index}].atividades[${indexAtividade}].checked`}
+                                                                    {...register(
+                                                                        `blocks.[${index}].atividades[${indexAtividade}].checked`
+                                                                    )}
+                                                                    defaultChecked={
+                                                                        atividade.checked == 1 ? true : false
+                                                                    }
+                                                                />
+                                                            }
+                                                            label={atividade.nome}
+                                                        />
                                                     </ListItemButton>
                                                 </ListItem>
                                             ))}
@@ -355,19 +357,20 @@ const FormParametrosFornecedor = () => {
                                                             )}
                                                         />
 
-                                                        <Grid item md={1}>
-                                                            <Checkbox
-                                                                name={`blocks.[${index}].categorias[${indexCategoria}].checked`}
-                                                                {...register(
-                                                                    `blocks.[${index}].categorias[${indexCategoria}].checked`
-                                                                )}
-                                                                defaultChecked={categoria.checked == 1 ? true : false}
-                                                            />
-                                                        </Grid>
-
-                                                        <Grid item md={11}>
-                                                            {categoria.nome}
-                                                        </Grid>
+                                                        <FormControlLabel
+                                                            control={
+                                                                <Checkbox
+                                                                    name={`blocks.[${index}].categorias[${indexCategoria}].checked`}
+                                                                    {...register(
+                                                                        `blocks.[${index}].categorias[${indexCategoria}].checked`
+                                                                    )}
+                                                                    defaultChecked={
+                                                                        categoria.checked == 1 ? true : false
+                                                                    }
+                                                                />
+                                                            }
+                                                            label={categoria.nome}
+                                                        />
                                                     </ListItemButton>
                                                 </ListItem>
                                             ))}
@@ -461,7 +464,9 @@ const FormParametrosFornecedor = () => {
                                                 </Grid>
 
                                                 <Grid item md={1}>
-                                                    <Typography variant='body2'>Ativo</Typography>
+                                                    <Typography variant='body2'>
+                                                        {indexItem == 0 ? 'Ativo' : ''}
+                                                    </Typography>
                                                     <Checkbox
                                                         name={`blocks.[${index}][${indexItem}].status`}
                                                         {...register(`blocks.[${index}].itens.[${indexItem}].status`)}
@@ -470,7 +475,9 @@ const FormParametrosFornecedor = () => {
                                                 </Grid>
 
                                                 <Grid item md={1}>
-                                                    <Typography variant='body2'>Obs</Typography>
+                                                    <Typography variant='body2'>
+                                                        {indexItem == 0 ? 'Obs' : ''}
+                                                    </Typography>
                                                     <Checkbox
                                                         name={`blocks.[${index}][${indexItem}].obs`}
                                                         // disabled checkbox se blocks.[${index}][${indexItem}].status for false
@@ -481,7 +488,9 @@ const FormParametrosFornecedor = () => {
                                                 </Grid>
 
                                                 <Grid item md={1}>
-                                                    <Typography variant='body2'>Obrigatório</Typography>
+                                                    <Typography variant='body2'>
+                                                        {indexItem == 0 ? 'Obrigatório' : ''}
+                                                    </Typography>
                                                     <Checkbox
                                                         name={`blocks.[${index}][${indexItem}].obrigatorio`}
                                                         {...register(

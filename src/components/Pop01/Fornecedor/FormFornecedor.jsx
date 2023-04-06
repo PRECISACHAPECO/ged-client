@@ -5,6 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import {
     Autocomplete,
+    Box,
     Card,
     CardContent,
     FormControl,
@@ -186,15 +187,15 @@ const FormFornecedor = () => {
                                 </ListItem>
                                 {atividades &&
                                     atividades.map((atividade, indexAtividade) => (
-                                        <Box key={indexAtividade}>
-                                            <input
-                                                type='hidden'
-                                                name={`atividades.[${indexAtividade}].atividadeID`}
-                                                defaultValue={atividade.atividadeID}
-                                                {...register(`atividades.[${indexAtividade}].atividadeID`)}
-                                            />
+                                        <ListItem key={indexAtividade} disablePadding>
+                                            <ListItemButton>
+                                                <input
+                                                    type='hidden'
+                                                    name={`atividades.[${indexAtividade}].atividadeID`}
+                                                    defaultValue={atividade.atividadeID}
+                                                    {...register(`atividades.[${indexAtividade}].atividadeID`)}
+                                                />
 
-                                            <Grid item md={12}>
                                                 <FormControlLabel
                                                     control={
                                                         <Checkbox
@@ -205,12 +206,8 @@ const FormFornecedor = () => {
                                                     }
                                                     label={atividade.nome}
                                                 />
-                                            </Grid>
-
-                                            {/* <Grid item md={11}>
-                                                {atividade.nome}
-                                            </Grid> */}
-                                        </Box>
+                                            </ListItemButton>
+                                        </ListItem>
                                     ))}
                             </Grid>
 
@@ -235,20 +232,20 @@ const FormFornecedor = () => {
                                                         `sistemasQualidade.[${indexSistemaQualidade}].sistemaQualidadeID`
                                                     )}
                                                 />
-
-                                                <Grid item md={1}>
-                                                    <Checkbox
-                                                        name={`sistemasQualidade[${indexSistemaQualidade}].checked`}
-                                                        {...register(
-                                                            `sistemasQualidade[${indexSistemaQualidade}].checked`
-                                                        )}
-                                                        defaultChecked={sistemaQualidade.checked == 1 ? true : false}
-                                                    />
-                                                </Grid>
-
-                                                <Grid item md={11}>
-                                                    {sistemaQualidade.nome}
-                                                </Grid>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Checkbox
+                                                            name={`sistemasQualidade[${indexSistemaQualidade}].checked`}
+                                                            {...register(
+                                                                `sistemasQualidade[${indexSistemaQualidade}].checked`
+                                                            )}
+                                                            defaultChecked={
+                                                                sistemaQualidade.checked == 1 ? true : false
+                                                            }
+                                                        />
+                                                    }
+                                                    label={sistemaQualidade.nome}
+                                                />
                                             </ListItemButton>
                                         </ListItem>
                                     ))}
@@ -263,6 +260,14 @@ const FormFornecedor = () => {
                         <Card key={indexBloco} sx={{ mt: 4 }}>
                             <CardContent>
                                 <Grid container>
+                                    {/* Hidden do parFornecedorBlocoID */}
+                                    <input
+                                        type='hidden'
+                                        name={`blocos[${indexBloco}].parFornecedorBlocoID`}
+                                        defaultValue={bloco.parFornecedorBlocoID}
+                                        {...register(`blocos[${indexBloco}].parFornecedorBlocoID`)}
+                                    />
+
                                     <Grid item xs={12} md={12}>
                                         <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
                                             {bloco.nome}
@@ -273,6 +278,14 @@ const FormFornecedor = () => {
                                     {bloco.itens &&
                                         bloco.itens.map((item, indexItem) => (
                                             <Grid key={indexItem} container sx={getZebradoStyle(indexItem)}>
+                                                {/* Hidden do itemID */}
+                                                <input
+                                                    type='hidden'
+                                                    name={`blocos[${indexBloco}].itens[${indexItem}].itemID`}
+                                                    defaultValue={item.itemID}
+                                                    {...register(`blocos[${indexBloco}].itens[${indexItem}].itemID`)}
+                                                />
+
                                                 {/* Descrição do item */}
                                                 <Grid
                                                     item
@@ -280,7 +293,7 @@ const FormFornecedor = () => {
                                                     md={6}
                                                     sx={{ display: 'flex', alignItems: 'center' }}
                                                 >
-                                                    {item.nome}
+                                                    {item.ordem + ' - ' + item.nome}
                                                 </Grid>
 
                                                 {/* Alternativas de respostas */}
@@ -290,6 +303,12 @@ const FormFornecedor = () => {
                                                         {item.alternativas && item.alternativas.length > 1 && (
                                                             <Autocomplete
                                                                 options={item.alternativas}
+                                                                defaultValue={
+                                                                    item.resposta
+                                                                        ? { nome: item?.resposta }
+                                                                        : { nome: '' }
+                                                                }
+                                                                id='autocomplete-outlined'
                                                                 getOptionLabel={option => option.nome}
                                                                 onChange={(event, value) => {
                                                                     setValue(
@@ -300,9 +319,9 @@ const FormFornecedor = () => {
                                                                 renderInput={params => (
                                                                     <TextField
                                                                         {...params}
+                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].alternativa`}
                                                                         label='Selecione uma resposta'
                                                                         placeholder='Selecione uma resposta'
-                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].alternativa`}
                                                                         {...register(
                                                                             `blocos[${indexBloco}].itens[${indexItem}].alternativa`
                                                                         )}
@@ -315,11 +334,15 @@ const FormFornecedor = () => {
                                                         {item.alternativas.length == 0 && item.alternativa == 'Data' && (
                                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                                 <DatePicker
-                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].data`}
+                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].alternativa`}
                                                                     label='Selecione uma data'
                                                                     locale={dayjs.locale('pt-br')}
                                                                     format='DD/MM/YYYY'
-                                                                    defaultValue={dayjs(new Date())}
+                                                                    defaultValue={
+                                                                        item.resposta
+                                                                            ? dayjs(new Date(item.resposta))
+                                                                            : ''
+                                                                    }
                                                                     renderInput={params => (
                                                                         <TextField {...params} variant='outlined' />
                                                                     )}
@@ -334,10 +357,10 @@ const FormFornecedor = () => {
                                                                     multiline
                                                                     label='Descreva a resposta'
                                                                     placeholder='Descreva a resposta'
-                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].alternativa`}
                                                                     defaultValue={item.resposta ?? ''}
                                                                     {...register(
-                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                        `blocos[${indexBloco}].itens[${indexItem}].alternativa`
                                                                     )}
                                                                 />
                                                             )}
@@ -400,54 +423,49 @@ const FormFornecedor = () => {
                                     <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
                                         Resultado
                                     </Typography>
-                                    <RadioGroup
-                                        aria-label='resultado'
-                                        name='resultado'
-                                        value={info.resultado}
-                                        {...register('resultado')}
-                                    >
-                                        <Grid container spacing={4}>
-                                            <Grid item xs={12} md={4}>
-                                                <FormControlLabel
-                                                    control={
-                                                        <Radio
-                                                            name='resultado'
-                                                            value={1}
-                                                            checked={info.resultado == 1}
-                                                            onChange={handleRadioChange}
-                                                        />
-                                                    }
-                                                    label='Aprovado'
-                                                />
-                                            </Grid>
-                                            <Grid item xs={12} md={4}>
-                                                <FormControlLabel
-                                                    control={
-                                                        <Radio
-                                                            name='resultado'
-                                                            value={2}
-                                                            checked={info.resultado == 2}
-                                                            onChange={handleRadioChange}
-                                                        />
-                                                    }
-                                                    label='Aprovado Parcial'
-                                                />
-                                            </Grid>
-                                            <Grid item xs={12} md={4}>
-                                                <FormControlLabel
-                                                    control={
-                                                        <Radio
-                                                            name='resultado'
-                                                            value={3}
-                                                            checked={info.resultado == 3}
-                                                            onChange={handleRadioChange}
-                                                        />
-                                                    }
-                                                    label='Reprovado'
-                                                />
-                                            </Grid>
+
+                                    <Grid container spacing={4}>
+                                        <Grid item xs={12} md={12}>
+                                            <FormControlLabel
+                                                control={
+                                                    <Radio
+                                                        name='resultado'
+                                                        value={1}
+                                                        checked={info.resultado == 1}
+                                                        {...register('resultado')}
+                                                        onChange={handleRadioChange}
+                                                    />
+                                                }
+                                                label='Aprovado'
+                                            />
+
+                                            <FormControlLabel
+                                                control={
+                                                    <Radio
+                                                        name='resultado'
+                                                        value={2}
+                                                        checked={info.resultado == 2}
+                                                        {...register('resultado')}
+                                                        onChange={handleRadioChange}
+                                                    />
+                                                }
+                                                label='Aprovado Parcial'
+                                            />
+
+                                            <FormControlLabel
+                                                control={
+                                                    <Radio
+                                                        name='resultado'
+                                                        value={3}
+                                                        checked={info.resultado == 3}
+                                                        {...register('resultado')}
+                                                        onChange={handleRadioChange}
+                                                    />
+                                                }
+                                                label='Reprovado'
+                                            />
                                         </Grid>
-                                    </RadioGroup>
+                                    </Grid>
                                 </FormControl>
                             </Grid>
                         </Grid>
