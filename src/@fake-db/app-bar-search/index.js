@@ -86,7 +86,7 @@ const searchData = [
     icon: 'mdi:chart-donut',
     title: 'Unidade Novo',
     category: 'Configurações'
-  }
+  },
 
 ]
 
