@@ -1,6 +1,6 @@
 import mock from './mock'
 
 import './auth/jwt'
-import './app-bar-search'
+import './app-bar-search/index'
 
 mock.onAny().passThrough()

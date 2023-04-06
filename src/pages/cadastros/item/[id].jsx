@@ -1,15 +1,15 @@
-import FormAtividade from 'src/components/Atividade/FormAtividade'
+import FormItem from 'src/components/Cadastros/Item/FormItem'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext, useEffect } from 'react'
 
-const AtividadeForm = () => {
+const ItemForm = () => {
     const { setTitle } = useContext(ParametersContext)
 
     useEffect(() => {
-        setTitle('Atividade')
+        setTitle('Item')
     }, [])
 
-    return <FormAtividade />
+    return <FormItem />
 }
 
-export default AtividadeForm
+export default ItemForm

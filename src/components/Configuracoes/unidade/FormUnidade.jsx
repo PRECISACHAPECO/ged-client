@@ -1,5 +1,5 @@
 import Router from 'next/router'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { api } from 'src/configs/api'
 import { Card, CardContent, Grid, FormControl, TextField, Typography } from '@mui/material'
 import * as yup from 'yup'
@@ -23,6 +23,7 @@ const FormUnidade = () => {
     const router = Router
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
+    const inputRef = useRef(null)
 
     const schema = yup.object().shape({
         nomeFantasia: yup.string().required(''),
@@ -141,6 +142,9 @@ const FormUnidade = () => {
             }
         }
         getData()
+        if (type === 'new') {
+            inputRef.current.focus()
+        }
     }, [])
 
     return (
@@ -194,6 +198,7 @@ const FormUnidade = () => {
                                                 placeholder='Nome Fantasia'
                                                 error={Boolean(errors.nomeFantasia)}
                                                 aria-describedby='validation-schema-nome'
+                                                inputRef={inputRef}
                                             />
                                         )}
                                     />

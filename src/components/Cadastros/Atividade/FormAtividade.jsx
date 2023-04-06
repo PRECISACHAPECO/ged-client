@@ -1,16 +1,15 @@
 import Router from 'next/router'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { api } from 'src/configs/api'
-import { Card, CardContent, Grid, FormControl, TextField, Button, FormControlLabel } from '@mui/material'
+import { Card, CardContent, Grid, FormControl, TextField, FormControlLabel } from '@mui/material'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { FormHelperText } from '@mui/material'
 import Switch from '@mui/material/Switch'
 import toast from 'react-hot-toast'
 import DialogForm from 'src/components/Dialog'
 import { formType } from 'src/configs/defaultConfigs'
-import FormHeader from '../FormHeader'
+import FormHeader from '../../FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { toastMessage } from 'src/configs/defaultConfigs'
 
@@ -20,6 +19,7 @@ const FormAtividade = () => {
     const router = Router
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
+    const inputRef = useRef(null)
 
     const schema = yup.object().shape({
         nome: yup.string().required('Campo obrigatório')
@@ -85,6 +85,9 @@ const FormAtividade = () => {
             }
         }
         getData()
+        if (type === 'new') {
+            inputRef.current.focus()
+        }
     }, [])
 
     return (
@@ -94,6 +97,7 @@ const FormAtividade = () => {
                     <FormHeader
                         btnCancel
                         btnSave
+                        disabled={Object.keys(errors).length > 0 ? true : false}
                         handleSubmit={() => handleSubmit(onSubmit)}
                         btnDelete={type === 'edit' ? true : false}
                         onclickDelete={() => setOpen(true)}
@@ -113,14 +117,11 @@ const FormAtividade = () => {
                                                 placeholder='Nome'
                                                 error={Boolean(errors.nome)}
                                                 aria-describedby='validation-schema-nome'
+                                                inputRef={inputRef}
+                                                rules={{ required: true }}
                                             />
                                         )}
                                     />
-                                    {errors.nome && (
-                                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-nome'>
-                                            {errors.nome.message}
-                                        </FormHelperText>
-                                    )}
                                 </FormControl>
                             </Grid>
 
@@ -132,7 +133,7 @@ const FormAtividade = () => {
                                         rules={{ required: false }}
                                         render={({ field: { value, onChange } }) => (
                                             <FormControlLabel
-                                                checked={value == '1' ? true : false}
+                                                checked={type === 'new' ? true : value ?? false}
                                                 onChange={onChange}
                                                 inputProps={{ 'aria-label': 'controlled' }}
                                                 label='Status'
@@ -142,11 +143,6 @@ const FormAtividade = () => {
                                             />
                                         )}
                                     />
-                                    {errors.status && (
-                                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-status'>
-                                            {errors.status.message}
-                                        </FormHelperText>
-                                    )}
                                 </FormControl>
                             </Grid>
                         </Grid>

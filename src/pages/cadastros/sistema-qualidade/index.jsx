@@ -15,7 +15,7 @@ import { Card } from '@mui/material'
 
 // import axios from 'axios'
 
-const Item = () => {
+const SistemaQualidade = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
@@ -25,7 +25,7 @@ const Item = () => {
         const getList = async () => {
             await api.get(currentLink).then(response => {
                 setResult(response.data)
-                setTitle('Item')
+                setTitle('Sistema de Qualidade')
             })
         }
         getList()
@@ -40,14 +40,8 @@ const Item = () => {
         {
             title: 'Nome',
             field: 'nome',
-            size: 0.6
+            size: 0.8
         },
-        {
-            title: 'Formulário',
-            field: 'formulario',
-            size: 0.2
-        },
-
         {
             title: 'Status',
             field: 'status',
@@ -80,4 +74,4 @@ const Item = () => {
     )
 }
 
-export default Item
+export default SistemaQualidade
