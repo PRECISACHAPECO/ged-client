@@ -1,8 +1,7 @@
-import * as React from 'react'
+// import * as React from 'react'
 import { useState, useEffect, useContext } from 'react'
 import { useForm, Controller } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
+
 import {
     Autocomplete,
     Box,
@@ -16,8 +15,7 @@ import {
     Radio,
     RadioGroup,
     TextField,
-    Typography,
-    Box
+    Typography
 } from '@mui/material'
 import Router from 'next/router'
 import { backRoute } from 'src/configs/defaultConfigs'
@@ -104,15 +102,12 @@ const FormFornecedor = () => {
 
     const onSubmit = async data => {
         console.log('onSubmit: ', data)
-        setLoading(true)
         try {
             await api.put(`${staticUrl}/${id}`, data).then(response => {
                 toast.success(toastMessage.successUpdate)
-                setLoading(false)
             })
         } catch (error) {
             console.log(error)
-            setLoading(false)
         }
     }
 
@@ -123,7 +118,6 @@ const FormFornecedor = () => {
 
     return (
         <>
-            {loading && <Loading />}
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Card Header */}
                 <Card>
@@ -335,7 +329,6 @@ const FormFornecedor = () => {
                                                         {item.alternativas.length == 0 && item.alternativa == 'Data' && (
                                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                                 <DatePicker
-                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].alternativa`}
                                                                     label='Selecione uma data'
                                                                     locale={dayjs.locale('pt-br')}
                                                                     format='DD/MM/YYYY'
@@ -344,8 +337,22 @@ const FormFornecedor = () => {
                                                                             ? dayjs(new Date(item.resposta))
                                                                             : ''
                                                                     }
+                                                                    // Data só está enviando quando altera pelo teclado, nao envia quando seleciona pelo calendário
+                                                                    onChange={(newValue, valueString) => {
+                                                                        setValue(
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].alternativa`,
+                                                                            valueString
+                                                                        )
+                                                                    }}
                                                                     renderInput={params => (
-                                                                        <TextField {...params} variant='outlined' />
+                                                                        <TextField
+                                                                            {...params}
+                                                                            variant='outlined'
+                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].alternativa`}
+                                                                            {...register(
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].alternativa`
+                                                                            )}
+                                                                        />
                                                                     )}
                                                                 />
                                                             </LocalizationProvider>
