@@ -34,6 +34,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br' // import locale
+import MenuReports from 'src/components/MenuReports'
+import axios from 'axios'
 
 const FormFornecedor = () => {
     const { user } = useContext(AuthContext)
@@ -115,12 +117,58 @@ const FormFornecedor = () => {
         setInfo({ resultado: newValue })
     }
 
+    // Nomes e rotas dos relatórios passados para o componente FormHeader/MenuReports
+    const dataReports = [
+        {
+            id: 1,
+            name: 'Ficha de inscrição',
+            identification: '01',
+            route: 'http://localhost:3333/pdf'
+        },
+        {
+            id: 2,
+            name: 'Ficha de Filiação',
+            identification: '02',
+            route: '/reports/filiation'
+        },
+        {
+            id: 3,
+            name: 'Ficha de Matrícula',
+            identification: '03',
+            route: '/reports/enrollment'
+        },
+        {
+            id: 4,
+            name: 'Ficha de Nacionalidade',
+            identification: '04',
+            route: 'fffffff'
+        }
+    ]
+
+    // Gera o PDF do relatório
+    const handleClickGenerateReport = item => {
+        const route = item.route
+
+        axios.get(`${route}?fornecedorID=${id}&unidadeID=${user.unidadeID}`).then(() => {
+            console.log('success')
+            window.open(route, '_blank')
+        })
+    }
+
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Card Header */}
                 <Card>
-                    <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} />
+                    <FormHeader
+                        btnCancel
+                        btnSave
+                        btnPrint
+                        handleClickGenerateReport={handleClickGenerateReport}
+                        dataReports={dataReports}
+                        handleSubmit={() => handleSubmit(onSubmit)}
+                        title='Fornecedor'
+                    />
                     <CardContent>
                         {/* Header */}
                         <Grid container spacing={4}>
