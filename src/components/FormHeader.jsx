@@ -4,8 +4,20 @@ import { CardContent, Button, Box } from '@mui/material'
 import Link from 'next/link'
 import Icon from 'src/@core/components/icon'
 import { backRoute } from 'src/configs/defaultConfigs'
+import MenuReports from './MenuReports'
 
-const FormHeader = ({ btnCancel, btnSave, handleSubmit, btnDelete, onclickDelete, disabled }) => {
+const FormHeader = ({
+    btnCancel,
+    btnSave,
+    handleSubmit,
+    // handlePrint,
+    btnDelete,
+    onclickDelete,
+    btnPrint,
+    disabled,
+    handleClickGenerateReport,
+    dataReports
+}) => {
     const router = Router
 
     return (
@@ -35,6 +47,9 @@ const FormHeader = ({ btnCancel, btnSave, handleSubmit, btnDelete, onclickDelete
                 </Box>
 
                 <Box sx={{ display: 'flex', gap: '8px' }}>
+                    {btnPrint && (
+                        <MenuReports handleClickGenerateReport={handleClickGenerateReport} dataReports={dataReports} />
+                    )}
                     {btnSave && (
                         <Button
                             onClick={handleSubmit}
