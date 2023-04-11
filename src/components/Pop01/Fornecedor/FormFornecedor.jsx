@@ -340,6 +340,16 @@ const FormFornecedor = () => {
 
                                                 {/* Alternativas de respostas */}
                                                 <Grid item xs={12} md={3}>
+                                                    {/* Tipo de alternativa  */}
+                                                    <input
+                                                        type='hidden'
+                                                        name={`blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`}
+                                                        defaultValue={item.alternativa}
+                                                        {...register(
+                                                            `blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`
+                                                        )}
+                                                    />
+
                                                     <FormControl fullWidth>
                                                         {/* +1 que umaopção pra selecionar (Select) */}
                                                         {item.alternativas && item.alternativas.length > 1 && (
@@ -354,18 +364,18 @@ const FormFornecedor = () => {
                                                                 getOptionLabel={option => option.nome}
                                                                 onChange={(event, value) => {
                                                                     setValue(
-                                                                        `blocos[${indexBloco}].itens[${indexItem}].alternativaID`,
+                                                                        `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
                                                                         value?.alternativaID
                                                                     )
                                                                 }}
                                                                 renderInput={params => (
                                                                     <TextField
                                                                         {...params}
-                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].alternativa`}
+                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                         label='Selecione uma resposta'
                                                                         placeholder='Selecione uma resposta'
                                                                         {...register(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].alternativa`
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`
                                                                         )}
                                                                     />
                                                                 )}
@@ -385,19 +395,20 @@ const FormFornecedor = () => {
                                                                             : ''
                                                                     }
                                                                     // Data só está enviando quando altera pelo teclado, nao envia quando seleciona pelo calendário
-                                                                    onChange={(newValue, valueString) => {
+                                                                    // Data está enviando validationError: null pro backend, como setar valor da data ao digiar no teclado e selecionar pelo calendário do datepicker ?
+                                                                    onChange={newValue => {
                                                                         setValue(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].alternativa`,
-                                                                            valueString
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                            newValue
                                                                         )
                                                                     }}
                                                                     renderInput={params => (
                                                                         <TextField
                                                                             {...params}
                                                                             variant='outlined'
-                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].alternativa`}
+                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                             {...register(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].alternativa`
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
                                                                             )}
                                                                         />
                                                                     )}
@@ -412,10 +423,10 @@ const FormFornecedor = () => {
                                                                     multiline
                                                                     label='Descreva a resposta'
                                                                     placeholder='Descreva a resposta'
-                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].alternativa`}
+                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                     defaultValue={item.resposta ?? ''}
                                                                     {...register(
-                                                                        `blocos[${indexBloco}].itens[${indexItem}].alternativa`
+                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`
                                                                     )}
                                                                 />
                                                             )}

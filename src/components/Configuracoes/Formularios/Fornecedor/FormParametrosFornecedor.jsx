@@ -33,7 +33,6 @@ const FormParametrosFornecedor = () => {
     const [optionsItens, setOptionsItens] = useState([])
     const [blocks, setBlocks] = useState()
     const [orientacoes, setOrientacoes] = useState()
-    const [loading, setLoading] = useState()
 
     const router = Router
     const staticUrl = backRoute(router.pathname) // Url sem ID
@@ -53,16 +52,12 @@ const FormParametrosFornecedor = () => {
             orientacoes: data.orientacoes
         }
 
-        // console.log('onSubmit: ', dataForm)
-        setLoading(true)
         try {
             await api.put(`${staticUrl}/fornecedor/${user.unidadeID}`, dataForm).then(response => {
                 toast.success(toastMessage.successUpdate)
-                setLoading(false)
             })
         } catch (error) {
             console.log(error)
-            setLoading(false)
         }
     }
 
@@ -163,7 +158,6 @@ const FormParametrosFornecedor = () => {
 
     return (
         <>
-            {loading && <Loading />}
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Cabeçalho */}
                 {headers && (
