@@ -2,13 +2,11 @@
 import { useEffect, useCallback, useRef, useState } from 'react'
 
 // ** Next Imports
-import Link from 'next/link'
+
 import { useRouter } from 'next/router'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
-import List from '@mui/material/List'
 import MuiDialog from '@mui/material/Dialog'
 import ListItem from '@mui/material/ListItem'
 import TextField from '@mui/material/TextField'
@@ -27,116 +25,15 @@ import Icon from 'src/@core/components/icon'
 
 // ** Configs Imports
 import themeConfig from 'src/configs/themeConfig'
+import NoResult from './PendenciaAutoComplete/NoResult'
+import DefaultSuggestions from './PendenciaAutoComplete/DefaultSuggestions'
 
-const defaultSuggestionsData = [
-    {
-        category: 'Principais buscas',
-        suggestions: [
-            {
-                icon: 'mdi:chart-donut',
-                suggestion: 'Fornecedor',
-                link: '/pop01/fornecedor/'
-            },
-            {
-                icon: 'mdi:poll',
-                suggestion: 'Unidade',
-                link: '/configuracoes/unidade/'
-            },
-            {
-                icon: 'mdi:chart-bubble',
-                suggestion: 'Formularios',
-                link: 'configuracoes/formularios/'
-            },
-            {
-                icon: 'mdi:account-group',
-                suggestion: 'User List',
-                link: '/apps/user/list'
-            }
-        ]
-    },
-    {
-        category: 'Cadastros',
-        suggestions: [
-            {
-                icon: 'mdi:calendar-blank',
-                suggestion: 'Atividade',
-                link: '/cadastros/atividade'
-            },
-            {
-                icon: 'mdi:format-list-numbered',
-                suggestion: 'Item',
-                link: '/cadastros/item'
-            },
-            {
-                icon: 'mdi:currency-usd',
-                suggestion: 'Pricing',
-                link: '/pages/pricing'
-            },
-            {
-                icon: 'mdi:account-cog-outline',
-                suggestion: 'Account Settings',
-                link: '/pages/account-settings/account'
-            }
-        ]
-    },
-    {
-        category: 'Configurações',
-        suggestions: [
-            {
-                icon: 'mdi:format-text-variant-outline',
-                suggestion: 'Formularios',
-                link: '/configuracoes/formularios'
-            },
-            {
-                icon: 'mdi:tab',
-                suggestion: 'Tabs',
-                link: '/components/tabs'
-            },
-            {
-                icon: 'mdi:gesture-tap-button',
-                suggestion: 'Buttons',
-                link: '/components/buttons'
-            },
-            {
-                icon: 'mdi:card-bulleted-settings-outline',
-                suggestion: 'Advanced Cards',
-                link: '/ui/cards/advanced'
-            }
-        ]
-    },
-    {
-        category: 'Formularios',
-        suggestions: [
-            {
-                icon: 'mdi:format-list-checkbox',
-                suggestion: 'Fornecedor',
-                link: '/pop01/fornecedor'
-            },
-            {
-                icon: 'mdi:lastpass',
-                suggestion: 'Autocomplete',
-                link: '/forms/form-elements/autocomplete'
-            },
-            {
-                icon: 'mdi:view-grid-outline',
-                suggestion: 'Table',
-                link: '/tables/mui'
-            },
-            {
-                icon: 'mdi:calendar-range',
-                suggestion: 'Date Pickers',
-                link: '/forms/form-elements/pickers'
-            }
-        ]
-    }
-]
+
 
 const categoryTitle = {
-    dashboards: 'Dashboards',
-    appsPages: 'Apps & Pages',
-    userInterface: 'User Interface',
-    formsTables: 'Forms & Tables',
-    chartsMisc: 'Charts & Misc'
+    Cadastros: 'Cadastros',
+    Fornecedor: 'Fornecedor',
+    Configurações: 'Configurações',
 }
 
 // ** Styled Autocomplete component
@@ -216,122 +113,6 @@ const Dialog = styled(MuiDialog)({
     }
 })
 
-const NoResult = ({ value, setOpenDialog }) => {
-    return (
-        <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', justifyContent: 'center' }}>
-            <Box sx={{ mb: 2.5, color: 'text.primary' }}>
-                <Icon icon='mdi:file-remove-outline' fontSize='5rem' />
-            </Box>
-            <Typography variant='h6' sx={{ mb: 11.5, wordWrap: 'break-word' }}>
-                No results for{' '}
-                <Typography variant='h6' component='span' sx={{ wordWrap: 'break-word' }}>
-                    {`"${value}"`}
-                </Typography>
-            </Typography>
-
-            <Typography variant='body2' sx={{ mb: 2.5, color: 'text.disabled' }}>
-                Try searching for
-            </Typography>
-            <List sx={{ py: 0 }}>
-                <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-                    <Box
-                        component={Link}
-                        href='/dashboards/crm'
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            textDecoration: 'none',
-                            '&:hover > *': { color: 'primary.main' }
-                        }}
-                    >
-                        <Box sx={{ mr: 2.5, display: 'flex', color: 'text.primary' }}>
-                            <Icon icon='mdi:cart-outline' fontSize={20} />
-                        </Box>
-                        <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                            CRM Dashboard
-                        </Typography>
-                    </Box>
-                </ListItem>
-                <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-                    <Box
-                        component={Link}
-                        href='/pages/user-profile/profile'
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            textDecoration: 'none',
-                            '&:hover > *': { color: 'primary.main' }
-                        }}
-                    >
-                        <Box sx={{ mr: 2.5, display: 'flex', color: 'text.primary' }}>
-                            <Icon icon='mdi:account-outline' fontSize={20} />
-                        </Box>
-                        <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                            User Profile
-                        </Typography>
-                    </Box>
-                </ListItem>
-                <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
-                    <Box
-                        component={Link}
-                        href='/pages/account-settings/account'
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            textDecoration: 'none',
-                            '&:hover > *': { color: 'primary.main' }
-                        }}
-                    >
-                        <Box sx={{ mr: 2.5, display: 'flex', color: 'text.primary' }}>
-                            <Icon icon='mdi:account-cog-outline' fontSize={20} />
-                        </Box>
-                        <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                            Account Settings
-                        </Typography>
-                    </Box>
-                </ListItem>
-            </List>
-        </Box>
-    )
-}
-
-const DefaultSuggestions = ({ setOpenDialog }) => {
-    return (
-        <Grid container spacing={6} sx={{ ml: 0 }}>
-            {defaultSuggestionsData.map((item, index) => (
-                <Grid item xs={12} sm={6} key={index}>
-                    <Typography component='p' variant='overline' sx={{ lineHeight: 1.25, color: 'text.disabled' }}>
-                        {item.category}
-                    </Typography>
-                    <List sx={{ py: 2.5 }}>
-                        {item.suggestions.map((suggestionItem, index2) => (
-                            <ListItem key={index2} sx={{ py: 2 }} disablePadding>
-                                <Box
-                                    component={Link}
-                                    href={suggestionItem.link}
-                                    onClick={() => setOpenDialog(false)}
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        '& svg': { mr: 2.5 },
-                                        color: 'text.primary',
-                                        textDecoration: 'none',
-                                        '&:hover > *': { color: 'primary.main' }
-                                    }}
-                                >
-                                    <Icon icon={suggestionItem.icon} fontSize={20} />
-                                    <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                                        {suggestionItem.suggestion}
-                                    </Typography>
-                                </Box>
-                            </ListItem>
-                        ))}
-                    </List>
-                </Grid>
-            ))}
-        </Grid>
-    )
-}
 
 const AutocompleteComponent = ({ hidden, settings }) => {
     // ** States
@@ -380,6 +161,21 @@ const AutocompleteComponent = ({ hidden, settings }) => {
             router.push(obj.url)
         }
     }
+
+
+    // efeito quando clicado crt + / abre o dialog
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === '/' && event.ctrlKey) {
+                setOpenDialog(true)
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown)
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [])
+
 
     // Handle ESC & shortcut keys keydown events
     const handleKeydown = useCallback(

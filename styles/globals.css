@@ -16,6 +16,7 @@ body {
     height: 100%;
 }
 
+
 code {
     font-family: 'Inter', sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
         'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue';
@@ -41,6 +42,7 @@ code[class*='language-'] {
     border-bottom: 1px solid #4c4e641f;
     border-radius: 4px;
 }
+
 .zebrado:nth-child(even) {
     padding: 0.5rem;
     background-color: #f6f6f7;

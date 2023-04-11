@@ -2,8 +2,6 @@
 import { useState } from 'react'
 
 // ** MUI Imports
-import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
 import { DataGrid, ptBR } from '@mui/x-data-grid'
 
 import QuickSearchToolbar from 'src/views/table/data-grid/QuickSearchToolbar'

@@ -10,11 +10,11 @@ import Switch from '@mui/material/Switch'
 import toast from 'react-hot-toast'
 import DialogForm from 'src/components/Dialog'
 import { formType } from 'src/configs/defaultConfigs'
-import FormHeader from '../FormHeader'
+import FormHeader from '../../FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { toastMessage } from 'src/configs/defaultConfigs'
 
-const FormItem = () => {
+const FormSistemaQualidade = () => {
     const [open, setOpen] = useState(false)
     const { id } = Router.query
     const router = Router
@@ -94,6 +94,7 @@ const FormItem = () => {
                     <FormHeader
                         btnCancel
                         btnSave
+                        disabled={Object.keys(errors).length > 0 ? true : false}
                         handleSubmit={() => handleSubmit(onSubmit)}
                         btnDelete={type === 'edit' ? true : false}
                         onclickDelete={() => setOpen(true)}
@@ -132,7 +133,7 @@ const FormItem = () => {
                                         rules={{ required: false }}
                                         render={({ field: { value, onChange } }) => (
                                             <FormControlLabel
-                                                checked={value == '1' ? true : false}
+                                                checked={type === 'new' ? true : value ?? false}
                                                 onChange={onChange}
                                                 inputProps={{ 'aria-label': 'controlled' }}
                                                 label='Status'
@@ -167,4 +168,4 @@ const FormItem = () => {
     )
 }
 
-export default FormItem
+export default FormSistemaQualidade

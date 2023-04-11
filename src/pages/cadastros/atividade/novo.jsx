@@ -1,4 +1,4 @@
-import FormCadastro from 'src/components/Atividade/FormAtividade'
+import FormCadastro from 'src/components/Cadastros/Atividade/FormAtividade'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext, useEffect } from 'react'
 

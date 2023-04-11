@@ -1,4 +1,4 @@
-import FormAtividade from 'src/components/Atividade/FormAtividade'
+import FormAtividade from 'src/components/Cadastros/Atividade/FormAtividade'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext, useEffect } from 'react'
 

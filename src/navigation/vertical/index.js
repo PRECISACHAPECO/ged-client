@@ -40,7 +40,13 @@ const navigation = () => {
                     title: 'Item',
                     path: '/cadastros/item',
                     action: 'read',
-                }
+                },
+                {
+                    icon: 'fluent:row-triple-24-regular',
+                    title: 'Sistema de Qualidade',
+                    path: '/cadastros/sistema-qualidade',
+                    action: 'read',
+                },
             ]
         },
 

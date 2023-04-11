@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Icon from 'src/@core/components/icon'
 import { backRoute } from 'src/configs/defaultConfigs'
 
-const FormHeader = ({ btnCancel, btnSave, handleSubmit, btnDelete, onclickDelete }) => {
+const FormHeader = ({ btnCancel, btnSave, handleSubmit, btnDelete, onclickDelete, disabled }) => {
     const router = Router
 
     return (
@@ -42,6 +42,7 @@ const FormHeader = ({ btnCancel, btnSave, handleSubmit, btnDelete, onclickDelete
                             variant='outlined'
                             size='medium'
                             color='primary'
+                            disabled={disabled}
                             startIcon={<Icon icon='material-symbols:save' />}
                         >
                             Salvar
