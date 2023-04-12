@@ -116,7 +116,6 @@ const FormFornecedor = () => {
         const newValue = event.target.value
         setInfo({ resultado: newValue })
     }
-
     // Nomes e rotas dos relatórios passados para o componente FormHeader/MenuReports
     const dataReports = [
         {
@@ -159,9 +158,10 @@ const FormFornecedor = () => {
                 // Converter o buffer do PDF em um objeto Blob
                 const blob = new Blob([response.data], { type: 'application/pdf' })
                 // Criar um objeto URL para o Blob
+
                 const url = URL.createObjectURL(blob)
                 // Abrir uma nova aba com o URL do relatório
-                window.open(url, '_blank')
+                window.open(url, '_blank') // '_blank' abre em uma nova aba
             })
             .catch(error => {
                 console.error('Erro ao gerar relatório', error)
