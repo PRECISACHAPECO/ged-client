@@ -1,4 +1,4 @@
-import FormFornecedor from 'src/components/Pop01/Fornecedor/FormFornecedor'
+import FormFornecedor from 'src/components/Fornecedor/FormFornecedor'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext, useEffect } from 'react'
 

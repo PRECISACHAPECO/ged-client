@@ -114,7 +114,12 @@ const FormFornecedor = () => {
 
     const handleRadioChange = event => {
         const newValue = event.target.value
-        setInfo({ resultado: newValue })
+
+        const newInfo = {
+            ...info,
+            status: newValue
+        }
+        setInfo(newInfo)
     }
 
     // Nomes e rotas dos relatórios passados para o componente FormHeader/MenuReports
@@ -123,25 +128,27 @@ const FormFornecedor = () => {
             id: 1,
             name: 'Fornecedor',
             identification: '01',
-            route: 'http://localhost:3333/relatorio/fornecedor'
+            // route: 'http://localhost:3333/relatorio/fornecedor'
+            route: 'https://demo.gedagro.com.br/relatorio/fornecedor'
         },
         {
             id: 2,
             name: 'Recepção',
             identification: '02',
-            route: 'http://localhost:3333/relatorio/recepcao'
+            // route: 'http://localhost:3333/relatorio/recepcao'
+            route: 'https://demo.gedagro.com.br/relatorio/recepcao'
         },
         {
             id: 3,
             name: 'Ficha de Matrícula',
             identification: '03',
-            route: '/reports/enrollment'
+            route: '/'
         },
         {
             id: 4,
             name: 'Ficha de Nacionalidade',
             identification: '04',
-            route: 'fffffff'
+            route: '/'
         }
     ]
 
@@ -483,9 +490,9 @@ const FormFornecedor = () => {
                                         rows={4}
                                         label='Observação (opcional)'
                                         placeholder='Observação (opcional)'
-                                        name='observacao'
-                                        defaultValue={info.observacao ?? ''}
-                                        {...register('observacao')}
+                                        name='obs'
+                                        defaultValue={info.obs ?? ''}
+                                        {...register('obs')}
                                     />
                                 </FormControl>
                             </Grid>
@@ -508,10 +515,10 @@ const FormFornecedor = () => {
                                             <FormControlLabel
                                                 control={
                                                     <Radio
-                                                        name='resultado'
-                                                        value={1}
-                                                        checked={info.resultado == 1}
-                                                        {...register('resultado')}
+                                                        name='status'
+                                                        value={70}
+                                                        checked={info.status == 70}
+                                                        {...register('status')}
                                                         onChange={handleRadioChange}
                                                     />
                                                 }
@@ -521,10 +528,10 @@ const FormFornecedor = () => {
                                             <FormControlLabel
                                                 control={
                                                     <Radio
-                                                        name='resultado'
-                                                        value={2}
-                                                        checked={info.resultado == 2}
-                                                        {...register('resultado')}
+                                                        name='status'
+                                                        value={60}
+                                                        checked={info.status == 60}
+                                                        {...register('status')}
                                                         onChange={handleRadioChange}
                                                     />
                                                 }
@@ -534,10 +541,10 @@ const FormFornecedor = () => {
                                             <FormControlLabel
                                                 control={
                                                     <Radio
-                                                        name='resultado'
-                                                        value={3}
-                                                        checked={info.resultado == 3}
-                                                        {...register('resultado')}
+                                                        name='status'
+                                                        value={50}
+                                                        checked={info.status == 50}
+                                                        {...register('status')}
                                                         onChange={handleRadioChange}
                                                     />
                                                 }

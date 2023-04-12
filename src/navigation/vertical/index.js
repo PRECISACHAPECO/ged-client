@@ -3,23 +3,35 @@ const navigation = () => {
         {
             title: 'Home',
             path: '/home',
-            icon: 'mdi:home-outline',
+            icon: 'material-symbols:home-outline-rounded',
         },
 
         {
-            title: 'POP-01',
-            icon: 'material-symbols:filter-list-rounded',
+            sectionTitle: 'Formulários'
+        },
 
+        {
+            title: 'Fornecedor',
+            path: '/fornecedor',
+            icon: 'mdi:truck-fast-outline',
             badgeContent: 'novo',
             badgeColor: 'error',
-            children: [
-                {
-                    icon: 'mdi:truck-fast-outline',
-                    title: 'Fornecedor',
-                    path: '/pop01/fornecedor',
-                    action: 'read',
-                },
-            ]
+        },
+
+        {
+            title: 'Recepção',
+            path: '/',
+            icon: 'icon-park-outline:receive',
+        },
+
+        {
+            title: 'Não conformidade',
+            path: '/',
+            icon: 'mdi:warning-circle-outline',
+        },
+
+        {
+            sectionTitle: 'Definições'
         },
 
         {
@@ -42,7 +54,7 @@ const navigation = () => {
                     action: 'read',
                 },
                 {
-                    icon: 'fluent:row-triple-24-regular',
+                    icon: 'ic:baseline-content-paste-search',
                     title: 'Sistema de Qualidade',
                     path: '/cadastros/sistema-qualidade',
                     action: 'read',

@@ -12,6 +12,15 @@ import CustomChip from 'src/@core/components/mui/chip'
 const statusDefault = {
     1: { title: 'Ativo', color: 'success' },
     0: { title: 'Inativo', color: 'secondary' },
+
+    // Status do s formulários
+    10: { title: 'Pendente', color: 'warning' },
+    20: { title: 'Acessou o link', color: 'warning' },
+    30: { title: 'Em preenchimento', color: 'warning' },
+    40: { title: 'Fornecedor concluiu preenchimento', color: 'warning' },
+    50: { title: 'Reprovado', color: 'error' },
+    60: { title: 'Aprovado Parcial', color: 'warning' },
+    70: { title: 'Aprovado', color: 'success' },
 }
 
 const configColumns = (currentLink, arrColumns) => {

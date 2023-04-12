@@ -44,7 +44,7 @@ const Fornecedor = () => {
         {
             title: 'Nome Fantasia',
             field: 'nomeFantasia',
-            size: 0.5
+            size: 0.4
         },
         {
             title: 'CNPJ',
@@ -64,7 +64,7 @@ const Fornecedor = () => {
         {
             title: 'Status',
             field: 'status',
-            size: 0.1
+            size: 0.2
         }
     ]
 
