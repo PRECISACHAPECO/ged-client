@@ -121,15 +121,15 @@ const FormFornecedor = () => {
     const dataReports = [
         {
             id: 1,
-            name: 'Ficha de inscrição',
+            name: 'Fornecedor',
             identification: '01',
-            route: 'http://localhost:3333/pdf'
+            route: 'http://localhost:3333/relatorio/fornecedor'
         },
         {
             id: 2,
-            name: 'Ficha de Filiação',
+            name: 'Recepção',
             identification: '02',
-            route: '/reports/filiation'
+            route: 'http://localhost:3333/relatorio/recepcao'
         },
         {
             id: 3,
@@ -149,10 +149,23 @@ const FormFornecedor = () => {
     const handleClickGenerateReport = item => {
         const route = item.route
 
-        axios.get(`${route}?fornecedorID=${id}&unidadeID=${user.unidadeID}`).then(() => {
-            console.log('success')
-            window.open(route, '_blank')
-        })
+        let fornecedorID = 1
+        let unidadeID = user.unidadeID
+
+        axios
+        axios
+            .post(route, { fornecedorID, unidadeID }, { responseType: 'arraybuffer' })
+            .then(response => {
+                // Converter o buffer do PDF em um objeto Blob
+                const blob = new Blob([response.data], { type: 'application/pdf' })
+                // Criar um objeto URL para o Blob
+                const url = URL.createObjectURL(blob)
+                // Abrir uma nova aba com o URL do relatório
+                window.open(url, '_blank')
+            })
+            .catch(error => {
+                console.error('Erro ao gerar relatório', error)
+            })
     }
 
     return (
