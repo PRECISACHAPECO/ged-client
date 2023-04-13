@@ -1,11 +1,14 @@
 
 // Mascara para CNPJ 
 function cnpjMask(cnpj) {
-    cnpj = cnpj.replace(/\D/g, '') // remove caracteres não numéricos
-    cnpj = cnpj.replace(/^(\d{2})(\d)/, '$1.$2') // adiciona ponto após os dois primeiros dígitos
-    cnpj = cnpj.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3') // adiciona ponto após o terceiro dígito
-    cnpj = cnpj.replace(/\.(\d{3})(\d)/, '.$1/$2') // adiciona barra após o quinto dígito
-    cnpj = cnpj.replace(/(\d{4})(\d)/, '$1-$2') // adiciona traço após o oitavo dígito
+    console.log('mask>: ', cnpj)
+    if (cnpj) {
+        cnpj = cnpj.replace(/\D/g, '') // remove caracteres não numéricos
+        cnpj = cnpj.replace(/^(\d{2})(\d)/, '$1.$2') // adiciona ponto após os dois primeiros dígitos
+        cnpj = cnpj.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3') // adiciona ponto após o terceiro dígito
+        cnpj = cnpj.replace(/\.(\d{3})(\d)/, '.$1/$2') // adiciona barra após o quinto dígito
+        cnpj = cnpj.replace(/(\d{4})(\d)/, '$1-$2') // adiciona traço após o oitavo dígito
+    }
 
     return cnpj
 }
@@ -31,7 +34,7 @@ function cepMask(cep) {
 function ufMask(uf) {
     uf = uf.toUpperCase(); // converte a string para letras maiúsculas
     uf = uf.replace(/[^A-Z]/g, ''); // remove todos os caracteres que não são letras
-    
+
     return uf;
 }
 

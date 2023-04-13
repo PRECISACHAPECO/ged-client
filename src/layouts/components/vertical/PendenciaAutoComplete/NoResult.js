@@ -12,14 +12,14 @@ const NoResult = ({ value, setOpenDialog }) => {
                 <Icon icon='mdi:file-remove-outline' fontSize='5rem' />
             </Box>
             <Typography variant='h6' sx={{ mb: 11.5, wordWrap: 'break-word' }}>
-                No results for{' '}
+                Nenhum resultado encontrado para {' '}
                 <Typography variant='h6' component='span' sx={{ wordWrap: 'break-word' }}>
                     {`"${value}"`}
                 </Typography>
             </Typography>
 
             <Typography variant='body2' sx={{ mb: 2.5, color: 'text.disabled' }}>
-                Try searching for
+                Tente pesquisar por
             </Typography>
             <List sx={{ py: 0 }}>
                 <ListItem sx={{ py: 2 }} disablePadding onClick={() => setOpenDialog(false)}>
