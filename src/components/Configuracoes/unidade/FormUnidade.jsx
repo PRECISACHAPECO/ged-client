@@ -75,13 +75,18 @@ const FormUnidade = () => {
             // Obter apenas núemros da string
             const cepNumber = cep.replace(/\D/g, '')
             api.get('https://viacep.com.br/ws/' + cepNumber + '/json/').then(response => {
-                reset({
-                    ...watch(),
-                    logradouro: response.data.logradouro,
-                    bairro: response.data.bairro,
-                    cidade: response.data.localidade,
-                    uf: response.data.uf
-                })
+                if (response.data.localidade) {
+                    reset({
+                        ...watch(),
+                        logradouro: response.data.logradouro,
+                        bairro: response.data.bairro,
+                        cidade: response.data.localidade,
+                        uf: response.data.uf
+                    })
+                    toast.success('Endereço encontrado!')
+                } else {
+                    toast.error('Endereço não encontrado!')
+                }
             })
         }
     }

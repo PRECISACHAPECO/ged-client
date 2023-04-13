@@ -27,6 +27,7 @@ import { toastMessage } from 'src/configs/defaultConfigs'
 import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
+import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 
 // Date
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -58,7 +59,7 @@ const FormFornecedor = () => {
 
     const getZebradoStyle = index => ({
         backgroundColor:
-            index % 2 !== 1 ? (mode === 'light' || mode === 'semi-dark' ? '#f7f7f9' : '#282a42') : 'inherit',
+            index % 2 !== 1 ? (mode === 'light' || mode === 'semi-dark' ? '#f7f7f9' : '#22243c42') : 'inherit',
         padding: '0.5rem',
         borderBottom: '1px solid #4c4e641f',
         borderRadius: '0.2rem'
@@ -198,6 +199,17 @@ const FormFornecedor = () => {
                                             )}
                                             {/* Textfield */}
                                             {field && field.tipo == 'string' && (
+                                                // <TextField
+                                                //     label={field.nomeCampo}
+                                                //     placeholder={field.nomeCampo}
+                                                //     name={`header.${field.nomeColuna}`}
+                                                //     defaultValue={defaultValues[field.nomeColuna] ?? ''}
+                                                //     aria-describedby='validation-schema-nome'
+                                                //     error={errors?.header?.[field.nomeColuna] ? true : false}
+                                                //     {...register(`header.${field.nomeColuna}`, {
+                                                //         required: !!field.obrigatorio
+                                                //     })}
+                                                // />
                                                 <TextField
                                                     label={field.nomeCampo}
                                                     placeholder={field.nomeCampo}
@@ -208,6 +220,11 @@ const FormFornecedor = () => {
                                                     {...register(`header.${field.nomeColuna}`, {
                                                         required: !!field.obrigatorio
                                                     })}
+                                                    onChange={e => {
+                                                        // chama a função formatCnpj() para formatar o valor do CNPJ
+                                                        e.target.value = cnpjMask(e.target.value)
+                                                    }}
+                                                    inputProps={{ maxLength: 18 }}
                                                 />
                                             )}
                                         </FormControl>
