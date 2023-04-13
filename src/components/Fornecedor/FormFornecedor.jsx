@@ -27,6 +27,7 @@ import { toastMessage } from 'src/configs/defaultConfigs'
 import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
+import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 
 // Date
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -122,6 +123,23 @@ const FormFornecedor = () => {
         setInfo(newInfo)
     }
 
+    const getAddressByCep = cepString => {
+        if (cepString.length == 9) {
+            const cep = cepString.replace(/[^0-9]/g, '')
+            api.get(`https://viacep.com.br/ws/${cep}/json/`).then(response => {
+                if (response.data.localidade) {
+                    setValue('header.logradouro', response.data.logradouro)
+                    setValue('header.bairro', response.data.bairro)
+                    setValue('header.cidade', response.data.localidade)
+                    setValue('header.estado', response.data.uf)
+                    toast.success('Endereço encontrado!')
+                } else {
+                    toast.error('Endereço não encontrado!')
+                }
+            })
+        }
+    }
+
     // Nomes e rotas dos relatórios passados para o componente FormHeader/MenuReports
     const dataReports = [
         {
@@ -199,15 +217,41 @@ const FormFornecedor = () => {
                                             {/* Textfield */}
                                             {field && field.tipo == 'string' && (
                                                 <TextField
+                                                    defaultValue={defaultValues[field.nomeColuna] ?? ''}
                                                     label={field.nomeCampo}
                                                     placeholder={field.nomeCampo}
                                                     name={`header.${field.nomeColuna}`}
-                                                    defaultValue={defaultValues[field.nomeColuna] ?? ''}
                                                     aria-describedby='validation-schema-nome'
                                                     error={errors?.header?.[field.nomeColuna] ? true : false}
                                                     {...register(`header.${field.nomeColuna}`, {
                                                         required: !!field.obrigatorio
                                                     })}
+                                                    // Validações
+                                                    onChange={e => {
+                                                        field.nomeColuna == 'cnpj'
+                                                            ? (e.target.value = cnpjMask(e.target.value))
+                                                            : field.nomeColuna == 'cep'
+                                                            ? ((e.target.value = cepMask(e.target.value)),
+                                                              getAddressByCep(e.target.value))
+                                                            : field.nomeColuna == 'telefone'
+                                                            ? (e.target.value = cellPhoneMask(e.target.value))
+                                                            : field.nomeColuna == 'estado'
+                                                            ? (e.target.value = ufMask(e.target.value))
+                                                            : (e.target.value = e.target.value)
+                                                    }}
+                                                    // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
+                                                    inputProps={
+                                                        // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
+                                                        field.nomeColuna == 'cnpj'
+                                                            ? { maxLength: 18 }
+                                                            : field.nomeColuna == 'cep'
+                                                            ? { maxLength: 9 }
+                                                            : field.nomeColuna == 'telefone'
+                                                            ? { maxLength: 15 }
+                                                            : field.nomeColuna == 'estado'
+                                                            ? { maxLength: 2 }
+                                                            : {}
+                                                    }
                                                 />
                                             )}
                                         </FormControl>
