@@ -19,7 +19,7 @@ const navigation = () => {
         },
 
         {
-            title: 'Recepção',
+            title: 'Recebimento MP',
             path: '/',
             icon: 'icon-park-outline:receive',
         },

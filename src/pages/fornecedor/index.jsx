@@ -42,7 +42,7 @@ const Fornecedor = () => {
             size: 0.1
         },
         {
-            title: 'Nome Fantasia',
+            title: 'Fantasia',
             field: 'nomeFantasia',
             size: 0.4
         },

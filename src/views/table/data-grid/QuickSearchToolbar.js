@@ -3,7 +3,7 @@ import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import { GridToolbarFilterButton } from '@mui/x-data-grid'
-import ListHeader from 'src/components/ListHeader'
+import ListHeader from 'src/components/Defaults/ListHeader'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'

@@ -27,9 +27,10 @@ import { toastMessage } from 'src/configs/defaultConfigs'
 import Loading from 'src/components/Loading'
 import Icon from 'src/@core/components/icon'
 
-const FormParametrosFornecedor = () => {
+const FormParametrosRecebimentoMp = () => {
     const { user } = useContext(AuthContext)
     const [headers, setHeaders] = useState()
+    const [products, setProducts] = useState()
     const [optionsItens, setOptionsItens] = useState([])
     const [blocks, setBlocks] = useState()
     const [orientacoes, setOrientacoes] = useState()
@@ -48,12 +49,15 @@ const FormParametrosFornecedor = () => {
     const onSubmit = async data => {
         const dataForm = {
             header: data.headers,
-            blocks: data.blocks,
-            orientacoes: data.orientacoes
+            products: data.products
+            // blocks: data.blocks,
+            // orientacoes: data.orientacoes
         }
 
+        console.log('onSubmit: ', dataForm)
+
         try {
-            await api.put(`${staticUrl}/fornecedor/${user.unidadeID}`, dataForm).then(response => {
+            await api.put(`${staticUrl}/recebimentoMp/${user.unidadeID}`, dataForm).then(response => {
                 toast.success(toastMessage.successUpdate)
             })
         } catch (error) {
@@ -61,58 +65,59 @@ const FormParametrosFornecedor = () => {
         }
     }
 
-    const addItem = index => {
-        const newBlock = [...blocks]
-        newBlock[index].itens.push({
-            ordem: newBlock[index].itens.length + 1,
-            obs: 1,
-            status: 1,
-            obrigatorio: 1
-        })
-        setBlocks(newBlock)
-    }
+    // const addItem = index => {
+    //     const newBlock = [...blocks]
+    //     newBlock[index].itens.push({
+    //         ordem: newBlock[index].itens.length + 1,
+    //         obs: 1,
+    //         status: 1,
+    //         obrigatorio: 1
+    //     })
+    //     setBlocks(newBlock)
+    // }
 
-    const addBlock = () => {
-        const newBlock = [...blocks]
-        newBlock.push({
-            dados: {
-                ordem: newBlock.length + 1,
-                nome: '',
-                status: 1
-            },
-            atividades: [
-                // Obter atividades do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
-                ...blocks[0].atividades.map(atividade => ({
-                    ...atividade,
-                    checked: 0
-                }))
-            ],
-            categorias: [
-                // Obter categorias do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
-                ...blocks[0].categorias.map(categoria => ({
-                    ...categoria,
-                    checked: 0
-                }))
-            ],
-            itens: [
-                // Obter primeiro item do primeiro bloco
-                {
-                    ordem: 1,
-                    obs: 1,
-                    status: 1,
-                    obrigatorio: 1
-                }
-            ]
-        })
-        setBlocks(newBlock)
-    }
+    // const addBlock = () => {
+    //     const newBlock = [...blocks]
+    //     newBlock.push({
+    //         dados: {
+    //             ordem: newBlock.length + 1,
+    //             nome: '',
+    //             status: 1
+    //         },
+    //         atividades: [
+    //             // Obter atividades do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
+    //             ...blocks[0].atividades.map(atividade => ({
+    //                 ...atividade,
+    //                 checked: 0
+    //             }))
+    //         ],
+    //         categorias: [
+    //             // Obter categorias do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
+    //             ...blocks[0].categorias.map(categoria => ({
+    //                 ...categoria,
+    //                 checked: 0
+    //             }))
+    //         ],
+    //         itens: [
+    //             // Obter primeiro item do primeiro bloco
+    //             {
+    //                 ordem: 1,
+    //                 obs: 1,
+    //                 status: 1,
+    //                 obrigatorio: 1
+    //             }
+    //         ]
+    //     })
+    //     setBlocks(newBlock)
+    // }
 
     useEffect(() => {
-        setTitle('Formulário do Fornecedor')
+        setTitle('Formulário do Recebimento de MP')
+        console.log('=> ', staticUrl)
 
         // Obtem o cabeçalho do formulário
         const getHeader = () => {
-            api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, { headers: { 'function-name': 'getHeader' } }).then(
+            api.get(`${staticUrl}/recebimentoMp/${user.unidadeID}`, { headers: { 'function-name': 'getHeader' } }).then(
                 response => {
                     console.log('getHeader: ', response.data)
                     setHeaders(response.data)
@@ -120,40 +125,51 @@ const FormParametrosFornecedor = () => {
             )
         }
 
+        // Obtem os produtos
+        const getProducts = () => {
+            api.get(`${staticUrl}/recebimentoMp/${user.unidadeID}`, {
+                headers: { 'function-name': 'getProducts' }
+            }).then(response => {
+                console.log('getProducts: ', response.data)
+                setProducts(response.data)
+            })
+        }
+
         // Obtem as opções pra seleção da listagem dos selects de itens e alternativas
-        const getOptionsItens = () => {
-            api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, {
-                headers: { 'function-name': 'getOptionsItens' }
-            }).then(response => {
-                console.log('getOptionsItens: ', response.data)
-                setOptionsItens(response.data)
-            })
-        }
+        // const getOptionsItens = () => {
+        //     api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, {
+        //         headers: { 'function-name': 'getOptionsItens' }
+        //     }).then(response => {
+        //         console.log('getOptionsItens: ', response.data)
+        //         setOptionsItens(response.data)
+        //     })
+        // }
 
         // Obtem os blocos do formulário
-        const getBlocks = () => {
-            api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, { headers: { 'function-name': 'getBlocks' } }).then(
-                response => {
-                    console.log('getBlocks: ', response.data)
-                    setBlocks(response.data)
-                }
-            )
-        }
+        // const getBlocks = () => {
+        //     api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, { headers: { 'function-name': 'getBlocks' } }).then(
+        //         response => {
+        //             console.log('getBlocks: ', response.data)
+        //             setBlocks(response.data)
+        //         }
+        //     )
+        // }
 
         // Obtem os blocos do formulário
-        const getOrientacoes = () => {
-            api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, {
-                headers: { 'function-name': 'getOrientacoes' }
-            }).then(response => {
-                console.log('getOrientacoes: ', response.data)
-                setOrientacoes(response.data.obs)
-            })
-        }
+        // const getOrientacoes = () => {
+        //     api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, {
+        //         headers: { 'function-name': 'getOrientacoes' }
+        //     }).then(response => {
+        //         console.log('getOrientacoes: ', response.data)
+        //         setOrientacoes(response.data.obs)
+        //     })
+        // }
 
         getHeader()
-        getOptionsItens()
-        getBlocks()
-        getOrientacoes()
+        getProducts()
+        // getBlocks()
+        // getOptionsItens()
+        // getOrientacoes()
     }, [])
 
     return (
@@ -194,9 +210,9 @@ const FormParametrosFornecedor = () => {
                                                 <ListItemButton>
                                                     <input
                                                         type='hidden'
-                                                        name={`headers.[${index}].parFornecedorID`}
-                                                        defaultValue={header.parFornecedorID}
-                                                        {...register(`headers.[${index}].parFornecedorID`)}
+                                                        name={`headers.[${index}].parRecebimentoMpID`}
+                                                        defaultValue={header.parRecebimentoMpID}
+                                                        {...register(`headers.[${index}].parRecebimentoMpID`)}
                                                     />
 
                                                     <Grid item md={4}>
@@ -230,8 +246,78 @@ const FormParametrosFornecedor = () => {
                     </Card>
                 )}
 
+                {/* Produtos */}
+                {products && (
+                    <Card sx={{ mt: 4 }}>
+                        <CardContent>
+                            {/* Lista campos */}
+                            <List component='nav' aria-label='main mailbox'>
+                                <Grid container spacing={2}>
+                                    {/* Cabeçalho */}
+                                    <ListItem divider disablePadding>
+                                        <ListItemButton>
+                                            <Grid item md={4}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Nome do Campo
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item md={3}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Mostra no Formulário
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item md={3}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Obrigatório
+                                                </Typography>
+                                            </Grid>
+                                        </ListItemButton>
+                                    </ListItem>
+
+                                    {products.map((product, index) => (
+                                        <>
+                                            <ListItem key={index} divider disablePadding>
+                                                <ListItemButton>
+                                                    <input
+                                                        type='hidden'
+                                                        name={`products.[${index}].parRecebimentoMpProdutoID`}
+                                                        defaultValue={product.parRecebimentoMpProdutoID}
+                                                        {...register(`products.[${index}].parRecebimentoMpProdutoID`)}
+                                                    />
+
+                                                    <Grid item md={4}>
+                                                        {product.nomeCampo}
+                                                    </Grid>
+
+                                                    <Grid item md={3}>
+                                                        <Checkbox
+                                                            name={`products.[${index}].mostra`}
+                                                            {...register(`products.[${index}].mostra`)}
+                                                            defaultChecked={products[index].mostra == 1 ? true : false}
+                                                        />
+                                                    </Grid>
+
+                                                    <Grid item md={3}>
+                                                        <Checkbox
+                                                            name={`products.[${index}].obrigatorio`}
+                                                            {...register(`products.[${index}].obrigatorio`)}
+                                                            defaultChecked={
+                                                                products[index].obrigatorio == 1 ? true : false
+                                                            }
+                                                        />
+                                                    </Grid>
+                                                </ListItemButton>
+                                            </ListItem>
+                                        </>
+                                    ))}
+                                </Grid>
+                            </List>
+                        </CardContent>
+                    </Card>
+                )}
+
                 {/* Blocos */}
-                {!blocks && <Loading />}
+                {/* {!blocks && <Loading />} */}
                 {blocks &&
                     blocks.map((block, index) => (
                         <Card key={index} md={12} sx={{ mt: 4 }}>
@@ -552,4 +638,4 @@ const FormParametrosFornecedor = () => {
     )
 }
 
-export default FormParametrosFornecedor
+export default FormParametrosRecebimentoMp

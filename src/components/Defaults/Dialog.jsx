@@ -6,7 +6,7 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
 import Icon from 'src/@core/components/icon'
 
-const DialogForm = ({ title, text, handleClose, openModal, handleSubmit, btnCancelar, btnConfirmar }) => {
+const DialogForm = ({ title, text, handleClose, openModal, handleSubmit, btnCancel, btnConfirm }) => {
     return (
         <>
             <Dialog open={openModal} onClose={handleClose} aria-labelledby='form-dialog-title'>
@@ -15,7 +15,7 @@ const DialogForm = ({ title, text, handleClose, openModal, handleSubmit, btnCanc
                     <DialogContentText sx={{ mb: 3 }}>{text}</DialogContentText>
                 </DialogContent>
                 <DialogActions className='dialog-actions-dense'>
-                    {btnCancelar && (
+                    {btnCancel && (
                         <Button
                             variant='outlined'
                             color='primary'
@@ -25,7 +25,7 @@ const DialogForm = ({ title, text, handleClose, openModal, handleSubmit, btnCanc
                             Cancelar
                         </Button>
                     )}
-                    {btnConfirmar && (
+                    {btnConfirm && (
                         <Button
                             variant='outlined'
                             color='error'

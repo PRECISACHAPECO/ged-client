@@ -7,9 +7,9 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import Switch from '@mui/material/Switch'
 import toast from 'react-hot-toast'
-import DialogForm from 'src/components/Dialog'
+import DialogForm from 'src/components/Defaults/Dialog'
 import { formType } from 'src/configs/defaultConfigs'
-import FormHeader from '../../FormHeader'
+import FormHeader from '../../Defaults/FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { toastMessage } from 'src/configs/defaultConfigs'
 
@@ -194,8 +194,8 @@ const FormItem = () => {
                 openModal={open}
                 handleClose={() => setOpen(false)}
                 handleSubmit={handleClickDelete}
-                btnCancelar
-                btnConfirmar
+                btnCancel
+                btnConfirm
             />
         </>
     )
