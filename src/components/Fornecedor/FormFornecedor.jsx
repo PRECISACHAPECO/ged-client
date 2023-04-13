@@ -17,7 +17,7 @@ import {
     Typography
 } from '@mui/material'
 import Router from 'next/router'
-import { backRoute } from 'src/configs/defaultConfigs'
+import { backRoute, generateReport } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import FormHeader from 'src/components/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
@@ -121,21 +121,24 @@ const FormFornecedor = () => {
         }
         setInfo(newInfo)
     }
+
     // Nomes e rotas dos relatórios passados para o componente FormHeader/MenuReports
     const dataReports = [
         {
             id: 1,
             name: 'Fornecedor',
             identification: '01',
-            // route: 'http://localhost:3333/relatorio/fornecedor'
-            route: 'https://demo.gedagro.com.br/relatorio/fornecedor'
+            route: 'relatorio/fornecedor',
+            params: {
+                fornecedorID: id,
+                unidadeID: user.unidadeID
+            }
         },
         {
             id: 2,
             name: 'Recepção',
             identification: '02',
-            // route: 'http://localhost:3333/relatorio/recepcao'
-            route: 'https://demo.gedagro.com.br/relatorio/recepcao'
+            route: '/relatorio/recepcao'
         },
         {
             id: 3,
@@ -151,30 +154,6 @@ const FormFornecedor = () => {
         }
     ]
 
-    // Gera o PDF do relatório
-    const handleClickGenerateReport = item => {
-        const route = item.route
-
-        let fornecedorID = 1
-        let unidadeID = user.unidadeID
-
-        axios
-        axios
-            .post(route, { fornecedorID, unidadeID }, { responseType: 'arraybuffer' })
-            .then(response => {
-                // Converter o buffer do PDF em um objeto Blob
-                const blob = new Blob([response.data], { type: 'application/pdf' })
-                // Criar um objeto URL para o Blob
-
-                const url = URL.createObjectURL(blob)
-                // Abrir uma nova aba com o URL do relatório
-                window.open(url, '_blank') // '_blank' abre em uma nova aba
-            })
-            .catch(error => {
-                console.error('Erro ao gerar relatório', error)
-            })
-    }
-
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -184,7 +163,7 @@ const FormFornecedor = () => {
                         btnCancel
                         btnSave
                         btnPrint
-                        handleClickGenerateReport={handleClickGenerateReport}
+                        handleClickGenerateReport={generateReport}
                         dataReports={dataReports}
                         handleSubmit={() => handleSubmit(onSubmit)}
                         title='Fornecedor'

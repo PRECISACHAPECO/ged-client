@@ -8,6 +8,9 @@ import Link from 'next/link'
 // ** Custom Components
 import CustomChip from 'src/@core/components/mui/chip'
 
+// ** API
+import { api } from 'src/configs/api'
+
 // Status Default
 const statusDefault = {
     1: { title: 'Ativo', color: 'success' },
@@ -85,7 +88,6 @@ const formType = (route) => {
 }
 
 // Função que recebe uma rota, quebra pela / e remove a ultima parte, retornando a rota anterior
-
 const backRoute = (route) => {
     const arrRoute = route.split('/')
     arrRoute.pop()
@@ -93,5 +95,24 @@ const backRoute = (route) => {
     return arrRoute.join('/')
 }
 
-export { configColumns, formType, backRoute, statusDefault, toastMessage }
+// Função pra gerar relatórios
+const generateReport = props => {
+    const route = props.route
+
+    api.post(route, props.params, { responseType: 'arraybuffer' })
+        .then(response => {
+            // Converter o buffer do PDF em um objeto Blob
+            const blob = new Blob([response.data], { type: 'application/pdf' })
+            // Criar um objeto URL para o Blob
+
+            const url = URL.createObjectURL(blob)
+            // Abrir uma nova aba com o URL do relatório
+            window.open(url, '_blank') // '_blank' abre em uma nova aba
+        })
+        .catch(error => {
+            console.error('Erro ao gerar relatório', error)
+        })
+}
+
+export { configColumns, formType, backRoute, statusDefault, toastMessage, generateReport }
 
