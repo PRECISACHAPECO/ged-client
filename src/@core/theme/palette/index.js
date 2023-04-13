@@ -5,6 +5,7 @@ const DefaultPalette = (mode, skin) => {
   const darkColor = '234, 234, 255'
   const mainColor = mode === 'light' ? lightColor : darkColor
 
+
   const defaultBgColor = () => {
     if (skin === 'bordered' && mode === 'light') {
       return whiteColor
