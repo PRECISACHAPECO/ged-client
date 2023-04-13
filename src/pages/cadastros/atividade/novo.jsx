@@ -1,4 +1,4 @@
-import FormCadastro from 'src/components/Cadastros/Atividade/FormAtividade'
+import FormAtividade from 'src/components/Cadastros/Atividade/FormAtividade'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext, useEffect } from 'react'
 
@@ -9,7 +9,7 @@ const AtividadeNovo = () => {
         setTitle('Atividade')
     }, [])
 
-    return <FormCadastro />
+    return <FormAtividade />
 }
 
 export default AtividadeNovo

@@ -59,6 +59,18 @@ const navigation = () => {
                     path: '/cadastros/sistema-qualidade',
                     action: 'read',
                 },
+                {
+                    icon: 'mdi:dump-truck',
+                    title: 'Tipo de Veículo',
+                    path: '/cadastros/tipo-veiculo',
+                    action: 'read',
+                },
+                {
+                    icon: 'mdi:transportation',
+                    title: 'Transportador',
+                    path: '/cadastros/transportador',
+                    action: 'read',
+                },
             ]
         },
 
