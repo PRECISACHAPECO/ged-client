@@ -71,6 +71,18 @@ const navigation = () => {
                     path: '/cadastros/transportador',
                     action: 'read',
                 },
+                {
+                    icon: 'mdi:transportation',
+                    title: 'Produtos',
+                    path: '/cadastros/produtos',
+                    action: 'read',
+                },
+                {
+                    icon: 'mdi:transportation',
+                    title: 'Apresentação',
+                    path: '/cadastros/apresentacao',
+                    action: 'read',
+                },
             ]
         },
 

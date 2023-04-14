@@ -35,8 +35,8 @@ const configColumns = (currentLink, arrColumns) => {
             ...column,
             flex: column.size,
             renderCell: params => (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    <Link href={`${currentLink}/${params.row.id}`}>
+                <Link href={`${currentLink}/${params.row.id}`}>
+                    <Typography variant='body2' sx={{ color: 'text.primary' }}>
                         {arrColumns &&
                             arrColumns.map((c, j) => {
                                 if (c.field === currentColumns) {
@@ -59,8 +59,8 @@ const configColumns = (currentLink, arrColumns) => {
                                     }
                                 }
                             })}
-                    </Link>
-                </Typography>
+                    </Typography>
+                </Link >
             )
         }
     })
