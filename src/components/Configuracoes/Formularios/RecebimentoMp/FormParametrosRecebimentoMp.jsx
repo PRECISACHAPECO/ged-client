@@ -49,8 +49,8 @@ const FormParametrosRecebimentoMp = () => {
     const onSubmit = async data => {
         const dataForm = {
             header: data.headers,
-            products: data.products
-            // blocks: data.blocks,
+            products: data.products,
+            blocks: data.blocks
             // orientacoes: data.orientacoes
         }
 
@@ -65,51 +65,37 @@ const FormParametrosRecebimentoMp = () => {
         }
     }
 
-    // const addItem = index => {
-    //     const newBlock = [...blocks]
-    //     newBlock[index].itens.push({
-    //         ordem: newBlock[index].itens.length + 1,
-    //         obs: 1,
-    //         status: 1,
-    //         obrigatorio: 1
-    //     })
-    //     setBlocks(newBlock)
-    // }
+    const addItem = index => {
+        const newBlock = [...blocks]
+        newBlock[index].itens.push({
+            ordem: newBlock[index].itens.length + 1,
+            obs: 1,
+            status: 1,
+            obrigatorio: 1
+        })
+        setBlocks(newBlock)
+    }
 
-    // const addBlock = () => {
-    //     const newBlock = [...blocks]
-    //     newBlock.push({
-    //         dados: {
-    //             ordem: newBlock.length + 1,
-    //             nome: '',
-    //             status: 1
-    //         },
-    //         atividades: [
-    //             // Obter atividades do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
-    //             ...blocks[0].atividades.map(atividade => ({
-    //                 ...atividade,
-    //                 checked: 0
-    //             }))
-    //         ],
-    //         categorias: [
-    //             // Obter categorias do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
-    //             ...blocks[0].categorias.map(categoria => ({
-    //                 ...categoria,
-    //                 checked: 0
-    //             }))
-    //         ],
-    //         itens: [
-    //             // Obter primeiro item do primeiro bloco
-    //             {
-    //                 ordem: 1,
-    //                 obs: 1,
-    //                 status: 1,
-    //                 obrigatorio: 1
-    //             }
-    //         ]
-    //     })
-    //     setBlocks(newBlock)
-    // }
+    const addBlock = () => {
+        const newBlock = [...blocks]
+        newBlock.push({
+            dados: {
+                ordem: newBlock.length + 1,
+                nome: '',
+                status: 1
+            },
+            itens: [
+                // Obter primeiro item do primeiro bloco
+                {
+                    ordem: 1,
+                    obs: 1,
+                    status: 1,
+                    obrigatorio: 1
+                }
+            ]
+        })
+        setBlocks(newBlock)
+    }
 
     useEffect(() => {
         setTitle('Formulário do Recebimento de MP')
@@ -136,24 +122,24 @@ const FormParametrosRecebimentoMp = () => {
         }
 
         // Obtem as opções pra seleção da listagem dos selects de itens e alternativas
-        // const getOptionsItens = () => {
-        //     api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, {
-        //         headers: { 'function-name': 'getOptionsItens' }
-        //     }).then(response => {
-        //         console.log('getOptionsItens: ', response.data)
-        //         setOptionsItens(response.data)
-        //     })
-        // }
+        const getOptionsItens = () => {
+            api.get(`${staticUrl}/recebimentoMp/${user.unidadeID}`, {
+                headers: { 'function-name': 'getOptionsItens' }
+            }).then(response => {
+                console.log('getOptionsItens: ', response.data)
+                setOptionsItens(response.data)
+            })
+        }
 
         // Obtem os blocos do formulário
-        // const getBlocks = () => {
-        //     api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, { headers: { 'function-name': 'getBlocks' } }).then(
-        //         response => {
-        //             console.log('getBlocks: ', response.data)
-        //             setBlocks(response.data)
-        //         }
-        //     )
-        // }
+        const getBlocks = () => {
+            api.get(`${staticUrl}/recebimentoMp/${user.unidadeID}`, { headers: { 'function-name': 'getBlocks' } }).then(
+                response => {
+                    console.log('getBlocks: ', response.data)
+                    setBlocks(response.data)
+                }
+            )
+        }
 
         // Obtem os blocos do formulário
         // const getOrientacoes = () => {
@@ -167,8 +153,8 @@ const FormParametrosRecebimentoMp = () => {
 
         getHeader()
         getProducts()
-        // getBlocks()
-        // getOptionsItens()
+        getBlocks()
+        getOptionsItens()
         // getOrientacoes()
     }, [])
 
@@ -325,9 +311,9 @@ const FormParametrosRecebimentoMp = () => {
                                 {/* Header */}
                                 <input
                                     type='hidden'
-                                    name={`blocks.[${index}].parFornecedorBlocoID`}
-                                    defaultValue={block.dados.parFornecedorBlocoID}
-                                    {...register(`blocks.[${index}].parFornecedorBlocoID`)}
+                                    name={`blocks.[${index}].parRecebimentoMpBlocoID`}
+                                    defaultValue={block.dados.parRecebimentoMpBlocoID}
+                                    {...register(`blocks.[${index}].parRecebimentoMpBlocoID`)}
                                 />
 
                                 <Grid container spacing={4}>
@@ -372,91 +358,6 @@ const FormParametrosRecebimentoMp = () => {
                                     </Grid>
                                 </Grid>
 
-                                {/* Atividades e Importador/Fabricante */}
-                                <Grid container spacing={4}>
-                                    {/* Atividade */}
-                                    <Grid item xs={12} md={4}>
-                                        <ListItem disablePadding>
-                                            <ListItemButton>
-                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                    Mostrar esse bloco se atividade for:
-                                                </Typography>
-                                            </ListItemButton>
-                                        </ListItem>
-                                        {block.atividades &&
-                                            block.atividades.map((atividade, indexAtividade) => (
-                                                <ListItem key={indexAtividade} disablePadding>
-                                                    <ListItemButton>
-                                                        <input
-                                                            type='hidden'
-                                                            name={`blocks.[${index}].atividades[${indexAtividade}].atividadeID`}
-                                                            defaultValue={atividade.atividadeID}
-                                                            {...register(
-                                                                `blocks.[${index}].atividades[${indexAtividade}].atividadeID`
-                                                            )}
-                                                        />
-
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Checkbox
-                                                                    name={`blocks.[${index}].atividades[${indexAtividade}].checked`}
-                                                                    {...register(
-                                                                        `blocks.[${index}].atividades[${indexAtividade}].checked`
-                                                                    )}
-                                                                    defaultChecked={
-                                                                        atividade.checked == 1 ? true : false
-                                                                    }
-                                                                />
-                                                            }
-                                                            label={atividade.nome}
-                                                        />
-                                                    </ListItemButton>
-                                                </ListItem>
-                                            ))}
-                                    </Grid>
-
-                                    {/* Fabricante/Importador */}
-                                    <Grid item xs={12} md={4}>
-                                        <ListItem disablePadding>
-                                            <ListItemButton>
-                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                    Mostrar esse bloco quando é:
-                                                </Typography>
-                                            </ListItemButton>
-                                        </ListItem>
-                                        {block.categorias &&
-                                            block.categorias.map((categoria, indexCategoria) => (
-                                                <ListItem key={indexCategoria} disablePadding>
-                                                    <ListItemButton>
-                                                        <input
-                                                            type='hidden'
-                                                            name={`blocks.[${index}].categorias[${indexCategoria}].categoriaID`}
-                                                            defaultValue={categoria.categoriaID}
-                                                            {...register(
-                                                                `blocks.[${index}].categorias[${indexCategoria}].categoriaID`
-                                                            )}
-                                                        />
-
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Checkbox
-                                                                    name={`blocks.[${index}].categorias[${indexCategoria}].checked`}
-                                                                    {...register(
-                                                                        `blocks.[${index}].categorias[${indexCategoria}].checked`
-                                                                    )}
-                                                                    defaultChecked={
-                                                                        categoria.checked == 1 ? true : false
-                                                                    }
-                                                                />
-                                                            }
-                                                            label={categoria.nome}
-                                                        />
-                                                    </ListItemButton>
-                                                </ListItem>
-                                            ))}
-                                    </Grid>
-                                </Grid>
-
                                 {/* Itens */}
                                 <Grid container spacing={4} sx={{ mt: 4 }}>
                                     {block.itens &&
@@ -464,10 +365,10 @@ const FormParametrosRecebimentoMp = () => {
                                             <>
                                                 <input
                                                     type='hidden'
-                                                    name={`blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`}
-                                                    defaultValue={item.parFornecedorBlocoItemID}
+                                                    name={`blocks.[${index}].itens.[${indexItem}].parRecebimentoMpBlocoItemID`}
+                                                    defaultValue={item.parRecebimentoMpBlocoItemID}
                                                     {...register(
-                                                        `blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`
+                                                        `blocks.[${index}].itens.[${indexItem}].parRecebimentoMpBlocoItemID`
                                                     )}
                                                 />
 
