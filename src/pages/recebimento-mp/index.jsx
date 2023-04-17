@@ -16,7 +16,7 @@ import { Card } from '@mui/material'
 
 // import axios from 'axios'
 
-const Fornecedor = () => {
+const RecebimentoMp = () => {
     const { user } = useContext(AuthContext)
     const [result, setResult] = useState(null)
     const router = useRouter()
@@ -29,7 +29,7 @@ const Fornecedor = () => {
                 .get(currentLink + '/' + user.unidadeID, { headers: { 'function-name': 'getList' } })
                 .then(response => {
                     setResult(response.data)
-                    setTitle('Fornecedor')
+                    setTitle('Recebimento de MP')
                 })
         }
         getList()
@@ -42,24 +42,19 @@ const Fornecedor = () => {
             size: 0.1
         },
         {
-            title: 'Fantasia',
-            field: 'nome',
-            size: 0.4
-        },
-        {
-            title: 'CNPJ',
-            field: 'cnpj',
+            title: 'Data',
+            field: 'data',
             size: 0.2
         },
         {
-            title: 'Cidade',
-            field: 'cidade',
-            size: 0.2
+            title: 'Transportador',
+            field: 'transportador',
+            size: 0.3
         },
         {
-            title: 'UF',
-            field: 'estado',
-            size: 0.1
+            title: 'Operação',
+            field: 'tipoOperacao',
+            size: 0.2
         },
         {
             title: 'Status',
@@ -93,4 +88,4 @@ const Fornecedor = () => {
     )
 }
 
-export default Fornecedor
+export default RecebimentoMp

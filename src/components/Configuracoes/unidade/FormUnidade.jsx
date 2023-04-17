@@ -26,7 +26,7 @@ const FormUnidade = () => {
     const inputRef = useRef(null)
 
     const schema = yup.object().shape({
-        nomeFantasia: yup.string().required(''),
+        nome: yup.string().required(''),
         razaoSocial: yup.string().nullable(),
         cnpj: yup
             .string()
@@ -193,7 +193,7 @@ const FormUnidade = () => {
                             <Grid item xs={12} md={4}>
                                 <FormControl fullWidth>
                                     <Controller
-                                        name='nomeFantasia'
+                                        name='nome'
                                         control={control}
                                         render={({ field: { value, onChange } }) => (
                                             <TextField
@@ -201,15 +201,15 @@ const FormUnidade = () => {
                                                 label='Nome Fantasia'
                                                 onChange={onChange}
                                                 placeholder='Nome Fantasia'
-                                                error={Boolean(errors.nomeFantasia)}
+                                                error={Boolean(errors.nome)}
                                                 aria-describedby='validation-schema-nome'
                                                 inputRef={inputRef}
                                             />
                                         )}
                                     />
-                                    {errors.nomeFantasia && (
+                                    {errors.nome && (
                                         <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-nome'>
-                                            {errors.nomeFantasia.message}
+                                            {errors.nome.message}
                                         </FormHelperText>
                                     )}
                                 </FormControl>

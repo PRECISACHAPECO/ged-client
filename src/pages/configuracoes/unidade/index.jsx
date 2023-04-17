@@ -39,7 +39,7 @@ const Unidade = () => {
         },
         {
             title: 'Nome',
-            field: 'nomeFantasia',
+            field: 'nome',
             size: 0.8
         },
         {

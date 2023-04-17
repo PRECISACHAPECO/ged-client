@@ -196,9 +196,9 @@ const FormParametrosRecebimentoMp = () => {
                                                 <ListItemButton>
                                                     <input
                                                         type='hidden'
-                                                        name={`headers.[${index}].parRecebimentoMpID`}
-                                                        defaultValue={header.parRecebimentoMpID}
-                                                        {...register(`headers.[${index}].parRecebimentoMpID`)}
+                                                        name={`headers.[${index}].parRecebimentompID`}
+                                                        defaultValue={header.parRecebimentompID}
+                                                        {...register(`headers.[${index}].parRecebimentompID`)}
                                                     />
 
                                                     <Grid item md={4}>
