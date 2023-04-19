@@ -26,7 +26,7 @@ const FormUnidade = () => {
     const inputRef = useRef(null)
 
     const schema = yup.object().shape({
-        nome: yup.string().required(''),
+        nomeFantasia: yup.string().required(''),
         razaoSocial: yup.string().nullable(),
         cnpj: yup
             .string()
@@ -142,6 +142,7 @@ const FormUnidade = () => {
                 const response = await api.get(`${staticUrl}/${id}`)
                 reset(response.data)
                 setData(response.data)
+                console.log(response.data)
             } catch (error) {
                 console.log(error)
             }
@@ -193,7 +194,7 @@ const FormUnidade = () => {
                             <Grid item xs={12} md={4}>
                                 <FormControl fullWidth>
                                     <Controller
-                                        name='nome'
+                                        name='nomeFantasia'
                                         control={control}
                                         render={({ field: { value, onChange } }) => (
                                             <TextField
@@ -201,15 +202,18 @@ const FormUnidade = () => {
                                                 label='Nome Fantasia'
                                                 onChange={onChange}
                                                 placeholder='Nome Fantasia'
-                                                error={Boolean(errors.nome)}
-                                                aria-describedby='validation-schema-nome'
+                                                error={Boolean(errors.nomeFantasia)}
+                                                aria-describedby='validation-schema-nomeFantasia'
                                                 inputRef={inputRef}
                                             />
                                         )}
                                     />
-                                    {errors.nome && (
-                                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-nome'>
-                                            {errors.nome.message}
+                                    {errors.nomeFantasia && (
+                                        <FormHelperText
+                                            sx={{ color: 'error.main' }}
+                                            id='validation-schema-nomeFantasia'
+                                        >
+                                            {errors.nomeFantasia.message}
                                         </FormHelperText>
                                     )}
                                 </FormControl>
@@ -225,7 +229,7 @@ const FormUnidade = () => {
                                                 value={value ?? ''}
                                                 label='Razão Social'
                                                 onChange={onChange}
-                                                placeholder='Nome'
+                                                placeholder='Razão Social'
                                                 error={Boolean(errors.razaoSocial)}
                                                 aria-describedby='validation-schema-razaoSocial'
                                             />

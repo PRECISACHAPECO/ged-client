@@ -315,7 +315,7 @@ const FormRecebimentoMp = () => {
                                     {/* Itens */}
                                     {bloco.itens &&
                                         bloco.itens.map((item, indexItem) => (
-                                            <Grid key={indexItem} container>
+                                            <Grid key={indexItem} container spacing={4} sx={{ mb: 4 }}>
                                                 {/* Hidden do itemID */}
                                                 <input
                                                     type='hidden'
