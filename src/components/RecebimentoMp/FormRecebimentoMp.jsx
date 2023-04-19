@@ -1,6 +1,8 @@
 // import * as React from 'react'
 import { useState, useEffect, useContext } from 'react'
 import { useForm, Controller } from 'react-hook-form'
+// ** Icon Imports
+import Icon from 'src/@core/components/icon'
 
 import {
     Autocomplete,
@@ -315,135 +317,151 @@ const FormRecebimentoMp = () => {
                                     {/* Itens */}
                                     {bloco.itens &&
                                         bloco.itens.map((item, indexItem) => (
-                                            <Grid key={indexItem} container spacing={4} sx={{ mb: 4 }}>
-                                                {/* Hidden do itemID */}
-                                                <input
-                                                    type='hidden'
-                                                    name={`blocos[${indexBloco}].itens[${indexItem}].itemID`}
-                                                    defaultValue={item.itemID}
-                                                    {...register(`blocos[${indexBloco}].itens[${indexItem}].itemID`)}
-                                                />
-
-                                                {/* Descrição do item */}
-                                                <Grid
-                                                    item
-                                                    xs={12}
-                                                    md={6}
-                                                    sx={{ display: 'flex', alignItems: 'center' }}
-                                                >
-                                                    {item.ordem + ' - ' + item.nome}
-                                                </Grid>
-
-                                                {/* Alternativas de respostas */}
-                                                <Grid item xs={12} md={3}>
-                                                    {/* Tipo de alternativa  */}
+                                            <>
+                                                <Grid key={indexItem} container spacing={4} sx={{ mb: 4 }}>
+                                                    {/* Hidden do itemID */}
                                                     <input
                                                         type='hidden'
-                                                        name={`blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`}
-                                                        defaultValue={item.alternativa}
+                                                        name={`blocos[${indexBloco}].itens[${indexItem}].itemID`}
+                                                        defaultValue={item.itemID}
                                                         {...register(
-                                                            `blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`
+                                                            `blocos[${indexBloco}].itens[${indexItem}].itemID`
                                                         )}
                                                     />
 
-                                                    <FormControl fullWidth>
-                                                        {/* +1 que umaopção pra selecionar (Select) */}
-                                                        {item.alternativas && item.alternativas.length > 1 && (
-                                                            <Autocomplete
-                                                                options={item.alternativas}
-                                                                defaultValue={
-                                                                    item.resposta
-                                                                        ? { nome: item?.resposta }
-                                                                        : { nome: '' }
-                                                                }
-                                                                id='autocomplete-outlined'
-                                                                getOptionLabel={option => option.nome}
-                                                                onChange={(event, value) => {
-                                                                    setValue(
-                                                                        `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
-                                                                        value?.alternativaID
-                                                                    )
-                                                                }}
-                                                                renderInput={params => (
-                                                                    <TextField
-                                                                        {...params}
-                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                        label='Selecione uma resposta'
-                                                                        placeholder='Selecione uma resposta'
-                                                                        {...register(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`
-                                                                        )}
-                                                                    />
-                                                                )}
-                                                            />
-                                                        )}
+                                                    {/* Descrição do item */}
+                                                    <Grid
+                                                        item
+                                                        xs={12}
+                                                        md={6}
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '10px'
+                                                        }}
+                                                    >
+                                                        <Icon
+                                                            icon={'line-md:circle-to-confirm-circle-transition'}
+                                                            style={{
+                                                                color: item.resposta ? 'green' : 'grey',
+                                                                fontSize: '20px'
+                                                            }}
+                                                        />
+                                                        {item.ordem + ' - ' + item.nome}
+                                                    </Grid>
 
-                                                        {/* Data */}
-                                                        {item.alternativas.length == 0 && item.alternativa == 'Data' && (
-                                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                                <DatePicker
-                                                                    label='Selecione uma data'
-                                                                    locale={dayjs.locale('pt-br')}
-                                                                    format='DD/MM/YYYY'
+                                                    {/* Alternativas de respostas */}
+                                                    <Grid item xs={12} md={3}>
+                                                        {/* Tipo de alternativa  */}
+                                                        <input
+                                                            type='hidden'
+                                                            name={`blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`}
+                                                            defaultValue={item.alternativa}
+                                                            {...register(
+                                                                `blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`
+                                                            )}
+                                                        />
+
+                                                        <FormControl fullWidth>
+                                                            {/* +1 que umaopção pra selecionar (Select) */}
+                                                            {item.alternativas && item.alternativas.length > 1 && (
+                                                                <Autocomplete
+                                                                    options={item.alternativas}
                                                                     defaultValue={
                                                                         item.resposta
-                                                                            ? dayjs(new Date(item.resposta))
-                                                                            : ''
+                                                                            ? { nome: item?.resposta }
+                                                                            : { nome: '' }
                                                                     }
-                                                                    onChange={newValue => {
+                                                                    id='autocomplete-outlined'
+                                                                    getOptionLabel={option => option.nome}
+                                                                    onChange={(event, value) => {
                                                                         setValue(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                            newValue
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
+                                                                            value?.alternativaID
                                                                         )
                                                                     }}
                                                                     renderInput={params => (
                                                                         <TextField
                                                                             {...params}
-                                                                            variant='outlined'
                                                                             name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                            label='Selecione uma resposta'
+                                                                            placeholder='Selecione uma resposta'
                                                                             {...register(
                                                                                 `blocos[${indexBloco}].itens[${indexItem}].resposta`
                                                                             )}
                                                                         />
                                                                     )}
                                                                 />
-                                                            </LocalizationProvider>
-                                                        )}
-
-                                                        {/* Dissertativa */}
-                                                        {item.alternativas.length == 0 &&
-                                                            item.alternativa == 'Dissertativa' && (
-                                                                <TextField
-                                                                    multiline
-                                                                    label='Descreva a resposta'
-                                                                    placeholder='Descreva a resposta'
-                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                    defaultValue={item.resposta ?? ''}
-                                                                    {...register(
-                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`
-                                                                    )}
-                                                                />
                                                             )}
-                                                    </FormControl>
-                                                </Grid>
 
-                                                {/* Obs */}
-                                                {item && item.obs == 1 && (
-                                                    <Grid item xs={12} md={3}>
-                                                        <FormControl fullWidth>
-                                                            <TextField
-                                                                label='Observação'
-                                                                placeholder='Observação'
-                                                                name={`blocos[${indexBloco}].itens[${indexItem}].observacao`}
-                                                                defaultValue={item.observacao ?? ''}
-                                                                {...register(
-                                                                    `blocos[${indexBloco}].itens[${indexItem}].observacao`
+                                                            {/* Data */}
+                                                            {item.alternativas.length == 0 &&
+                                                                item.alternativa == 'Data' && (
+                                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                                        <DatePicker
+                                                                            label='Selecione uma data'
+                                                                            locale={dayjs.locale('pt-br')}
+                                                                            format='DD/MM/YYYY'
+                                                                            defaultValue={
+                                                                                item.resposta
+                                                                                    ? dayjs(new Date(item.resposta))
+                                                                                    : ''
+                                                                            }
+                                                                            onChange={newValue => {
+                                                                                setValue(
+                                                                                    `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                    newValue
+                                                                                )
+                                                                            }}
+                                                                            renderInput={params => (
+                                                                                <TextField
+                                                                                    {...params}
+                                                                                    variant='outlined'
+                                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                                    {...register(
+                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                                    )}
+                                                                                />
+                                                                            )}
+                                                                        />
+                                                                    </LocalizationProvider>
                                                                 )}
-                                                            />
+
+                                                            {/* Dissertativa */}
+                                                            {item.alternativas.length == 0 &&
+                                                                item.alternativa == 'Dissertativa' && (
+                                                                    <TextField
+                                                                        multiline
+                                                                        label='Descreva a resposta'
+                                                                        placeholder='Descreva a resposta'
+                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                        defaultValue={item.resposta ?? ''}
+                                                                        {...register(
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                        )}
+                                                                    />
+                                                                )}
                                                         </FormControl>
                                                     </Grid>
-                                                )}
-                                            </Grid>
+
+                                                    {/* Obs */}
+                                                    {item && item.obs == 1 && (
+                                                        <Grid item xs={12} md={3}>
+                                                            <FormControl fullWidth>
+                                                                <TextField
+                                                                    label='Observação'
+                                                                    placeholder='Observação'
+                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].observacao`}
+                                                                    defaultValue={item.observacao ?? ''}
+                                                                    {...register(
+                                                                        `blocos[${indexBloco}].itens[${indexItem}].observacao`
+                                                                    )}
+                                                                />
+                                                            </FormControl>
+                                                        </Grid>
+                                                    )}
+                                                </Grid>
+                                            </>
                                         ))}
                                 </Grid>
                             </CardContent>
