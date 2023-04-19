@@ -19,7 +19,8 @@ import {
     Typography
 } from '@mui/material'
 import Router from 'next/router'
-import { backRoute, generateReport } from 'src/configs/defaultConfigs'
+import { backRoute } from 'src/configs/defaultConfigs'
+import { generateReport } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
@@ -127,9 +128,9 @@ const FormRecebimentoMp = () => {
     const dataReports = [
         {
             id: 1,
-            name: 'Fornecedor',
+            name: 'recebimentoMP',
             identification: '01',
-            route: 'relatorio/fornecedor',
+            route: 'relatorio/recebimentoMP',
             params: {
                 fornecedorID: id,
                 unidadeID: user.unidadeID
@@ -140,18 +141,6 @@ const FormRecebimentoMp = () => {
             name: 'Recepção',
             identification: '02',
             route: '/relatorio/recepcao'
-        },
-        {
-            id: 3,
-            name: 'Ficha de Matrícula',
-            identification: '03',
-            route: '/'
-        },
-        {
-            id: 4,
-            name: 'Ficha de Nacionalidade',
-            identification: '04',
-            route: '/'
         }
     ]
 
