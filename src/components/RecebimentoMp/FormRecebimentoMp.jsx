@@ -59,7 +59,17 @@ const FormRecebimentoMp = () => {
     const defaultValues =
         data &&
         fields.reduce((defaultValues, field) => {
-            defaultValues[field.nomeColuna] = data[field.nomeColuna]
+            if (field.tabela) {
+                // Select (objeto com id e nome)
+                defaultValues[field.nomeColuna] = {
+                    id: data[field.tabela]?.id,
+                    nome: data[field.tabela]?.nome
+                }
+            } else {
+                // Input
+                defaultValues[field.nomeColuna] = data[field.nomeColuna]
+            }
+
             return defaultValues
         }, {})
 
@@ -188,7 +198,7 @@ const FormRecebimentoMp = () => {
                                                     options={field.options}
                                                     defaultValue={
                                                         defaultValues[field.nomeColuna]
-                                                            ? { nome: defaultValues[field.nomeColuna] }
+                                                            ? { nome: defaultValues[field.nomeColuna].nome }
                                                             : { nome: '' }
                                                     }
                                                     id='autocomplete-outlined'

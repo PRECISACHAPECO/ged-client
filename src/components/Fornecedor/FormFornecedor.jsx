@@ -163,8 +163,9 @@ const FormFornecedor = () => {
 
     return (
         <>
-            {isLoading && <Loading />}
-            {!isLoading && (
+            {isLoading ? (
+                <Loading />
+            ) : (
                 <form onSubmit={handleSubmit(onSubmit)}>
                     {/* Card Header */}
                     <Card>
@@ -512,75 +513,10 @@ const FormFornecedor = () => {
                                     </FormControl>
                                 </Grid>
                             </Grid>
-<<<<<<< HEAD
-                        </Grid>
-                    </CardContent>
-                </Card>
-            </form>
-=======
-                        </CardContent>
-                    </Card>
-
-                    {/* Resultado do formulário */}
-                    <Card sx={{ mt: 4 }}>
-                        <CardContent>
-                            <Grid container spacing={4}>
-                                <Grid item xs={12} md={12}>
-                                    <FormControl fullWidth>
-                                        <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
-                                            Resultado
-                                        </Typography>
-
-                                        <Grid container spacing={4}>
-                                            <Grid item xs={12} md={12}>
-                                                <FormControlLabel
-                                                    control={
-                                                        <Radio
-                                                            name='status'
-                                                            value={70}
-                                                            checked={info.status == 70}
-                                                            {...register('status')}
-                                                            onChange={handleRadioChange}
-                                                        />
-                                                    }
-                                                    label='Aprovado'
-                                                />
-
-                                                <FormControlLabel
-                                                    control={
-                                                        <Radio
-                                                            name='status'
-                                                            value={60}
-                                                            checked={info.status == 60}
-                                                            {...register('status')}
-                                                            onChange={handleRadioChange}
-                                                        />
-                                                    }
-                                                    label='Aprovado Parcial'
-                                                />
-
-                                                <FormControlLabel
-                                                    control={
-                                                        <Radio
-                                                            name='status'
-                                                            value={50}
-                                                            checked={info.status == 50}
-                                                            {...register('status')}
-                                                            onChange={handleRadioChange}
-                                                        />
-                                                    }
-                                                    label='Reprovado'
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
                         </CardContent>
                     </Card>
                 </form>
             )}
->>>>>>> 0250c96097cbdf6c88bba03d170adc132ad57da0
         </>
     )
 }
