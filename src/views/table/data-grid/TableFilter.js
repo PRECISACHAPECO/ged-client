@@ -1,6 +1,9 @@
 // ** React Imports
 import { useState } from 'react'
 
+// ** Next
+import { useRouter } from 'next/router'
+
 // ** MUI Imports
 import { DataGrid, ptBR } from '@mui/x-data-grid'
 
@@ -18,6 +21,10 @@ const TableColumns = ({ rows, columns, buttonsHeader }) => {
     const [pageSize, setPageSize] = useState(10)
     const [searchText, setSearchText] = useState('')
     const [filteredData, setFilteredData] = useState([])
+
+    const router = useRouter()
+    const currentLink = router.pathname
+
 
     const handleSearch = searchValue => {
         setSearchText(searchValue)
@@ -47,7 +54,9 @@ const TableColumns = ({ rows, columns, buttonsHeader }) => {
             rowsPerPageOptions={[10, 20, 30, 40, 50, 100]}
             components={{ Toolbar: QuickSearchToolbar }}
             rows={searchText ? filteredData : data}
+            onRowClick={row => router.push(`${currentLink}/${row.row.id}`)}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+            sx={{ '& .MuiDataGrid-cell': { cursor: 'pointer' } }}
             componentsProps={{
                 // baseButton: {
                 //     variant: 'outlined',
