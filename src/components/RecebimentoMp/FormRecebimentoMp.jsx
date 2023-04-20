@@ -88,13 +88,13 @@ const FormRecebimentoMp = () => {
 
     const onSubmit = async data => {
         console.log('onSubmit: ', data)
-        try {
-            await api.put(`${staticUrl}/${id}`, data).then(response => {
-                toast.success(toastMessage.successUpdate)
-            })
-        } catch (error) {
-            console.log(error)
-        }
+        // try {
+        //     await api.put(`${staticUrl}/${id}`, data).then(response => {
+        //         toast.success(toastMessage.successUpdate)
+        //     })
+        // } catch (error) {
+        //     console.log(error)
+        // }
     }
 
     const handleRadioChange = event => {
@@ -162,6 +162,8 @@ const FormRecebimentoMp = () => {
         getData()
     }, [])
 
+    console.log('fields', fields)
+
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -184,7 +186,7 @@ const FormRecebimentoMp = () => {
                                     <Grid key={index} item xs={12} md={3}>
                                         <FormControl fullWidth>
                                             {/* int (select) */}
-                                            {field && field.tipo == 'int' && (
+                                            {field && field.tipo === 'int' ? (
                                                 <Autocomplete
                                                     options={field.options}
                                                     defaultValue={
@@ -195,11 +197,7 @@ const FormRecebimentoMp = () => {
                                                     id='autocomplete-outlined'
                                                     getOptionLabel={option => option.nome}
                                                     onChange={(event, value) => {
-                                                        setValue(
-                                                            `header.${field.nomeColuna}`,
-                                                            0
-                                                            // value?.alternativaID
-                                                        )
+                                                        setValue(`header.${field.nomeColuna}`)
                                                     }}
                                                     renderInput={params => (
                                                         <TextField
@@ -209,12 +207,15 @@ const FormRecebimentoMp = () => {
                                                             error={errors?.header?.[field.nomeColuna] ? true : false}
                                                             placeholder={field.nomeCampo}
                                                             {...register(`header.${field.nomeColuna}`, {
-                                                                required: !!field.obrigatorio
+                                                                required: field.obrigatorio ? true : false
                                                             })}
                                                         />
                                                     )}
                                                 />
+                                            ) : (
+                                                ''
                                             )}
+
                                             {/* Date */}
                                             {field && field.tipo == 'date' && (
                                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
