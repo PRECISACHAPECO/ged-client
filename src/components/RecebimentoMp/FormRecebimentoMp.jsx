@@ -64,7 +64,7 @@ const FormRecebimentoMp = () => {
         fields.reduce((defaultValues, field) => {
             if (field.tabela) {
                 // Select (objeto com id e nome)
-                defaultValues[field.nomeColuna] = {
+                defaultValues[field.tabela] = {
                     id: data[field.tabela]?.id,
                     nome: data[field.tabela]?.nome
                 }
@@ -77,12 +77,13 @@ const FormRecebimentoMp = () => {
         }, {})
 
     const {
+        watch,
         register,
         control,
         setValue,
         handleSubmit,
         formState: { errors }
-    } = useForm()
+    } = useForm({ defaultValues })
 
     console.log('errors: ', errors)
 
@@ -166,6 +167,7 @@ const FormRecebimentoMp = () => {
 
     return (
         <>
+            {JSON.stringify(defaultValues)}
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Card Header */}
                 <Card>
@@ -186,34 +188,25 @@ const FormRecebimentoMp = () => {
                                     <Grid key={index} item xs={12} md={3}>
                                         <FormControl fullWidth>
                                             {/* int (select) */}
-                                            {field && field.tipo === 'int' ? (
+                                            {field && field.tipo === 'int' && field.tabela && (
                                                 <Autocomplete
                                                     options={field.options}
-                                                    defaultValue={
-                                                        defaultValues[field.nomeColuna]
-                                                            ? { nome: defaultValues[field.nomeColuna].nome }
-                                                            : { nome: '' }
-                                                    }
+                                                    defaultValue={defaultValues?.[field.tabela]}
                                                     id='autocomplete-outlined'
                                                     getOptionLabel={option => option.nome}
-                                                    onChange={(event, value) => {
-                                                        setValue(`header.${field.nomeColuna}`)
-                                                    }}
                                                     renderInput={params => (
                                                         <TextField
                                                             {...params}
-                                                            name={`header.${field.nomeColuna}`}
+                                                            name={`header.${field.tabela}`}
                                                             label={field.nomeCampo}
-                                                            error={errors?.header?.[field.nomeColuna] ? true : false}
                                                             placeholder={field.nomeCampo}
-                                                            {...register(`header.${field.nomeColuna}`, {
+                                                            error={errors?.header?.[field.tabela] ? true : false}
+                                                            {...register(`header.${field.tabela}`, {
                                                                 required: field.obrigatorio ? true : false
                                                             })}
                                                         />
                                                     )}
                                                 />
-                                            ) : (
-                                                ''
                                             )}
 
                                             {/* Date */}
@@ -237,6 +230,7 @@ const FormRecebimentoMp = () => {
                                                     />
                                                 </LocalizationProvider>
                                             )}
+
                                             {/* Textfield */}
                                             {field && field.tipo == 'string' && (
                                                 <TextField
