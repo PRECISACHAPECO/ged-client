@@ -132,7 +132,7 @@ const FormRecebimentoMp = () => {
             identification: '01',
             route: 'relatorio/recebimentoMP',
             params: {
-                fornecedorID: id,
+                recebimentompID: id,
                 unidadeID: user.unidadeID
             }
         },
@@ -171,7 +171,7 @@ const FormRecebimentoMp = () => {
                         btnCancel
                         btnSave
                         btnPrint
-                        handleClickGenerateReport={generateReport}
+                        generateReport={generateReport}
                         dataReports={dataReports}
                         handleSubmit={() => handleSubmit(onSubmit)}
                         title='Fornecedor'
