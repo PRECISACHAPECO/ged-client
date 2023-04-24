@@ -82,10 +82,15 @@ const FormRecebimentoMp = () => {
         control,
         setValue,
         handleSubmit,
-        formState: { errors }
-    } = useForm({ defaultValues })
+        formState: { errors },
+        trigger
+    } = useForm({ defaultValues, mode: 'onBlur' })
 
     console.log('errors: ', errors)
+
+    fields.map((field, index) => {
+        setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
+    })
 
     const onSubmit = async data => {
         console.log('onSubmit: ', data)
@@ -163,6 +168,12 @@ const FormRecebimentoMp = () => {
         getData()
     }, [])
 
+    useEffect(() => {
+        setTimeout(() => {
+            trigger() // chama a validação do formulário
+        }, 1000)
+    }, [trigger])
+
     console.log('fields', fields)
 
     return (
@@ -192,15 +203,14 @@ const FormRecebimentoMp = () => {
                                                 <Autocomplete
                                                     options={field.options}
                                                     defaultValue={defaultValues?.[field.tabela]}
-                                                    id='autocomplete-outlined'
                                                     getOptionLabel={option => option.nome}
                                                     renderInput={params => (
                                                         <TextField
                                                             {...params}
-                                                            name={`header.${field.tabela}`}
                                                             label={field.nomeCampo}
                                                             placeholder={field.nomeCampo}
                                                             error={errors?.header?.[field.tabela] ? true : false}
+                                                            name={`header.${field.tabela}`}
                                                             {...register(`header.${field.tabela}`, {
                                                                 required: field.obrigatorio ? true : false
                                                             })}
@@ -223,7 +233,7 @@ const FormRecebimentoMp = () => {
                                                                 variant='outlined'
                                                                 name={`header.${field.nomeColuna}`}
                                                                 {...register(`header.${field.nomeColuna}`, {
-                                                                    required: !!field.obrigatorio
+                                                                    required: field.obrigatorio ? true : false
                                                                 })}
                                                             />
                                                         )}
