@@ -46,8 +46,8 @@ const FormRecebimentoMp = () => {
 
     const [fields, setFields] = useState([])
     const [data, setData] = useState(null)
-    const [atividades, setAtividades] = useState([])
-    const [sistemasQualidade, setSistemasQualidade] = useState([])
+    const [produtos, setProdutos] = useState([])
+    // const [sistemasQualidade, setSistemasQualidade] = useState([])
     const [blocos, setBlocos] = useState([])
     const [info, setInfo] = useState('')
 
@@ -58,7 +58,6 @@ const FormRecebimentoMp = () => {
     const { settings } = useContext(SettingsContext)
     const mode = settings.mode
 
-    // criar validação DINAMICA com reduce no Yup, varrendo campos fields e validando os valores vindos em defaultValues
     const defaultValues =
         data &&
         fields.reduce((defaultValues, field) => {
@@ -94,13 +93,13 @@ const FormRecebimentoMp = () => {
 
     const onSubmit = async data => {
         console.log('onSubmit: ', data)
-        // try {
-        //     await api.put(`${staticUrl}/${id}`, data).then(response => {
-        //         toast.success(toastMessage.successUpdate)
-        //     })
-        // } catch (error) {
-        //     console.log(error)
-        // }
+        try {
+            await api.put(`${staticUrl}/${id}`, data).then(response => {
+                toast.success(toastMessage.successUpdate)
+            })
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const handleRadioChange = event => {
@@ -158,8 +157,8 @@ const FormRecebimentoMp = () => {
                 console.log('getData: ', response.data)
                 setFields(response.data.fields)
                 setData(response.data.data)
-                setAtividades(response.data.atividades)
-                setSistemasQualidade(response.data.sistemasQualidade)
+                setProdutos(response.data.resultFieldsProducts)
+                // setSistemasQualidade(response.data.sistemasQualidade)
                 setBlocos(response.data.blocos)
                 setInfo(response.data.info)
                 setLoading(false)
@@ -178,7 +177,7 @@ const FormRecebimentoMp = () => {
 
     return (
         <>
-            {JSON.stringify(defaultValues)}
+            {JSON.stringify(produtos)}
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Card Header */}
                 <Card>
@@ -191,98 +190,214 @@ const FormRecebimentoMp = () => {
                         handleSubmit={() => handleSubmit(onSubmit)}
                         title='Fornecedor'
                     />
+
+                    {/* Header */}
                     <CardContent>
-                        {/* Header */}
                         <Grid container spacing={4}>
                             {fields &&
                                 fields.map((field, index) => (
-                                    <Grid key={index} item xs={12} md={3}>
-                                        <FormControl fullWidth>
-                                            {/* int (select) */}
-                                            {field && field.tipo === 'int' && field.tabela && (
-                                                <Autocomplete
-                                                    options={field.options}
-                                                    defaultValue={defaultValues?.[field.tabela]}
-                                                    getOptionLabel={option => option.nome}
-                                                    renderInput={params => (
-                                                        <TextField
-                                                            {...params}
-                                                            label={field.nomeCampo}
-                                                            placeholder={field.nomeCampo}
-                                                            error={errors?.header?.[field.tabela] ? true : false}
-                                                            name={`header.${field.tabela}`}
-                                                            {...register(`header.${field.tabela}`, {
-                                                                required: field.obrigatorio ? true : false
-                                                            })}
-                                                        />
-                                                    )}
-                                                />
-                                            )}
-
-                                            {/* Date */}
-                                            {field && field.tipo == 'date' && (
-                                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                    <DatePicker
-                                                        label='Selecione uma data'
-                                                        locale={dayjs.locale('pt-br')}
-                                                        format='DD/MM/YYYY'
-                                                        defaultValue={dayjs(new Date())}
+                                    <>
+                                        <Grid key={index} item xs={12} md={3}>
+                                            <FormControl fullWidth>
+                                                {/* int (select) */}
+                                                {field && field.tipo === 'int' && field.tabela && (
+                                                    <Autocomplete
+                                                        options={field.options}
+                                                        defaultValue={defaultValues?.[field.tabela]}
+                                                        getOptionLabel={option => option.nome}
+                                                        name={`header.${field.tabela}`}
+                                                        {...register(`header.${field.tabela}`, {
+                                                            required: field.obrigatorio ? true : false
+                                                        })}
+                                                        onChange={(event, newValue) => {
+                                                            if (newValue) {
+                                                                setValue(`header.${field.tabela}`, newValue)
+                                                            }
+                                                        }}
                                                         renderInput={params => (
                                                             <TextField
                                                                 {...params}
-                                                                variant='outlined'
-                                                                name={`header.${field.nomeColuna}`}
-                                                                {...register(`header.${field.nomeColuna}`, {
-                                                                    required: field.obrigatorio ? true : false
-                                                                })}
+                                                                label={field.nomeCampo}
+                                                                placeholder={field.nomeCampo}
+                                                                error={errors?.header?.[field.tabela] ? true : false}
                                                             />
                                                         )}
                                                     />
-                                                </LocalizationProvider>
-                                            )}
+                                                )}
 
-                                            {/* Textfield */}
-                                            {field && field.tipo == 'string' && (
-                                                <TextField
-                                                    defaultValue={defaultValues[field.nomeColuna] ?? ''}
-                                                    label={field.nomeCampo}
-                                                    placeholder={field.nomeCampo}
-                                                    name={`header.${field.nomeColuna}`}
-                                                    aria-describedby='validation-schema-nome'
-                                                    error={errors?.header?.[field.nomeColuna] ? true : false}
-                                                    {...register(`header.${field.nomeColuna}`, {
-                                                        required: !!field.obrigatorio
-                                                    })}
-                                                    // Validações
-                                                    onChange={e => {
-                                                        field.nomeColuna == 'cnpj'
-                                                            ? (e.target.value = cnpjMask(e.target.value))
-                                                            : field.nomeColuna == 'cep'
-                                                            ? ((e.target.value = cepMask(e.target.value)),
-                                                              getAddressByCep(e.target.value))
-                                                            : field.nomeColuna == 'telefone'
-                                                            ? (e.target.value = cellPhoneMask(e.target.value))
-                                                            : field.nomeColuna == 'estado'
-                                                            ? (e.target.value = ufMask(e.target.value))
-                                                            : (e.target.value = e.target.value)
-                                                    }}
-                                                    // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
-                                                    inputProps={
-                                                        // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
-                                                        field.nomeColuna == 'cnpj'
-                                                            ? { maxLength: 18 }
-                                                            : field.nomeColuna == 'cep'
-                                                            ? { maxLength: 9 }
-                                                            : field.nomeColuna == 'telefone'
-                                                            ? { maxLength: 15 }
-                                                            : field.nomeColuna == 'estado'
-                                                            ? { maxLength: 2 }
-                                                            : {}
-                                                    }
-                                                />
-                                            )}
-                                        </FormControl>
-                                    </Grid>
+                                                {/* Date */}
+                                                {field && field.tipo == 'date' && (
+                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                        <DatePicker
+                                                            label='Selecione uma data'
+                                                            locale={dayjs.locale('pt-br')}
+                                                            format='DD/MM/YYYY'
+                                                            defaultValue={dayjs(new Date())}
+                                                            renderInput={params => (
+                                                                <TextField
+                                                                    {...params}
+                                                                    variant='outlined'
+                                                                    name={`header.${field.nomeColuna}`}
+                                                                    {...register(`header.${field.nomeColuna}`, {
+                                                                        required: field.obrigatorio ? true : false
+                                                                    })}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </LocalizationProvider>
+                                                )}
+
+                                                {/* Textfield */}
+                                                {field && field.tipo == 'string' && (
+                                                    <TextField
+                                                        defaultValue={defaultValues[field.nomeColuna] ?? ''}
+                                                        label={field.nomeCampo}
+                                                        placeholder={field.nomeCampo}
+                                                        name={`header.${field.nomeColuna}`}
+                                                        aria-describedby='validation-schema-nome'
+                                                        error={errors?.header?.[field.nomeColuna] ? true : false}
+                                                        {...register(`header.${field.nomeColuna}`, {
+                                                            required: !!field.obrigatorio
+                                                        })}
+                                                        // Validações
+                                                        onChange={e => {
+                                                            field.nomeColuna == 'cnpj'
+                                                                ? (e.target.value = cnpjMask(e.target.value))
+                                                                : field.nomeColuna == 'cep'
+                                                                ? ((e.target.value = cepMask(e.target.value)),
+                                                                  getAddressByCep(e.target.value))
+                                                                : field.nomeColuna == 'telefone'
+                                                                ? (e.target.value = cellPhoneMask(e.target.value))
+                                                                : field.nomeColuna == 'estado'
+                                                                ? (e.target.value = ufMask(e.target.value))
+                                                                : (e.target.value = e.target.value)
+                                                        }}
+                                                        // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
+                                                        inputProps={
+                                                            // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
+                                                            field.nomeColuna == 'cnpj'
+                                                                ? { maxLength: 18 }
+                                                                : field.nomeColuna == 'cep'
+                                                                ? { maxLength: 9 }
+                                                                : field.nomeColuna == 'telefone'
+                                                                ? { maxLength: 15 }
+                                                                : field.nomeColuna == 'estado'
+                                                                ? { maxLength: 2 }
+                                                                : {}
+                                                        }
+                                                    />
+                                                )}
+                                            </FormControl>
+                                        </Grid>
+                                    </>
+                                ))}
+                        </Grid>
+                    </CardContent>
+                </Card>
+
+                {/* Produtos */}
+                <Card sx={{ mt: 4 }}>
+                    <CardContent>
+                        <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 4 }}>
+                            PRODUTOS
+                        </Typography>
+                        <Grid container spacing={4}>
+                            {produtos &&
+                                produtos.map((field, index) => (
+                                    <>
+                                        <Grid key={index} item xs={12} md={3}>
+                                            <FormControl fullWidth>
+                                                {/* int (select) */}
+                                                {field && field.tipo === 'int' && field.tabela && (
+                                                    <Autocomplete
+                                                        options={field.options}
+                                                        defaultValue={defaultValues?.[field.tabela]}
+                                                        getOptionLabel={option => option.nome}
+                                                        name={`produtos.${field.tabela}`}
+                                                        {...register(`produtos.${field.tabela}`, {
+                                                            required: field.obrigatorio ? true : false
+                                                        })}
+                                                        onChange={(event, newValue) => {
+                                                            if (newValue) {
+                                                                setValue(`produtos.${field.tabela}`, newValue)
+                                                            }
+                                                        }}
+                                                        renderInput={params => (
+                                                            <TextField
+                                                                {...params}
+                                                                label={field.nomeCampo}
+                                                                placeholder={field.nomeCampo}
+                                                                error={errors?.produtos?.[field.tabela] ? true : false}
+                                                            />
+                                                        )}
+                                                    />
+                                                )}
+
+                                                {/* Date */}
+                                                {field && field.tipo == 'date' && (
+                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                        <DatePicker
+                                                            label='Selecione uma data'
+                                                            locale={dayjs.locale('pt-br')}
+                                                            format='DD/MM/YYYY'
+                                                            defaultValue={dayjs(new Date())}
+                                                            renderInput={params => (
+                                                                <TextField
+                                                                    {...params}
+                                                                    variant='outlined'
+                                                                    name={`produtos.${field.nomeColuna}`}
+                                                                    {...register(`produtos.${field.nomeColuna}`, {
+                                                                        required: field.obrigatorio ? true : false
+                                                                    })}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </LocalizationProvider>
+                                                )}
+
+                                                {/* Textfield */}
+                                                {field && field.tipo == 'string' && (
+                                                    <TextField
+                                                        defaultValue={defaultValues[field.nomeColuna] ?? ''}
+                                                        label={field.nomeCampo}
+                                                        placeholder={field.nomeCampo}
+                                                        name={`produtos.${field.nomeColuna}`}
+                                                        aria-describedby='validation-schema-nome'
+                                                        error={errors?.produtos?.[field.nomeColuna] ? true : false}
+                                                        {...register(`produtos.${field.nomeColuna}`, {
+                                                            required: !!field.obrigatorio
+                                                        })}
+                                                        // Validações
+                                                        onChange={e => {
+                                                            field.nomeColuna == 'cnpj'
+                                                                ? (e.target.value = cnpjMask(e.target.value))
+                                                                : field.nomeColuna == 'cep'
+                                                                ? ((e.target.value = cepMask(e.target.value)),
+                                                                  getAddressByCep(e.target.value))
+                                                                : field.nomeColuna == 'telefone'
+                                                                ? (e.target.value = cellPhoneMask(e.target.value))
+                                                                : field.nomeColuna == 'estado'
+                                                                ? (e.target.value = ufMask(e.target.value))
+                                                                : (e.target.value = e.target.value)
+                                                        }}
+                                                        // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
+                                                        inputProps={
+                                                            // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
+                                                            field.nomeColuna == 'cnpj'
+                                                                ? { maxLength: 18 }
+                                                                : field.nomeColuna == 'cep'
+                                                                ? { maxLength: 9 }
+                                                                : field.nomeColuna == 'telefone'
+                                                                ? { maxLength: 15 }
+                                                                : field.nomeColuna == 'estado'
+                                                                ? { maxLength: 2 }
+                                                                : {}
+                                                        }
+                                                    />
+                                                )}
+                                            </FormControl>
+                                        </Grid>
+                                    </>
                                 ))}
                         </Grid>
                     </CardContent>
@@ -294,12 +409,12 @@ const FormRecebimentoMp = () => {
                         <Card key={indexBloco} sx={{ mt: 4 }}>
                             <CardContent>
                                 <Grid container>
-                                    {/* Hidden do parFornecedorBlocoID */}
+                                    {/* Hidden do parRecebimentompBlocoID */}
                                     <input
                                         type='hidden'
-                                        name={`blocos[${indexBloco}].parFornecedorBlocoID`}
-                                        defaultValue={bloco.parFornecedorBlocoID}
-                                        {...register(`blocos[${indexBloco}].parFornecedorBlocoID`)}
+                                        name={`blocos[${indexBloco}].parRecebimentompBlocoID`}
+                                        defaultValue={bloco.parRecebimentompBlocoID}
+                                        {...register(`blocos[${indexBloco}].parRecebimentompBlocoID`)}
                                     />
 
                                     <Grid item xs={12} md={12}>
