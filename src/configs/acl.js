@@ -16,9 +16,10 @@ const defineRulesFor = (role, subject) => {
     } else {
         can(['read', 'create', 'update', 'delete'], subject)
     }
-
     return rules
 }
+
+
 
 export const buildAbilityFor = (role, subject) => {
     return new AppAbility(defineRulesFor(role, subject), {

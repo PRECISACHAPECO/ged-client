@@ -4,6 +4,8 @@ const navigation = () => {
             title: 'Home',
             path: '/home',
             icon: 'material-symbols:home-outline-rounded',
+            action: 'read',
+            subject: 'acl-page',
         },
 
         {
@@ -37,6 +39,8 @@ const navigation = () => {
         {
             title: 'Cadastros',
             icon: 'ph:note-pencil',
+            action: 'read',
+            subject: 'acl-page',
 
             // badgeContent: 'novo',
             // badgeColor: 'error',
@@ -52,6 +56,7 @@ const navigation = () => {
                     title: 'Item',
                     path: '/cadastros/item',
                     action: 'read',
+                    subject: 'acl-page',
                 },
                 {
                     icon: 'ic:baseline-content-paste-search',
@@ -76,6 +81,7 @@ const navigation = () => {
                     title: 'Produtos',
                     path: '/cadastros/produtos',
                     action: 'read',
+                    subject: 'acl-page',
                 },
                 {
                     icon: 'mdi:transportation',

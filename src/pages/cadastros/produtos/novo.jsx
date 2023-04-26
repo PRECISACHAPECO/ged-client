@@ -12,4 +12,9 @@ const TransportadorNovo = () => {
     return <FormProdutos />
 }
 
+TransportadorNovo.acl = {
+    action: 'read',
+    subject: 'acl-page'
+}
+
 export default TransportadorNovo

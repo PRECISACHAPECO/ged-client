@@ -12,4 +12,9 @@ const ItemNovo = () => {
     return <FormItem />
 }
 
+ItemNovo.acl = {
+    action: 'read',
+    subject: 'acl-page'
+}
+
 export default ItemNovo

@@ -81,4 +81,9 @@ const Produtos = () => {
     )
 }
 
+Produtos.acl = {
+    action: 'read',
+    subject: 'acl-page'
+}
+
 export default Produtos
