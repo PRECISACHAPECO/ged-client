@@ -110,6 +110,12 @@ const navigation = () => {
                     path: '/configuracoes/unidade',
                     action: 'read',
                 },
+                {
+                    icon: 'mdi:user-circle-outline',
+                    title: 'Usuário',
+                    path: '/configuracoes/usuario',
+                    action: 'read',
+                },
             ]
         },
     ]

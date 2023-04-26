@@ -5,6 +5,7 @@ import IconButton from '@mui/material/IconButton'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { AuthContext } from 'src/context/AuthContext'
 import { useContext } from 'react'
 
 // ** Components
@@ -12,6 +13,7 @@ import Autocomplete from 'src/layouts/components/vertical/Autocomplete'
 import ModeToggler from 'src/@core/layouts/components/shared-components/ModeToggler'
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
 import NotificationDropdown from 'src/@core/layouts/components/shared-components/NotificationDropdown'
+import { Typography } from '@mui/material'
 
 const notifications = [
     {
@@ -62,6 +64,9 @@ const AppBarContent = props => {
     // ** Props
     const { hidden, settings, saveSettings, toggleNavVisibility } = props
     const { title } = useContext(ParametersContext)
+    const { user } = useContext(AuthContext)
+
+    console.log("usuario", user)
 
     return (
         <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -77,6 +82,7 @@ const AppBarContent = props => {
                 <h3>{title}</h3>
             </Box>
             <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant='body2' sx={{ mr: 2 }}>{user.unidade}</Typography>
                 <ModeToggler settings={settings} saveSettings={saveSettings} />
                 <NotificationDropdown settings={settings} notifications={notifications} />
                 <UserDropdown settings={settings} />

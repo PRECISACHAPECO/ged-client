@@ -22,12 +22,15 @@ const defaultProvider = {
     logout: () => Promise.resolve(),
     register: () => Promise.resolve()
 }
+
+
 const AuthContext = createContext(defaultProvider)
 
 const AuthProvider = ({ children }) => {
     // ** States
     const [user, setUser] = useState(defaultProvider.user)
     const [loading, setLoading] = useState(defaultProvider.loading)
+
 
     // ** Hooks
     const router = useRouter()
@@ -75,12 +78,12 @@ const AuthProvider = ({ children }) => {
             const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
             router.replace(redirectURL)
         })
-        .catch(err => {
-            if(err.response.status === 400) {
-                toast.error('E-mail ou senha inválidos!')
-            }
-            if (errorCallback) errorCallback(err)
-        })
+            .catch(err => {
+                if (err.response.status === 400) {
+                    toast.error('E-mail ou senha inválidos!')
+                }
+                if (errorCallback) errorCallback(err)
+            })
     }
 
     const handleLogout = () => {

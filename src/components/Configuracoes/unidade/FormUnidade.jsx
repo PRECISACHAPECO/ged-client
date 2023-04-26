@@ -101,7 +101,7 @@ const FormUnidade = () => {
         try {
             if (type === 'new') {
                 await api.post(`${staticUrl}/novo`, data)
-                router.push(staticUrl)
+                // router.push(staticUrl)
                 toast.success(toastMessage.successNew)
                 reset(data)
             } else if (type === 'edit') {
@@ -330,7 +330,7 @@ const FormUnidade = () => {
                                                 placeholder='Telefone 1'
                                                 error={Boolean(errors.telefone1)}
                                                 aria-describedby='validation-schema-telefone1'
-                                                inputProps={{ maxLength: 16 }}
+                                                inputProps={{ maxLength: 15 }}
                                             />
                                         )}
                                     />
@@ -355,7 +355,7 @@ const FormUnidade = () => {
                                                 placeholder='Telefone 2'
                                                 error={Boolean(errors.telefone2)}
                                                 aria-describedby='validation-schema-telefone2'
-                                                inputProps={{ maxLength: 16 }}
+                                                inputProps={{ maxLength: 15 }}
                                             />
                                         )}
                                     />
@@ -422,30 +422,6 @@ const FormUnidade = () => {
                             <Grid item xs={12} md={4}>
                                 <FormControl fullWidth>
                                     <Controller
-                                        name='complemento'
-                                        control={control}
-                                        render={({ field: { value, onChange } }) => (
-                                            <TextField
-                                                value={value ?? ''}
-                                                label='Complemento'
-                                                onChange={onChange}
-                                                placeholder='Complemento'
-                                                error={Boolean(errors.complemento)}
-                                                aria-describedby='validation-schema-complemento'
-                                            />
-                                        )}
-                                    />
-                                    {errors.complemento && (
-                                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-complemento'>
-                                            {errors.complemento.message}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            </Grid>
-
-                            <Grid item xs={12} md={4}>
-                                <FormControl fullWidth>
-                                    <Controller
                                         name='numero'
                                         control={control}
                                         render={({ field: { value, onChange } }) => (
@@ -462,6 +438,30 @@ const FormUnidade = () => {
                                     {errors.numero && (
                                         <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-numero'>
                                             {errors.numero.message}
+                                        </FormHelperText>
+                                    )}
+                                </FormControl>
+                            </Grid>
+
+                            <Grid item xs={12} md={4}>
+                                <FormControl fullWidth>
+                                    <Controller
+                                        name='complemento'
+                                        control={control}
+                                        render={({ field: { value, onChange } }) => (
+                                            <TextField
+                                                value={value ?? ''}
+                                                label='Complemento'
+                                                onChange={onChange}
+                                                placeholder='Complemento'
+                                                error={Boolean(errors.complemento)}
+                                                aria-describedby='validation-schema-complemento'
+                                            />
+                                        )}
+                                    />
+                                    {errors.complemento && (
+                                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-complemento'>
+                                            {errors.complemento.message}
                                         </FormHelperText>
                                     )}
                                 </FormControl>
