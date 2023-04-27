@@ -29,6 +29,9 @@ const AuthProvider = ({ children }) => {
     // ** States
     const [user, setUser] = useState(defaultProvider.user)
     const [loading, setLoading] = useState(defaultProvider.loading)
+    // Controlar unidades de seleção ao usuário logar no sistema
+    const [openModalSelectUnits, setOpenModalSelectUnits] = useState(false)
+    const [unitsUser, setUnitsUser] = useState(false)
 
     // ** Hooks
     const router = useRouter()
@@ -64,21 +67,28 @@ const AuthProvider = ({ children }) => {
 
     const handleLogin = (params, errorCallback) => {
         api.post('/login', params).then(async response => {
-            params.rememberMe
-                ? window.localStorage.setItem(authConfig.storageTokenKeyName, response.data.accessToken)
-                : null
-            const returnUrl = router.query.returnUrl
-            setUser({ ...response.data.userData })
-            params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
-            const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
-            router.replace(redirectURL)
+            console.log("🚀 status: ", response.status)
+            // Verifica nº de unidades vinculadas ao usuário tentando logar
+            if (response.status === 202) { // +1 unidade, modal pra selecionar unidade antes de logar
+                setOpenModalSelectUnits(true);
+                setUnitsUser(response.data.unidades);
+            } else {                      // 1 unidade, loga direto
+                setOpenModalSelectUnits(false);
+                params.rememberMe
+                    ? window.localStorage.setItem(authConfig.storageTokenKeyName, response.data.accessToken)
+                    : null
+                const returnUrl = router.query.returnUrl
+                setUser({ ...response.data.userData })
+                params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
+                const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+                router.replace(redirectURL)
+            }
+        }).catch(err => {
+            if (err.response.status === 400) {
+                toast.error('E-mail ou senha inválidos!')
+            }
+            if (errorCallback) errorCallback(err)
         })
-            .catch(err => {
-                if (err.response.status === 400) {
-                    toast.error('E-mail ou senha inválidos!')
-                }
-                if (errorCallback) errorCallback(err)
-            })
     }
 
     const handleLogout = () => {
@@ -106,6 +116,8 @@ const AuthProvider = ({ children }) => {
         loading,
         setUser,
         setLoading,
+        openModalSelectUnits,
+        unitsUser,
         login: handleLogin,
         logout: handleLogout,
         register: handleRegister,
