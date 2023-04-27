@@ -107,14 +107,20 @@ const defaultValues = {
     cpf: ''
 }
 
-const LoginPage = () => {
+const LoginPage = ({ units }) => {
     const [rememberMe, setRememberMe] = useState(true)
     const [showPassword, setShowPassword] = useState(false)
+    // ** Contexto que controla se usuário tentando logar precisar selecionar unidade ou não
+    const { openModalSelectUnits, setOpenModalSelectUnits, unitsUser, setContextSelectedUnit } = useContext(AuthContext)
 
+    // Abre modal para selecionar unidade
     const [openModalSelectUnit, setOpenModalSelectUnit] = useState(false)
 
-    // ** Contexto que controla se usuário tentando logar precisar selecionar unidade ou não
-    const { openModalSelectUnits, unitsUser } = useContext(AuthContext)
+    // Dados do usuário
+    const [data, setData] = useState({})
+
+    // Unidade selecionada
+    const [selectedUnit, setSelectedUnit] = useState(null)
 
     // ** Hooks
     const auth = useAuth()
@@ -137,13 +143,11 @@ const LoginPage = () => {
         resolver: yupResolver(schema)
     })
 
-    const handleConfirmUnit = async () => {
-        console.log('selecionou unidade... loga')
-    }
-
     const onSubmit = data => {
         const { cpf, password } = data
-        auth.login({ cpf, password, rememberMe }, () => {
+        const verifyUnits = true
+        setData(data)
+        auth.login({ cpf, password, rememberMe, verifyUnits }, () => {
             setError('cpf', {
                 type: 'manual',
                 message: 'CPF e/ou senha inválidos!'
@@ -152,11 +156,39 @@ const LoginPage = () => {
     }
     const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
 
+    const handleCloseModalSelectUnits = () => {
+        setOpenModalSelectUnit(false)
+        setOpenModalSelectUnits(null)
+    }
+
+    const handleConfirmUnit = () => {
+        const { cpf, password } = data
+        const verifyUnits = false
+        setOpenModalSelectUnit(false)
+        setContextSelectedUnit(selectedUnit)
+        console.log('selectedUnit', selectedUnit)
+
+        auth.login({ cpf, password, rememberMe, verifyUnits }, () => {
+            setError('cpf', {
+                type: 'manual',
+                message: 'CPF e/ou senha inválidos!'
+            })
+        })
+    }
+
     return (
         <>
             <Box className='content-right'>
                 {!hidden ? (
-                    <Box sx={{ flex: 1, display: 'flex', position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+                    <Box
+                        sx={{
+                            flex: 1,
+                            display: 'flex',
+                            position: 'relative',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
                         <LoginIllustrationWrapper>
                             <LoginIllustration
                                 alt='login-illustration'
@@ -166,7 +198,9 @@ const LoginPage = () => {
                         <FooterIllustrationsV2 />
                     </Box>
                 ) : null}
-                <RightWrapper sx={skin === 'bordered' && !hidden ? { borderLeft: `1px solid ${theme.palette.divider}` } : {}}>
+                <RightWrapper
+                    sx={skin === 'bordered' && !hidden ? { borderLeft: `1px solid ${theme.palette.divider}` } : {}}
+                >
                     <Box
                         sx={{
                             p: 7,
@@ -188,7 +222,13 @@ const LoginPage = () => {
                                     justifyContent: 'center'
                                 }}
                             >
-                                <svg width={47} fill='none' height={26} viewBox='0 0 268 150' xmlns='http://www.w3.org/2000/svg'>
+                                <svg
+                                    width={47}
+                                    fill='none'
+                                    height={26}
+                                    viewBox='0 0 268 150'
+                                    xmlns='http://www.w3.org/2000/svg'
+                                >
                                     <rect
                                         rx='25.1443'
                                         width='50.2886'
@@ -258,13 +298,18 @@ const LoginPage = () => {
                                         </linearGradient>
                                     </defs>
                                 </svg>
-                                <Typography variant='h6' sx={{ ml: 2, lineHeight: 1, fontWeight: 700, fontSize: '1.5rem !important' }}>
+                                <Typography
+                                    variant='h6'
+                                    sx={{ ml: 2, lineHeight: 1, fontWeight: 700, fontSize: '1.5rem !important' }}
+                                >
                                     {themeConfig.templateName}
                                 </Typography>
                             </Box>
                             <Box sx={{ mb: 6 }}>
                                 <TypographyStyled variant='h5'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
-                                <Typography variant='body2'>Please sign-in to your account and start the adventure</Typography>
+                                <Typography variant='body2'>
+                                    Please sign-in to your account and start the adventure
+                                </Typography>
                             </Box>
 
                             <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
@@ -285,7 +330,11 @@ const LoginPage = () => {
                                             />
                                         )}
                                     />
-                                    {errors.cpf && <FormHelperText sx={{ color: 'error.main' }}>{errors.cpf.message}</FormHelperText>}
+                                    {errors.cpf && (
+                                        <FormHelperText sx={{ color: 'error.main' }}>
+                                            {errors.cpf.message}
+                                        </FormHelperText>
+                                    )}
                                 </FormControl>
                                 <FormControl fullWidth>
                                     <InputLabel htmlFor='auth-login-v2-password' error={Boolean(errors.password)}>
@@ -311,7 +360,14 @@ const LoginPage = () => {
                                                             onMouseDown={e => e.preventDefault()}
                                                             onClick={() => setShowPassword(!showPassword)}
                                                         >
-                                                            <Icon icon={showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} fontSize={20} />
+                                                            <Icon
+                                                                icon={
+                                                                    showPassword
+                                                                        ? 'mdi:eye-outline'
+                                                                        : 'mdi:eye-off-outline'
+                                                                }
+                                                                fontSize={20}
+                                                            />
                                                         </IconButton>
                                                     </InputAdornment>
                                                 }
@@ -325,11 +381,22 @@ const LoginPage = () => {
                                     )}
                                 </FormControl>
                                 <Box
-                                    sx={{ mb: 4, display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}
+                                    sx={{
+                                        mb: 4,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        justifyContent: 'space-between'
+                                    }}
                                 >
                                     <FormControlLabel
                                         label='Remember Me'
-                                        control={<Checkbox checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} />}
+                                        control={
+                                            <Checkbox
+                                                checked={rememberMe}
+                                                onChange={e => setRememberMe(e.target.checked)}
+                                            />
+                                        }
                                     />
                                     <Typography
                                         variant='body2'
@@ -343,9 +410,22 @@ const LoginPage = () => {
                                 <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
                                     Login
                                 </Button>
-                                <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-                                    <Typography sx={{ mr: 2, color: 'text.secondary' }}>New on our platform?</Typography>
-                                    <Typography href='/register' component={Link} sx={{ color: 'primary.main', textDecoration: 'none' }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    <Typography sx={{ mr: 2, color: 'text.secondary' }}>
+                                        New on our platform?
+                                    </Typography>
+                                    <Typography
+                                        href='/register'
+                                        component={Link}
+                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                    >
                                         Create an account
                                     </Typography>
                                 </Box>
@@ -359,21 +439,38 @@ const LoginPage = () => {
                                     or
                                 </Divider>
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <IconButton href='/' component={Link} sx={{ color: '#497ce2' }} onClick={e => e.preventDefault()}>
+                                    <IconButton
+                                        href='/'
+                                        component={Link}
+                                        sx={{ color: '#497ce2' }}
+                                        onClick={e => e.preventDefault()}
+                                    >
                                         <Icon icon='mdi:facebook' />
                                     </IconButton>
-                                    <IconButton href='/' component={Link} sx={{ color: '#1da1f2' }} onClick={e => e.preventDefault()}>
+                                    <IconButton
+                                        href='/'
+                                        component={Link}
+                                        sx={{ color: '#1da1f2' }}
+                                        onClick={e => e.preventDefault()}
+                                    >
                                         <Icon icon='mdi:twitter' />
                                     </IconButton>
                                     <IconButton
                                         href='/'
                                         component={Link}
                                         onClick={e => e.preventDefault()}
-                                        sx={{ color: theme => (theme.palette.mode === 'light' ? '#272727' : 'grey.300') }}
+                                        sx={{
+                                            color: theme => (theme.palette.mode === 'light' ? '#272727' : 'grey.300')
+                                        }}
                                     >
                                         <Icon icon='mdi:github' />
                                     </IconButton>
-                                    <IconButton href='/' component={Link} sx={{ color: '#db4437' }} onClick={e => e.preventDefault()}>
+                                    <IconButton
+                                        href='/'
+                                        component={Link}
+                                        sx={{ color: '#db4437' }}
+                                        onClick={e => e.preventDefault()}
+                                    >
                                         <Icon icon='mdi:google' />
                                     </IconButton>
                                 </Box>
@@ -384,22 +481,15 @@ const LoginPage = () => {
             </Box>
 
             {/* Modal de seleção de unidade pra logar */}
-
-            {/* <DialogSelectUnit
-                openModal={true}
-                arrUnits={[]}
-            /> */}
-            <DialogSelectUnit
-                text='Tem certeza que deseja excluir?'
-                title='Excluir dado'
-                openModal={true}
-                handleClose={() => setOpenModalSelectUnit(false)}
-                handleSubmit={handleConfirmUnit}
-                btnCancel
-                btnConfirm
-            />
-
-
+            {openModalSelectUnits && (
+                <DialogSelectUnit
+                    openModal={openModalSelectUnits}
+                    handleClose={handleCloseModalSelectUnits}
+                    handleSubmit={handleConfirmUnit}
+                    unidades={unitsUser}
+                    setSelectedUnit={setSelectedUnit}
+                />
+            )}
         </>
     )
 }
