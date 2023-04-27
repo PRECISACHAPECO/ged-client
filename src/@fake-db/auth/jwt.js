@@ -102,6 +102,7 @@ mock.onGet('/auth/me').reply(config => {
     // ** Get token from header
     // @ts-ignore
     const token = config.headers.Authorization
+    console.log("🚀 ~ auth/me:", token)
 
     // ** Default response
     let response = [200, {}]
@@ -110,6 +111,8 @@ mock.onGet('/auth/me').reply(config => {
     jwt.verify(token, jwtConfig.secret, (err, decoded) => {
         // ** If token is expired
         if (err) {
+            console.log("🚀 token expirou", err)
+
             // ** If onTokenExpiration === 'logout' then send 401 error
             if (defaultAuthConfig.onTokenExpiration === 'logout') {
                 // ** 401 response will logout user from AuthContext file
@@ -138,6 +141,8 @@ mock.onGet('/auth/me').reply(config => {
                 response = [200, obj]
             }
         } else {
+            console.log("🚀 token nao expirou: ", users)
+
             // ** If token is valid do nothing
             // @ts-ignore
             const userId = decoded.id
