@@ -130,7 +130,7 @@ const UserDropdown = props => {
                 <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
                     <Box sx={styles}>
                         <Icon icon='mdi:account-outline' />
-                        Profile
+                        Meus Dados
                     </Box>
                 </MenuItem>
                 <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
@@ -149,7 +149,7 @@ const UserDropdown = props => {
                 <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
                     <Box sx={styles}>
                         <Icon icon='mdi:cog-outline' />
-                        Settings
+                        Configurações
                     </Box>
                 </MenuItem>
                 <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
@@ -170,7 +170,7 @@ const UserDropdown = props => {
                     sx={{ py: 2, '& svg': { mr: 2, fontSize: '1.375rem', color: 'text.primary' } }}
                 >
                     <Icon icon='mdi:logout-variant' />
-                    Logout
+                    Sair
                 </MenuItem>
             </Menu>
         </Fragment>

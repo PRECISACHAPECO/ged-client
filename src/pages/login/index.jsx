@@ -111,7 +111,7 @@ const LoginPage = ({ units }) => {
     const [rememberMe, setRememberMe] = useState(true)
     const [showPassword, setShowPassword] = useState(false)
     // ** Contexto que controla se usuário tentando logar precisar selecionar unidade ou não
-    const { openModalSelectUnits, setOpenModalSelectUnits, unitsUser, setContextSelectedUnit } = useContext(AuthContext)
+    const { openModalSelectUnits, setOpenModalSelectUnits, unitsUser, setLoggedUnity } = useContext(AuthContext)
 
     // Abre modal para selecionar unidade
     const [openModalSelectUnit, setOpenModalSelectUnit] = useState(false)
@@ -165,8 +165,9 @@ const LoginPage = ({ units }) => {
         const { cpf, password } = data
         const verifyUnits = false
         setOpenModalSelectUnit(false)
-        setContextSelectedUnit(selectedUnit)
-        console.log('selectedUnit', selectedUnit)
+
+        setLoggedUnity(selectedUnit)
+        localStorage.setItem('loggedUnity', JSON.stringify(selectedUnit))
 
         auth.login({ cpf, password, rememberMe, verifyUnits }, () => {
             setError('cpf', {

@@ -32,9 +32,7 @@ const AuthProvider = ({ children }) => {
     // Controlar unidades de seleção ao usuário logar no sistema
     const [openModalSelectUnits, setOpenModalSelectUnits] = useState(false)
     const [unitsUser, setUnitsUser] = useState([])
-    const [contextSelectedUnit, setContextSelectedUnit] = useState(null)
-
-    console.log("🚀 ~ contextSelectedUnit:", contextSelectedUnit)
+    const [loggedUnity, setLoggedUnity] = useState(null)
 
     // ** Hooks
     const router = useRouter()
@@ -44,7 +42,8 @@ const AuthProvider = ({ children }) => {
             if (storedToken) {
                 setLoading(true)
                 const data = JSON.parse(window.localStorage.getItem('userData'))
-                const unitsUser = JSON.parse(window.localStorage.getItem('userUnits'))
+                setUnitsUser(JSON.parse(window.localStorage.getItem('userUnits')))
+                setLoggedUnity(JSON.parse(window.localStorage.getItem('loggedUnity')))
                 if (data) {
                     setUser({ ...data })
                     setLoading(false)
@@ -56,6 +55,7 @@ const AuthProvider = ({ children }) => {
                 localStorage.removeItem('userUnits')
                 localStorage.removeItem('refreshToken')
                 localStorage.removeItem('accessToken')
+                localStorage.removeItem('loggedUnity')
                 setUser(null)
                 setLoading(false)
                 if (authConfig.onTokenExpiration === 'logout' && !router.pathname.includes('login')) {
@@ -72,19 +72,25 @@ const AuthProvider = ({ children }) => {
 
     const handleLogin = (params, errorCallback) => {
         api.post('/login', params).then(async response => {
+            setUnitsUser(response.data.unidades)
+            localStorage.setItem('userUnits', JSON.stringify(response.data.unidades))
+
             // Verifica nº de unidades vinculadas ao usuário tentando logar
             if (response.status === 202 && params.verifyUnits) { // +1 unidade, modal pra selecionar unidade antes de logar
-                setOpenModalSelectUnits(true);
-                setUnitsUser(response.data.unidades);
+                setOpenModalSelectUnits(true)
             } else {                      // 1 unidade, loga direto
-                console.log(`contexto loga`)
-                setOpenModalSelectUnits(false);
+                setOpenModalSelectUnits(false)
                 params.rememberMe
                     ? window.localStorage.setItem(authConfig.storageTokenKeyName, response.data.accessToken)
                     : null
                 const returnUrl = router.query.returnUr
                 setUser({ ...response.data.userData })
-                localStorage.setItem('userUnits', JSON.stringify(unitsUser))
+
+                if (response.data.unidades == 1) {
+                    setLoggedUnity(response.data.unidades)
+                    localStorage.setItem('loggedUnity', JSON.stringify(response.data.unidades))
+                }
+
                 params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
                 const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
                 router.replace(redirectURL)
@@ -101,6 +107,7 @@ const AuthProvider = ({ children }) => {
         setUser(null)
         window.localStorage.removeItem('userData')
         window.localStorage.removeItem('userUnits')
+        window.localStorage.removeItem('loggedUnity')
         window.localStorage.removeItem(authConfig.storageTokenKeyName)
         router.push('/login')
     }
@@ -126,7 +133,8 @@ const AuthProvider = ({ children }) => {
         openModalSelectUnits,
         setOpenModalSelectUnits,
         unitsUser,
-        setContextSelectedUnit,
+        setLoggedUnity,
+        loggedUnity,
         login: handleLogin,
         logout: handleLogout,
         register: handleRegister,

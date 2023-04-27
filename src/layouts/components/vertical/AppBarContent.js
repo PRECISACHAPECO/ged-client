@@ -6,14 +6,17 @@ import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
+
+import { toast } from 'react-hot-toast'
 
 // ** Components
 import Autocomplete from 'src/layouts/components/vertical/Autocomplete'
 import ModeToggler from 'src/@core/layouts/components/shared-components/ModeToggler'
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
 import NotificationDropdown from 'src/@core/layouts/components/shared-components/NotificationDropdown'
-import { Typography } from '@mui/material'
+import { Button, Typography } from '@mui/material'
+import DialogSelectUnit from 'src/components/Defaults/Dialogs/DialogSelectUnit'
 
 const notifications = [
     {
@@ -64,30 +67,71 @@ const AppBarContent = props => {
     // ** Props
     const { hidden, settings, saveSettings, toggleNavVisibility } = props
     const { title } = useContext(ParametersContext)
-    const { user } = useContext(AuthContext)
+    const { user, setLoggedUnity, loggedUnity, unitsUser } = useContext(AuthContext)
 
-    console.log("usuario", user)
+    // Controla troca de unidade
+    const [openModal, setOpenModal] = useState(false);
+    const [unity, setSelectedUnit] = useState(null);
+    const handleCloseModalSelectUnits = () => setOpenModal(false);
+    const handleConfirmUnity = () => {
+        // Atualizar contexto e localStorage
+        setLoggedUnity(unity)
+        localStorage.setItem('loggedUnity', JSON.stringify(unity))
+        setOpenModal(false)
+        toast.success('Unidade alterada com sucesso!')
+    }
 
     return (
-        <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box className='actions-left' sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
-                {hidden && !settings.navHidden ? (
-                    <IconButton color='inherit' sx={{ ml: -2.75 }} onClick={toggleNavVisibility}>
-                        <Icon icon='mdi:menu' />
-                    </IconButton>
-                ) : null}
-                <Autocomplete hidden={hidden} settings={settings} />
-            </Box>
-            <Box className='app-title' sx={{ display: 'flex', alignItems: 'center' }}>
-                <h3>{title}</h3>
-            </Box>
-            <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant='body2' sx={{ mr: 2 }}>{user.unidade}</Typography>
-                <ModeToggler settings={settings} saveSettings={saveSettings} />
-                <NotificationDropdown settings={settings} notifications={notifications} />
-                <UserDropdown settings={settings} />
-            </Box>
-        </Box>
+        <>
+            <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box className='actions-left' sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
+                    {hidden && !settings.navHidden ? (
+                        <IconButton color='inherit' sx={{ ml: -2.75 }} onClick={toggleNavVisibility}>
+                            <Icon icon='mdi:menu' />
+                        </IconButton>
+                    ) : null}
+                    <Autocomplete hidden={hidden} settings={settings} />
+                </Box>
+                <Box className='app-title' sx={{ display: 'flex', alignItems: 'center' }}>
+                    <h3>{title}</h3>
+                </Box>
+                <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
+                    {
+                        unitsUser && unitsUser.length > 1 ? (
+                            <Button
+                                color="secondary"
+                                endIcon={<Icon icon='material-symbols:keyboard-arrow-down-rounded' />}
+                                onClick={() => setOpenModal(true)}
+                                style={{ textTransform: 'none' }}>
+                                {loggedUnity?.nomeFantasia}
+                            </Button>
+                        ) : (
+                            <Button
+                                color="secondary"
+                                style={{
+                                    textTransform: 'none',
+                                    pointerEvents: 'none'
+                                }}>
+                                {loggedUnity?.nomeFantasia}
+                            </Button>
+                        )
+                    }
+
+                    {/* <Typography variant='caption' sx={{ mr: 2 }}>{JSON.stringify(unitsUser)}</Typography> */}
+                    <ModeToggler settings={settings} saveSettings={saveSettings} />
+                    <NotificationDropdown settings={settings} notifications={notifications} />
+                    <UserDropdown settings={settings} />
+                </Box>
+            </Box >
+
+            <DialogSelectUnit
+                openModal={openModal}
+                handleClose={handleCloseModalSelectUnits}
+                handleSubmit={handleConfirmUnity}
+                unidades={unitsUser}
+                setSelectedUnit={setSelectedUnit}
+            />
+        </>
     )
 }
 
