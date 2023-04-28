@@ -3,6 +3,7 @@ import { api } from 'src/configs/api'
 import TableFilter from 'src/views/table/data-grid/TableFilter'
 import { CardContent } from '@mui/material'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { AuthContext } from 'src/context/AuthContext'
 
 import Loading from 'src/components/Loading'
 
@@ -20,10 +21,11 @@ const Unidade = () => {
     const router = useRouter()
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
+    const { user } = useContext(AuthContext)
 
     useEffect(() => {
         const getList = async () => {
-            await api.get(currentLink).then(response => {
+            await api.get(`${currentLink}?usuarioID=${user.usuarioID}`).then(response => {
                 setResult(response.data)
                 setTitle('Unidade')
             })
