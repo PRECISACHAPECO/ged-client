@@ -5,7 +5,10 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import Layout from 'src/@core/layouts/Layout'
 
 // ** Navigation Imports
-import VerticalNavItems from 'src/navigation/vertical'
+// import VerticalNavItems from 'src/navigation/vertical'
+import VerticalNavItems from 'src/components/DynamicMenu' // Custom dynamic component for menu
+
+console.log("🚀 ~ ====>:", VerticalNavItems)
 import HorizontalNavItems from 'src/navigation/horizontal'
 
 // ** Component Import

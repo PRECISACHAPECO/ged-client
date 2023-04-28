@@ -67,7 +67,7 @@ const AppBarContent = props => {
     // ** Props
     const { hidden, settings, saveSettings, toggleNavVisibility } = props
     const { title } = useContext(ParametersContext)
-    const { user, setLoggedUnity, loggedUnity, unitsUser } = useContext(AuthContext)
+    const { user, setLoggedUnity, loggedUnity, unitsUser, getRoutes } = useContext(AuthContext)
 
     // Controla troca de unidade
     const [openModal, setOpenModal] = useState(false);
@@ -77,6 +77,10 @@ const AppBarContent = props => {
         // Atualizar contexto e localStorage
         setLoggedUnity(unity)
         localStorage.setItem('loggedUnity', JSON.stringify(unity))
+
+        // Recebe usuário e unidade e seta rotas de acordo com o perfil
+        getRoutes(user.usuarioID, unity?.unidadeID)
+
         setOpenModal(false)
         toast.success('Unidade alterada com sucesso!')
     }

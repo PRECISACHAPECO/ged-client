@@ -8,6 +8,9 @@ import Link from 'next/link'
 // ** Custom Components
 import CustomChip from 'src/@core/components/mui/chip'
 
+import { useState, useContext } from 'react'
+import { AuthContext } from 'src/context/AuthContext'
+
 // ** API
 import { api } from 'src/configs/api'
 
