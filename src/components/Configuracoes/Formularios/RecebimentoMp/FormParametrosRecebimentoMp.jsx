@@ -28,7 +28,7 @@ import Loading from 'src/components/Loading'
 import Icon from 'src/@core/components/icon'
 
 const FormParametrosRecebimentoMp = () => {
-    const { user } = useContext(AuthContext)
+    const { user, loggedUnity } = useContext(AuthContext)
     const [headers, setHeaders] = useState()
     const [products, setProducts] = useState()
     const [optionsItens, setOptionsItens] = useState([])
@@ -57,7 +57,7 @@ const FormParametrosRecebimentoMp = () => {
         console.log('onSubmit: ', dataForm)
 
         try {
-            await api.put(`${staticUrl}/recebimentoMp/${user.unidadeID}`, dataForm).then(response => {
+            await api.put(`${staticUrl}/recebimentoMp/${loggedUnity.unidadeID}`, dataForm).then(response => {
                 toast.success(toastMessage.successUpdate)
             })
         } catch (error) {
@@ -103,17 +103,17 @@ const FormParametrosRecebimentoMp = () => {
 
         // Obtem o cabeçalho do formulário
         const getHeader = () => {
-            api.get(`${staticUrl}/recebimentoMp/${user.unidadeID}`, { headers: { 'function-name': 'getHeader' } }).then(
-                response => {
-                    console.log('getHeader: ', response.data)
-                    setHeaders(response.data)
-                }
-            )
+            api.get(`${staticUrl}/recebimentoMp/${loggedUnity.unidadeID}`, {
+                headers: { 'function-name': 'getHeader' }
+            }).then(response => {
+                console.log('getHeader: ', response.data)
+                setHeaders(response.data)
+            })
         }
 
         // Obtem os produtos
         const getProducts = () => {
-            api.get(`${staticUrl}/recebimentoMp/${user.unidadeID}`, {
+            api.get(`${staticUrl}/recebimentoMp/${loggedUnity.unidadeID}`, {
                 headers: { 'function-name': 'getProducts' }
             }).then(response => {
                 console.log('getProducts: ', response.data)
@@ -123,7 +123,7 @@ const FormParametrosRecebimentoMp = () => {
 
         // Obtem as opções pra seleção da listagem dos selects de itens e alternativas
         const getOptionsItens = () => {
-            api.get(`${staticUrl}/recebimentoMp/${user.unidadeID}`, {
+            api.get(`${staticUrl}/recebimentoMp/${loggedUnity.unidadeID}`, {
                 headers: { 'function-name': 'getOptionsItens' }
             }).then(response => {
                 console.log('getOptionsItens: ', response.data)
@@ -133,17 +133,17 @@ const FormParametrosRecebimentoMp = () => {
 
         // Obtem os blocos do formulário
         const getBlocks = () => {
-            api.get(`${staticUrl}/recebimentoMp/${user.unidadeID}`, { headers: { 'function-name': 'getBlocks' } }).then(
-                response => {
-                    console.log('getBlocks: ', response.data)
-                    setBlocks(response.data)
-                }
-            )
+            api.get(`${staticUrl}/recebimentoMp/${loggedUnity.unidadeID}`, {
+                headers: { 'function-name': 'getBlocks' }
+            }).then(response => {
+                console.log('getBlocks: ', response.data)
+                setBlocks(response.data)
+            })
         }
 
         // Obtem os blocos do formulário
         // const getOrientacoes = () => {
-        //     api.get(`${staticUrl}/fornecedor/${user.unidadeID}`, {
+        //     api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
         //         headers: { 'function-name': 'getOrientacoes' }
         //     }).then(response => {
         //         console.log('getOrientacoes: ', response.data)

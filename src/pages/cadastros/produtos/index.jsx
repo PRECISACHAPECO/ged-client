@@ -21,11 +21,11 @@ const Produtos = () => {
     const router = useRouter()
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
-    const { user } = useContext(AuthContext)
+    const { user, loggedUnity } = useContext(AuthContext)
 
     useEffect(() => {
         const getList = async () => {
-            await api.post(currentLink, { unidadeID: user.unidadeID }).then(response => {
+            await api.post(currentLink, { unidadeID: loggedUnity.unidadeID }).then(response => {
                 setResult(response.data)
                 setTitle('Produtos')
             })

@@ -10,6 +10,9 @@ import { useContext, useState } from 'react'
 
 import { toast } from 'react-hot-toast'
 
+// ** Next Import
+import { useRouter } from 'next/router'
+
 // ** Components
 import Autocomplete from 'src/layouts/components/vertical/Autocomplete'
 import ModeToggler from 'src/@core/layouts/components/shared-components/ModeToggler'
@@ -69,10 +72,15 @@ const AppBarContent = props => {
     const { title } = useContext(ParametersContext)
     const { user, setLoggedUnity, loggedUnity, unitsUser, getRoutes } = useContext(AuthContext)
 
+    // ** Hooks
+    const router = useRouter()
+
     // Controla troca de unidade
     const [openModal, setOpenModal] = useState(false);
     const [unity, setSelectedUnit] = useState(null);
     const handleCloseModalSelectUnits = () => setOpenModal(false);
+
+    // Troca de unidade
     const handleConfirmUnity = () => {
         // Atualizar contexto e localStorage
         setLoggedUnity(unity)
@@ -82,6 +90,7 @@ const AppBarContent = props => {
         getRoutes(user.usuarioID, unity?.unidadeID)
 
         setOpenModal(false)
+        router.replace('/home')
         toast.success('Unidade alterada com sucesso!')
     }
 
