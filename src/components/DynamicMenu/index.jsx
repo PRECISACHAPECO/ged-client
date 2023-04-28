@@ -7,127 +7,92 @@ import { AuthContext } from 'src/context/AuthContext'
 const DynamicMenu = () => {
     const { menu, routes } = useContext(AuthContext)
 
-    const arrMenu = routes.map(route => {
-        return {
-            title: route.title,
-            path: route.path,
-            icon: route.icon,
-            badgeContent: route.badgeContent,
-            badgeColor: route.badgeColor
+    const hasPermission = (currentRoute, arrSubmenu = []) => {
+        let response = false
+        routes.forEach(permission => {
+            if ((permission.rota === currentRoute && permission.ler) || arrSubmenu.length > 0) {
+                response = true
+            }
+        })
+
+        return response
+    }
+
+    const hasSubmenu = (currentRoute, arrSubmenu = []) => {
+        let response = true
+        if (!currentRoute) {
+            response = false
+            arrSubmenu.forEach(permission => {
+                if (hasPermission(permission.rota)) response = true
+            })
         }
-    })
 
-    console.log('🚀 ~ Menu: arrMenu:', menu)
-    console.log('🚀 ~ Menu: routes:', routes)
+        return response
+    }
 
-    return [
-        {
-            title: 'Fornecedor',
-            path: '/fornecedor',
-            icon: 'mdi:truck-fast-outline',
-            badgeContent: 'novo',
-            badgeColor: 'error'
-        },
+    const hasMenu = divider => {
+        let response = false
+        divider.menu.forEach(permission => {
+            // Menu(s) com permissão
+            if (hasPermission(permission.rota)) {
+                response = true
+            }
 
-        {
-            title: 'Recebimento MP',
-            path: '/recebimento-mp',
-            icon: 'icon-park-outline:receive'
-        },
+            // Submenu(s) com permissão (pelo menos 1)
+            if (permission.submenu && permission.submenu.length > 0) {
+                permission.submenu.forEach(permissionSub => {
+                    routes.forEach(row => {
+                        if (row.rota === permissionSub.rota && row.ler) response = true
+                    })
+                })
+            }
+        })
 
-        {
-            title: 'Não conformidade',
-            path: '/',
-            icon: 'mdi:warning-circle-outline'
-        },
+        return response
+    }
 
-        {
-            sectionTitle: 'Definições'
-        },
-
-        {
-            title: 'Cadastros',
-            icon: 'ph:note-pencil',
-            action: 'read',
-            subject: 'acl-page',
-
-            // badgeContent: 'novo',
-            // badgeColor: 'error',
-            children: [
-                {
-                    icon: 'fluent:food-grains-24-regular',
-                    title: 'Atividade',
-                    path: '/cadastros/atividade',
-                    action: 'read'
-                },
-                {
-                    icon: 'fluent:row-triple-24-regular',
-                    title: 'Item',
-                    path: '/cadastros/item',
-                    action: 'read',
-                    subject: 'acl-page'
-                },
-                {
-                    icon: 'ic:baseline-content-paste-search',
-                    title: 'Sistema de Qualidade',
-                    path: '/cadastros/sistema-qualidade',
-                    action: 'read'
-                },
-                {
-                    icon: 'mdi:dump-truck',
-                    title: 'Tipo de Veículo',
-                    path: '/cadastros/tipo-veiculo',
-                    action: 'read'
-                },
-                {
-                    icon: 'mdi:transportation',
-                    title: 'Transportador',
-                    path: '/cadastros/transportador',
-                    action: 'read'
-                },
-                {
-                    icon: 'mdi:transportation',
-                    title: 'Produtos',
-                    path: '/cadastros/produtos',
-                    action: 'read',
-                    subject: 'acl-page'
-                },
-                {
-                    icon: 'mdi:transportation',
-                    title: 'Apresentação',
-                    path: '/cadastros/apresentacao',
-                    action: 'read'
-                }
-            ]
-        },
-
-        {
-            title: 'Configurações',
-            icon: 'ph:gear',
-            // badgeContent: 'novo',
-            // badgeColor: 'error',
-            children: [
-                {
-                    icon: 'fluent:form-24-regular',
-                    title: 'Formulários',
-                    path: '/configuracoes/formularios',
-                    action: 'read'
-                },
-                {
-                    icon: 'mdi:farm-outline',
-                    title: 'Unidade',
-                    path: '/configuracoes/unidade',
-                    action: 'read'
-                },
-                {
-                    icon: 'mdi:user-circle-outline',
-                    title: 'Usuário',
-                    path: '/configuracoes/usuario',
-                    action: 'read'
-                }
-            ]
+    const arrMenu = []
+    for (const divisor of menu) {
+        // Divider
+        if (hasMenu(divisor)) {
+            arrMenu.push({
+                sectionTitle: divisor.nome
+            })
         }
-    ]
+
+        // Menu e Submenu
+        for (const item of divisor.menu) {
+            if (hasPermission(item.rota, item.submenu) && hasSubmenu(item.rota, item.submenu)) {
+                // Submenu
+                const submenu = []
+                if (item?.submenu && item.submenu.length > 0) {
+                    for (const subitem of item.submenu) {
+                        if (hasPermission(subitem.rota, [])) {
+                            submenu.push({
+                                title: subitem?.nome,
+                                path: subitem?.rota,
+                                icon: subitem?.icone,
+                                badgeContent: subitem?.novo == 1 ? 'novo' : null,
+                                badgeColor: subitem?.novo == 1 ? 'error' : null
+                            })
+                        }
+                    }
+                }
+
+                // Monta menu com submenu (se houver)
+                arrMenu.push({
+                    title: item?.nome,
+                    path: item?.rota,
+                    icon: item?.icone,
+                    badgeContent: item?.novo == 1 ? 'novo' : null,
+                    badgeColor: item?.novo == 1 ? 'error' : null,
+                    children: submenu.length > 0 ? submenu : null
+                })
+            }
+        }
+    }
+
+    return arrMenu
 }
 
 export default DynamicMenu
