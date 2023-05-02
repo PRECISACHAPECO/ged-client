@@ -141,22 +141,13 @@ const FormParametrosRecebimentoMp = () => {
             })
         }
 
-        // Obtem os blocos do formulário
-        // const getOrientacoes = () => {
-        //     api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
-        //         headers: { 'function-name': 'getOrientacoes' }
-        //     }).then(response => {
-        //         console.log('getOrientacoes: ', response.data)
-        //         setOrientacoes(response.data.obs)
-        //     })
-        // }
-
         getHeader()
         getProducts()
         getBlocks()
         getOptionsItens()
-        // getOrientacoes()
     }, [])
+
+    console.log('errors: ', errors)
 
     return (
         <>
@@ -307,13 +298,18 @@ const FormParametrosRecebimentoMp = () => {
                 {blocks &&
                     blocks.map((block, index) => (
                         <Card key={index} md={12} sx={{ mt: 4 }}>
+                            {/* <CardHeader title={`aaa`}> </CardHeader> */}
+
                             <CardContent>
+                                <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 4 }}>
+                                    {`Bloco ${index + 1}`}
+                                </Typography>
                                 {/* Header */}
                                 <input
                                     type='hidden'
-                                    name={`blocks.[${index}].parRecebimentoMpBlocoID`}
-                                    defaultValue={block.dados.parRecebimentoMpBlocoID}
-                                    {...register(`blocks.[${index}].parRecebimentoMpBlocoID`)}
+                                    name={`blocks.[${index}].parRecebimentompBlocoID`}
+                                    defaultValue={block.dados.parRecebimentompBlocoID}
+                                    {...register(`blocks.[${index}].parRecebimentompBlocoID`)}
                                 />
 
                                 <Grid container spacing={4}>
@@ -323,7 +319,8 @@ const FormParametrosRecebimentoMp = () => {
                                             placeholder='Sequência'
                                             name={`blocks.[${index}].sequencia`}
                                             defaultValue={block.dados.ordem}
-                                            {...register(`blocks.[${index}].sequencia`)}
+                                            {...register(`blocks.[${index}].sequencia`, { required: true })}
+                                            error={errors?.blocks?.[index]?.sequencia ? true : false}
                                         />
                                     </Grid>
 
@@ -334,7 +331,8 @@ const FormParametrosRecebimentoMp = () => {
                                                 placeholder='Nome do Bloco'
                                                 name={`blocks.[${index}].nome`}
                                                 defaultValue={block.dados.nome}
-                                                {...register(`blocks.[${index}].nome`)}
+                                                {...register(`blocks.[${index}].nome`, { required: true })}
+                                                error={errors?.blocks?.[index]?.nome ? true : false}
                                             />
                                         </FormControl>
                                     </Grid>
@@ -365,10 +363,10 @@ const FormParametrosRecebimentoMp = () => {
                                             <>
                                                 <input
                                                     type='hidden'
-                                                    name={`blocks.[${index}].itens.[${indexItem}].parRecebimentoMpBlocoItemID`}
-                                                    defaultValue={item.parRecebimentoMpBlocoItemID}
+                                                    name={`blocks.[${index}].itens.[${indexItem}].parRecebimentompBlocoItemID`}
+                                                    defaultValue={item.parRecebimentompBlocoItemID}
                                                     {...register(
-                                                        `blocks.[${index}].itens.[${indexItem}].parRecebimentoMpBlocoItemID`
+                                                        `blocks.[${index}].itens.[${indexItem}].parRecebimentompBlocoItemID`
                                                     )}
                                                 />
 
@@ -380,8 +378,14 @@ const FormParametrosRecebimentoMp = () => {
                                                             name={`blocks.[${index}].itens.[${indexItem}].sequencia`}
                                                             defaultValue={item.ordem}
                                                             {...register(
-                                                                `blocks.[${index}].itens.[${indexItem}].sequencia`
+                                                                `blocks.[${index}].itens.[${indexItem}].sequencia`,
+                                                                { required: true }
                                                             )}
+                                                            error={
+                                                                errors?.blocks?.[index]?.itens?.[indexItem]?.sequencia
+                                                                    ? true
+                                                                    : false
+                                                            }
                                                         />
                                                     </FormControl>
                                                 </Grid>
@@ -391,24 +395,24 @@ const FormParametrosRecebimentoMp = () => {
                                                         {blocks[index].itens[indexItem].nome !== '' && (
                                                             <Autocomplete
                                                                 options={optionsItens.itens}
-                                                                defaultValue={blocks[index].itens[indexItem]}
-                                                                id='autocomplete-outlined'
+                                                                defaultValue={blocks[index].itens[indexItem].item}
                                                                 getOptionLabel={option => option.nome || ''}
+                                                                name={`blocks.[${index}].itens.[${indexItem}].item`}
+                                                                {...register(
+                                                                    `blocks.[${index}].itens.[${indexItem}].item`
+                                                                )}
                                                                 onChange={(event, value) => {
+                                                                    console.log('===> ', value)
                                                                     setValue(
-                                                                        `blocks.[${index}].itens.[${indexItem}].itemID`,
-                                                                        value?.itemID
+                                                                        `blocks.[${index}].itens.[${indexItem}].item`,
+                                                                        value ? value : ''
                                                                     )
                                                                 }}
                                                                 renderInput={params => (
                                                                     <TextField
                                                                         {...params}
-                                                                        name={`blocks.[${index}].itens.[${indexItem}].nome`}
                                                                         label='Item'
                                                                         placeholder='Item'
-                                                                        {...register(
-                                                                            `blocks.[${index}].itens.[${indexItem}].nome`
-                                                                        )}
                                                                     />
                                                                 )}
                                                             />

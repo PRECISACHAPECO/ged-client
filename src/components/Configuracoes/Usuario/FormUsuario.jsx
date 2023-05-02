@@ -38,9 +38,9 @@ const FormUsuario = () => {
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const { user, loggedUnity } = useContext(AuthContext)
 
-    const schema = yup.object().shape({
-        nome: yup.string().required('Campo obrigatório')
-    })
+    // const schema = yup.object().shape({
+    //     nome: yup.string().required('Campo obrigatório')
+    // })
 
     const {
         control,
@@ -52,31 +52,42 @@ const FormUsuario = () => {
     } = useForm({
         // defaultValues: {},
         // mode: 'onChange',
-        resolver: yupResolver(schema)
+        // resolver: yupResolver(schema)
     })
 
     console.log('errors', errors)
 
+    data &&
+        data.units &&
+        data.units.map((unit, index) => {
+            setValue(`units[${index}].unidade`, unit.unidade)
+            setValue(`units[${index}].profissao`, unit.profissao)
+            // unit.cargos.map((cargo, indexCargo) => {
+            //     setValue(`units[${index}].cargo`, cargo)
+            // })
+        })
+
     // Função que atualiza os dados ou cria novo dependendo do tipo da rota
     const onSubmit = async values => {
-        try {
-            if (type === 'new') {
-                await api.post(`${staticUrl}/novo`, values)
-                router.push(staticUrl)
-                toast.success(toastMessage.successNew)
-                reset(values)
-            } else if (type === 'edit') {
-                await api.put(`${staticUrl}/${id}`, values)
-                toast.success(toastMessage.successUpdate)
-                console.log('🚀 ~ oNSUBMIT:', values)
-            }
-        } catch (error) {
-            if (error.response && error.response.status === 409) {
-                toast.error(toastMessage.errorRepeated)
-            } else {
-                console.log(error)
-            }
-        }
+        console.log('🚀 ~ onSubmit:', values)
+        // try {
+        //     if (type === 'new') {
+        //         await api.post(`${staticUrl}/novo`, values)
+        //         router.push(staticUrl)
+        //         toast.success(toastMessage.successNew)
+        //         reset(values)
+        //     } else if (type === 'edit') {
+        //         await api.put(`${staticUrl}/${id}`, values)
+        //         toast.success(toastMessage.successUpdate)
+        //         console.log('🚀 ~ oNSUBMIT:', values)
+        //     }
+        // } catch (error) {
+        //     if (error.response && error.response.status === 409) {
+        //         toast.error(toastMessage.errorRepeated)
+        //     } else {
+        //         console.log(error)
+        //     }
+        // }
     }
 
     // Função que deleta os dados
@@ -116,16 +127,14 @@ const FormUsuario = () => {
                 const response = await api.get(
                     `${staticUrl}/${id}?unidadeID=${loggedUnity.unidadeID}&admin=${user.admin}`
                 )
-                reset(response.data)
                 setData(response.data)
+                console.log('🚀 ~ getData:', response.data)
             } catch (error) {
                 console.log(error)
             }
         }
         getData()
     }, [])
-
-    console.log('data', data)
 
     return (
         <>
@@ -134,223 +143,131 @@ const FormUsuario = () => {
                     <FormHeader
                         btnCancel
                         btnSave
-                        disabled={Object.keys(errors).length > 0 ? true : false}
                         handleSubmit={() => handleSubmit(onSubmit)}
                         btnDelete={type === 'edit' ? true : false}
                         onclickDelete={() => setOpen(true)}
                     />
                     <CardContent>
-                        <Grid container spacing={5}>
-                            <Grid item xs={12} md={4}>
-                                <FormControl fullWidth>
-                                    <Controller
-                                        name='nome'
-                                        control={control}
-                                        render={({ field: { value, onChange } }) => (
+                        {data && (
+                            <>
+                                <Grid container spacing={5}>
+                                    <Grid item xs={12} md={4}>
+                                        <FormControl fullWidth>
                                             <TextField
-                                                value={value ?? ''}
+                                                defaultValue={data?.nome}
                                                 label='Nome'
-                                                onChange={onChange}
                                                 placeholder='Nome'
-                                                error={Boolean(errors.nome)}
                                                 aria-describedby='validation-schema-nome'
+                                                name='nome'
+                                                {...register(`nome`, { required: true })}
+                                                error={errors.nome}
                                             />
-                                        )}
-                                    />
-                                    {errors.nome && (
-                                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-nome'>
-                                            {errors.nome.message}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            </Grid>
+                                        </FormControl>
+                                    </Grid>
 
-                            <Grid item xs={12} md={4}>
-                                <FormControl fullWidth>
-                                    <Controller
-                                        name='dataNascimento'
-                                        control={control}
-                                        type='date'
-                                        render={({ field: { value, onChange } }) => (
+                                    <Grid item xs={12} md={4}>
+                                        <FormControl fullWidth>
                                             <TextField
-                                                value={value ?? ''}
+                                                defaultValue={data?.dataNascimento}
                                                 label='Data de Nascimento'
-                                                onChange={onChange}
                                                 placeholder='Data de Nascimento'
-                                                error={Boolean(errors.dataNascimento)}
-                                                aria-describedby='validation-schema-dataNascimento'
+                                                aria-describedby='validation-schema-nome'
+                                                name='dataNascimento'
+                                                {...register(`dataNascimento`, { required: true })}
+                                                error={errors.dataNascimento}
                                             />
-                                        )}
-                                    />
-                                    {errors.dataNascimento && (
-                                        <FormHelperText
-                                            sx={{ color: 'error.main' }}
-                                            id='validation-schema-dataNascimento'
-                                        >
-                                            {errors.dataNascimento.message}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            </Grid>
+                                        </FormControl>
+                                    </Grid>
 
-                            <Grid item xs={12} md={3}>
-                                <FormControl fullWidth>
-                                    <Controller
-                                        name='email'
-                                        control={control}
-                                        render={({ field: { value, onChange } }) => (
+                                    <Grid item xs={12} md={3}>
+                                        <FormControl fullWidth>
                                             <TextField
-                                                value={value ?? ''}
-                                                label='Email'
-                                                onChange={onChange}
-                                                placeholder='Email'
-                                                error={Boolean(errors.email)}
-                                                aria-describedby='validation-schema-email'
+                                                defaultValue={data?.email}
+                                                label='E-mail'
+                                                placeholder='E-mail'
+                                                aria-describedby='validation-schema-nome'
+                                                name='email'
+                                                {...register(`email`, { required: true })}
+                                                error={errors.email}
                                             />
-                                        )}
-                                    />
-                                    {errors.email && (
-                                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-email'>
-                                            {errors.email.message}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            </Grid>
+                                        </FormControl>
+                                    </Grid>
 
-                            <Grid item xs={12} md={1}>
-                                <FormControl>
-                                    <Controller
-                                        name='status'
-                                        control={control}
-                                        rules={{ required: false }}
-                                        render={({ field: { value, onChange } }) => (
+                                    {/* <Grid item xs={12} md={1}>
+                                        <FormControl>
                                             <FormControlLabel
-                                                checked={type === 'new' ? true : value ?? false}
-                                                onChange={onChange}
+                                                // checked={type === 'new' ? true : value ?? false}
+                                                onChange={value => setValue('status', value)}
                                                 inputProps={{ 'aria-label': 'controlled' }}
                                                 label='Status'
                                                 labelPlacement='top'
                                                 sx={{ mr: 8 }}
-                                                control={<Switch />}
+                                                control={<Checkbox name='status' {...register(`status`)} />}
                                             />
-                                        )}
-                                    />
-                                    {errors.status && (
-                                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-status'>
-                                            {errors.status.message}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            </Grid>
+                                        </FormControl>
+                                    </Grid> */}
 
-                            <Grid item xs={12} md={4}>
-                                <FormControl fullWidth>
-                                    <Controller
-                                        name='cpf'
-                                        control={control}
-                                        render={({ field: { value, onChange } }) => (
+                                    <Grid item xs={12} md={4}>
+                                        <FormControl fullWidth>
                                             <TextField
-                                                value={value ?? ''}
+                                                defaultValue={data?.cpf}
                                                 label='CPF'
-                                                onChange={onChange}
                                                 placeholder='CPF'
-                                                error={Boolean(errors.cpf)}
-                                                aria-describedby='validation-schema-cpf'
+                                                aria-describedby='validation-schema-nome'
+                                                name='cpf'
+                                                {...register(`cpf`, { required: true })}
+                                                error={errors.cpf}
                                             />
-                                        )}
-                                    />
-                                    {errors.cpf && (
-                                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-cpf'>
-                                            {errors.cpf.message}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            </Grid>
+                                        </FormControl>
+                                    </Grid>
 
-                            <Grid item xs={12} md={4}>
-                                <FormControl fullWidth>
-                                    <Controller
-                                        name='rg'
-                                        control={control}
-                                        render={({ field: { value, onChange } }) => (
+                                    <Grid item xs={12} md={4}>
+                                        <FormControl fullWidth>
                                             <TextField
-                                                value={value ?? ''}
+                                                defaultValue={data?.rg}
                                                 label='RG'
-                                                onChange={onChange}
                                                 placeholder='RG'
-                                                error={Boolean(errors.role)}
-                                                aria-describedby='validation-schema-rg'
+                                                aria-describedby='validation-schema-nome'
+                                                name='rg'
+                                                {...register(`rg`, { required: true })}
+                                                error={errors.rg}
                                             />
-                                        )}
-                                    />
-                                    {errors.rg && (
-                                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-rg'>
-                                            {errors.rg.message}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            </Grid>
-                            {user.admin == 0 && (
-                                <Grid item xs={12} md={4}>
-                                    <FormControl fullWidth>
-                                        <Controller
-                                            name='profissao'
-                                            control={control}
-                                            render={({ field: { value, onChange } }) => (
+                                        </FormControl>
+                                    </Grid>
+                                    {user.admin == 0 && (
+                                        <Grid item xs={12} md={4}>
+                                            <FormControl fullWidth>
                                                 <TextField
-                                                    value={value ?? ''}
+                                                    defaultValue={data?.profissao}
                                                     label='Profissão'
-                                                    onChange={onChange}
                                                     placeholder='Profissão'
-                                                    error={Boolean(errors.role)}
-                                                    aria-describedby='validation-schema-profissao'
+                                                    aria-describedby='validation-schema-nome'
+                                                    name='profissao'
+                                                    {...register(`profissao`, { required: true })}
+                                                    error={errors.profissao}
                                                 />
-                                            )}
-                                        />
-                                        {errors.profissao && (
-                                            <FormHelperText
-                                                sx={{ color: 'error.main' }}
-                                                id='validation-schema-profissao'
-                                            >
-                                                {errors.profissao.message}
-                                            </FormHelperText>
-                                        )}
-                                    </FormControl>
-                                </Grid>
-                            )}
+                                            </FormControl>
+                                        </Grid>
+                                    )}
 
-                            {user.admin == 0 && (
-                                <Grid item xs={12} md={4}>
-                                    <FormControl fullWidth>
-                                        <Controller
-                                            name='registroConselhoClasse'
-                                            control={control}
-                                            render={({ field: { value, onChange } }) => (
+                                    {user.admin == 0 && (
+                                        <Grid item xs={12} md={4}>
+                                            <FormControl fullWidth>
                                                 <TextField
-                                                    value={value ?? ''}
-                                                    label='Número do registro de conselho'
-                                                    onChange={onChange}
-                                                    placeholder='Número do registro de conselho
-                                                    '
-                                                    error={Boolean(errors.role)}
-                                                    aria-describedby='validation-schema-registroConselhoClasse
-                                                    '
+                                                    defaultValue={data?.registroConselhoClasse}
+                                                    label='Registro Conselho Classe'
+                                                    placeholder='Registro Conselho Classe'
+                                                    aria-describedby='validation-schema-nome'
+                                                    name='registroConselhoClasse'
+                                                    {...register(`registroConselhoClasse`, { required: true })}
+                                                    error={errors.registroConselhoClasse}
                                                 />
-                                            )}
-                                        />
-                                        {errors.registroConselhoClasse && (
-                                            <FormHelperText
-                                                sx={{ color: 'error.main' }}
-                                                id='validation-schema-registroConselhoClasse
-                                            '
-                                            >
-                                                {errors.registroConselhoClasse.message}
-                                            </FormHelperText>
-                                        )}
-                                    </FormControl>
+                                            </FormControl>
+                                        </Grid>
+                                    )}
                                 </Grid>
-                            )}
-                        </Grid>
+                            </>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -372,17 +289,26 @@ const FormUsuario = () => {
                                                     options={data.unidadesOptions}
                                                     getOptionLabel={option => option.nome}
                                                     defaultValue={unit?.unidade ?? null}
+                                                    name={`units[${indexUnit}].unidade`}
+                                                    {...register(`units[${indexUnit}].unidade`, {
+                                                        required: true
+                                                    })}
+                                                    onChange={(index, value) => {
+                                                        const newData = value
+                                                            ? {
+                                                                  id: value?.unidadeID,
+                                                                  nome: value?.nome
+                                                              }
+                                                            : ''
+                                                        setValue(`units[${indexUnit}].unidade`, newData)
+                                                    }}
                                                     renderInput={params => (
                                                         <TextField
                                                             {...params}
                                                             label='Selecione a unidade'
                                                             placeholder='Selecionar unidade'
-                                                            name={`units[${indexUnit}].unidade`}
-                                                            {...register(`units[${indexUnit}].unidade`, {
-                                                                required: true
-                                                            })}
-                                                            error={Boolean(errors.formulario)}
                                                             aria-describedby='formulario-error'
+                                                            error={errors.units?.[indexUnit]?.unidade}
                                                         />
                                                     )}
                                                 />
@@ -394,23 +320,32 @@ const FormUsuario = () => {
                                                     options={data.profissaoOptions}
                                                     getOptionLabel={option => option.nome}
                                                     defaultValue={unit.profissao ?? null}
+                                                    name={`units[${indexUnit}].profissao`}
+                                                    {...register(`units[${indexUnit}].profissao`, {
+                                                        required: true
+                                                    })}
+                                                    onChange={(index, value) => {
+                                                        const newData = value
+                                                            ? {
+                                                                  id: value?.profissaoID,
+                                                                  nome: value?.nome
+                                                              }
+                                                            : ''
+                                                        setValue(`units[${indexUnit}].profissao`, newData)
+                                                    }}
                                                     renderInput={params => (
                                                         <TextField
                                                             {...params}
                                                             label='Selecione a profissão'
                                                             placeholder='Selecione a profissão'
-                                                            name={`profissaoOptions[${indexUnit}].nome`}
-                                                            {...register(`profissaoOptions[${indexUnit}].nome`, {
-                                                                required: true
-                                                            })}
-                                                            error={Boolean(errors.formulario)}
                                                             aria-describedby='formulario-error'
+                                                            error={errors.units?.[indexUnit]?.profissao}
                                                         />
                                                     )}
                                                 />
                                             </Grid>
 
-                                            {/* Cargo */}
+                                            {/* Cargo(s) */}
                                             <Grid item xs={12} md={5}>
                                                 <Autocomplete
                                                     multiple
@@ -424,10 +359,10 @@ const FormUsuario = () => {
                                                             {...params}
                                                             label='Cargos'
                                                             placeholder='Cargos'
-                                                            // name={`profissaoOptions[${indexUnit}].nome2`}
-                                                            // {...register(`profissaoOptions[${indexUnit}].nome2`, {
-                                                            //     required: true
-                                                            // })}
+                                                            name={`units[${indexUnit}].cargo[]`}
+                                                            {...register(`units[${indexUnit}].cargo[]`, {
+                                                                required: false
+                                                            })}
                                                         />
                                                     )}
                                                 />
@@ -438,7 +373,7 @@ const FormUsuario = () => {
                                                 {indexUnit == 0 && <Typography variant='body2'>Status</Typography>}
                                                 <Checkbox
                                                     name='status'
-                                                    {...register('status', { required: true })}
+                                                    {...register('status', { required: false })}
                                                     defaultChecked={true}
                                                 />
                                             </Grid>

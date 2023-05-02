@@ -84,13 +84,13 @@ const FormRecebimentoMp = () => {
         handleSubmit,
         formState: { errors },
         trigger
-    } = useForm({ defaultValues, mode: 'onBlur' })
+    } = useForm({ mode: 'onBlur' })
 
     console.log('errors: ', errors)
 
-    fields.map((field, index) => {
-        setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
-    })
+    // fields.map((field, index) => {
+    //     setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
+    // })
 
     // Seta autocomplete com o valor do banco em um objeto com id e nome
     dataProducts.map((data, indexData) => {
@@ -237,12 +237,10 @@ const FormRecebimentoMp = () => {
                                                         getOptionLabel={option => option.nome}
                                                         name={`header.${field.tabela}`}
                                                         {...register(`header.${field.tabela}`, {
-                                                            required: field.obrigatorio ? true : false
+                                                            required: !!field.obrigatorio
                                                         })}
                                                         onChange={(event, newValue) => {
-                                                            if (newValue) {
-                                                                setValue(`header.${field.tabela}`, newValue)
-                                                            }
+                                                            setValue(`header.${field.tabela}`, newValue ? newValue : '')
                                                         }}
                                                         renderInput={params => (
                                                             <TextField
@@ -356,15 +354,13 @@ const FormRecebimentoMp = () => {
                                                                 getOptionLabel={option => option.nome}
                                                                 name={`produtos[${indexData}].${field.tabela}`}
                                                                 {...register(`produtos[${indexData}].${field.tabela}`, {
-                                                                    required: field.obrigatorio ? true : false
+                                                                    required: true
                                                                 })}
                                                                 onChange={(event, newValue) => {
-                                                                    if (newValue) {
-                                                                        setValue(
-                                                                            `produtos[${indexData}].${field.tabela}`,
-                                                                            newValue
-                                                                        )
-                                                                    }
+                                                                    setValue(
+                                                                        `produtos[${indexData}].${field.tabela}`,
+                                                                        newValue ? newValue : ''
+                                                                    )
                                                                 }}
                                                                 renderInput={params => (
                                                                     <TextField
@@ -522,7 +518,7 @@ const FormRecebimentoMp = () => {
                                                         />
 
                                                         <FormControl fullWidth>
-                                                            {/* +1 que umaopção pra selecionar (Select) */}
+                                                            {/* +1 opção pra selecionar (Select) */}
                                                             {item.alternativas && item.alternativas.length > 1 && (
                                                                 <Autocomplete
                                                                     options={item.alternativas}
@@ -533,21 +529,31 @@ const FormRecebimentoMp = () => {
                                                                     }
                                                                     id='autocomplete-outlined'
                                                                     getOptionLabel={option => option.nome}
-                                                                    onChange={(event, value) => {
-                                                                        setValue(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
-                                                                            value?.alternativaID
-                                                                        )
-                                                                    }}
+                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                    {...register(
+                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                        { required: true }
+                                                                    )}
+                                                                    // onChange={(event, value) => {
+                                                                    //     setValue(
+                                                                    //         `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
+                                                                    //         value.alternativaID
+                                                                    //             ? value.alternativaID
+                                                                    //             : ''
+                                                                    //     )
+                                                                    // }}
                                                                     renderInput={params => (
                                                                         <TextField
                                                                             {...params}
-                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                             label='Selecione uma resposta'
                                                                             placeholder='Selecione uma resposta'
-                                                                            {...register(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
-                                                                            )}
+                                                                            // error={
+                                                                            //     errors?.blocos[indexBloco]?.itens[
+                                                                            //         indexItem
+                                                                            //     ]?.respostaID
+                                                                            //         ? true
+                                                                            //         : false
+                                                                            // }
                                                                         />
                                                                     )}
                                                                 />
@@ -569,7 +575,7 @@ const FormRecebimentoMp = () => {
                                                                             onChange={newValue => {
                                                                                 setValue(
                                                                                     `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                    newValue
+                                                                                    newValue ? newValue : ''
                                                                                 )
                                                                             }}
                                                                             renderInput={params => (
@@ -578,7 +584,8 @@ const FormRecebimentoMp = () => {
                                                                                     variant='outlined'
                                                                                     name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                                     {...register(
-                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                        { required: !!item.obrigatorio }
                                                                                     )}
                                                                                 />
                                                                             )}
@@ -596,7 +603,8 @@ const FormRecebimentoMp = () => {
                                                                         name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                         defaultValue={item.resposta ?? ''}
                                                                         {...register(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                            { required: !!item.obrigatorio }
                                                                         )}
                                                                     />
                                                                 )}
