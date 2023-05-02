@@ -1,7 +1,7 @@
 import Router from 'next/router'
 import { useEffect, useState, useRef, useContext } from 'react'
 import { api } from 'src/configs/api'
-import { Card, CardContent, Grid, FormControl, TextField, FormControlLabel } from '@mui/material'
+import { Card, CardContent, Grid, FormControl, TextField, FormControlLabel, Checkbox } from '@mui/material'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -135,13 +135,15 @@ const FormTransportador = () => {
                                         rules={{ required: false }}
                                         render={({ field: { value, onChange } }) => (
                                             <FormControlLabel
-                                                checked={type === 'new' ? true : value ?? false}
-                                                onChange={onChange}
-                                                inputProps={{ 'aria-label': 'controlled' }}
+                                                control={
+                                                    <Checkbox
+                                                        checked={type === 'new' ? true : value ?? false}
+                                                        onChange={onChange}
+                                                    />
+                                                }
                                                 label='Status'
                                                 labelPlacement='top'
                                                 sx={{ mr: 8 }}
-                                                control={<Switch />}
                                             />
                                         )}
                                     />
