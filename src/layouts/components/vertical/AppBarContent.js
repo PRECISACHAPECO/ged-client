@@ -87,7 +87,7 @@ const AppBarContent = props => {
         localStorage.setItem('loggedUnity', JSON.stringify(unity))
 
         // Recebe usuário e unidade e seta rotas de acordo com o perfil
-        getRoutes(user.usuarioID, unity?.unidadeID)
+        getRoutes(user.usuarioID, unity?.unidadeID, user.admin)
 
         setOpenModal(false)
         router.replace('/home')

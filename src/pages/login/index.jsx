@@ -171,7 +171,7 @@ const LoginPage = ({ units }) => {
         localStorage.setItem('loggedUnity', JSON.stringify(selectedUnit))
 
         // Recebe usuário e unidade e seta rotas de acordo com o perfil
-        getRoutes(userAux.usuarioID, selectedUnit.unidadeID)
+        getRoutes(userAux.usuarioID, selectedUnit.unidadeID, userAux.admin)
 
         auth.login({ cpf, password, rememberMe, verifyUnits }, () => {
             setError('cpf', {
