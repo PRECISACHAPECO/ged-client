@@ -1,7 +1,17 @@
 import Router from 'next/router'
 import { useEffect, useState, useRef } from 'react'
 import { api } from 'src/configs/api'
-import { Card, CardContent, Grid, FormControl, TextField, FormControlLabel, Autocomplete } from '@mui/material'
+import {
+    Card,
+    CardContent,
+    Grid,
+    FormControl,
+    TextField,
+    FormControlLabel,
+    Autocomplete,
+    Checkbox,
+    Typography
+} from '@mui/material'
 import * as yup from 'yup'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -169,18 +179,21 @@ const FormItem = () => {
 
                             <Grid item xs={12} md={1}>
                                 {data && (
-                                    <FormControlLabel
-                                        label='Status'
-                                        control={
-                                            <Switch
-                                                defaultChecked={
-                                                    type === 'new' ? true : data?.value?.status == 1 ? true : false
-                                                }
-                                                name='status'
-                                                {...register('status')}
-                                            />
-                                        }
-                                    />
+                                    <>
+                                        <Typography>Status</Typography>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    sx={{ ml: 4 }}
+                                                    defaultChecked={
+                                                        type === 'new' ? true : data?.value?.status == 1 ? true : false
+                                                    }
+                                                    name='status'
+                                                    {...register('status')}
+                                                />
+                                            }
+                                        />
+                                    </>
                                 )}
                             </Grid>
                         </Grid>
