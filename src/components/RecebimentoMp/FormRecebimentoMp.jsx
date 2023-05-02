@@ -41,7 +41,7 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br' // import locale
 
 const FormRecebimentoMp = () => {
-    const { user } = useContext(AuthContext)
+    const { user, loggedUnity } = useContext(AuthContext)
     const { setTitle } = useContext(ParametersContext)
     const [isLoading, setLoading] = useState(true)
 
@@ -167,7 +167,7 @@ const FormRecebimentoMp = () => {
             route: 'relatorio/recebimentoMP',
             params: {
                 recebimentompID: id,
-                unidadeID: user.unidadeID
+                unidadeID: loggedUnity.unidadeID
             }
         },
         {
@@ -182,16 +182,18 @@ const FormRecebimentoMp = () => {
         setTitle('Recebimento de MP')
 
         const getData = () => {
-            api.get(`${staticUrl}/${user.unidadeID}`, { headers: { 'function-name': 'getData' } }).then(response => {
-                console.log('getData: ', response.data)
-                setFields(response.data.fields)
-                setData(response.data.data)
-                setFieldsProducts(response.data.fieldsProducts)
-                setDataProducts(response.data.dataProducts)
-                setBlocos(response.data.blocos)
-                setInfo(response.data.info)
-                setLoading(false)
-            })
+            api.get(`${staticUrl}/${loggedUnity.unidadeID}`, { headers: { 'function-name': 'getData' } }).then(
+                response => {
+                    console.log('getData: ', response.data)
+                    setFields(response.data.fields)
+                    setData(response.data.data)
+                    setFieldsProducts(response.data.fieldsProducts)
+                    setDataProducts(response.data.dataProducts)
+                    setBlocos(response.data.blocos)
+                    setInfo(response.data.info)
+                    setLoading(false)
+                }
+            )
         }
         getData()
     }, [])

@@ -39,7 +39,7 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br' // import locale
 
 const FormFornecedor = () => {
-    const { user } = useContext(AuthContext)
+    const { user, loggedUnity } = useContext(AuthContext)
     const { setTitle } = useContext(ParametersContext)
     const [isLoading, setLoading] = useState(true)
 
@@ -122,7 +122,7 @@ const FormFornecedor = () => {
             route: 'relatorio/fornecedor',
             params: {
                 fornecedorID: id,
-                unidadeID: user.unidadeID
+                unidadeID: loggedUnity.unidadeID
             }
         },
         {
@@ -149,16 +149,18 @@ const FormFornecedor = () => {
         setTitle('Formulário do Fornecedor')
 
         const getData = () => {
-            api.get(`${staticUrl}/${user.unidadeID}`, { headers: { 'function-name': 'getData' } }).then(response => {
-                console.log('getData: ', response.data)
-                setFields(response.data.fields)
-                setData(response.data.data)
-                setAtividades(response.data.atividades)
-                setSistemasQualidade(response.data.sistemasQualidade)
-                setBlocos(response.data.blocos)
-                setInfo(response.data.info)
-                setLoading(false)
-            })
+            api.get(`${staticUrl}/${loggedUnity.unidadeID}`, { headers: { 'function-name': 'getData' } }).then(
+                response => {
+                    console.log('getData: ', response.data)
+                    setFields(response.data.fields)
+                    setData(response.data.data)
+                    setAtividades(response.data.atividades)
+                    setSistemasQualidade(response.data.sistemasQualidade)
+                    setBlocos(response.data.blocos)
+                    setInfo(response.data.info)
+                    setLoading(false)
+                }
+            )
         }
         getData()
     }, [onSubmit])

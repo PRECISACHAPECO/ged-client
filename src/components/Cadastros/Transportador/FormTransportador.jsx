@@ -18,12 +18,10 @@ const FormTransportador = () => {
     const [open, setOpen] = useState(false)
     const { id } = Router.query
     const router = Router
-    const { user } = useContext(AuthContext)
+    const { user, loggedUnity } = useContext(AuthContext)
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const inputRef = useRef(null)
-
-    console.log('unid ', user.unidadeID)
 
     const schema = yup.object().shape({
         nome: yup.string().required('Campo obrigatório')
@@ -44,7 +42,7 @@ const FormTransportador = () => {
     const onSubmit = async data => {
         try {
             if (type === 'new') {
-                await api.post(`${staticUrl}/novo`, { data: data, unidadeID: user.unidadeID })
+                await api.post(`${staticUrl}/novo`, { data: data, unidadeID: loggedUnity.unidadeID })
                 router.push(staticUrl)
                 toast.success(toastMessage.successNew)
                 reset(data)

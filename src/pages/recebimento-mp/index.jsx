@@ -17,7 +17,7 @@ import { Card } from '@mui/material'
 // import axios from 'axios'
 
 const RecebimentoMp = () => {
-    const { user } = useContext(AuthContext)
+    const { user, loggedUnity } = useContext(AuthContext)
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
@@ -26,7 +26,7 @@ const RecebimentoMp = () => {
     useEffect(() => {
         const getList = async () => {
             await api
-                .get(currentLink + '/' + user.unidadeID, { headers: { 'function-name': 'getList' } })
+                .get(currentLink + '/' + loggedUnity.unidadeID, { headers: { 'function-name': 'getList' } })
                 .then(response => {
                     setResult(response.data)
                     setTitle('Recebimento de MP')
