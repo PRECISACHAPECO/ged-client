@@ -103,7 +103,7 @@ const AuthProvider = ({ children }) => {
                     setLoggedUnity(response.data.unidades[0])
                     localStorage.setItem('loggedUnity', JSON.stringify(response.data.unidades[0]))
                     // Recebe usuário e unidade e seta rotas de acordo com o perfil
-                    getRoutes(response.data.userData.usuarioID, response.data.unidades[0].unidadeID)
+                    getRoutes(response.data.userData.usuarioID, response.data.unidades[0].unidadeID, response.data.userData.admin)
                 }
 
                 params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
@@ -144,7 +144,7 @@ const AuthProvider = ({ children }) => {
 
     const getMenu = () => {
         api.get('/login', { headers: { 'function-name': 'getMenu' } }).then(response => {
-            console.log("🚀 ~ getMenu ~ response.data:", response.data)
+            console.log("🚀 ~ getMenu:", response.data)
             setMenu(response.data)
             localStorage.setItem('menu', JSON.stringify(response.data))
         }).catch(err => {
@@ -152,14 +152,12 @@ const AuthProvider = ({ children }) => {
         })
     }
 
-    const getRoutes = (usuarioID, unidadeID) => {
-        console.log("🚀 ~ getRoutes ~ usuarioID, unidadeID:", usuarioID, unidadeID)
+    const getRoutes = (usuarioID, unidadeID, admin) => {
         if (!usuarioID || !unidadeID) return
 
-        console.log('Obtem novas rotas...')
         // Busca rotas de acordo com o perfil do usuário e unidade logada
-        api.get(`/login?usuarioID=${usuarioID}&unidadeID=${unidadeID}`, { headers: { 'function-name': 'getRoutes' } }).then(response => {
-            console.log("🚀 ~ setRoutes ~ response.data:", response.data)
+        api.get(`/login?usuarioID=${usuarioID}&unidadeID=${unidadeID}&admin=${admin}`, { headers: { 'function-name': 'getRoutes' } }).then(response => {
+            console.log("🚀 ~ getRoutes:", response.data)
             setRoutes(response.data)
             localStorage.setItem('routes', JSON.stringify(response.data))
         }).catch(err => {
