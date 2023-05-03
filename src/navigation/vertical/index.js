@@ -109,6 +109,8 @@ const navigation = () => {
                     title: 'Unidade',
                     path: '/configuracoes/unidade',
                     action: 'read',
+                    subject: 'acl-page',
+
                 },
                 {
                     icon: 'mdi:user-circle-outline',

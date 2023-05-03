@@ -1,11 +1,12 @@
 import Router from 'next/router'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 
 import { CardContent, Button, Box } from '@mui/material'
 import Link from 'next/link'
 import Icon from 'src/@core/components/icon'
 import { backRoute } from 'src/configs/defaultConfigs'
 import MenuReports from './MenuReports'
+import { AuthContext } from 'src/context/AuthContext'
 
 const FormHeader = ({
     btnCancel,
@@ -19,8 +20,8 @@ const FormHeader = ({
     dataReports
 }) => {
     const router = Router
-
-    // Btn Print
+    const { routes } = useContext(AuthContext)
+    const dynamicRoute = router.pathname.split('/').slice(0, -1).join('/')
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
     const handleClick = event => {
@@ -42,7 +43,7 @@ const FormHeader = ({
                         </Link>
                     )}
 
-                    {btnDelete && (
+                    {btnDelete && routes.find(route => route.rota === dynamicRoute && route.excluir) && (
                         <Button
                             type='button'
                             onClick={onclickDelete}
@@ -104,7 +105,7 @@ const FormHeader = ({
                         </>
                     )}
 
-                    {btnSave && (
+                    {btnSave && routes.find(route => route.rota === dynamicRoute && route.editar) && (
                         <Button
                             onClick={handleSubmit}
                             type='submit'
