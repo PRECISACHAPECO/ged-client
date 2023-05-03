@@ -56,15 +56,14 @@ const FormUsuario = () => {
     })
 
     console.log('errors', errors)
+    console.log('Renderiza componente...')
 
     data &&
         data.units &&
         data.units.map((unit, index) => {
             setValue(`units[${index}].unidade`, unit.unidade)
             setValue(`units[${index}].profissao`, unit.profissao)
-            // unit.cargos.map((cargo, indexCargo) => {
-            //     setValue(`units[${index}].cargo`, cargo)
-            // })
+            setValue(`units[${index}].cargo`, unit.cargos)
         })
 
     // Função que atualiza os dados ou cria novo dependendo do tipo da rota
@@ -113,7 +112,7 @@ const FormUsuario = () => {
         newUnity.push({
             unidade: null,
             profissao: null,
-            cargos: [],
+            cargos: null,
             status: true
         })
 
@@ -179,7 +178,7 @@ const FormUsuario = () => {
                                         </FormControl>
                                     </Grid>
 
-                                    <Grid item xs={12} md={3}>
+                                    <Grid item xs={12} md={4}>
                                         <FormControl fullWidth>
                                             <TextField
                                                 defaultValue={data?.email}
@@ -192,20 +191,6 @@ const FormUsuario = () => {
                                             />
                                         </FormControl>
                                     </Grid>
-
-                                    {/* <Grid item xs={12} md={1}>
-                                        <FormControl>
-                                            <FormControlLabel
-                                                // checked={type === 'new' ? true : value ?? false}
-                                                onChange={value => setValue('status', value)}
-                                                inputProps={{ 'aria-label': 'controlled' }}
-                                                label='Status'
-                                                labelPlacement='top'
-                                                sx={{ mr: 8 }}
-                                                control={<Checkbox name='status' {...register(`status`)} />}
-                                            />
-                                        </FormControl>
-                                    </Grid> */}
 
                                     <Grid item xs={12} md={4}>
                                         <FormControl fullWidth>
@@ -272,131 +257,146 @@ const FormUsuario = () => {
                 </Card>
 
                 {user.admin == 1 && (
-                    <Card sx={{ mt: 4 }}>
-                        <CardContent>
-                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                Unidades
-                            </Typography>
-                            {/* Lista as unidades do usuario */}
-                            {data &&
-                                data.units &&
-                                data.units.map((unit, indexUnit) => (
-                                    <>
-                                        <Grid container spacing={5} sx={{ my: 2 }}>
-                                            {/* Unidade */}
-                                            <Grid item xs={12} md={3}>
-                                                <Autocomplete
-                                                    options={data.unidadesOptions}
-                                                    getOptionLabel={option => option.nome}
-                                                    defaultValue={unit?.unidade ?? null}
-                                                    name={`units[${indexUnit}].unidade`}
-                                                    {...register(`units[${indexUnit}].unidade`, {
-                                                        required: true
-                                                    })}
-                                                    onChange={(index, value) => {
-                                                        const newData = value
-                                                            ? {
-                                                                  id: value?.unidadeID,
-                                                                  nome: value?.nome
-                                                              }
-                                                            : ''
-                                                        setValue(`units[${indexUnit}].unidade`, newData)
-                                                    }}
-                                                    renderInput={params => (
-                                                        <TextField
-                                                            {...params}
-                                                            label='Selecione a unidade'
-                                                            placeholder='Selecionar unidade'
-                                                            aria-describedby='formulario-error'
-                                                            error={errors.units?.[indexUnit]?.unidade}
-                                                        />
-                                                    )}
-                                                />
-                                            </Grid>
+                    <>
+                        {/* Lista as unidades do usuario */}
+                        {data &&
+                            data.units &&
+                            data.units.map((unit, indexUnit) => (
+                                <>
+                                    <Card sx={{ mt: 4 }}>
+                                        <CardContent>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                {unit.unidade ? unit.unidade.nome : 'Nova Unidade'}
+                                                {unit.unidade?.id === loggedUnity.unidadeID && <span>Atual</span>}
+                                            </Typography>
+                                            <Grid container spacing={5} sx={{ my: 2 }}>
+                                                {/* Unidade */}
+                                                <Grid item xs={12} md={3}>
+                                                    <Autocomplete
+                                                        options={data.unidadesOptions}
+                                                        getOptionLabel={option => option.nome}
+                                                        defaultValue={unit?.unidade ?? null}
+                                                        name={`units[${indexUnit}].unidade`}
+                                                        {...register(`units[${indexUnit}].unidade`, {
+                                                            required: false
+                                                        })}
+                                                        onChange={(index, value) => {
+                                                            console.log('🚀 ~ value:', value)
+                                                            const newDataUnit = value
+                                                                ? {
+                                                                      id: value?.unidadeID,
+                                                                      nome: value?.nome
+                                                                  }
+                                                                : null
+                                                            setValue(`units[${indexUnit}].unidade`, newDataUnit)
+                                                        }}
+                                                        renderInput={params => (
+                                                            <TextField
+                                                                {...params}
+                                                                label='Selecione a unidade'
+                                                                placeholder='Selecionar unidade'
+                                                                aria-describedby='formulario-error'
+                                                                error={errors.units?.[indexUnit]?.unidade}
+                                                            />
+                                                        )}
+                                                    />
+                                                </Grid>
 
-                                            {/* Profissão */}
-                                            <Grid item xs={12} md={3}>
-                                                <Autocomplete
-                                                    options={data.profissaoOptions}
-                                                    getOptionLabel={option => option.nome}
-                                                    defaultValue={unit.profissao ?? null}
-                                                    name={`units[${indexUnit}].profissao`}
-                                                    {...register(`units[${indexUnit}].profissao`, {
-                                                        required: true
-                                                    })}
-                                                    onChange={(index, value) => {
-                                                        const newData = value
-                                                            ? {
-                                                                  id: value?.profissaoID,
-                                                                  nome: value?.nome
-                                                              }
-                                                            : ''
-                                                        setValue(`units[${indexUnit}].profissao`, newData)
-                                                    }}
-                                                    renderInput={params => (
-                                                        <TextField
-                                                            {...params}
-                                                            label='Selecione a profissão'
-                                                            placeholder='Selecione a profissão'
-                                                            aria-describedby='formulario-error'
-                                                            error={errors.units?.[indexUnit]?.profissao}
-                                                        />
-                                                    )}
-                                                />
-                                            </Grid>
+                                                {/* Profissão */}
+                                                <Grid item xs={12} md={3}>
+                                                    <Autocomplete
+                                                        options={data.profissaoOptions}
+                                                        getOptionLabel={option => option.nome}
+                                                        defaultValue={unit.profissao ?? null}
+                                                        name={`units[${indexUnit}].profissao`}
+                                                        {...register(`units[${indexUnit}].profissao`, {
+                                                            required: false
+                                                        })}
+                                                        onChange={(index, value) => {
+                                                            const newDataProfission = value
+                                                                ? {
+                                                                      id: value?.profissaoID,
+                                                                      nome: value?.nome
+                                                                  }
+                                                                : null
+                                                            setValue(`units[${indexUnit}].profissao`, newDataProfission)
+                                                        }}
+                                                        renderInput={params => (
+                                                            <TextField
+                                                                {...params}
+                                                                label='Selecione a profissão'
+                                                                placeholder='Selecione a profissão'
+                                                                aria-describedby='formulario-error'
+                                                                error={errors.units?.[indexUnit]?.profissao}
+                                                            />
+                                                        )}
+                                                    />
+                                                </Grid>
 
-                                            {/* Cargo(s) */}
-                                            <Grid item xs={12} md={5}>
-                                                <Autocomplete
-                                                    multiple
-                                                    limitTags={2}
-                                                    options={data.cargosOptions}
-                                                    // id='autocomplete-limit-tags'
-                                                    getOptionLabel={option => option.nome || ''}
-                                                    defaultValue={unit.cargos ?? []}
-                                                    renderInput={params => (
-                                                        <TextField
-                                                            {...params}
-                                                            label='Cargos'
-                                                            placeholder='Cargos'
-                                                            name={`units[${indexUnit}].cargo[]`}
-                                                            {...register(`units[${indexUnit}].cargo[]`, {
-                                                                required: false
-                                                            })}
-                                                        />
-                                                    )}
-                                                />
-                                            </Grid>
+                                                {/* Cargo(s) */}
+                                                <Grid item xs={12} md={5}>
+                                                    <Autocomplete
+                                                        multiple
+                                                        limitTags={2}
+                                                        options={data.cargosOptions}
+                                                        getOptionLabel={option => option.nome || ''}
+                                                        defaultValue={unit.cargos ?? []}
+                                                        name={`units[${indexUnit}].cargo[]`}
+                                                        {...register(`units[${indexUnit}].cargo`, {
+                                                            required: false
+                                                        })}
+                                                        onChange={(index, value) => {
+                                                            const newDataCargos = value
+                                                                ? value.map(item => {
+                                                                      return {
+                                                                          id: item?.id,
+                                                                          nome: item?.nome
+                                                                      }
+                                                                  })
+                                                                : []
+                                                            setValue(`units[${indexUnit}].cargo`, newDataCargos)
+                                                        }}
+                                                        renderInput={params => (
+                                                            <TextField
+                                                                {...params}
+                                                                label='Cargos'
+                                                                placeholder='Cargos'
+                                                                error={errors.units?.[indexUnit]?.cargo}
+                                                            />
+                                                        )}
+                                                    />
+                                                </Grid>
 
-                                            {/* Status */}
-                                            <Grid item xs={12} md={1}>
-                                                {indexUnit == 0 && <Typography variant='body2'>Status</Typography>}
-                                                <Checkbox
-                                                    name='status'
-                                                    {...register('status', { required: false })}
-                                                    defaultChecked={true}
-                                                />
+                                                {/* Status */}
+                                                <Grid item xs={12} md={1}>
+                                                    {indexUnit == 0 && <Typography variant='body2'>Status</Typography>}
+                                                    <Checkbox
+                                                        name='status'
+                                                        {...register('status', { required: false })}
+                                                        defaultChecked={true}
+                                                    />
+                                                </Grid>
                                             </Grid>
-                                        </Grid>
-                                    </>
-                                ))}
+                                        </CardContent>
+                                    </Card>
+                                </>
+                            ))}
 
-                            {/* Adicionar unidade */}
-                            <Grid container spacing={5} sx={{ my: 2 }}>
-                                <Grid item xs={12} md={3}>
-                                    <Button
-                                        startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
-                                        variant='outlined'
-                                        onClick={() => {
-                                            addUnity()
-                                        }}
-                                    >
-                                        Inserir unidade
-                                    </Button>
-                                </Grid>
+                        {/* Adicionar unidade */}
+                        <Grid container spacing={5} sx={{ my: 2 }}>
+                            <Grid item xs={12} md={3}>
+                                <Button
+                                    startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
+                                    variant='outlined'
+                                    onClick={() => {
+                                        addUnity()
+                                    }}
+                                >
+                                    Inserir unidade
+                                </Button>
                             </Grid>
-                        </CardContent>
-                    </Card>
+                        </Grid>
+                    </>
                 )}
             </form>
 
