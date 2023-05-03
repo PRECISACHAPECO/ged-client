@@ -1,5 +1,5 @@
 // ** React Imports
-import { createContext, useEffect, useState } from 'react'
+import { createContext, use, useEffect, useState } from 'react'
 import { api } from 'src/configs/api'
 
 // ** Next Import
@@ -34,6 +34,7 @@ const AuthProvider = ({ children }) => {
     const [unitsUser, setUnitsUser] = useState([])
     const [loggedUnity, setLoggedUnity] = useState(null)
     const [userAux, setUserAux] = useState(null)
+    const [currentRoute, setCurrentRoute] = useState('/login')
     // Rotas 
     const [routes, setRoutes] = useState([])
     // Menu 
@@ -43,6 +44,8 @@ const AuthProvider = ({ children }) => {
     const router = useRouter()
     useEffect(() => {
         const initAuth = async () => {
+            setCurrentRoute(router.pathname)
+
             const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)
             if (storedToken) {
                 setLoading(true)
@@ -148,7 +151,7 @@ const AuthProvider = ({ children }) => {
             setMenu(response.data)
             localStorage.setItem('menu', JSON.stringify(response.data))
         }).catch(err => {
-            console.log("🚀 ~ getMenu ~ err:", err)
+            console.log(err)
         })
     }
 
@@ -164,6 +167,27 @@ const AuthProvider = ({ children }) => {
             console.log("🚀 ~ setRoutes ~ err:", err)
         })
     }
+
+    const removeDynamicRouteId = () => {
+        const split = router.pathname.split('/')
+        if (split[split.length - 1] === '[id]') {
+            split.pop()
+            setCurrentRoute(split.join('/'))
+        }
+    }
+
+    //  quando o usuario mudar de rota atualizar o currentRoute
+    useEffect(() => {
+        setCurrentRoute(router.pathname)
+        if (currentRoute) {
+            //  Se a rota atual for dinamica, remove o id da rota
+            removeDynamicRouteId()
+            const permission = routes.find(rota => rota.rota === currentRoute)
+            if (!permission?.rota && currentRoute !== '/' && currentRoute !== '/login' && currentRoute !== '/home' && currentRoute !== '/401') {
+                router.push('/401')
+            }
+        }
+    }, [currentRoute])
 
     const values = {
         user,

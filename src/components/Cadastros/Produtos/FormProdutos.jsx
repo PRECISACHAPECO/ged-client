@@ -78,18 +78,19 @@ const FormProdutos = () => {
 
     // Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
     useEffect(() => {
-        const getData = async () => {
-            try {
-                const response = await api.get(`${staticUrl}/${id}`)
-                reset(response.data)
-            } catch (error) {
-                console.log(error)
+        if (type === 'new') {
+            inputRef.current.focus()
+        } else {
+            const getData = async () => {
+                try {
+                    const response = await api.get(`${staticUrl}/${id}`)
+                    reset(response.data)
+                } catch (error) {
+                    console.log(error)
+                }
             }
+            getData()
         }
-        getData()
-        // if (type === 'new') {
-        //     inputRef.current.focus()
-        // }
     }, [])
 
     return (

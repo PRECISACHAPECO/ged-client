@@ -1,5 +1,5 @@
 import Router from 'next/router'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { api } from 'src/configs/api'
 import { Card, CardContent, Grid, FormControl, TextField, Button, FormControlLabel, Checkbox } from '@mui/material'
 import * as yup from 'yup'
@@ -20,6 +20,7 @@ const FormApresentacao = () => {
     const router = Router
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
+    const inputRef = useRef(null)
 
     const schema = yup.object().shape({
         nome: yup.string().required('Campo obrigatório')
@@ -76,15 +77,19 @@ const FormApresentacao = () => {
 
     // Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
     useEffect(() => {
-        const getData = async () => {
-            try {
-                const response = await api.get(`${staticUrl}/${id}`)
-                reset(response.data)
-            } catch (error) {
-                console.log(error)
+        if (type === 'new') {
+            inputRef.current.focus()
+        } else {
+            const getData = async () => {
+                try {
+                    const response = await api.get(`${staticUrl}/${id}`)
+                    reset(response.data)
+                } catch (error) {
+                    console.log(error)
+                }
             }
+            getData()
         }
-        getData()
     }, [])
 
     return (
@@ -114,6 +119,7 @@ const FormApresentacao = () => {
                                                 placeholder='Nome'
                                                 error={Boolean(errors.nome)}
                                                 aria-describedby='validation-schema-nome'
+                                                inputRef={inputRef}
                                             />
                                         )}
                                     />

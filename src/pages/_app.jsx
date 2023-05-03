@@ -94,7 +94,6 @@ const App = props => {
     const aclAbilities = Component.acl ?? defaultACLObj
 
     return (
-
         <CacheProvider value={emotionCache}>
             <Head>
                 <title>{`${themeConfig.templateName}`}</title>
@@ -120,7 +119,10 @@ const App = props => {
                                             </Guard>
                                         </WindowWrapper>
                                         <ReactHotToast>
-                                            <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
+                                            <Toaster
+                                                position={settings.toastPosition}
+                                                toastOptions={{ className: 'react-hot-toast' }}
+                                            />
                                         </ReactHotToast>
                                     </ThemeComponent>
                                 )

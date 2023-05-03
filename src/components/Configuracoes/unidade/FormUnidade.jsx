@@ -562,6 +562,11 @@ const FormUnidade = () => {
             />
         </>
     )
+
+    FormUnidade.acl = {
+        action: 'read',
+        subject: 'acl-page'
+    }
 }
 
 export default FormUnidade
