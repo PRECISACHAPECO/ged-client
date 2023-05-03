@@ -9,6 +9,7 @@ import {
     DialogContentText
 } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
+import { useEffect, useState } from 'react'
 import Icon from 'src/@core/components/icon'
 
 const DialogSelectUnit = ({ handleClose, openModal, handleSubmit, unidades, setSelectedUnit }) => {
@@ -23,7 +24,7 @@ const DialogSelectUnit = ({ handleClose, openModal, handleSubmit, unidades, setS
                     <FormControl fullWidth>
                         <Autocomplete
                             options={unidades}
-                            getOptionLabel={unit => unit.nomeFantasia}
+                            getOptionLabel={unit => unit.nomeFantasia + ' [' + unit.papel + ']'}
                             onChange={(event, newValue) => {
                                 setSelectedUnit(newValue)
                             }}

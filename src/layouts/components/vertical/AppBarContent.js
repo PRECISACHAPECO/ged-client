@@ -70,7 +70,7 @@ const AppBarContent = props => {
     // ** Props
     const { hidden, settings, saveSettings, toggleNavVisibility } = props
     const { title } = useContext(ParametersContext)
-    const { user, setLoggedUnity, loggedUnity, unitsUser, getRoutes } = useContext(AuthContext)
+    const { user, setLoggedUnity, loggedUnity, unitsUser, getRoutes, getMenu } = useContext(AuthContext)
 
     // ** Hooks
     const router = useRouter()
@@ -86,8 +86,10 @@ const AppBarContent = props => {
         setLoggedUnity(unity)
         localStorage.setItem('loggedUnity', JSON.stringify(unity))
 
+        getMenu(unity?.papelID)
+
         // Recebe usuário e unidade e seta rotas de acordo com o perfil
-        getRoutes(user.usuarioID, unity?.unidadeID, user.admin)
+        getRoutes(user.usuarioID, unity?.unidadeID, user.admin, unity?.papelID)
 
         setOpenModal(false)
         router.replace('/home')

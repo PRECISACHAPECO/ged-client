@@ -40,6 +40,8 @@ const AuthProvider = ({ children }) => {
     // Menu 
     const [menu, setMenu] = useState([])
 
+    console.log('Unidade logada', loggedUnity)
+
     // ** Hooks
     const router = useRouter()
     useEffect(() => {
@@ -87,8 +89,6 @@ const AuthProvider = ({ children }) => {
             setUnitsUser(response.data.unidades)
             localStorage.setItem('userUnits', JSON.stringify(response.data.unidades))
 
-            getMenu()
-
             // Verifica nº de unidades vinculadas ao usuário tentando logar
             if (response.status === 202 && params.verifyUnits) { // +1 unidade, modal pra selecionar unidade antes de logar
                 setOpenModalSelectUnits(true)
@@ -105,8 +105,9 @@ const AuthProvider = ({ children }) => {
                 if (response.data.unidades.length == 1) {
                     setLoggedUnity(response.data.unidades[0])
                     localStorage.setItem('loggedUnity', JSON.stringify(response.data.unidades[0]))
+                    getMenu(response.data.unidades[0].papelID)
                     // Recebe usuário e unidade e seta rotas de acordo com o perfil
-                    getRoutes(response.data.userData.usuarioID, response.data.unidades[0].unidadeID, response.data.userData.admin)
+                    getRoutes(response.data.userData.usuarioID, response.data.unidades[0].unidadeID, response.data.userData.admin, response.data.unidades[0].papelID)
                 }
 
                 params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
@@ -145,9 +146,9 @@ const AuthProvider = ({ children }) => {
             .catch(err => (errorCallback ? errorCallback(err) : null))
     }
 
-    const getMenu = () => {
-        api.get('/login', { headers: { 'function-name': 'getMenu' } }).then(response => {
-            console.log("🚀 ~ getMenu:", response.data)
+    const getMenu = (papelID) => {
+        console.log('Obtem menu....')
+        api.get(`/login?papelID=${papelID}`, { headers: { 'function-name': 'getMenu' } }).then(response => {
             setMenu(response.data)
             localStorage.setItem('menu', JSON.stringify(response.data))
         }).catch(err => {
@@ -155,11 +156,11 @@ const AuthProvider = ({ children }) => {
         })
     }
 
-    const getRoutes = (usuarioID, unidadeID, admin) => {
-        if (!usuarioID || !unidadeID) return
+    const getRoutes = (usuarioID, unidadeID, admin, papelID) => {
+        if (!usuarioID || !unidadeID || !papelID) return
 
         // Busca rotas de acordo com o perfil do usuário e unidade logada
-        api.get(`/login?usuarioID=${usuarioID}&unidadeID=${unidadeID}&admin=${admin}`, { headers: { 'function-name': 'getRoutes' } }).then(response => {
+        api.get(`/login?usuarioID=${usuarioID}&unidadeID=${unidadeID}&admin=${admin}&papelID=${papelID}`, { headers: { 'function-name': 'getRoutes' } }).then(response => {
             console.log("🚀 ~ getRoutes:", response.data)
             setRoutes(response.data)
             localStorage.setItem('routes', JSON.stringify(response.data))
@@ -191,6 +192,7 @@ const AuthProvider = ({ children }) => {
 
     const values = {
         user,
+        getMenu,
         menu,
         routes,
         userAux,
