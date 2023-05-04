@@ -1,7 +1,6 @@
 
 // Mascara para CNPJ 
 function cnpjMask(cnpj) {
-    console.log('mask>: ', cnpj)
     if (cnpj) {
         cnpj = cnpj.replace(/\D/g, '') // remove caracteres não numéricos
         cnpj = cnpj.replace(/^(\d{2})(\d)/, '$1.$2') // adiciona ponto após os dois primeiros dígitos
