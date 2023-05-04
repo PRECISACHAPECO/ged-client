@@ -11,7 +11,6 @@ import QuickSearchToolbar from 'src/views/table/data-grid/QuickSearchToolbar'
 
 const escapeRegExp = value => {
     return value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
-
 }
 
 const TableColumns = ({ rows, columns, buttonsHeader }) => {
@@ -24,7 +23,6 @@ const TableColumns = ({ rows, columns, buttonsHeader }) => {
 
     const router = useRouter()
     const currentLink = router.pathname
-
 
     const handleSearch = searchValue => {
         setSearchText(searchValue)
