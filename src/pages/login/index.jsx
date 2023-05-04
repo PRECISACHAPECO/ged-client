@@ -313,10 +313,8 @@ const LoginPage = ({ units }) => {
                                 </Typography>
                             </Box>
                             <Box sx={{ mb: 6 }}>
-                                <TypographyStyled variant='h5'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
-                                <Typography variant='body2'>
-                                    Please sign-in to your account and start the adventure
-                                </Typography>
+                                <TypographyStyled variant='h5'>{`Bem vindo ao ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
+                                <Typography variant='body2'>Digite seu CPF e senha para começar</Typography>
                             </Box>
 
                             <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
@@ -345,7 +343,7 @@ const LoginPage = ({ units }) => {
                                 </FormControl>
                                 <FormControl fullWidth>
                                     <InputLabel htmlFor='auth-login-v2-password' error={Boolean(errors.password)}>
-                                        Password
+                                        Senha
                                     </InputLabel>
                                     <Controller
                                         name='password'
@@ -355,7 +353,7 @@ const LoginPage = ({ units }) => {
                                             <OutlinedInput
                                                 value={value}
                                                 onBlur={onBlur}
-                                                label='Password'
+                                                label='Senha'
                                                 onChange={onChange}
                                                 id='auth-login-v2-password'
                                                 error={Boolean(errors.password)}
@@ -397,7 +395,7 @@ const LoginPage = ({ units }) => {
                                     }}
                                 >
                                     <FormControlLabel
-                                        label='Remember Me'
+                                        label='Lembrar-me'
                                         control={
                                             <Checkbox
                                                 checked={rememberMe}
@@ -411,11 +409,11 @@ const LoginPage = ({ units }) => {
                                         href='/forgot-password'
                                         sx={{ color: 'primary.main', textDecoration: 'none' }}
                                     >
-                                        Forgot Password?
+                                        Esqueceu sua senha?
                                     </Typography>
                                 </Box>
                                 <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
-                                    Login
+                                    Entrar
                                 </Button>
                                 <Box
                                     sx={{
@@ -426,60 +424,15 @@ const LoginPage = ({ units }) => {
                                     }}
                                 >
                                     <Typography sx={{ mr: 2, color: 'text.secondary' }}>
-                                        New on our platform?
+                                        É um fornecedor novo?
                                     </Typography>
                                     <Typography
-                                        href='/register'
+                                        href='/registro'
                                         component={Link}
                                         sx={{ color: 'primary.main', textDecoration: 'none' }}
                                     >
-                                        Create an account
+                                        Registre-se
                                     </Typography>
-                                </Box>
-                                <Divider
-                                    sx={{
-                                        '& .MuiDivider-wrapper': { px: 4 },
-                                        mt: theme => `${theme.spacing(5)} !important`,
-                                        mb: theme => `${theme.spacing(7.5)} !important`
-                                    }}
-                                >
-                                    or
-                                </Divider>
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <IconButton
-                                        href='/'
-                                        component={Link}
-                                        sx={{ color: '#497ce2' }}
-                                        onClick={e => e.preventDefault()}
-                                    >
-                                        <Icon icon='mdi:facebook' />
-                                    </IconButton>
-                                    <IconButton
-                                        href='/'
-                                        component={Link}
-                                        sx={{ color: '#1da1f2' }}
-                                        onClick={e => e.preventDefault()}
-                                    >
-                                        <Icon icon='mdi:twitter' />
-                                    </IconButton>
-                                    <IconButton
-                                        href='/'
-                                        component={Link}
-                                        onClick={e => e.preventDefault()}
-                                        sx={{
-                                            color: theme => (theme.palette.mode === 'light' ? '#272727' : 'grey.300')
-                                        }}
-                                    >
-                                        <Icon icon='mdi:github' />
-                                    </IconButton>
-                                    <IconButton
-                                        href='/'
-                                        component={Link}
-                                        sx={{ color: '#db4437' }}
-                                        onClick={e => e.preventDefault()}
-                                    >
-                                        <Icon icon='mdi:google' />
-                                    </IconButton>
                                 </Box>
                             </form>
                         </BoxWrapper>
