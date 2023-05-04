@@ -68,7 +68,6 @@ const FormUsuario = () => {
     data &&
         data.units &&
         data.units.map((unit, index) => {
-            setValue(`units[${index}].unidade`, unit.unidade)
             setValue(`units[${index}].papel`, unit.papel)
             setValue(`units[${index}].profissao`, unit.profissao)
             setValue(`units[${index}].cargo`, unit.cargos)
@@ -77,24 +76,23 @@ const FormUsuario = () => {
     // Função que atualiza os dados ou cria novo dependendo do tipo da rota
     const onSubmit = async values => {
         console.log('🚀 ~ onSubmit:', values)
-        // try {
-        //     if (type === 'new') {
-        //         await api.post(`${staticUrl}/novo`, values)
-        //         router.push(staticUrl)
-        //         toast.success(toastMessage.successNew)
-        //         reset(values)
-        //     } else if (type === 'edit') {
-        //         await api.put(`${staticUrl}/${id}`, values)
-        //         toast.success(toastMessage.successUpdate)
-        //         console.log('🚀 ~ oNSUBMIT:', values)
-        //     }
-        // } catch (error) {
-        //     if (error.response && error.response.status === 409) {
-        //         toast.error(toastMessage.errorRepeated)
-        //     } else {
-        //         console.log(error)
-        //     }
-        // }
+        try {
+            if (type === 'new') {
+                await api.post(`${staticUrl}/novo`, values)
+                router.push(staticUrl)
+                toast.success(toastMessage.successNew)
+                reset(values)
+            } else if (type === 'edit') {
+                await api.put(`${staticUrl}/${id}`, values)
+                toast.success(toastMessage.successUpdate)
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 409) {
+                toast.error(toastMessage.errorRepeated)
+            } else {
+                console.log(error)
+            }
+        }
     }
 
     // Função que deleta os dados
@@ -171,6 +169,9 @@ const FormUsuario = () => {
                     <CardContent>
                         {data && (
                             <>
+                                {/* Enviar via hidden flag indicando se usuário logado é admin */}
+                                <input type='hidden' value={user.admin} name='admin' {...register(`admin`)} />
+
                                 <Grid container spacing={5}>
                                     <Grid item xs={12} md={4}>
                                         <FormControl fullWidth>
@@ -286,6 +287,13 @@ const FormUsuario = () => {
                             data.units.map((unit, indexUnit) => (
                                 <>
                                     {/* Cada unidade */}
+                                    <input
+                                        type='hidden'
+                                        value={unit.usuarioUnidadeID}
+                                        name={`units[${indexUnit}].usuarioUnidadeID`}
+                                        {...register(`units[${indexUnit}].usuarioUnidadeID`)}
+                                    />
+
                                     <Card sx={{ mt: 4 }}>
                                         <CardContent>
                                             <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
@@ -305,37 +313,47 @@ const FormUsuario = () => {
                                                     )}
                                             </Typography>
                                             <Grid container spacing={5} sx={{ my: 2 }}>
-                                                {/* Unidade */}
-                                                <Grid item xs={12} md={3}>
-                                                    <Autocomplete
-                                                        options={data.unidadesOptions}
-                                                        getOptionLabel={option => option.nome}
-                                                        defaultValue={unit?.unidade ?? null}
-                                                        name={`units[${indexUnit}].unidade`}
-                                                        {...register(`units[${indexUnit}].unidade`, {
-                                                            required: false
-                                                        })}
-                                                        onChange={(index, value) => {
-                                                            console.log('🚀 ~ value:', value)
-                                                            const newDataUnit = value
-                                                                ? {
-                                                                      id: value?.unidadeID,
-                                                                      nome: value?.nome
-                                                                  }
-                                                                : null
-                                                            setValue(`units[${indexUnit}].unidade`, newDataUnit)
-                                                        }}
-                                                        renderInput={params => (
-                                                            <TextField
-                                                                {...params}
-                                                                label='Selecione a unidade'
-                                                                placeholder='Selecionar unidade'
-                                                                aria-describedby='formulario-error'
-                                                                error={errors.units?.[indexUnit]?.unidade}
-                                                            />
-                                                        )}
+                                                {/* Unidade (seleciona apenas no inserir uma nova) */}
+                                                {!unit.unidadeID ? (
+                                                    <Grid item xs={12} md={3}>
+                                                        {/* Unidade nova, monta coluna com autocomplete para selecionar */}
+                                                        <Autocomplete
+                                                            options={data.unidadesOptions}
+                                                            getOptionLabel={option => option.nome}
+                                                            defaultValue={unit?.unidade ?? null}
+                                                            name={`units[${indexUnit}].unidade`}
+                                                            {...register(`units[${indexUnit}].unidade`, {
+                                                                required: false
+                                                            })}
+                                                            onChange={(index, value) => {
+                                                                console.log('🚀 ~ value:', value)
+                                                                const newDataUnit = value
+                                                                    ? {
+                                                                          id: value?.unidadeID,
+                                                                          nome: value?.nome
+                                                                      }
+                                                                    : null
+                                                                setValue(`units[${indexUnit}].unidade`, newDataUnit)
+                                                            }}
+                                                            renderInput={params => (
+                                                                <TextField
+                                                                    {...params}
+                                                                    label='Selecione a unidade'
+                                                                    placeholder='Selecionar unidade'
+                                                                    aria-describedby='formulario-error'
+                                                                    error={errors.units?.[indexUnit]?.unidade}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </Grid>
+                                                ) : (
+                                                    <input
+                                                        type='hidden'
+                                                        value={unit.unidadeID}
+                                                        name={`units[${indexUnit}].unidadeID`}
+                                                        {...register(`units[${indexUnit}].unidadeID`)}
                                                     />
-                                                </Grid>
+                                                )}
 
                                                 {/* Papel */}
                                                 <Grid item xs={12} md={3}>
@@ -348,10 +366,12 @@ const FormUsuario = () => {
                                                             required: false
                                                         })}
                                                         onChange={(index, value) => {
+                                                            console.log('🚀 ~ papel:', value)
                                                             const newDataPapel = value
                                                                 ? {
-                                                                      id: value?.papelID,
-                                                                      nome: value?.nome
+                                                                      id: value?.id,
+                                                                      nome: value?.nome,
+                                                                      edit: true
                                                                   }
                                                                 : null
                                                             setValue(`units[${indexUnit}].papel`, newDataPapel)
@@ -382,7 +402,8 @@ const FormUsuario = () => {
                                                             const newDataProfission = value
                                                                 ? {
                                                                       id: value?.profissaoID,
-                                                                      nome: value?.nome
+                                                                      nome: value?.nome,
+                                                                      edit: true
                                                                   }
                                                                 : null
                                                             setValue(`units[${indexUnit}].profissao`, newDataProfission)
@@ -400,7 +421,7 @@ const FormUsuario = () => {
                                                 </Grid>
 
                                                 {/* Cargo(s) */}
-                                                <Grid item xs={12} md={3}>
+                                                <Grid item xs={12} md={unit.unidadeID ? 6 : 3}>
                                                     <Autocomplete
                                                         multiple
                                                         limitTags={2}
@@ -416,7 +437,8 @@ const FormUsuario = () => {
                                                                 ? value.map(item => {
                                                                       return {
                                                                           id: item?.id,
-                                                                          nome: item?.nome
+                                                                          nome: item?.nome,
+                                                                          edit: true
                                                                       }
                                                                   })
                                                                 : []
@@ -513,13 +535,13 @@ const FormUsuario = () => {
                                                                                             </Typography>
                                                                                         </Grid>
 
-                                                                                        {/* Hidden ID */}
+                                                                                        {/* Hidden rota */}
                                                                                         <input
                                                                                             type='hidden'
-                                                                                            value={menu.menuID}
-                                                                                            name={`units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].id`}
+                                                                                            value={menu.rota}
+                                                                                            name={`units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].rota`}
                                                                                             {...register(
-                                                                                                `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].id`
+                                                                                                `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].rota`
                                                                                             )}
                                                                                         />
 
@@ -538,6 +560,12 @@ const FormUsuario = () => {
                                                                                                 {...register(
                                                                                                     `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].ler`
                                                                                                 )}
+                                                                                                onChange={e => {
+                                                                                                    setValue(
+                                                                                                        `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].edit`,
+                                                                                                        true
+                                                                                                    )
+                                                                                                }}
                                                                                             />
                                                                                         </Grid>
 
@@ -556,6 +584,12 @@ const FormUsuario = () => {
                                                                                                 {...register(
                                                                                                     `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].inserir`
                                                                                                 )}
+                                                                                                onChange={e => {
+                                                                                                    setValue(
+                                                                                                        `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].edit`,
+                                                                                                        true
+                                                                                                    )
+                                                                                                }}
                                                                                             />
                                                                                         </Grid>
 
@@ -574,6 +608,12 @@ const FormUsuario = () => {
                                                                                                 {...register(
                                                                                                     `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].editar`
                                                                                                 )}
+                                                                                                onChange={e => {
+                                                                                                    setValue(
+                                                                                                        `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].edit`,
+                                                                                                        true
+                                                                                                    )
+                                                                                                }}
                                                                                             />
                                                                                         </Grid>
 
@@ -592,6 +632,12 @@ const FormUsuario = () => {
                                                                                                 {...register(
                                                                                                     `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].excluir`
                                                                                                 )}
+                                                                                                onChange={e => {
+                                                                                                    setValue(
+                                                                                                        `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].edit`,
+                                                                                                        true
+                                                                                                    )
+                                                                                                }}
                                                                                             />
                                                                                         </Grid>
                                                                                     </Grid>
@@ -662,15 +708,15 @@ const FormUsuario = () => {
                                                                                                                     </Typography>
                                                                                                                 </Grid>
 
-                                                                                                                {/* Hidden ID */}
+                                                                                                                {/* Hidden rota */}
                                                                                                                 <input
                                                                                                                     type='hidden'
                                                                                                                     value={
-                                                                                                                        submenu.submenuID
+                                                                                                                        submenu.rota
                                                                                                                     }
-                                                                                                                    name={`units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].id`}
+                                                                                                                    name={`units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].rota`}
                                                                                                                     {...register(
-                                                                                                                        `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].id`
+                                                                                                                        `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].rota`
                                                                                                                     )}
                                                                                                                 />
 
@@ -696,6 +742,12 @@ const FormUsuario = () => {
                                                                                                                         {...register(
                                                                                                                             `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].ler`
                                                                                                                         )}
+                                                                                                                        onChange={e => {
+                                                                                                                            setValue(
+                                                                                                                                `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].edit`,
+                                                                                                                                true
+                                                                                                                            )
+                                                                                                                        }}
                                                                                                                     />
                                                                                                                 </Grid>
 
@@ -715,12 +767,18 @@ const FormUsuario = () => {
                                                                                                                 >
                                                                                                                     <Checkbox
                                                                                                                         defaultChecked={
-                                                                                                                            menu.inserir
+                                                                                                                            submenu.inserir
                                                                                                                         }
                                                                                                                         name={`units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].inserir`}
                                                                                                                         {...register(
                                                                                                                             `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].inserir`
                                                                                                                         )}
+                                                                                                                        onChange={e => {
+                                                                                                                            setValue(
+                                                                                                                                `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].edit`,
+                                                                                                                                true
+                                                                                                                            )
+                                                                                                                        }}
                                                                                                                     />
                                                                                                                 </Grid>
 
@@ -740,12 +798,18 @@ const FormUsuario = () => {
                                                                                                                 >
                                                                                                                     <Checkbox
                                                                                                                         defaultChecked={
-                                                                                                                            menu.editar
+                                                                                                                            submenu.editar
                                                                                                                         }
                                                                                                                         name={`units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].editar`}
                                                                                                                         {...register(
                                                                                                                             `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].editar`
                                                                                                                         )}
+                                                                                                                        onChange={e => {
+                                                                                                                            setValue(
+                                                                                                                                `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].edit`,
+                                                                                                                                true
+                                                                                                                            )
+                                                                                                                        }}
                                                                                                                     />
                                                                                                                 </Grid>
 
@@ -765,12 +829,18 @@ const FormUsuario = () => {
                                                                                                                 >
                                                                                                                     <Checkbox
                                                                                                                         defaultChecked={
-                                                                                                                            menu.excluir
+                                                                                                                            submenu.excluir
                                                                                                                         }
                                                                                                                         name={`units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].excluir`}
                                                                                                                         {...register(
                                                                                                                             `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].excluir`
                                                                                                                         )}
+                                                                                                                        onChange={e => {
+                                                                                                                            setValue(
+                                                                                                                                `units[${indexUnit}].menuGroup[${indexMenuGroup}].menu[${indexMenu}].submenu[${indexSubmenu}].edit`,
+                                                                                                                                true
+                                                                                                                            )
+                                                                                                                        }}
                                                                                                                     />
                                                                                                                 </Grid>
                                                                                                             </Grid>
