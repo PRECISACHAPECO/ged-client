@@ -19,14 +19,11 @@ import Router from 'next/router'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import { getNativeSelectUtilityClasses } from '@mui/material'
+import { set } from 'nprogress'
 
-const StepAccountDetails = ({ handleNext, setDataGlobal }) => {
+const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
     const router = Router
     const rota = router.pathname
-
-    // false = não existe no banco / True = existe no banco
-    const [validationCnpj, setValidationCnpj] = useState()
-    const [data, setData] = useState()
 
     const schema = yup.object().shape({
         cnpj: yup
@@ -45,11 +42,31 @@ const StepAccountDetails = ({ handleNext, setDataGlobal }) => {
             .string()
             .nullable()
             .when('cnpj', {
-                is: (val) => !validationCnpj,
+                is: (val) => dataGlobal?.unidade?.exists === false ? true : false,
                 then: yup.string().required('Nome Fantasia é obrigatório')
             }),
-
-
+        razaoSocial: yup
+            .string()
+            .nullable()
+            .when('cnpj', {
+                is: (val) => dataGlobal?.unidade?.exists === false ? true : false,
+                then: yup.string().required('Razão Social é obrigatório')
+            }),
+        email: yup
+            .string()
+            .email('Email inválido')
+            .nullable()
+            .when('cnpj', {
+                is: (val) => dataGlobal?.unidade?.exists === false ? true : false,
+                then: yup.string().required('Email é obrigatório')
+            }),
+        cidade: yup
+            .string()
+            .nullable()
+            .when('cnpj', {
+                is: (val) => dataGlobal?.unidade?.exists === false ? true : false,
+                then: yup.string().required('Cidade é obrigatório')
+            }),
     })
 
     const {
@@ -60,33 +77,87 @@ const StepAccountDetails = ({ handleNext, setDataGlobal }) => {
     } = useForm({
         resolver: yupResolver(schema)
     })
+    console.log("🚀 dataGlobal", dataGlobal)
 
     const handleGetCnpj = (cnpj) => {
         if (cnpj.length === 18 && validationCNPJ(cnpj)) {
             api.post(`http://localhost:3333/api/registro`, { cnpj: cnpj }, { headers: { 'function-name': 'handleGetCnpj' } }).then((response, err) => {
+                console.log({ cnpj: cnpj })
                 if (response.data.length > 0) {
-                    setData(response.data)
-                    setValidationCnpj(true)
+                    // Quero manter oque ja tem no dataGlobal e adicionar o que vem do response.data[0]
+                    setDataGlobal({
+                        unidade: {
+                            exists: true,
+                            ...dataGlobal?.unidade,
+                            fields: {
+                                ...dataGlobal?.unidade?.fields,
+                                ...response.data[0]
+                            },
+                        },
+                        usuario: {
+                            ...dataGlobal?.usuario,
+                            fields: {
+                                ...dataGlobal?.usuario?.fields,
+                            }
+                        }
+                    })
+
                 } else {
-                    console.log("não cadastrado")
-                    setValidationCnpj(false)
+                    setDataGlobal({
+                        unidade: {
+                            ...dataGlobal?.unidade,
+                            exists: false,
+                            fields: {
+                                ...dataGlobal?.unidade?.fields,
+                                cnpj: cnpj,
+                                exists: false
+                            }
+                        },
+                        usuario: {
+                            ...dataGlobal?.usuario,
+                            fields: {
+                                ...dataGlobal?.usuario.fields,
+                            }
+                        }
+                    })
+                }
+            })
+        } else {
+            // limpar todos os dados de unidade do dataGlobal 
+            setDataGlobal({
+                unidades: {
+                    exists: false,
+                    fields: {
+                    }
+                },
+                usuario: {
+                    ...dataGlobal?.usuario,
+                    fields: {
+                        ...dataGlobal?.usuario?.fields,
+                    }
                 }
             })
         }
     }
 
-    // console.log(data)
-
     const onSubmit = value => {
-        if (validationCnpj) {
-            setDataGlobal({
-                unidade: data
-            })
-        } else {
-            setDataGlobal({
-                unidade: value
-            })
-        }
+        setDataGlobal({
+            unidade: {
+                ...dataGlobal?.unidade,
+                fields: {
+                    ...dataGlobal?.unidade.fields,
+                    ...value
+                }
+            },
+            usuario: {
+                ...dataGlobal?.usuario,
+                fields: {
+                    ...dataGlobal?.usuario?.fields,
+                }
+            }
+
+        })
+        // }
         handleNext()
     }
 
@@ -98,6 +169,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal }) => {
                     <Typography sx={{ color: 'text.secondary' }}>Insira os detalhes da unidade</Typography>
                 </Box>
                 <Grid container spacing={5}>
+
                     <Grid item xs={12} md={6}>
                         <TextField
                             label='CNPJ'
@@ -105,6 +177,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal }) => {
                             {...register('cnpj', { required: true })}
                             error={errors.cnpj && true}
                             helperText={errors.cnpj && errors.cnpj.message}
+                            defaultValue={dataGlobal?.unidade?.fields?.cnpj}
                             onChange={e => {
                                 handleGetCnpj(e.target.value)
                             }}
@@ -120,24 +193,61 @@ const StepAccountDetails = ({ handleNext, setDataGlobal }) => {
                     </Grid>
 
                     {
-                        validationCnpj === false && (
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    fullWidth
-                                    label='Nome Fantasia'
-                                    {...register('nomeFantasia', { required: true })}
-                                    error={errors.nomeFantasia && true}
-                                    helperText={errors.nomeFantasia && errors.nomeFantasia.message}
-                                />
-                            </Grid>
+                        dataGlobal && dataGlobal?.unidade?.exists === false && (
+                            <>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label='Nome Fantasia'
+                                        defaultValue={dataGlobal?.unidade?.fields?.nomeFantasia}
+                                        {...register('nomeFantasia', { required: true })}
+                                        error={errors.nomeFantasia && true}
+                                        helperText={errors.nomeFantasia && errors.nomeFantasia.message}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label='Razão Social'
+                                        defaultValue={dataGlobal?.unidade?.fields?.razaoSocial}
+                                        {...register('razaoSocial', { required: true })}
+                                        error={errors.razaoSocial && true}
+                                        helperText={errors.razaoSocial && errors.razaoSocial.message}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label='Email'
+                                        defaultValue={dataGlobal?.unidade?.fields?.email}
+                                        {...register('email', { required: true })}
+                                        error={errors.email && true}
+                                        helperText={errors.email && errors.email.message}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label='Cidade'
+                                        defaultValue={dataGlobal?.unidade?.fields?.cidade}
+                                        {...register('cidade', { required: true })}
+                                        error={errors.cidade && true}
+                                        helperText={errors.cidade && errors.cidade.message}
+                                    />
+                                </Grid>
+
+                            </>
                         )
                     }
 
                     {
-                        validationCnpj === true && (
+                        dataGlobal && dataGlobal?.unidade?.exists === true && (
                             <Grid item xs={12} md={12}>
                                 <h1>CNPJ já cadastrado</h1>
-                                <Typography sx={{ color: 'text.secondary' }}>{data.responsavel
+                                <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.unidade?.fields.responsavel
                                 }</Typography>
 
                             </Grid>

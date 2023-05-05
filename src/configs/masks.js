@@ -12,6 +12,18 @@ function cnpjMask(cnpj) {
     return cnpj
 }
 
+// Mascara para CPF
+function cpfMask(cpf) {
+    if (cpf) {
+        cpf = cpf.replace(/\D/g, '') // remove caracteres não numéricos
+        cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // adiciona ponto após o terceiro dígito
+        cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2') // adiciona ponto após o terceiro dígito
+        cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2') // adiciona ponto após o terceiro dígito
+    }
+
+    return cpf
+}
+
 // Mascara telefone celular
 function cellPhoneMask(cellPhone) {
     cellPhone = cellPhone.replace(/\D/g, ''); // remove tudo que não é dígito
@@ -37,4 +49,4 @@ function ufMask(uf) {
     return uf;
 }
 
-export { cnpjMask, cellPhoneMask, cepMask, ufMask }
+export { cnpjMask, cellPhoneMask, cepMask, ufMask, cpfMask }
