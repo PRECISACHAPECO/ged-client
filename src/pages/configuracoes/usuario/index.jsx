@@ -3,6 +3,7 @@ import { api } from 'src/configs/api'
 import TableFilter from 'src/views/table/data-grid/TableFilter'
 import { CardContent } from '@mui/material'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { AuthContext } from 'src/context/AuthContext'
 
 import Loading from 'src/components/Loading'
 
@@ -13,20 +14,21 @@ import { useRouter } from 'next/router'
 import { configColumns } from 'src/configs/defaultConfigs'
 import { Card } from '@mui/material'
 
-// import axios from 'axios'
-
 const Usuario = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
+    const { user, loggedUnity } = useContext(AuthContext)
 
     useEffect(() => {
         const getList = async () => {
-            await api.get(currentLink).then(response => {
-                setResult(response.data)
-                setTitle('Usuário')
-            })
+            await api
+                .get(`${currentLink}?unidadeID=${loggedUnity.unidadeID}&papelID=${loggedUnity.papelID}`)
+                .then(response => {
+                    setResult(response.data)
+                    setTitle('Usuário')
+                })
         }
         getList()
     }, [])
