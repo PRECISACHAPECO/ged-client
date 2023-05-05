@@ -3,6 +3,9 @@ import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
 import Icon from 'src/@core/components/icon'
 
+import { cpfMask } from 'src/configs/masks'
+import { validationCPF } from 'src/configs/validations'
+
 // ** Custom Components
 import CustomChip from 'src/@core/components/mui/chip'
 
@@ -39,6 +42,13 @@ import { backRoute } from 'src/configs/defaultConfigs'
 import { toastMessage } from 'src/configs/defaultConfigs'
 import { AuthContext } from 'src/context/AuthContext'
 
+//* Date
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import dayjs from 'dayjs'
+import 'dayjs/locale/pt-br' // import locale
+
 const FormUsuario = () => {
     const [open, setOpen] = useState(false)
     const [data, setData] = useState()
@@ -58,8 +68,7 @@ const FormUsuario = () => {
         register
     } = useForm({})
 
-    console.log('errors', errors)
-    console.log('Renderiza componente...')
+    console.log('errors: ', errors)
 
     data &&
         data.units &&
@@ -89,7 +98,6 @@ const FormUsuario = () => {
         try {
             if (type === 'new') {
                 const result = await api.post(`${staticUrl}/novo`, values)
-                console.log('==> ', result.data.id)
                 router.replace(`${staticUrl}/${result.data.id}`)
                 toast.success(toastMessage.successNew)
             } else if (type === 'edit') {
@@ -150,13 +158,12 @@ const FormUsuario = () => {
     // Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
     useEffect(() => {
         const getData = async () => {
-            console.log('getData....')
             try {
                 const response = await api.get(
                     `${staticUrl}/${id}?unidadeID=${loggedUnity.unidadeID}&papelID=${loggedUnity.papelID}&admin=${user.admin}`
                 )
                 setData(response.data)
-                console.log('🚀 ~ getData:', response.data)
+                console.log('🚀 ~ getData: ', response.data)
             } catch (error) {
                 console.log(error)
             }
@@ -210,15 +217,23 @@ const FormUsuario = () => {
 
                                 <Grid item xs={12} md={4}>
                                     <FormControl fullWidth>
-                                        <TextField
-                                            defaultValue={data?.dataNascimento}
-                                            label='Data de Nascimento'
-                                            placeholder='Data de Nascimento'
-                                            aria-describedby='validation-schema-nome'
-                                            name='dataNascimento'
-                                            {...register(`dataNascimento`, { required: true })}
-                                            error={errors.dataNascimento}
-                                        />
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <DatePicker
+                                                label='Data de Nascimento'
+                                                locale={dayjs.locale('pt-br')}
+                                                format='DD/MM/YYYY'
+                                                defaultValue={dayjs(new Date(data?.dataNascimento))}
+                                                name={`dataNascimento`}
+                                                onChange={value => setValue('dataNascimento', value)}
+                                                renderInput={params => (
+                                                    <TextField
+                                                        {...params}
+                                                        variant='outlined'
+                                                        error={errors?.dataNascimento}
+                                                    />
+                                                )}
+                                            />
+                                        </LocalizationProvider>
                                     </FormControl>
                                 </Grid>
 
@@ -244,8 +259,18 @@ const FormUsuario = () => {
                                             placeholder='CPF'
                                             aria-describedby='validation-schema-nome'
                                             name='cpf'
-                                            {...register(`cpf`, { required: true })}
+                                            {...register(`cpf`, {
+                                                required: true,
+                                                validate: value => validationCPF(value) || 'CPF inválido'
+                                            })}
                                             error={errors.cpf}
+                                            helperText={errors.cpf?.message}
+                                            inputProps={{
+                                                maxLength: 14,
+                                                onChange: e => {
+                                                    setValue('cpf', cpfMask(e.target.value))
+                                                }
+                                            }}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -507,7 +532,6 @@ const FormUsuario = () => {
                                                                 required: false
                                                             })}
                                                             onChange={(index, value) => {
-                                                                console.log('🚀 ~ value:', value)
                                                                 const newDataUnit = value
                                                                     ? {
                                                                           id: value?.unidadeID,
@@ -547,7 +571,6 @@ const FormUsuario = () => {
                                                             required: false
                                                         })}
                                                         onChange={(index, value) => {
-                                                            console.log('🚀 ~ papel:', value)
                                                             const newDataPapel = value
                                                                 ? {
                                                                       id: value?.id,
