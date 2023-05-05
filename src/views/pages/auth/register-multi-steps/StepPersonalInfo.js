@@ -58,6 +58,7 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                 }
                 return validationCPF(value)
             }),
+
         nome: yup
             .string()
             .nullable()
@@ -76,7 +77,6 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
 
         senha: yup
             .string()
-            .required('Campo obrigatório')
             .when('cpf', {
                 is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
                 then: yup.string().required('Senha é obrigatório')
@@ -84,12 +84,11 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
 
         confirmaSenha: yup
             .string()
-            .required('Campo obrigatório')
+            .oneOf([yup.ref('senha')], 'As senhas não conferem')
             .when('cpf', {
                 is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
                 then: yup.string().required('Confirmação de senha é obrigatório')
             })
-            .oneOf([yup.ref('senha')], 'As senhas não conferem')
     })
 
 
@@ -183,6 +182,8 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
         handleNext()
     }
 
+    console.log("erros")
+
     return (
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -216,23 +217,13 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                 </Grid>
 
                 {
-                    dataGlobal && dataGlobal?.usuario?.exists === true && (
-                        <Grid item xs={12} md={12}>
-                            <h1>CPF já cadastrado</h1>
-                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.nome
-                            }</Typography>
-
-                        </Grid>
-                    )
-                }
-
-                {
                     dataGlobal && dataGlobal?.usuario?.exists === false && (
                         <>
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     label='Nome'
                                     fullWidth
+                                    name='nome'
                                     {...register('nome', { required: true })}
                                     defaultValue={dataGlobal?.usuario?.fields?.nome}
                                     error={errors.nome && true}
@@ -242,6 +233,7 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     label='Email'
+                                    name='email'
                                     fullWidth
                                     {...register('email', { required: true })}
                                     defaultValue={dataGlobal?.usuario?.fields?.email}
@@ -257,7 +249,7 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                                         id='input-password'
                                         type={values.showPassword ? 'text' : 'password'}
                                         name='senha'
-                                        {...register('senha', { required: true })}
+                                        {...register('senha')}
                                         endAdornment={
                                             <InputAdornment position='end'>
                                                 <IconButton edge='end' onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword}>
@@ -278,8 +270,8 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                                     }}  >Confirme a senha</InputLabel>
                                     <OutlinedInput
                                         label='Confirme a senha'
-                                        name='confirmPassword'
-                                        {...register('confirmaSenha', { required: true })}
+                                        name='confirmaSenha'
+                                        {...register('confirmaSenha')}
                                         id='input-confirm-password'
                                         type={values.showConfirmPassword ? 'text' : 'password'} // altere o tipo para 'password'
                                         endAdornment={
@@ -301,6 +293,23 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                                 </FormControl>
                             </Grid>
                         </>
+                    )
+                }
+
+                {
+                    dataGlobal && dataGlobal?.usuario?.exists === true && (
+                        <Grid item xs={12} md={12}>
+                            <h3>CPF já cadastrado</h3>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Typography sx={{ color: 'text.primary' }}>Usuário:</Typography>
+                                <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.nome}</Typography>
+
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Typography sx={{ color: 'text.primary' }}>Email:</Typography>
+                                <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.email}</Typography>
+                            </Box>
+                        </Grid>
                     )
                 }
 

@@ -244,10 +244,20 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                     {
                         dataGlobal && dataGlobal?.unidade?.exists === true && (
                             <Grid item xs={12} md={12}>
-                                <h1>CNPJ já cadastrado</h1>
-                                <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.unidade?.fields.responsavel
-                                }</Typography>
+                                <h3>CNPJ já cadastrado</h3>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <Typography sx={{ color: 'text.primary' }}>Nome fantasia:</Typography>
+                                    <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.unidade?.fields.nomeFantasia}</Typography>
 
+                                </Box>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <Typography sx={{ color: 'text.primary' }}>Responsável:</Typography>
+                                    <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.unidade?.fields.responsavel}</Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                    <Typography sx={{ color: 'text.primary' }}>Email:</Typography>
+                                    <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.unidade?.fields.email}</Typography>
+                                </Box>
                             </Grid>
                         )
                     }
