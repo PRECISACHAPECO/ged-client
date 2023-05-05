@@ -77,18 +77,15 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
     } = useForm({
         resolver: yupResolver(schema)
     })
-    console.log("🚀 dataGlobal", dataGlobal)
 
     const handleGetCnpj = (cnpj) => {
         if (cnpj.length === 18 && validationCNPJ(cnpj)) {
             api.post(`http://localhost:3333/api/registro`, { cnpj: cnpj }, { headers: { 'function-name': 'handleGetCnpj' } }).then((response, err) => {
-                console.log({ cnpj: cnpj })
                 if (response.data.length > 0) {
                     // Quero manter oque ja tem no dataGlobal e adicionar o que vem do response.data[0]
                     setDataGlobal({
                         unidade: {
                             exists: true,
-                            ...dataGlobal?.unidade,
                             fields: {
                                 ...dataGlobal?.unidade?.fields,
                                 ...response.data[0]
@@ -110,7 +107,6 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                             fields: {
                                 ...dataGlobal?.unidade?.fields,
                                 cnpj: cnpj,
-                                exists: false
                             }
                         },
                         usuario: {
@@ -139,6 +135,8 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
             })
         }
     }
+
+    console.log("validando ", dataGlobal)
 
     const onSubmit = value => {
         setDataGlobal({

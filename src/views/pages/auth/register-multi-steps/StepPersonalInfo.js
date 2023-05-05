@@ -12,6 +12,8 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { cpfMask } from 'src/configs/masks'
 import { validationCPF } from 'src/configs/validations'
 import { useState } from 'react'
+import { OutlinedInput } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
 
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
@@ -22,6 +24,27 @@ import { api } from 'src/configs/api'
 import Icon from 'src/@core/components/icon'
 
 const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal }) => {
+    const [values, setValues] = useState({
+        showPassword: false,
+        showConfirmPassword: false
+    })
+
+    const handleClickShowPassword = () => {
+        setValues({ ...values, showPassword: !values.showPassword })
+    }
+
+    const handleMouseDownPassword = event => {
+        event.preventDefault()
+    }
+
+    const handleClickShowConfirmPassword = () => {
+        setValues({ ...values, showConfirmPassword: !values.showConfirmPassword })
+    }
+
+    const handleMouseDownConfirmPassword = event => {
+        event.preventDefault()
+    }
+
 
     const schema = yup.object().shape({
         cpf: yup
@@ -38,10 +61,35 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
         nome: yup
             .string()
             .nullable()
-            .when('cnpj', {
+            .when('cpf', {
                 is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
                 then: yup.string().required('Nome é obrigatório')
             }),
+
+        email: yup
+            .string()
+            .nullable()
+            .when('cpf', {
+                is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
+                then: yup.string().required('Email é obrigatório')
+            }),
+
+        senha: yup
+            .string()
+            .required('Campo obrigatório')
+            .when('cpf', {
+                is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
+                then: yup.string().required('Senha é obrigatório')
+            }),
+
+        confirmaSenha: yup
+            .string()
+            .required('Campo obrigatório')
+            .when('cpf', {
+                is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
+                then: yup.string().required('Confirmação de senha é obrigatório')
+            })
+            .oneOf([yup.ref('senha')], 'As senhas não conferem')
     })
 
 
@@ -57,23 +105,38 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
 
     const handleGetCpf = (cpf) => {
         if (cpf.length === 14 && validationCPF(cpf)) {
-            api.post(`http://localhost:3333/api/registro`, { cpf: cpf }, { headers: { 'function-name': 'handleGetCpf' } }).then((res, err) => {
-                if (res.data.length > 0) {
+            api.post(`http://localhost:3333/api/registro`, { cpf: cpf }, { headers: { 'function-name': 'handleGetCpf' } }).then((response, err) => {
+                if (response.data.length > 0) {
                     setDataGlobal({
-                        ...dataGlobal,
                         usuario: {
-                            fields: res.data[0],
-                            exists: true
+                            exists: true,
+                            fields: {
+                                ...dataGlobal?.usuario?.fields,
+                                ...response.data[0]
+                            },
+                        },
+                        unidade: {
+                            ...dataGlobal?.unidade,
+                            fields: {
+                                ...dataGlobal?.unidade?.fields,
+                            }
                         }
                     })
                 } else {
                     setDataGlobal({
-                        ...dataGlobal,
                         usuario: {
+                            ...dataGlobal?.usuario,
+                            exists: false,
                             fields: {
-                                cpf: cpf
-                            },
-                            exists: false
+                                ...dataGlobal?.usuario?.fields,
+                                cpf: cpf,
+                            }
+                        },
+                        unidade: {
+                            ...dataGlobal?.unidade,
+                            fields: {
+                                ...dataGlobal?.unidade.fields,
+                            }
                         }
                     })
                 }
@@ -81,15 +144,15 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
         } else {
             //? limpa todos os dados de unidade do dataGlobal, quando o length do cpf for menor que 14
             setDataGlobal({
-                unidades: {
+                usuario: {
+                    exists: null,
+                    fields: {
+                    }
+                },
+                unidade: {
                     ...dataGlobal?.unidade,
                     fields: {
                         ...dataGlobal?.unidade?.fields,
-                    }
-                },
-                usuario: {
-                    exists: false,
-                    fields: {
                     }
                 }
             })
@@ -101,15 +164,22 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
 
     const onSubmit = value => {
         setDataGlobal({
-            ...dataGlobal,
             usuario: {
-                ...dataGlobal.usuario,
+                ...dataGlobal?.usuario,
                 fields: {
-                    ...dataGlobal.usuario.fields,
+                    ...dataGlobal?.usuario.fields,
                     ...value
                 }
+            },
+            unidade: {
+                ...dataGlobal?.unidade,
+                fields: {
+                    ...dataGlobal?.unidade?.fields,
+                }
             }
+
         })
+        // }
         handleNext()
     }
 
@@ -144,20 +214,6 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
 
                     />
                 </Grid>
-                {
-                    dataGlobal && dataGlobal?.usuario?.exists === false && (
-                        <Grid item xs={12} md={6}>
-                            <TextField
-                                label='Nome'
-                                fullWidth
-                                {...register('nome', { required: true })}
-                                defaultValue={dataGlobal?.usuario?.fields?.nome}
-                                error={errors.nome && true}
-                                helperText={errors.nome && errors.nome.message}
-                            />
-                        </Grid>
-                    )
-                }
 
                 {
                     dataGlobal && dataGlobal?.usuario?.exists === true && (
@@ -167,6 +223,84 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                             }</Typography>
 
                         </Grid>
+                    )
+                }
+
+                {
+                    dataGlobal && dataGlobal?.usuario?.exists === false && (
+                        <>
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    label='Nome'
+                                    fullWidth
+                                    {...register('nome', { required: true })}
+                                    defaultValue={dataGlobal?.usuario?.fields?.nome}
+                                    error={errors.nome && true}
+                                    helperText={errors.nome && errors.nome.message}
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    label='Email'
+                                    fullWidth
+                                    {...register('email', { required: true })}
+                                    defaultValue={dataGlobal?.usuario?.fields?.email}
+                                    error={errors.email && true}
+                                    helperText={errors.email && errors.email.message}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <FormControl fullWidth>
+                                    <InputLabel htmlFor='input-password' color={errors.senha ? 'error' : ''}>Senha</InputLabel>
+                                    <OutlinedInput
+                                        label='Senha'
+                                        id='input-password'
+                                        type={values.showPassword ? 'text' : 'password'}
+                                        name='senha'
+                                        {...register('senha', { required: true })}
+                                        endAdornment={
+                                            <InputAdornment position='end'>
+                                                <IconButton edge='end' onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword}>
+                                                    <Icon icon={values.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        }
+                                        error={errors.senha && true}
+                                        helperText={errors.senha && errors.senha.message}
+                                    />
+                                </FormControl>
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <FormControl fullWidth>
+                                    <InputLabel htmlFor='input-confirm-password' style={{
+                                        color: errors.confirmaSenha && 'red'
+                                    }}  >Confirme a senha</InputLabel>
+                                    <OutlinedInput
+                                        label='Confirme a senha'
+                                        name='confirmPassword'
+                                        {...register('confirmaSenha', { required: true })}
+                                        id='input-confirm-password'
+                                        type={values.showConfirmPassword ? 'text' : 'password'} // altere o tipo para 'password'
+                                        endAdornment={
+                                            <InputAdornment position='end'>
+                                                <IconButton
+                                                    edge='end'
+                                                    onClick={handleClickShowConfirmPassword}
+                                                    onMouseDown={handleMouseDownConfirmPassword}
+                                                >
+                                                    <Icon icon={values.showConfirmPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        }
+                                        error={errors.confirmaSenha && true}
+                                    />
+                                    <Typography variant='caption' sx={{ color: 'error.main' }}>
+                                        {errors.confirmaSenha && errors.confirmaSenha.message}
+                                    </Typography>
+                                </FormControl>
+                            </Grid>
+                        </>
                     )
                 }
 
