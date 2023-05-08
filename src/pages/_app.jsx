@@ -32,6 +32,7 @@ import Spinner from 'src/@core/components/spinner'
 
 // ** Contexts
 import { AuthProvider } from 'src/context/AuthContext'
+import { FornecedorProvider } from 'src/context/FornecedorContext'
 import { ParametersProvider } from 'src/context/ParametersContext'
 import { SettingsConsumer, SettingsProvider } from 'src/@core/context/settingsContext'
 
@@ -105,31 +106,33 @@ const App = props => {
                 <meta name='viewport' content='initial-scale=1, width=device-width' />
             </Head>
             <ParametersProvider>
-                <AuthProvider>
-                    <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
-                        <SettingsConsumer>
-                            {({ settings }) => {
-                                return (
-                                    <ThemeComponent settings={settings}>
-                                        <WindowWrapper>
-                                            <Guard authGuard={authGuard} guestGuard={guestGuard}>
-                                                <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard}>
-                                                    {getLayout(<Component {...pageProps} />)}
-                                                </AclGuard>
-                                            </Guard>
-                                        </WindowWrapper>
-                                        <ReactHotToast>
-                                            <Toaster
-                                                position={settings.toastPosition}
-                                                toastOptions={{ className: 'react-hot-toast' }}
-                                            />
-                                        </ReactHotToast>
-                                    </ThemeComponent>
-                                )
-                            }}
-                        </SettingsConsumer>
-                    </SettingsProvider>
-                </AuthProvider>
+                <FornecedorProvider>
+                    <AuthProvider>
+                        <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
+                            <SettingsConsumer>
+                                {({ settings }) => {
+                                    return (
+                                        <ThemeComponent settings={settings}>
+                                            <WindowWrapper>
+                                                <Guard authGuard={authGuard} guestGuard={guestGuard}>
+                                                    <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard}>
+                                                        {getLayout(<Component {...pageProps} />)}
+                                                    </AclGuard>
+                                                </Guard>
+                                            </WindowWrapper>
+                                            <ReactHotToast>
+                                                <Toaster
+                                                    position={settings.toastPosition}
+                                                    toastOptions={{ className: 'react-hot-toast' }}
+                                                />
+                                            </ReactHotToast>
+                                        </ThemeComponent>
+                                    )
+                                }}
+                            </SettingsConsumer>
+                        </SettingsProvider>
+                    </AuthProvider>
+                </FornecedorProvider>
             </ParametersProvider>
         </CacheProvider>
     )
