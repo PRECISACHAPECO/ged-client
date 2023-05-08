@@ -15,15 +15,40 @@ import Typography from '@mui/material/Typography'
 import { cnpjMask } from 'src/configs/masks'
 import { validationCNPJ } from 'src/configs/validations'
 import Router from 'next/router'
+import InputLabel from '@mui/material/InputLabel'
+import FormControl from '@mui/material/FormControl'
+import InputAdornment from '@mui/material/InputAdornment'
+import { OutlinedInput } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { getNativeSelectUtilityClasses } from '@mui/material'
-import { set } from 'nprogress'
+import Link from 'next/link'
 
 const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
     const router = Router
     const rota = router.pathname
+
+    const [values, setValues] = useState({
+        showPassword: false,
+        showConfirmPassword: false
+    })
+
+    const handleClickShowPassword = () => {
+        setValues({ ...values, showPassword: !values.showPassword })
+    }
+
+    const handleMouseDownPassword = event => {
+        event.preventDefault()
+    }
+
+    const handleClickShowConfirmPassword = () => {
+        setValues({ ...values, showConfirmPassword: !values.showConfirmPassword })
+    }
+
+    const handleMouseDownConfirmPassword = event => {
+        event.preventDefault()
+    }
 
     const schema = yup.object().shape({
         cnpj: yup
@@ -37,36 +62,42 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                 }
                 return validationCNPJ(value)
             }),
-        // Nome sera sera obrigatório se !validationCnpj
         nomeFantasia: yup
             .string()
             .nullable()
             .when('cnpj', {
-                is: (val) => dataGlobal?.unidade?.exists === false ? true : false,
+                is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
                 then: yup.string().required('Nome Fantasia é obrigatório')
-            }),
-        razaoSocial: yup
-            .string()
-            .nullable()
-            .when('cnpj', {
-                is: (val) => dataGlobal?.unidade?.exists === false ? true : false,
-                then: yup.string().required('Razão Social é obrigatório')
             }),
         email: yup
             .string()
             .email('Email inválido')
             .nullable()
             .when('cnpj', {
-                is: (val) => dataGlobal?.unidade?.exists === false ? true : false,
+                is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
                 then: yup.string().required('Email é obrigatório')
             }),
-        cidade: yup
+        razaoSocial: yup
             .string()
             .nullable()
             .when('cnpj', {
-                is: (val) => dataGlobal?.unidade?.exists === false ? true : false,
+                is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
                 then: yup.string().required('Cidade é obrigatório')
             }),
+        senha: yup
+            .string()
+            .when('cnpj', {
+                is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
+                then: yup.string().required('Senha é obrigatório')
+            }),
+
+        confirmaSenha: yup
+            .string()
+            .oneOf([yup.ref('senha')], 'As senhas não conferem')
+            .when('cnpj', {
+                is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
+                then: yup.string().required('Confirmação de senha é obrigatório')
+            })
     })
 
     const {
@@ -84,50 +115,35 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                 if (response.data.length > 0) {
                     // Quero manter oque ja tem no dataGlobal e adicionar o que vem do response.data[0]
                     setDataGlobal({
-                        unidade: {
-                            exists: true,
-                            fields: {
-                                ...dataGlobal?.unidade?.fields,
-                                ...response.data[0]
-                            },
-                        },
                         usuario: {
                             ...dataGlobal?.usuario,
+                            exists: true,
                             fields: {
                                 ...dataGlobal?.usuario?.fields,
+                                ...response.data[0]
                             }
                         }
                     })
 
                 } else {
                     setDataGlobal({
-                        unidade: {
-                            ...dataGlobal?.unidade,
-                            exists: false,
-                            fields: {
-                                ...dataGlobal?.unidade?.fields,
-                                cnpj: cnpj,
-                            }
-                        },
                         usuario: {
                             ...dataGlobal?.usuario,
+                            exists: false,
                             fields: {
-                                ...dataGlobal?.usuario.fields,
+                                ...dataGlobal?.usuario?.fields,
+                                cnpj: cnpj
                             }
                         }
                     })
                 }
             })
         } else {
-            // limpar todos os dados de unidade do dataGlobal 
+            // limpar todos os dados de usuario do dataGlobal 
             setDataGlobal({
-                unidades: {
-                    exists: false,
-                    fields: {
-                    }
-                },
                 usuario: {
                     ...dataGlobal?.usuario,
+                    exists: null,
                     fields: {
                         ...dataGlobal?.usuario?.fields,
                     }
@@ -136,35 +152,25 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
         }
     }
 
-    console.log("validando ", dataGlobal)
-
     const onSubmit = value => {
+        handleNext(value)
         setDataGlobal({
-            unidade: {
-                ...dataGlobal?.unidade,
-                fields: {
-                    ...dataGlobal?.unidade.fields,
-                    ...value
-                }
-            },
             usuario: {
                 ...dataGlobal?.usuario,
                 fields: {
                     ...dataGlobal?.usuario?.fields,
+                    ...value
                 }
             }
-
         })
-        // }
-        handleNext()
     }
 
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Box sx={{ mb: 4 }}>
-                    <Typography variant='h5'>Informações da unidade</Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>Insira os detalhes da unidade</Typography>
+                    <Typography variant='h5'>Informações do usuário</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>Insira os detalhes da usuario</Typography>
                 </Box>
                 <Grid container spacing={5}>
 
@@ -175,7 +181,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                             {...register('cnpj', { required: true })}
                             error={errors.cnpj && true}
                             helperText={errors.cnpj && errors.cnpj.message}
-                            defaultValue={dataGlobal?.unidade?.fields?.cnpj}
+                            defaultValue={dataGlobal?.usuario?.fields?.cnpj}
                             onChange={e => {
                                 handleGetCnpj(e.target.value)
                             }}
@@ -191,77 +197,116 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                     </Grid>
 
                     {
-                        dataGlobal && dataGlobal?.unidade?.exists === false && (
+                        dataGlobal && dataGlobal?.usuario?.exists === false && (
                             <>
                                 <Grid item xs={12} md={6}>
                                     <TextField
                                         fullWidth
                                         label='Nome Fantasia'
-                                        defaultValue={dataGlobal?.unidade?.fields?.nomeFantasia}
+                                        defaultValue={dataGlobal?.usuario?.fields?.nomeFantasia}
                                         {...register('nomeFantasia', { required: true })}
                                         error={errors.nomeFantasia && true}
                                         helperText={errors.nomeFantasia && errors.nomeFantasia.message}
                                     />
                                 </Grid>
-
                                 <Grid item xs={12} md={6}>
                                     <TextField
                                         fullWidth
                                         label='Razão Social'
-                                        defaultValue={dataGlobal?.unidade?.fields?.razaoSocial}
+                                        defaultValue={dataGlobal?.usuario?.fields?.razaoSocial}
                                         {...register('razaoSocial', { required: true })}
                                         error={errors.razaoSocial && true}
                                         helperText={errors.razaoSocial && errors.razaoSocial.message}
                                     />
                                 </Grid>
-
                                 <Grid item xs={12} md={6}>
                                     <TextField
                                         fullWidth
-                                        label='Email'
-                                        defaultValue={dataGlobal?.unidade?.fields?.email}
+                                        label='Email Institucional'
+                                        defaultValue={dataGlobal?.usuario?.fields?.email}
                                         {...register('email', { required: true })}
                                         error={errors.email && true}
                                         helperText={errors.email && errors.email.message}
                                     />
                                 </Grid>
-
-                                <Grid item xs={12} md={6}>
-                                    <TextField
-                                        fullWidth
-                                        label='Cidade'
-                                        defaultValue={dataGlobal?.unidade?.fields?.cidade}
-                                        {...register('cidade', { required: true })}
-                                        error={errors.cidade && true}
-                                        helperText={errors.cidade && errors.cidade.message}
-                                    />
+                                <Grid item xs={12} sm={6}>
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor='input-password' color={errors.senha ? 'error' : ''}>Senha</InputLabel>
+                                        <OutlinedInput
+                                            label='Senha'
+                                            id='input-password'
+                                            type={values.showPassword ? 'text' : 'password'}
+                                            name='senha'
+                                            {...register('senha')}
+                                            endAdornment={
+                                                <InputAdornment position='end'>
+                                                    <IconButton edge='end' onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword}>
+                                                        <Icon icon={values.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} />
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            }
+                                            error={errors.senha && true}
+                                            helperText={errors.senha && errors.senha.message}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor='input-confirm-password' style={{
+                                            color: errors.confirmaSenha && 'red'
+                                        }}  >Confirme a senha</InputLabel>
+                                        <OutlinedInput
+                                            label='Confirme a senha'
+                                            name='confirmaSenha'
+                                            {...register('confirmaSenha')}
+                                            id='input-confirm-password'
+                                            type={values.showConfirmPassword ? 'text' : 'password'} // altere o tipo para 'password'
+                                            endAdornment={
+                                                <InputAdornment position='end'>
+                                                    <IconButton
+                                                        edge='end'
+                                                        onClick={handleClickShowConfirmPassword}
+                                                        onMouseDown={handleMouseDownConfirmPassword}
+                                                    >
+                                                        <Icon icon={values.showConfirmPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} />
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            }
+                                            error={errors.confirmaSenha && true}
+                                        />
+                                        <Typography variant='caption' sx={{ color: 'error.main' }}>
+                                            {errors.confirmaSenha && errors.confirmaSenha.message}
+                                        </Typography>
+                                    </FormControl>
                                 </Grid>
 
                             </>
                         )
                     }
-
                     {
-                        dataGlobal && dataGlobal?.unidade?.exists === true && (
+                        dataGlobal && dataGlobal?.usuario?.exists === true && (
                             <Grid item xs={12} md={12}>
                                 <h3>CNPJ já cadastrado</h3>
-                                <Box sx={{ display: 'flex', gap: 2 }}>
-                                    <Typography sx={{ color: 'text.primary' }}>Nome fantasia:</Typography>
-                                    <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.unidade?.fields.nomeFantasia}</Typography>
+                                <Box sx={{ display: 'flex', gap: '100px' }}>
+                                    <Box>
+                                        <Box sx={{ display: 'flex', gap: 2 }}>
+                                            <Typography sx={{ color: 'text.primary' }}>Responsável:</Typography>
+                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.nome}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', gap: 2 }}>
+                                            <Typography sx={{ color: 'text.primary' }}>Email Institucional:</Typography>
+                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.email}</Typography>
+                                        </Box>
 
-                                </Box>
-                                <Box sx={{ display: 'flex', gap: 2 }}>
-                                    <Typography sx={{ color: 'text.primary' }}>Responsável:</Typography>
-                                    <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.unidade?.fields.responsavel}</Typography>
-                                </Box>
-                                <Box sx={{ display: 'flex', gap: 2 }}>
-                                    <Typography sx={{ color: 'text.primary' }}>Email:</Typography>
-                                    <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.unidade?.fields.email}</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                        <Link href='#'>Fazer login</Link>
+                                        <Link href='#'>Esqueceu a senha?</Link>
+                                    </Box>
                                 </Box>
                             </Grid>
                         )
                     }
-
                     <Grid item xs={12}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                             <Button
@@ -272,6 +317,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 Anterior
                             </Button>
                             <Button
+                                disabled={dataGlobal?.usuario?.exists === true}
                                 type='submit'
                                 variant='contained'
                                 onClick={handleSubmit}

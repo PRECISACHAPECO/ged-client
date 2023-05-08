@@ -20,8 +20,8 @@ import StepperWrapper from 'src/@core/styles/mui/stepper'
 
 const steps = [
   {
-    title: 'Unidade',
-    subtitle: 'Insira os dados da unidade'
+    title: 'Usuário',
+    subtitle: 'Insira os dados do usuário'
   },
   {
     title: 'Usuário',
