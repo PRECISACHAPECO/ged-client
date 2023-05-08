@@ -115,7 +115,7 @@ const AuthProvider = ({ children }) => {
                 router.replace(redirectURL)
             }
         }).catch(err => {
-            if (err.response.status === 400) {
+            if (err?.response?.status === 400) {
                 toast.error('E-mail ou senha inválidos!')
             }
             if (errorCallback) errorCallback(err)
