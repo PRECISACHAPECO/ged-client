@@ -40,7 +40,7 @@ const AuthProvider = ({ children }) => {
     // Menu 
     const [menu, setMenu] = useState([])
 
-    console.log('Unidade logada', loggedUnity)
+    const [routeBackend, setRouteBackend] = useState()
 
     // ** Hooks
     const router = useRouter()
@@ -84,11 +84,12 @@ const AuthProvider = ({ children }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    //* Login da fabrica (CPF)
     const handleLogin = (params, errorCallback) => {
         api.post('/login', params).then(async response => {
             setUnitsUser(response.data.unidades)
             localStorage.setItem('userUnits', JSON.stringify(response.data.unidades))
-
+            console.log("🚀 ~ handleLogin")
             // Verifica nº de unidades vinculadas ao usuário tentando logar
             if (response.status === 202 && params.verifyUnits) { // +1 unidade, modal pra selecionar unidade antes de logar
                 setOpenModalSelectUnits(true)
@@ -110,6 +111,8 @@ const AuthProvider = ({ children }) => {
                     getRoutes(response.data.userData.usuarioID, response.data.unidades[0].unidadeID, response.data.userData.admin, response.data.unidades[0].papelID)
                 }
 
+                setRouteBackend('/login')
+
                 params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
                 const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
                 router.replace(redirectURL)
@@ -117,6 +120,39 @@ const AuthProvider = ({ children }) => {
         }).catch(err => {
             if (err?.response?.status === 400) {
                 toast.error('CPF ou senha inválidos!')
+            }
+            if (errorCallback) errorCallback(err)
+        })
+    }
+
+    //* Login do fornecedor (CNPJ)
+    const handleLoginFornecedor = (params, errorCallback) => {
+        api.post('/login-fornecedor', params).then(async response => {
+            setUnitsUser(response.data.unidades)
+            localStorage.setItem('userUnits', JSON.stringify(response.data.unidades))
+
+            params.rememberMe
+                ? window.localStorage.setItem(authConfig.storageTokenKeyName, response.data.accessToken)
+                : null
+            const returnUrl = router.query.returnUr
+            setUser({ ...response.data.userData })
+
+            console.log("🚀 ~ handleLoginFornecedor")
+            setRouteBackend('/login-fornecedor')
+
+            setLoggedUnity(response.data.unidades[0])
+            localStorage.setItem('loggedUnity', JSON.stringify(response.data.unidades[0]))
+            getMenu(response.data.unidades[0].papelID)
+            // Recebe usuário e unidade e seta rotas de acordo com o perfil
+            getRoutes(response.data.userData.usuarioID, response.data.unidades[0].unidadeID, response.data.userData.admin, response.data.unidades[0].papelID)
+
+            params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
+            const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+            router.replace(redirectURL)
+
+        }).catch(err => {
+            if (err?.response?.status === 400) {
+                toast.error('CNPJ ou senha inválidos!')
             }
             if (errorCallback) errorCallback(err)
         })
@@ -130,7 +166,7 @@ const AuthProvider = ({ children }) => {
         window.localStorage.removeItem('routes')
         window.localStorage.removeItem('menu')
         window.localStorage.removeItem(authConfig.storageTokenKeyName)
-        router.push('/login')
+        router.push(routeBackend) //? /login ou /login-fornecedor
     }
 
     const handleRegister = (params, errorCallback) => {
@@ -147,8 +183,9 @@ const AuthProvider = ({ children }) => {
     }
 
     const getMenu = (papelID) => {
-        console.log('Obtem menu....')
-        api.get(`/login?papelID=${papelID}`, { headers: { 'function-name': 'getMenu' } }).then(response => {
+        const route = papelID === 2 ? '/login-fornecedor' : '/login'
+
+        api.get(`${route}?papelID=${papelID}`, { headers: { 'function-name': 'getMenu' } }).then(response => {
             setMenu(response.data)
             localStorage.setItem('menu', JSON.stringify(response.data))
         }).catch(err => {
@@ -158,10 +195,11 @@ const AuthProvider = ({ children }) => {
 
     const getRoutes = (usuarioID, unidadeID, admin, papelID) => {
         if (!usuarioID || !unidadeID || !papelID) return
+        console.log('Obtem rotas....', routeBackend)
 
+        const route = papelID === 2 ? '/login-fornecedor' : '/login'
         // Busca rotas de acordo com o perfil do usuário e unidade logada
-        api.get(`/login?usuarioID=${usuarioID}&unidadeID=${unidadeID}&admin=${admin}&papelID=${papelID}`, { headers: { 'function-name': 'getRoutes' } }).then(response => {
-            console.log("🚀 ~ getRoutes:", response.data)
+        api.get(`${route}?usuarioID=${usuarioID}&unidadeID=${unidadeID}&admin=${admin}&papelID=${papelID}`, { headers: { 'function-name': 'getRoutes' } }).then(response => {
             setRoutes(response.data)
             localStorage.setItem('routes', JSON.stringify(response.data))
         }).catch(err => {
@@ -177,14 +215,14 @@ const AuthProvider = ({ children }) => {
         }
     }
 
-    //  quando o usuario mudar de rota atualizar o currentRoute
+    //* Quando o usuario mudar de rota atualizar o currentRoute
     useEffect(() => {
         setCurrentRoute(router.pathname)
         if (currentRoute) {
             //  Se a rota atual for dinamica, remove o id da rota
             removeDynamicRouteId()
             const permission = routes.find(rota => rota.rota === currentRoute)
-            if (!permission?.rota && currentRoute !== '/' && currentRoute !== '/login' && currentRoute !== '/fornecedor' && currentRoute !== '/home' && currentRoute !== '/401') {
+            if (!permission?.rota && currentRoute !== '/' && currentRoute !== '/login' && currentRoute !== '/login-fornecedor' && currentRoute !== '/fornecedor' && currentRoute !== '/home' && currentRoute !== '/401') {
                 router.push('/401')
             }
         }
@@ -205,7 +243,11 @@ const AuthProvider = ({ children }) => {
         setLoggedUnity,
         loggedUnity,
         getRoutes,
+
         login: handleLogin,
+        loginFornecedor: handleLoginFornecedor,
+
+
         logout: handleLogout,
         register: handleRegister,
     }

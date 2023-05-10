@@ -3,8 +3,8 @@
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { api } from 'src/configs/api'
 import { useState } from 'react'
+import { api } from '../../../../configs/api'
 
 // ** MUI Components
 import Box from '@mui/material/Box'
@@ -111,7 +111,8 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
 
     const handleGetCnpj = (cnpj) => {
         if (cnpj.length === 18 && validationCNPJ(cnpj)) {
-            api.post(`http://localhost:3333/api/registro`, { cnpj: cnpj }, { headers: { 'function-name': 'handleGetCnpj' } }).then((response, err) => {
+            api.post(`http://localhost:3333/api/registro-fornecedor`, { cnpj: cnpj }, { headers: { 'function-name': 'handleGetCnpj' } }).then((response, err) => {
+                console.log("🚀 ~ :", response.data)
                 if (response.data.length > 0) {
                     // Quero manter oque ja tem no dataGlobal e adicionar o que vem do response.data[0]
                     setDataGlobal({
@@ -290,8 +291,8 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 <Box sx={{ display: 'flex', gap: '100px' }}>
                                     <Box>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <Typography sx={{ color: 'text.primary' }}>Responsável:</Typography>
-                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.nome}</Typography>
+                                            <Typography sx={{ color: 'text.primary' }}>Nome Fantasia:</Typography>
+                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.nomeFantasia}</Typography>
                                         </Box>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
                                             <Typography sx={{ color: 'text.primary' }}>Email Institucional:</Typography>
@@ -300,8 +301,14 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
 
                                     </Box>
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                        <Link href='#'>Fazer login</Link>
-                                        <Link href='#'>Esqueceu a senha?</Link>
+                                        {
+                                            dataGlobal?.usuario?.fields?.existsFornecedor > 0 && (
+                                                <>
+                                                    <Link href='/fornecedor'>Fazer login</Link>
+                                                    <Link href='#'>Esqueceu a senha?</Link>
+                                                </>
+                                            )
+                                        }
                                     </Box>
                                 </Box>
                             </Grid>
@@ -317,7 +324,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 Anterior
                             </Button>
                             <Button
-                                disabled={dataGlobal?.usuario?.exists === true}
+                                disabled={dataGlobal?.usuario?.exists === true && dataGlobal?.usuario?.fields?.existsFornecedor > 0 ? true : false}
                                 type='submit'
                                 variant='contained'
                                 onClick={handleSubmit}

@@ -38,9 +38,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useAuth } from 'src/hooks/useAuth'
 import { AuthContext } from 'src/context/AuthContext'
 
-import { fornecedorAuth } from 'src/hooks/fornecedorAuth'
-import { FornecedorContext } from 'src/context/FornecedorContext'
-
 import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
 
@@ -123,8 +120,7 @@ const FornecedorPage = ({ units }) => {
     const [showPassword, setShowPassword] = useState(false)
 
     // ** Hooks
-    // const auth = useAuth()
-    const auth = fornecedorAuth()
+    const auth = useAuth()
 
     const theme = useTheme()
     const bgColors = useBgColor()
@@ -147,7 +143,7 @@ const FornecedorPage = ({ units }) => {
 
     const onSubmit = data => {
         const { cnpj, password } = data
-        auth.login({ cnpj, password, rememberMe }, () => {
+        auth.loginFornecedor({ cnpj, password, rememberMe }, () => {
             setError('cnpj', {
                 type: 'manual',
                 message: 'CNPJ e/ou senha inválidos!'
