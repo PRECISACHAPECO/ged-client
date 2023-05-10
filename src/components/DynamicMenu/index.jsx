@@ -5,8 +5,6 @@ import { useState, useContext } from 'react'
 import { AuthContext } from 'src/context/AuthContext'
 
 const DynamicMenu = () => {
-    console.log('🚀 dINAMIFD    menu:')
-
     const { menu, routes } = useContext(AuthContext)
 
     const hasPermission = (currentRoute, arrSubmenu = []) => {

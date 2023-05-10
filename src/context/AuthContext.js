@@ -89,7 +89,6 @@ const AuthProvider = ({ children }) => {
         api.post('/login', params).then(async response => {
             setUnitsUser(response.data.unidades)
             localStorage.setItem('userUnits', JSON.stringify(response.data.unidades))
-            console.log("🚀 ~ handleLogin")
             // Verifica nº de unidades vinculadas ao usuário tentando logar
             if (response.status === 202 && params.verifyUnits) { // +1 unidade, modal pra selecionar unidade antes de logar
                 setOpenModalSelectUnits(true)
@@ -137,7 +136,6 @@ const AuthProvider = ({ children }) => {
             const returnUrl = router.query.returnUr
             setUser({ ...response.data.userData })
 
-            console.log("🚀 ~ handleLoginFornecedor")
             setRouteBackend('/login-fornecedor')
 
             setLoggedUnity(response.data.unidades[0])
@@ -195,7 +193,6 @@ const AuthProvider = ({ children }) => {
 
     const getRoutes = (usuarioID, unidadeID, admin, papelID) => {
         if (!usuarioID || !unidadeID || !papelID) return
-        console.log('Obtem rotas....', routeBackend)
 
         const route = papelID === 2 ? '/login-fornecedor' : '/login'
         // Busca rotas de acordo com o perfil do usuário e unidade logada
@@ -243,11 +240,8 @@ const AuthProvider = ({ children }) => {
         setLoggedUnity,
         loggedUnity,
         getRoutes,
-
         login: handleLogin,
         loginFornecedor: handleLoginFornecedor,
-
-
         logout: handleLogout,
         register: handleRegister,
     }
