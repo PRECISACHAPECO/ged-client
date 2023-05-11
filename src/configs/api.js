@@ -1,7 +1,5 @@
 import axios from 'axios';
 
 export const api = axios.create({
-    // baseURL: 'https://demo.gedagro.com.br/api/'
-
-    baseURL: 'http://localhost:3333/api/'
+    baseURL: process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL : 'https://demo.gedagro.com.br/api/'
 });
