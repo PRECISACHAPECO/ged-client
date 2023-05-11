@@ -49,6 +49,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Demo Imports
 import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
+import { toast } from 'react-hot-toast'
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)(({ theme }) => ({
@@ -143,11 +144,14 @@ const FornecedorPage = ({ units }) => {
 
     const onSubmit = data => {
         const { cnpj, password } = data
-        auth.loginFornecedor({ cnpj, password, rememberMe }, () => {
+        auth.loginFornecedor({ cnpj, password, rememberMe }, error => {
             setError('cnpj', {
                 type: 'manual',
                 message: 'CNPJ e/ou senha inválidos!'
             })
+            if (error && error.response && error.response.status === 401) {
+                toast.error('CNPJ e/ou senha inválidos!')
+            }
         })
     }
     const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
@@ -282,7 +286,7 @@ const FornecedorPage = ({ units }) => {
                                 </Typography>
                             </Box>
                             <Box sx={{ mb: 6 }}>
-                                <TypographyStyled variant='h4'>{`Bem vindo Fornecedor`}</TypographyStyled>
+                                <TypographyStyled variant='h4'>{`Bem-vindo Fornecedor`}</TypographyStyled>
                                 <Typography variant='body2'>Digite seu CNPJ e senha para começar</Typography>
                             </Box>
 
@@ -301,7 +305,11 @@ const FornecedorPage = ({ units }) => {
                                                 onChange={onChange}
                                                 error={Boolean(errors.cnpj)}
                                                 placeholder='00.000.000/0000-00'
-                                                inputProps={{ maxLength: 18 }}
+                                                inputProps={{
+                                                    maxLength: 18,
+                                                    type: 'tel', // define o tipo de entrada como 'tel'
+                                                    inputMode: 'numeric' // define o inputMode como 'numeric'
+                                                }}
                                             />
                                         )}
                                     />

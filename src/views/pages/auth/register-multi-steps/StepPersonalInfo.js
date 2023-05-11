@@ -66,7 +66,11 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                         onChange={(e) => {
                             setValue('telefone', cellPhoneMask(e.target.value))
                         }}
-                        inputProps={{ maxLength: 15 }}
+                        inputProps={{
+                            maxLength: 15,
+                            type: 'tel', // define o tipo de entrada como 'tel'
+                            inputMode: 'numeric', // define o inputMode como 'numeric'
+                        }}
                     />
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -81,7 +85,11 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                             setValue('cep', cepMask(e.target.value))
                             getCep(e.target.value)
                         }}
-                        inputProps={{ maxLength: 9 }}
+                        inputProps={{
+                            maxLength: 9,
+                            type: 'tel', // define o tipo de entrada como 'tel'
+                            inputMode: 'numeric', // define o inputMode como 'numeric'
+                        }}
                     />
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -102,6 +110,10 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                         name='numero'
                         fullWidth
                         {...register('numero')}
+                        inputProps={{
+                            type: 'tel', // define o tipo de entrada como 'tel'
+                            inputMode: 'numeric', // define o inputMode como 'numeric'
+                        }}
                     />
                 </Grid>
                 <Grid item xs={12} md={6}>

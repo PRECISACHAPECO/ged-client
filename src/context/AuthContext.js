@@ -164,7 +164,7 @@ const AuthProvider = ({ children }) => {
         window.localStorage.removeItem('routes')
         window.localStorage.removeItem('menu')
         window.localStorage.removeItem(authConfig.storageTokenKeyName)
-        router.push(routeBackend) //? /login ou /login-fornecedor
+        router.push(user.papelID === 2 ? '/fornecedor' : '/login') //? /login ou /login-fornecedor
     }
 
     const handleRegister = (params, errorCallback) => {

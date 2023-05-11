@@ -21,6 +21,8 @@ import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography from '@mui/material/Typography'
 import MuiFormControlLabel from '@mui/material/FormControlLabel'
+import { cpfMask } from 'src/configs/masks'
+import { validationCPF } from 'src/configs/validations'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -46,6 +48,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 // ** Demo Imports
 import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
 import DialogSelectUnit from 'src/components/Defaults/Dialogs/DialogSelectUnit'
+import { toast } from 'react-hot-toast'
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)(({ theme }) => ({
@@ -98,8 +101,13 @@ const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
 }))
 
 const schema = yup.object().shape({
-    cpf: yup.string().required().min(14).max(14),
-    password: yup.string().min(5).required()
+    cpf: yup
+        .string()
+        .min(14, 'O CPF deve ser preenchido completamente')
+        .required('O CPF é obrigatório')
+        .test('valida-cpf', 'CPF inválido', value => validationCPF(value)),
+
+    password: yup.string().min(4, 'A senha deve conter no mínimo 4 digitos').required('A senha é obrigatória')
 })
 
 const defaultValues = {
@@ -148,11 +156,14 @@ const LoginPage = ({ units }) => {
         const { cpf, password } = data
         const verifyUnits = true
         setData(data)
-        auth.login({ cpf, password, rememberMe, verifyUnits }, () => {
+        auth.login({ cpf, password, rememberMe, verifyUnits }, error => {
             setError('cpf', {
                 type: 'manual',
                 message: 'CPF e/ou senha inválidos!'
             })
+            if (error && error.response && error.response.status === 401) {
+                toast.error('CPF e/ou senha inválidos!')
+            }
         })
     }
     const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
@@ -313,7 +324,7 @@ const LoginPage = ({ units }) => {
                                 </Typography>
                             </Box>
                             <Box sx={{ mb: 6 }}>
-                                <TypographyStyled variant='h5'>{`Bem vindo ao ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
+                                <TypographyStyled variant='h5'>{`Bem-vindo ao ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
                                 <Typography variant='body2'>Digite seu CPF e senha para começar</Typography>
                             </Box>
 
@@ -327,11 +338,16 @@ const LoginPage = ({ units }) => {
                                             <TextField
                                                 autoFocus
                                                 label='CPF'
-                                                value={value}
+                                                value={cpfMask(value ?? '')}
                                                 onBlur={onBlur}
                                                 onChange={onChange}
                                                 error={Boolean(errors.cpf)}
                                                 placeholder='000.000.000-00'
+                                                inputProps={{
+                                                    maxLength: 14,
+                                                    type: 'tel', // define o tipo de entrada como 'tel'
+                                                    inputMode: 'numeric' // define o inputMode como 'numeric'
+                                                }}
                                             />
                                         )}
                                     />
@@ -415,25 +431,6 @@ const LoginPage = ({ units }) => {
                                 <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
                                     Entrar
                                 </Button>
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        flexWrap: 'wrap',
-                                        justifyContent: 'center'
-                                    }}
-                                >
-                                    <Typography sx={{ mr: 2, color: 'text.secondary' }}>
-                                        É um fornecedor novo?
-                                    </Typography>
-                                    <Typography
-                                        href='/registro'
-                                        component={Link}
-                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
-                                    >
-                                        Registre-se
-                                    </Typography>
-                                </Box>
                             </form>
                         </BoxWrapper>
                     </Box>

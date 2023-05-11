@@ -256,7 +256,11 @@ const FormUnidade = () => {
                                                 placeholder='CNPJ'
                                                 error={Boolean(errors.cnpj)}
                                                 aria-describedby='validation-schema-cnpj'
-                                                inputProps={{ maxLength: 18 }}
+                                                inputProps={{
+                                                    maxLength: 18,
+                                                    type: 'tel', // define o tipo de entrada como 'tel'
+                                                    inputMode: 'numeric' // define o inputMode como 'numeric'
+                                                }}
                                             />
                                         )}
                                     />
@@ -330,7 +334,11 @@ const FormUnidade = () => {
                                                 placeholder='Telefone 1'
                                                 error={Boolean(errors.telefone1)}
                                                 aria-describedby='validation-schema-telefone1'
-                                                inputProps={{ maxLength: 15 }}
+                                                inputProps={{
+                                                    maxLength: 15,
+                                                    type: 'tel', // define o tipo de entrada como 'tel'
+                                                    inputMode: 'numeric' // define o inputMode como 'numeric'
+                                                }}
                                             />
                                         )}
                                     />
@@ -355,7 +363,11 @@ const FormUnidade = () => {
                                                 placeholder='Telefone 2'
                                                 error={Boolean(errors.telefone2)}
                                                 aria-describedby='validation-schema-telefone2'
-                                                inputProps={{ maxLength: 15 }}
+                                                inputProps={{
+                                                    maxLength: 15,
+                                                    type: 'tel', // define o tipo de entrada como 'tel'
+                                                    inputMode: 'numeric' // define o inputMode como 'numeric'
+                                                }}
                                             />
                                         )}
                                     />
@@ -383,7 +395,11 @@ const FormUnidade = () => {
                                                 placeholder='CEP'
                                                 error={Boolean(errors.cep)}
                                                 aria-describedby='validation-schema-cep'
-                                                inputProps={{ maxLength: 9 }}
+                                                inputProps={{
+                                                    maxLength: 9,
+                                                    type: 'tel', // define o tipo de entrada como 'tel'
+                                                    inputMode: 'numeric' // define o inputMode como 'numeric'
+                                                }}
                                             />
                                         )}
                                     />
@@ -432,6 +448,10 @@ const FormUnidade = () => {
                                                 placeholder='Número'
                                                 error={Boolean(errors.numero)}
                                                 aria-describedby='validation-schema-numero'
+                                                inputProps={{
+                                                    type: 'tel', // define o tipo de entrada como 'tel'
+                                                    inputMode: 'numeric' // define o inputMode como 'numeric'
+                                                }}
                                             />
                                         )}
                                     />

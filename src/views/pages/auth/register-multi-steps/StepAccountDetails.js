@@ -111,7 +111,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
 
     const handleGetCnpj = (cnpj) => {
         if (cnpj.length === 18 && validationCNPJ(cnpj)) {
-            api.post(`http://localhost:3333/api/registro-fornecedor`, { cnpj: cnpj }, { headers: { 'function-name': 'handleGetCnpj' } }).then((response, err) => {
+            api.post(`/registro-fornecedor`, { cnpj: cnpj }, { headers: { 'function-name': 'handleGetCnpj' } }).then((response, err) => {
                 console.log("🚀 ~ :", response.data)
                 if (response.data.length > 0) {
                     // Quero manter oque ja tem no dataGlobal e adicionar o que vem do response.data[0]
@@ -189,6 +189,8 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
 
                             inputProps={{
                                 maxLength: 18,
+                                type: 'tel', // define o tipo de entrada como 'tel'
+                                inputMode: 'numeric', // define o inputMode como 'numeric'
                                 onChange: e => {
                                     setValue('cnpj', cnpjMask(e.target.value))
 
@@ -304,8 +306,20 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                         {
                                             dataGlobal?.usuario?.fields?.existsFornecedor > 0 && (
                                                 <>
-                                                    <Link href='/fornecedor'>Fazer login</Link>
-                                                    <Link href='#'>Esqueceu a senha?</Link>
+                                                    <Typography
+                                                        href='/fornecedor'
+                                                        component={Link}
+                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                                    >
+                                                        Fazer login
+                                                    </Typography>
+                                                    <Typography
+                                                        href='/fornecedor'
+                                                        component={Link}
+                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                                    >
+                                                        Esqueceu a senha?
+                                                    </Typography>
                                                 </>
                                             )
                                         }
@@ -332,6 +346,27 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                             >
                                 Proximo
                             </Button>
+                        </Box>
+
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                marginTop: 10,
+                                flexWrap: 'wrap',
+                                justifyContent: 'start'
+                            }}
+                        >
+                            <Typography sx={{ mr: 2, color: 'text.secondary' }}>
+                                Fazer login?
+                            </Typography>
+                            <Typography
+                                href='/fornecedor'
+                                component={Link}
+                                sx={{ color: 'primary.main', textDecoration: 'none' }}
+                            >
+                                Login
+                            </Typography>
                         </Box>
                     </Grid>
                 </Grid>
