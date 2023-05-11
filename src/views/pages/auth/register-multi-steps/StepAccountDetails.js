@@ -200,6 +200,49 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                     </Grid>
 
                     {
+                        dataGlobal && dataGlobal?.usuario?.exists === true && (
+                            <Grid item xs={12} md={12}>
+                                <h3>CNPJ já cadastrado</h3>
+                                <Box sx={{ display: 'flex', gap: '100px' }}>
+                                    <Box>
+                                        <Box sx={{ display: 'flex', gap: 2 }}>
+                                            <Typography sx={{ color: 'text.primary' }}>Nome Fantasia:</Typography>
+                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.nomeFantasia}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', gap: 2 }}>
+                                            <Typography sx={{ color: 'text.primary' }}>Email Institucional:</Typography>
+                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.email}</Typography>
+                                        </Box>
+
+                                    </Box>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                        {
+                                            dataGlobal?.usuario?.fields?.existsFornecedor > 0 && (
+                                                <>
+                                                    <Typography
+                                                        href='/fornecedor'
+                                                        component={Link}
+                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                                    >
+                                                        Fazer login
+                                                    </Typography>
+                                                    <Typography
+                                                        href='/fornecedor'
+                                                        component={Link}
+                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                                    >
+                                                        Esqueceu a senha?
+                                                    </Typography>
+                                                </>
+                                            )
+                                        }
+                                    </Box>
+                                </Box>
+                            </Grid>
+                        )
+                    }
+
+                    {
                         dataGlobal && dataGlobal?.usuario?.exists === false && (
                             <>
                                 <Grid item xs={12} md={6}>
@@ -284,48 +327,6 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 </Grid>
 
                             </>
-                        )
-                    }
-                    {
-                        dataGlobal && dataGlobal?.usuario?.exists === true && (
-                            <Grid item xs={12} md={12}>
-                                <h3>CNPJ já cadastrado</h3>
-                                <Box sx={{ display: 'flex', gap: '100px' }}>
-                                    <Box>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <Typography sx={{ color: 'text.primary' }}>Nome Fantasia:</Typography>
-                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.nomeFantasia}</Typography>
-                                        </Box>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <Typography sx={{ color: 'text.primary' }}>Email Institucional:</Typography>
-                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.email}</Typography>
-                                        </Box>
-
-                                    </Box>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                        {
-                                            dataGlobal?.usuario?.fields?.existsFornecedor > 0 && (
-                                                <>
-                                                    <Typography
-                                                        href='/fornecedor'
-                                                        component={Link}
-                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
-                                                    >
-                                                        Fazer login
-                                                    </Typography>
-                                                    <Typography
-                                                        href='/fornecedor'
-                                                        component={Link}
-                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
-                                                    >
-                                                        Esqueceu a senha?
-                                                    </Typography>
-                                                </>
-                                            )
-                                        }
-                                    </Box>
-                                </Box>
-                            </Grid>
                         )
                     }
                     <Grid item xs={12}>
