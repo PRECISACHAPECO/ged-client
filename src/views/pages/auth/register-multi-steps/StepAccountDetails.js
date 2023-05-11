@@ -200,49 +200,6 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                     </Grid>
 
                     {
-                        dataGlobal && dataGlobal?.usuario?.exists === true && (
-                            <Grid item xs={12} md={12}>
-                                <h3>CNPJ já cadastrado</h3>
-                                <Box sx={{ display: 'flex', gap: '100px' }}>
-                                    <Box>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <Typography sx={{ color: 'text.primary' }}>Nome Fantasia:</Typography>
-                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.nomeFantasia}</Typography>
-                                        </Box>
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <Typography sx={{ color: 'text.primary' }}>Email Institucional:</Typography>
-                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.email}</Typography>
-                                        </Box>
-
-                                    </Box>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                        {
-                                            dataGlobal?.usuario?.fields?.existsFornecedor > 0 && (
-                                                <>
-                                                    <Typography
-                                                        href='/fornecedor'
-                                                        component={Link}
-                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
-                                                    >
-                                                        Fazer login
-                                                    </Typography>
-                                                    <Typography
-                                                        href='/fornecedor'
-                                                        component={Link}
-                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
-                                                    >
-                                                        Esqueceu a senha?
-                                                    </Typography>
-                                                </>
-                                            )
-                                        }
-                                    </Box>
-                                </Box>
-                            </Grid>
-                        )
-                    }
-
-                    {
                         dataGlobal && dataGlobal?.usuario?.exists === false && (
                             <>
                                 <Grid item xs={12} md={6}>
@@ -327,6 +284,106 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 </Grid>
 
                             </>
+                        )
+                    }
+                    {
+                        dataGlobal && dataGlobal?.usuario?.exists === true && (
+                            <Grid item xs={12} md={12}>
+                                <h3>CNPJ já cadastrado</h3>
+                                <Box sx={{ display: 'flex', gap: '100px' }}>
+                                    <Box>
+                                        <Box sx={{ display: 'flex', gap: 2 }}>
+                                            <Typography sx={{ color: 'text.primary' }}>Nome Fantasia:</Typography>
+                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.nomeFantasia}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', gap: 2 }}>
+                                            <Typography sx={{ color: 'text.primary' }}>Email Institucional:</Typography>
+                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.email}</Typography>
+                                        </Box>
+
+                                    </Box>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                        {
+                                            dataGlobal?.usuario?.fields?.existsFornecedor > 0 && (
+                                                <>
+                                                    <Typography
+                                                        href='/fornecedor'
+                                                        component={Link}
+                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                                    >
+                                                        Fazer login
+                                                    </Typography>
+                                                    <Typography
+                                                        href='/fornecedor'
+                                                        component={Link}
+                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                                    >
+                                                        Esqueceu a senha?
+                                                    </Typography>
+                                                </>
+                                            )
+                                        }
+                                    </Box>
+                                </Box>
+
+                                {
+                                    dataGlobal?.usuario?.fields?.existsFornecedor === 0 && (
+                                        <>
+                                            <h3 sx={{ color: 'text.primary', marginTop: "10px" }}>Empresa já cadastrada, apenas é necessario criar um usuário</h3>
+                                            <Grid item xs={12} sm={6} mt={6}>
+                                                <FormControl fullWidth>
+                                                    <InputLabel htmlFor='input-password' color={errors.senha ? 'error' : ''}>Senha</InputLabel>
+                                                    <OutlinedInput
+                                                        label='Senha'
+                                                        id='input-password'
+                                                        type={values.showPassword ? 'text' : 'password'}
+                                                        name='senha'
+                                                        {...register('senha')}
+                                                        endAdornment={
+                                                            <InputAdornment position='end'>
+                                                                <IconButton edge='end' onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword}>
+                                                                    <Icon icon={values.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        }
+                                                        error={errors.senha && true}
+                                                        helperText={errors.senha && errors.senha.message}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6} mt={6}>
+                                                <FormControl fullWidth>
+                                                    <InputLabel htmlFor='input-confirm-password' style={{
+                                                        color: errors.confirmaSenha && 'red'
+                                                    }}  >Confirme a senha</InputLabel>
+                                                    <OutlinedInput
+                                                        label='Confirme a senha'
+                                                        name='confirmaSenha'
+                                                        {...register('confirmaSenha')}
+                                                        id='input-confirm-password'
+                                                        type={values.showConfirmPassword ? 'text' : 'password'} // altere o tipo para 'password'
+                                                        endAdornment={
+                                                            <InputAdornment position='end'>
+                                                                <IconButton
+                                                                    edge='end'
+                                                                    onClick={handleClickShowConfirmPassword}
+                                                                    onMouseDown={handleMouseDownConfirmPassword}
+                                                                >
+                                                                    <Icon icon={values.showConfirmPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        }
+                                                        error={errors.confirmaSenha && true}
+                                                    />
+                                                    <Typography variant='caption' sx={{ color: 'error.main' }}>
+                                                        {errors.confirmaSenha && errors.confirmaSenha.message}
+                                                    </Typography>
+                                                </FormControl>
+                                            </Grid>
+                                        </>
+                                    )
+                                }
+                            </Grid>
                         )
                     }
                     <Grid item xs={12}>
