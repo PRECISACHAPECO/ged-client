@@ -50,6 +50,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 // ** Demo Imports
 import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
 import { toast } from 'react-hot-toast'
+import Logo from 'src/components/Defaults/Logo'
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)(({ theme }) => ({
@@ -169,13 +170,19 @@ const FornecedorPage = ({ units }) => {
                             justifyContent: 'center'
                         }}
                     >
-                        <LoginIllustrationWrapper>
-                            <LoginIllustration
-                                alt='login-illustration'
-                                src={`/images/pages/${imageSource}-${theme.palette.mode}.png`}
-                            />
-                        </LoginIllustrationWrapper>
-                        <FooterIllustrationsV2 />
+                        <img src='/images/storyset/loginFornecedor.svg' style={{ height: '100vh', width: '65%' }} />
+                        <img
+                            alt='mask'
+                            src='https://demos.pixinvent.com/materialize-nextjs-admin-template/demo-3/images/pages/misc-mask-light.png'
+                            className='css-84vgca'
+                            style={{
+                                position: 'absolute',
+                                zIndex: '-1',
+                                bottom: '0',
+                                left: '0',
+                                width: '100%'
+                            }}
+                        />
                     </Box>
                 ) : null}
                 <RightWrapper
@@ -202,88 +209,8 @@ const FornecedorPage = ({ units }) => {
                                     justifyContent: 'center'
                                 }}
                             >
-                                <svg
-                                    width={47}
-                                    fill='none'
-                                    height={26}
-                                    viewBox='0 0 268 150'
-                                    xmlns='http://www.w3.org/2000/svg'
-                                >
-                                    <rect
-                                        rx='25.1443'
-                                        width='50.2886'
-                                        height='143.953'
-                                        fill={theme.palette.primary.main}
-                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 195.571 0)'
-                                    />
-                                    <rect
-                                        rx='25.1443'
-                                        width='50.2886'
-                                        height='143.953'
-                                        fillOpacity='0.4'
-                                        fill='url(#paint0_linear_7821_79167)'
-                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 196.084 0)'
-                                    />
-                                    <rect
-                                        rx='25.1443'
-                                        width='50.2886'
-                                        height='143.953'
-                                        fill={theme.palette.primary.main}
-                                        transform='matrix(0.865206 0.501417 -0.498585 0.866841 173.147 0)'
-                                    />
-                                    <rect
-                                        rx='25.1443'
-                                        width='50.2886'
-                                        height='143.953'
-                                        fill={theme.palette.primary.main}
-                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 94.1973 0)'
-                                    />
-                                    <rect
-                                        rx='25.1443'
-                                        width='50.2886'
-                                        height='143.953'
-                                        fillOpacity='0.4'
-                                        fill='url(#paint1_linear_7821_79167)'
-                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 94.1973 0)'
-                                    />
-                                    <rect
-                                        rx='25.1443'
-                                        width='50.2886'
-                                        height='143.953'
-                                        fill={theme.palette.primary.main}
-                                        transform='matrix(0.865206 0.501417 -0.498585 0.866841 71.7728 0)'
-                                    />
-                                    <defs>
-                                        <linearGradient
-                                            y1='0'
-                                            x1='25.1443'
-                                            x2='25.1443'
-                                            y2='143.953'
-                                            id='paint0_linear_7821_79167'
-                                            gradientUnits='userSpaceOnUse'
-                                        >
-                                            <stop />
-                                            <stop offset='1' stopOpacity='0' />
-                                        </linearGradient>
-                                        <linearGradient
-                                            y1='0'
-                                            x1='25.1443'
-                                            x2='25.1443'
-                                            y2='143.953'
-                                            id='paint1_linear_7821_79167'
-                                            gradientUnits='userSpaceOnUse'
-                                        >
-                                            <stop />
-                                            <stop offset='1' stopOpacity='0' />
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
-                                <Typography
-                                    variant='h6'
-                                    sx={{ ml: 2, lineHeight: 1, fontWeight: 700, fontSize: '1.5rem !important' }}
-                                >
-                                    {themeConfig.templateName}
-                                </Typography>
+                                {/* Logo do sistema GED */}
+                                <Logo />
                             </Box>
                             <Box sx={{ mb: 6 }}>
                                 <TypographyStyled variant='h4'>{`Bem-vindo Fornecedor`}</TypographyStyled>
@@ -410,6 +337,24 @@ const FornecedorPage = ({ units }) => {
                                         sx={{ color: 'primary.main', textDecoration: 'none' }}
                                     >
                                         Registre-se
+                                    </Typography>
+                                </Box>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        justifyContent: 'center',
+                                        marginTop: '1rem'
+                                    }}
+                                >
+                                    <Typography sx={{ mr: 2, color: 'text.secondary' }}>É uma fábrica?</Typography>
+                                    <Typography
+                                        href='/login'
+                                        component={Link}
+                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                    >
+                                        Login
                                     </Typography>
                                 </Box>
                             </form>
