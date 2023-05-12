@@ -20,6 +20,7 @@ const StepBillingDetails = ({ handlePrev, dataGlobal, setDataGlobal }) => {
     const router = Router
 
     const handleSubmit = () => {
+        console.log(dataGlobal)
         api.post('/registro-fornecedor', { data: dataGlobal }, { headers: { 'function-name': 'handleSaveFornecedor' } })
             .then(response => {
                 if (response.status === 201) {
@@ -27,7 +28,7 @@ const StepBillingDetails = ({ handlePrev, dataGlobal, setDataGlobal }) => {
                 } else {
                     toast.success(response.data.message)
                 }
-                router.push('/fornecedor')
+                // router.push('/fornecedor')
             }
             ).catch(error => {
                 toast.error(error.message)

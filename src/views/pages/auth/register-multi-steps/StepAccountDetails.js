@@ -325,6 +325,64 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                         }
                                     </Box>
                                 </Box>
+
+                                {
+                                    dataGlobal?.usuario?.fields?.existsFornecedor === 0 && (
+                                        <>
+                                            <h3 sx={{ color: 'text.primary', marginTop: "10px" }}>Empresa já cadastrada, apenas é necessario criar um usuário</h3>
+                                            <Grid item xs={12} sm={6} mt={6}>
+                                                <FormControl fullWidth>
+                                                    <InputLabel htmlFor='input-password' color={errors.senha ? 'error' : ''}>Senha</InputLabel>
+                                                    <OutlinedInput
+                                                        label='Senha'
+                                                        id='input-password'
+                                                        type={values.showPassword ? 'text' : 'password'}
+                                                        name='senha'
+                                                        {...register('senha')}
+                                                        endAdornment={
+                                                            <InputAdornment position='end'>
+                                                                <IconButton edge='end' onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword}>
+                                                                    <Icon icon={values.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        }
+                                                        error={errors.senha && true}
+                                                        helperText={errors.senha && errors.senha.message}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6} mt={6}>
+                                                <FormControl fullWidth>
+                                                    <InputLabel htmlFor='input-confirm-password' style={{
+                                                        color: errors.confirmaSenha && 'red'
+                                                    }}  >Confirme a senha</InputLabel>
+                                                    <OutlinedInput
+                                                        label='Confirme a senha'
+                                                        name='confirmaSenha'
+                                                        {...register('confirmaSenha')}
+                                                        id='input-confirm-password'
+                                                        type={values.showConfirmPassword ? 'text' : 'password'} // altere o tipo para 'password'
+                                                        endAdornment={
+                                                            <InputAdornment position='end'>
+                                                                <IconButton
+                                                                    edge='end'
+                                                                    onClick={handleClickShowConfirmPassword}
+                                                                    onMouseDown={handleMouseDownConfirmPassword}
+                                                                >
+                                                                    <Icon icon={values.showConfirmPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        }
+                                                        error={errors.confirmaSenha && true}
+                                                    />
+                                                    <Typography variant='caption' sx={{ color: 'error.main' }}>
+                                                        {errors.confirmaSenha && errors.confirmaSenha.message}
+                                                    </Typography>
+                                                </FormControl>
+                                            </Grid>
+                                        </>
+                                    )
+                                }
                             </Grid>
                         )
                     }

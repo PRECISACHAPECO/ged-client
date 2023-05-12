@@ -5,3 +5,4 @@ export const api = axios.create({
         ? 'http://localhost:3333/api/' // URL do backend local
         : 'https://demo.gedagro.com.br/api/' // URL do backend de produção
 });
+
