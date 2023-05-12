@@ -83,7 +83,11 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
         if (email && email.length > 0 && validationEmail(email)) {
             console.log('sendmail: ', email)
             await api
-                .post(`/formularios/fornecedor/sendMail`, { unidadeID: loggedUnity.unidadeID, cnpj: cnpj })
+                .post(`/formularios/fornecedor/sendMail`, {
+                    unidadeID: loggedUnity.unidadeID,
+                    cnpj: cnpj,
+                    email: email
+                })
                 .then(response => {
                     if (response.status === 200) {
                         toast.success('E-mail enviado com sucesso')
