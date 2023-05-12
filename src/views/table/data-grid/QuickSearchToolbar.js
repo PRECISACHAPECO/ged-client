@@ -53,7 +53,11 @@ const QuickSearchToolbar = (props) => {
             </Box>
 
             <Box>
-                <ListHeader btnNew={props.buttonsHeader.btnNew} btnPrint={props.buttonsHeader.btnPrint} />
+                <ListHeader
+                    btnNew={props.buttonsHeader.btnNew}
+                    btnPrint={props.buttonsHeader.btnPrint}
+                    openModal={props.buttonsHeader.openModal}
+                />
             </Box>
         </Box>
     )

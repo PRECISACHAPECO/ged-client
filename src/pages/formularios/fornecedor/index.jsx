@@ -4,6 +4,7 @@ import TableFilter from 'src/views/table/data-grid/TableFilter'
 import { CardContent } from '@mui/material'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
+import DialogNewFornecedor from 'src/components/Defaults/Dialogs/DialogNewFornecedor'
 
 import Loading from 'src/components/Loading'
 
@@ -14,14 +15,18 @@ import { useRouter } from 'next/router'
 import { configColumns } from 'src/configs/defaultConfigs'
 import { Card } from '@mui/material'
 
-// import axios from 'axios'
-
 const Fornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
+    const [open, setOpen] = useState(false)
+
+    const openModal = () => {
+        console.log('openModalNewFornecedor')
+        setOpen(true)
+    }
 
     useEffect(() => {
         const getList = async () => {
@@ -82,13 +87,24 @@ const Fornecedor = () => {
                                 columns={columns}
                                 buttonsHeader={{
                                     btnNew: true,
-                                    btnPrint: true
+                                    btnPrint: true,
+                                    openModal
                                 }}
                             />
                         </CardContent>
                     </Card>
                 </>
             )}
+
+            <DialogNewFornecedor
+                title='Excluir dado'
+                text='Tem certeza que deseja excluir?'
+                openModal={open}
+                handleClose={() => setOpen(false)}
+                // handleSubmit={() => envia()}
+                btnCancel
+                btnConfirm
+            />
         </>
     )
 }

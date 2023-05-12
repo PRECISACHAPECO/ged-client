@@ -8,7 +8,7 @@ import { useContext } from 'react'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-const ListHeader = ({ btnNew, btnPrint }) => {
+const ListHeader = ({ btnNew, btnPrint, openModal }) => {
     const router = Router
     const { routes } = useContext(AuthContext)
 
@@ -30,13 +30,14 @@ const ListHeader = ({ btnNew, btnPrint }) => {
                     )}
 
                     {btnNew && routes.find(route => route.rota === router.pathname && route.inserir) && (
-                        <Link href={`${router.pathname}/novo`}>
+                        <Link href={!openModal ? `${router.pathname}/novo` : ``}>
                             <Button
                                 type='button'
                                 variant='outlined'
                                 color='primary'
                                 size='medium'
                                 startIcon={<Icon icon='ic:outline-plus' />}
+                                onClick={openModal ? openModal : null}
                             >
                                 Novo
                             </Button>
