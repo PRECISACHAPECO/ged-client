@@ -1,5 +1,5 @@
 import Router from 'next/router'
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 
 import { CardContent, Button, Box } from '@mui/material'
 import Link from 'next/link'
@@ -7,6 +7,7 @@ import Icon from 'src/@core/components/icon'
 import { backRoute } from 'src/configs/defaultConfigs'
 import MenuReports from './MenuReports'
 import { AuthContext } from 'src/context/AuthContext'
+import Fab from '@mui/material/Fab'
 
 const FormHeader = ({
     btnCancel,
@@ -21,6 +22,7 @@ const FormHeader = ({
 }) => {
     const router = Router
     const { routes } = useContext(AuthContext)
+    const [isVisible, setIsVisible] = useState(false)
     const dynamicRoute = router.pathname.split('/').slice(0, -1).join('/')
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
@@ -30,6 +32,23 @@ const FormHeader = ({
     const handleClose = () => {
         setAnchorEl(null)
     }
+
+    //? Verifica se o usuário deu scroll na página e mostra o botão de salvar
+    useEffect(() => {
+        const toggleVisibility = () => {
+            if (window.scrollY > 0) {
+                setIsVisible(true)
+            } else {
+                setIsVisible(false)
+            }
+        }
+
+        window.addEventListener('scroll', toggleVisibility)
+
+        return () => window.removeEventListener('scroll', toggleVisibility)
+    }, [])
+
+    console.log('vizibilidade', isVisible)
 
     return (
         <>
@@ -117,6 +136,32 @@ const FormHeader = ({
                         >
                             Salvar
                         </Button>
+                    )}
+
+                    {isVisible && (
+                        <div
+                            className={`
+                                ${isVisible ? 'fadeIn' : 'fadeOut'}
+                            `}
+                            style={{
+                                position: 'fixed',
+                                bottom: '40px',
+                                right: '30px',
+                                zIndex: '5555',
+                                textAlign: 'center'
+                            }}
+                        >
+                            <Fab
+                                color='primary'
+                                size='large'
+                                onClick={handleSubmit}
+                                type='submit'
+                                variant='contained'
+                                disabled={disabled}
+                            >
+                                <Icon icon='material-symbols:save' />
+                            </Fab>
+                        </div>
                     )}
                 </Box>
             </CardContent>

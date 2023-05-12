@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react'
+import { createContext, useState, useEffect } from 'react'
 
 const ParametersContext = createContext({})
 
@@ -7,7 +7,7 @@ const ParametersProvider = ({ children }) => {
 
     const values = {
         title,
-        setTitle
+        setTitle,
     }
 
     return <ParametersContext.Provider value={values}>{children}</ParametersContext.Provider>

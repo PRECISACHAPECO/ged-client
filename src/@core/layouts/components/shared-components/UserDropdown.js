@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, Fragment } from 'react'
+import { useState, Fragment, useContext } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -13,6 +13,7 @@ import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+import { AuthContext } from 'src/context/AuthContext'
 
 
 // ** Icon Imports
@@ -33,6 +34,7 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 const UserDropdown = props => {
     // ** Props
     const { settings } = props
+    const { user } = useContext(AuthContext)
 
     // ** States
     const [anchorEl, setAnchorEl] = useState(null)
@@ -54,6 +56,8 @@ const UserDropdown = props => {
         }
         setAnchorEl(null)
     }
+
+
 
     const styles = {
         py: 2,
@@ -128,7 +132,9 @@ const UserDropdown = props => {
                 </Box>
                 <Divider sx={{ mt: '0 !important' }} />
                 <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-                    <Box sx={styles}>
+                    <Box sx={styles}
+                        onClick={() => handleDropdownClose(`/configuracoes/usuario/${user.usuarioID}`)}>
+
                         <Icon icon='mdi:account-outline' />
                         Meus Dados
                     </Box>

@@ -432,6 +432,23 @@ const LoginPage = ({ units }) => {
                                     Entrar
                                 </Button>
                             </form>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    flexWrap: 'wrap',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                <Typography sx={{ mr: 2, color: 'text.secondary' }}>É um fornecedor?</Typography>
+                                <Typography
+                                    href='/fornecedor'
+                                    component={Link}
+                                    sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                >
+                                    Login
+                                </Typography>
+                            </Box>
                         </BoxWrapper>
                     </Box>
                 </RightWrapper>

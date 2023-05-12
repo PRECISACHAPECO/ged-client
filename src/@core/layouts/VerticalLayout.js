@@ -1,5 +1,6 @@
 // ** React Imports
-import { useState } from 'react'
+import { useState, useContext } from 'react'
+import { ParametersContext } from 'src/context/ParametersContext'
 
 // ** MUI Imports
 import Fab from '@mui/material/Fab'
@@ -46,6 +47,7 @@ const ContentWrapper = styled('main')(({ theme }) => ({
 const VerticalLayout = props => {
     // ** Props
     const { hidden, settings, children, scrollToTop, footerProps, contentHeightFixed, verticalLayoutProps } = props
+    const { setSubmitActive, submitActive } = useContext(ParametersContext)
 
     // ** Vars
     const { skin, navHidden, contentWidth } = settings
@@ -59,6 +61,7 @@ const VerticalLayout = props => {
 
     // ** Toggle Functions
     const toggleNavVisibility = () => setNavVisible(!navVisible)
+
 
     return (
         <>
@@ -116,15 +119,15 @@ const VerticalLayout = props => {
 
             {disableCustomizer || hidden ? null : <Customizer />}
 
-            {scrollToTop ? (
+            {/* {scrollToTop ? (
                 scrollToTop(props)
             ) : (
-                <ScrollToTop className='mui-fixed'>
+                <ScrollToTop className='mui-fixed' >
                     <Fab color='primary' size='small' aria-label='scroll back to top'>
                         <Icon icon='mdi:arrow-up' />
                     </Fab>
                 </ScrollToTop>
-            )}
+            )} */}
         </>
     )
 }
