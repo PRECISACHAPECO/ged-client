@@ -12,6 +12,7 @@ import Icon from 'src/@core/components/icon'
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
+import Logo from 'src/components/Defaults/Logo'
 
 // ** Styled Components
 const MenuHeaderWrapper = styled(Box)(({ theme }) => ({
@@ -114,11 +115,8 @@ const VerticalNavHeader = props => {
             ) : (
                 <StyledLink href='/'>
                     {/* GED AGRO / LOGO DO SISTEMA */}
-                    <img src='/logos/logoCor.svg' alt='GED Agro' width={200} height={200} />
+                    <Logo />
 
-                    {/* <HeaderTitle variant='h6' sx={{ ...menuCollapsedStyles, ...(navCollapsed && !navHover ? {} : { ml: 2 }) }}>
-                        {themeConfig.templateName}
-                    </HeaderTitle> */}
                 </StyledLink>
             )}
 
