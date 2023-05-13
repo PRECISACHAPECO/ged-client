@@ -39,8 +39,8 @@ const AuthProvider = ({ children }) => {
     const [routes, setRoutes] = useState([])
     // Menu 
     const [menu, setMenu] = useState([])
-
     const [routeBackend, setRouteBackend] = useState()
+    const [latestVersion, setLatestVersion] = useState()
 
     // ** Hooks
     const router = useRouter()
@@ -225,6 +225,23 @@ const AuthProvider = ({ children }) => {
         }
     }, [currentRoute])
 
+    //* faz um get ao github para saber a versão atual do sistema
+    useEffect(() => {
+        function getLatestTag() {
+            axios.get("https://api.github.com/repos/PRECISACHAPECO/ged-frontend/releases")
+                .then((response) => {
+                    if (response.data && response.data.length > 0) {
+                        const latestTag = response.data[0].tag_name;
+                        setLatestVersion(latestTag);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+        getLatestTag()
+    }, [])
+
     const values = {
         user,
         getMenu,
@@ -244,6 +261,7 @@ const AuthProvider = ({ children }) => {
         loginFornecedor: handleLoginFornecedor,
         logout: handleLogout,
         register: handleRegister,
+        latestVersion,
     }
 
     return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>
