@@ -101,5 +101,9 @@ function validationCPF(cpf) {
     return true
 }
 
+function validationEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
 
-export { validationCNPJ, validationCPF }
+export { validationCNPJ, validationCPF, validationEmail }

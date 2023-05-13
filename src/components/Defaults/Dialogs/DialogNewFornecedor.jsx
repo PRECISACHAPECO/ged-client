@@ -17,7 +17,7 @@ import { AuthContext } from 'src/context/AuthContext'
 
 //* CNPJ Mask
 import { cnpjMask } from '../../../configs/masks'
-import { validationCNPJ } from '../../../configs/validations'
+import { validationCNPJ, validationEmail } from '../../../configs/validations'
 import { useForm } from 'react-hook-form'
 import { api } from 'src/configs/api'
 import { toast } from 'react-hot-toast'
@@ -27,6 +27,9 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
     const { loggedUnity } = useContext(AuthContext)
     const [data, setData] = useState(null)
     const [cnpj, setCnpj] = useState(null)
+    const [viewEmail, setViewEmail] = useState(false)
+    const [email, setEmail] = useState(null)
+    const [errorEmail, setErrorEmail] = useState(false)
 
     console.log('unidade logada: ' + loggedUnity.nomeFantasia)
 
@@ -56,25 +59,45 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
     }
 
     const formFilter = async () => {}
-    const sendMail = async () => {}
+
     const fornecedorStatus = async () => {}
     const makeFornecedor = async () => {
         setLoading(true)
         await api
             .post(`/formularios/fornecedor/makeFornecedor`, { unidadeID: loggedUnity.unidadeID, cnpj: cnpj })
             .then(response => {
-                console.log('🚀 ~ makeFornecedor response:', response.data)
-                // verificar retorno com status 200
                 if (response.status === 200) {
                     setData(response.data)
                     toast.success('Fornecedor habilitado com sucesso')
-                    setValue('cnpj', '')
                 } else {
                     toast.error('Erro ao tornar fornecedor')
                 }
 
                 setLoading(false)
             })
+    }
+
+    const sendMail = async () => {
+        !viewEmail ? setViewEmail(true) : null
+
+        if (email && email.length > 0 && validationEmail(email)) {
+            console.log('sendmail: ', email)
+            await api
+                .post(`/formularios/fornecedor/sendMail`, {
+                    unidadeID: loggedUnity.unidadeID,
+                    cnpj: cnpj,
+                    email: email
+                })
+                .then(response => {
+                    if (response.status === 200) {
+                        toast.success('E-mail enviado com sucesso')
+                    } else {
+                        toast.error('Erro ao enviar e-mail')
+                    }
+                })
+        } else {
+            setErrorEmail(true)
+        }
     }
 
     const onSubmit = values => {
@@ -91,29 +114,73 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
                         ficará apta a preencher formulários para a {loggedUnity.nomeFantasia}.
                     </DialogContentText>
                     <form onSubmit={handleSubmit(onSubmit)}>
-                        <FormControl fullWidth>
-                            <TextField
-                                defaultValue=''
-                                label='CNPJ'
-                                placeholder='CNPJ'
-                                aria-describedby='validation-schema-nome'
-                                name='cnpj'
-                                {...register(`cnpj`, {
-                                    required: true,
-                                    validate: value => validationCNPJ(value) || 'CNPJ inválido'
-                                })}
-                                error={errors?.cnpj}
-                                helperText={errors.cnpj?.message}
-                                inputProps={{
-                                    maxLength: 18,
-                                    onChange: e => {
-                                        setData(null)
-                                        setValue('cnpj', cnpjMask(e.target.value)), getFornecedorByCnpj(e.target.value)
-                                    }
-                                }}
-                            />
-                        </FormControl>
+                        <Grid container>
+                            <Grid item xs={12} md={12}>
+                                <FormControl fullWidth>
+                                    <TextField
+                                        defaultValue={data?.cnpj ? data.cnpj : ''}
+                                        label='CNPJ'
+                                        placeholder='CNPJ'
+                                        aria-describedby='validation-schema-nome'
+                                        name='cnpj'
+                                        {...register(`cnpj`, {
+                                            required: true,
+                                            validate: value => validationCNPJ(value) || 'CNPJ inválido'
+                                        })}
+                                        error={errors?.cnpj}
+                                        helperText={errors.cnpj?.message}
+                                        inputProps={{
+                                            maxLength: 18,
+                                            onChange: e => {
+                                                setData(null)
+                                                setValue('cnpj', cnpjMask(e.target.value)),
+                                                    getFornecedorByCnpj(e.target.value),
+                                                    setViewEmail(false)
+                                            }
+                                        }}
+                                    />
+                                </FormControl>
+                            </Grid>
+
+                            {/* Enviar e-mail para o fornecedor novo */}
+                            {data && data.isFornecedor && !data.hasFormulario && viewEmail && (
+                                <>
+                                    <Grid item xs={12} md={12} sx={{ mt: 4 }}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                defaultValue=''
+                                                type='email'
+                                                label='E-mail'
+                                                placeholder='E-mail'
+                                                aria-describedby='validation-schema-nome'
+                                                name='email'
+                                                {...register(`email`, {
+                                                    required: true,
+                                                    validate: value => value.includes('@') || 'E-mail inválido'
+                                                })}
+                                                error={errorEmail}
+                                                helperText={errorEmail ? 'Insira um e-mail válido' : null}
+                                                inputProps={{
+                                                    onChange: e => {
+                                                        setValue('email', e.target.value)
+                                                        setEmail(e.target.value)
+                                                        setErrorEmail(validationEmail(e.target.value) ? false : true)
+                                                    }
+                                                }}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12} md={12} sx={{ mt: 2 }}>
+                                        <Alert severity='info'>
+                                            Um e-mail será enviado para o fornecedor com as instruções de cadastro e
+                                            preenchimento do formulário
+                                        </Alert>
+                                    </Grid>
+                                </>
+                            )}
+                        </Grid>
                     </form>
+
                     {/* Resultado */}
                     {data && (
                         <Grid container sx={{ mt: 2 }}>
