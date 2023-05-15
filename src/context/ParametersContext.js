@@ -4,17 +4,15 @@ const ParametersContext = createContext({})
 
 const ParametersProvider = ({ children }) => {
     const [title, setTitle] = useState('Home')
-    const [filteredData, setFilteredData] = useState([])
-    const [searchText, setSearchText] = useState('')
-
-    const [rows, setRows] = useState([])
-    const [data] = useState(rows)
     const [pageSize, setPageSize] = useState(10)
+    const [searchText, setSearchText] = useState('')
+    const [filteredData, setFilteredData] = useState([])
+    const [data, setData] = useState([])
 
-    const handleTableSearch = searchValue => {
+    //* Função para filtrar os dados da tabela
+    const handleSearch = searchValue => {
         setSearchText(searchValue)
         const searchWords = searchValue.toLowerCase().split(' ').filter(word => word !== '')
-
         const filteredRows = data.filter(row => {
             return searchWords.every(word => {
                 return Object.keys(row).some(field => {
@@ -22,14 +20,12 @@ const ParametersProvider = ({ children }) => {
                 })
             })
         })
-
         if (searchValue.length && filteredRows.length > 0) {
             setFilteredData(filteredRows)
         } else {
             setFilteredData([])
         }
     }
-
 
     const values = {
         handleSearch: handleTableSearch,
@@ -44,6 +40,15 @@ const ParametersProvider = ({ children }) => {
 
         title,
         setTitle,
+        handleSearch,
+        pageSize,
+        setPageSize,
+        searchText,
+        setSearchText,
+        filteredData,
+        setFilteredData,
+        data,
+        setData
     }
 
     return <ParametersContext.Provider value={values}>{children}</ParametersContext.Provider>
