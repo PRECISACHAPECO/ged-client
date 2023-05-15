@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 
 // ** Next
 import { useRouter } from 'next/router'
@@ -13,35 +13,42 @@ const escapeRegExp = value => {
     return value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
 }
 
+import { ParametersContext } from 'src/context/ParametersContext'
+
 const TableColumns = ({ rows, columns, buttonsHeader }) => {
 
+    //* Contexto 
+    const { handleSearch, setFilteredData, filteredData, setSearchText, searchText, setRows, pageSize, setPageSize, data } = useContext(ParametersContext)
+
     // ** States
-    const [data] = useState(rows)
-    const [pageSize, setPageSize] = useState(10)
-    const [searchText, setSearchText] = useState('')
-    const [filteredData, setFilteredData] = useState([])
+    // const [data] = useState(rows)
+    // const [pageSize, setPageSize] = useState(10)
+    // const [searchText, setSearchText] = useState('')
+    // const [filteredData, setFilteredData] = useState([])
 
     const router = useRouter()
     const currentLink = router.pathname
 
-    const handleSearch = searchValue => {
-        setSearchText(searchValue)
-        const searchWords = searchValue.toLowerCase().split(' ').filter(word => word !== '')
+    setRows(rows)
 
-        const filteredRows = data.filter(row => {
-            return searchWords.every(word => {
-                return Object.keys(row).some(field => {
-                    return row[field].toString().toLowerCase().indexOf(word) !== -1
-                })
-            })
-        })
+    // const handleSearch = searchValue => {
+    //     setSearchText(searchValue)
+    //     const searchWords = searchValue.toLowerCase().split(' ').filter(word => word !== '')
 
-        if (searchValue.length && filteredRows.length > 0) {
-            setFilteredData(filteredRows)
-        } else {
-            setFilteredData([])
-        }
-    }
+    //     const filteredRows = data.filter(row => {
+    //         return searchWords.every(word => {
+    //             return Object.keys(row).some(field => {
+    //                 return row[field].toString().toLowerCase().indexOf(word) !== -1
+    //             })
+    //         })
+    //     })
+
+    //     if (searchValue.length && filteredRows.length > 0) {
+    //         setFilteredData(filteredRows)
+    //     } else {
+    //         setFilteredData([])
+    //     }
+    // }
 
     return (
         <DataGrid

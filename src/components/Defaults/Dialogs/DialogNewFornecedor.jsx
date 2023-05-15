@@ -58,9 +58,28 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
         }
     }
 
+    //? Fornecedor já está vinculado e já possui formulários respondidos, então pega o cnpj e coloca na busca do datatable
     const formFilter = async () => {}
 
-    const fornecedorStatus = async () => {}
+    const fornecedorStatus = async () => {
+        setLoading(true)
+        await api
+            .post(`/formularios/fornecedor/fornecedorStatus`, {
+                unidadeID: loggedUnity.unidadeID,
+                cnpj: cnpj,
+                status: 1
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    setData(response.data)
+                    toast.success('Fornecedor reativado com sucesso')
+                } else {
+                    toast.error('Erro ao reativar fornecedor')
+                }
+                setLoading(false)
+            })
+    }
+
     const makeFornecedor = async () => {
         setLoading(true)
         await api
@@ -72,7 +91,6 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
                 } else {
                     toast.error('Erro ao tornar fornecedor')
                 }
-
                 setLoading(false)
             })
     }
