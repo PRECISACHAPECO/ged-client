@@ -69,6 +69,7 @@
         "react-credit-cards": "0.8.3",
         "react-datepicker": "4.8.0",
         "react-dom": "18.2.0",
+        "react-dom-server": "^0.0.5",
         "react-draft-wysiwyg": "1.15.0",
         "react-dropzone": "14.2.3",
         "react-hook-form": "7.38.0",

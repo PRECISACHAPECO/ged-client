@@ -28,16 +28,6 @@ const ParametersProvider = ({ children }) => {
     }
 
     const values = {
-        handleSearch: handleTableSearch,
-        setFilteredData,
-        filteredData,
-        setSearchText,
-        searchText,
-        setRows,
-        pageSize,
-        setPageSize,
-        data,
-
         title,
         setTitle,
         handleSearch,

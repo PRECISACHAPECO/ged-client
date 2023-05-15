@@ -95,26 +95,19 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
             })
     }
 
-    const sendMail = async () => {
-        !viewEmail ? setViewEmail(true) : null
+    // Abre o formulário para enviar e-mail para o fornecedor
+    function sendMail() {
+        setViewEmail(true)
 
-        if (email && email.length > 0 && validationEmail(email)) {
-            console.log('sendmail: ', email)
-            await api
-                .post(`/formularios/fornecedor/sendMail`, {
-                    unidadeID: loggedUnity.unidadeID,
-                    cnpj: cnpj,
-                    email: email
-                })
+        if (viewEmail && validationEmail(email)) {
+            api.post('/formularios/fornecedor/sendMail', { destinatario: email })
                 .then(response => {
-                    if (response.status === 200) {
-                        toast.success('E-mail enviado com sucesso')
-                    } else {
-                        toast.error('Erro ao enviar e-mail')
-                    }
+                    toast.success('E-mail enviado com sucesso')
+                    handleClose()
                 })
-        } else {
-            setErrorEmail(true)
+                .catch(error => {
+                    console.error('Erro ao enviar email', error)
+                })
         }
     }
 
