@@ -44,9 +44,10 @@ const EsqueceuSenha = () => {
     const [type, setType] = useState()
     const [email, setEmail] = useState()
     const [nome, setNome] = useState()
+    const [usuarioID, setUsuarioID] = useState()
     const router = Router
 
-    const emailToShow = email?.replace(/^(.{4}).*@/, '$1...@')
+    const emailToShow = email?.replace(/^(.{3}).*@/, '$1****@')
 
     useEffect(() => {
         setType(router.query.type)
@@ -65,11 +66,13 @@ const EsqueceuSenha = () => {
             api.post(`esqueceuSenha/validation?type=${type}`, { data: value }).then(response => {
                 setEmail(response.data[0]?.email)
                 setNome(response.data[0]?.nome)
+                setUsuarioID(response.data[0]?.usuarioID)
             })
         } else if (type == 'fornecedor' && value.length == 18 && validationCNPJ(value)) {
             api.post(`esqueceuSenha/validation?type=${type}`, { data: value }).then(response => {
                 setEmail(response.data[0]?.email)
                 setNome(response.data[0]?.nome)
+                setUsuarioID(response.data[0]?.usuarioID)
             })
         }
     }
@@ -79,11 +82,15 @@ const EsqueceuSenha = () => {
         const newValue = {
             ...value,
             email,
-            nome
+            nome,
+            usuarioID
         }
-        console.log(value)
         api.post(`/esqueceuSenha?type=${type}`, { data: newValue }).then(response => {
-            toast.success('Email enviado com sucesso!')
+            if (response.status === 200) {
+                toast.success('Email enviado com sucesso!')
+            } else {
+                toast.error('Erro ao enviar email, tente novamente!')
+            }
         })
     }
 
@@ -153,8 +160,8 @@ const EsqueceuSenha = () => {
 
                         {email && (
                             <Alert severity='info' sx={{ mt: 2 }}>
-                                <Typography sx={{ fontSize: 11 }}>
-                                    O email com os dados será enviado para {emailToShow}
+                                <Typography variant='body2'>
+                                    Um link para a redefinição da senha será enviado para {emailToShow}
                                 </Typography>
                             </Alert>
                         )}
