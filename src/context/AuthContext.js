@@ -42,8 +42,9 @@ const AuthProvider = ({ children }) => {
     const [routeBackend, setRouteBackend] = useState()
     const [latestVersion, setLatestVersion] = useState()
 
+    const router = useRouter();
+
     // ** Hooks
-    const router = useRouter()
     useEffect(() => {
         const initAuth = async () => {
             setCurrentRoute(router.pathname)
@@ -219,7 +220,7 @@ const AuthProvider = ({ children }) => {
             //  Se a rota atual for dinamica, remove o id da rota
             removeDynamicRouteId()
             const permission = routes.find(rota => rota.rota === currentRoute)
-            if (!permission?.rota && currentRoute !== '/' && currentRoute !== '/login' && currentRoute !== '/login-fornecedor' && currentRoute !== '/fornecedor' && currentRoute !== '/home' && currentRoute !== '/401') {
+            if (!permission?.rota && currentRoute !== '/' && currentRoute !== '/login' && currentRoute !== '/login-fornecedor' && currentRoute !== '/esqueceu-sua-senha?type=login' && currentRoute !== '/esqueceu-sua-senha?type=fornecedor' && currentRoute !== '/fornecedor' && currentRoute !== '/home' && currentRoute !== '/401') {
                 router.push('/401')
             }
         }

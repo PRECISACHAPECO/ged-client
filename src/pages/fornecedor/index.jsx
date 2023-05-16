@@ -311,7 +311,7 @@ const FornecedorPage = ({ units }) => {
                                     <Typography
                                         variant='body2'
                                         component={Link}
-                                        href='/forgot-password'
+                                        href='/esqueceu-sua-senha?type=fornecedor'
                                         sx={{ color: 'primary.main', textDecoration: 'none' }}
                                     >
                                         Esqueceu sua senha?
