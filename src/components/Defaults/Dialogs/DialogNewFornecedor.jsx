@@ -103,7 +103,7 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
             api.post('/formularios/fornecedor/sendMail', { destinatario: email })
                 .then(response => {
                     toast.success('E-mail enviado com sucesso')
-                    handleClose()
+                    //! handleClose()
                 })
                 .catch(error => {
                     console.error('Erro ao enviar email', error)
