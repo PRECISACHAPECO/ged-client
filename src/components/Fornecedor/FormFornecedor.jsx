@@ -25,7 +25,7 @@ import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
 import Loading from 'src/components/Loading'
-import { toastMessage } from 'src/configs/defaultConfigs'
+import { toastMessage, formType } from 'src/configs/defaultConfigs'
 import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
@@ -53,6 +53,7 @@ const FormFornecedor = () => {
     const router = Router
     const { id } = router.query
     const staticUrl = backRoute(router.pathname) // Url sem ID
+    const type = formType(router.pathname) // Verifica se é novo ou edição
 
     const { settings } = useContext(SettingsContext)
     const mode = settings.mode
@@ -145,25 +146,48 @@ const FormFornecedor = () => {
         }
     ]
 
+    const getFabricas = () => {
+        console.log('🚀 getFabricas:')
+        setLoading(false)
+    }
+
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
 
-        const getData = () => {
-            api.get(`${staticUrl}/${loggedUnity.unidadeID}`, { headers: { 'function-name': 'getData' } }).then(
-                response => {
-                    console.log('getData: ', response.data)
-                    setFields(response.data.fields)
-                    setData(response.data.data)
-                    setAtividades(response.data.atividades)
-                    setSistemasQualidade(response.data.sistemasQualidade)
-                    setBlocos(response.data.blocos)
-                    setInfo(response.data.info)
-                    setLoading(false)
-                }
-            )
+        const getFormStructure = async unidadeID => {
+            console.log('🚀 ~ getFormStructure ~ unidadeID:', unidadeID)
+            await api.post(`${staticUrl}/getFormStructure`, { unidadeID }).then(response => {
+                console.log('response getFormStructure: ', response.data)
+                setFields(response.data.fields)
+                setAtividades(response.data.atividades)
+                setSistemasQualidade(response.data.sistemasQualidade)
+                setBlocos(response.data.blocos)
+                setLoading(false)
+            })
         }
-        getData()
-    }, [onSubmit])
+
+        const getFormData = id => {
+            // console.log('🚀 ~ getFormData ~ id:', id)
+            // api.get(`${staticUrl}/${id}`).then(response => {
+            //     console.log('getFormData: ', response.data)
+            //     // setFields(response.data.fields)
+            //     setData(response.data.data)
+            //     // setAtividades(response.data.atividades)
+            //     // setSistemasQualidade(response.data.sistemasQualidade)
+            //     // setBlocos(response.data.blocos)
+            //     setInfo(response.data.info)
+            //     setLoading(false)
+            // })
+        }
+
+        if (type == 'new') {
+            //? Fornecedor
+            user.papelID == 2 ? getFabricas() : backRoute(router.pathname)
+        } else {
+            getFormStructure(loggedUnity.unidadeID)
+            getFormData(id)
+        }
+    }, [])
 
     return (
         <>

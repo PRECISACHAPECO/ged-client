@@ -14,6 +14,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import { useEffect, useState, useContext } from 'react'
 import Icon from 'src/@core/components/icon'
 import { AuthContext } from 'src/context/AuthContext'
+import { ParametersContext } from 'src/context/ParametersContext'
 
 //* CNPJ Mask
 import { cnpjMask } from '../../../configs/masks'
@@ -25,6 +26,7 @@ import { toast } from 'react-hot-toast'
 const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit }) => {
     const [loading, setLoading] = useState(false)
     const { loggedUnity } = useContext(AuthContext)
+    const { handleSearch } = useContext(ParametersContext)
     const [data, setData] = useState(null)
     const [cnpj, setCnpj] = useState(null)
     const [viewEmail, setViewEmail] = useState(false)
@@ -59,7 +61,11 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
     }
 
     //? Fornecedor já está vinculado e já possui formulários respondidos, então pega o cnpj e coloca na busca do datatable
-    const formFilter = async () => {}
+    const formFilter = async () => {
+        console.log('filtra no contexto...')
+        handleSearch(cnpj)
+        handleClose()
+    }
 
     const fornecedorStatus = async () => {
         setLoading(true)

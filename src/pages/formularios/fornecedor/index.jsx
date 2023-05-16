@@ -24,14 +24,17 @@ const Fornecedor = () => {
     const [open, setOpen] = useState(false)
 
     const openModal = () => {
-        console.log('openModalNewFornecedor')
         setOpen(true)
     }
 
     useEffect(() => {
         const getList = async () => {
             await api
-                .get(currentLink + '/' + loggedUnity.unidadeID, { headers: { 'function-name': 'getList' } })
+                .post(`${currentLink}/getList`, {
+                    unidadeID: loggedUnity.unidadeID,
+                    papelID: user.papelID,
+                    cnpj: user.cnpj ? user.cnpj : null
+                })
                 .then(response => {
                     setResult(response.data)
                     setTitle('Fornecedor')
@@ -88,7 +91,7 @@ const Fornecedor = () => {
                                 buttonsHeader={{
                                     btnNew: true,
                                     btnPrint: true,
-                                    openModal
+                                    openModal: user.papelID == 1 ? openModal : null
                                 }}
                             />
                         </CardContent>
