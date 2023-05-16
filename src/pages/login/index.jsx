@@ -349,7 +349,7 @@ const LoginPage = ({ units }) => {
                                     <Typography
                                         variant='body2'
                                         component={Link}
-                                        href='/forgot-password'
+                                        href='/esqueceu-sua-senha?type=login'
                                         sx={{ color: 'primary.main', textDecoration: 'none' }}
                                     >
                                         Esqueceu sua senha?
