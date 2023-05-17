@@ -7,6 +7,7 @@ import Icon from 'src/@core/components/icon'
 import {
     Autocomplete,
     Box,
+    Button,
     Card,
     CardContent,
     FormControl,
@@ -49,6 +50,9 @@ const FormFornecedor = () => {
     const [sistemasQualidade, setSistemasQualidade] = useState([])
     const [blocos, setBlocos] = useState([])
     const [info, setInfo] = useState('')
+    const [fabricas, setFabricas] = useState([])
+    const [fabrica, setFabrica] = useState(null)
+    const [viewNewForm, setViewNewForm] = useState(false)
 
     const router = Router
     const { id } = router.query
@@ -146,46 +150,56 @@ const FormFornecedor = () => {
         }
     ]
 
-    const getFabricas = () => {
-        console.log('🚀 getFabricas:')
-        setLoading(false)
+    const getFabricas = async () => {
+        console.log('🚀 getFabricas: ', user.cnpj)
+        setLoading(true)
+        await api.post(`${staticUrl}/getFabricas`, { cnpj: user.cnpj }).then(response => {
+            setFabricas(response.data)
+            setLoading(false)
+        })
+    }
+
+    const getFormStructure = async () => {
+        console.log('🚀 ~ file: FormFornecedor.jsx:164 ~ getFormStructure ~ value:', fabrica)
+        setLoading(true)
+        await api.post(`${staticUrl}/getFormStructure`, { unidadeID: fabrica.unidadeID }).then(response => {
+            setFields(response.data.fields)
+            setAtividades(response.data.atividades)
+            setSistemasQualidade(response.data.sistemasQualidade)
+            setBlocos(response.data.blocos)
+            setViewNewForm(true)
+            setLoading(false)
+        })
     }
 
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
 
-        const getFormStructure = async unidadeID => {
-            console.log('🚀 ~ getFormStructure ~ unidadeID:', unidadeID)
-            await api.post(`${staticUrl}/getFormStructure`, { unidadeID }).then(response => {
-                console.log('response getFormStructure: ', response.data)
+        const getData = id => {
+            api.get(`${staticUrl}/${id}`).then(response => {
+                console.log('getData: ', response.data)
                 setFields(response.data.fields)
                 setAtividades(response.data.atividades)
                 setSistemasQualidade(response.data.sistemasQualidade)
                 setBlocos(response.data.blocos)
+
+                setData(response.data.data)
+                setInfo(response.data.info)
+
                 setLoading(false)
             })
         }
 
-        const getFormData = id => {
-            // console.log('🚀 ~ getFormData ~ id:', id)
-            // api.get(`${staticUrl}/${id}`).then(response => {
-            //     console.log('getFormData: ', response.data)
-            //     // setFields(response.data.fields)
-            //     setData(response.data.data)
-            //     // setAtividades(response.data.atividades)
-            //     // setSistemasQualidade(response.data.sistemasQualidade)
-            //     // setBlocos(response.data.blocos)
-            //     setInfo(response.data.info)
-            //     setLoading(false)
-            // })
+        const noPermissions = () => {
+            router.push('/formularios/fornecedor/')
+            toast.error('Você não tem permissões para acessar esta página!')
         }
 
         if (type == 'new') {
             //? Fornecedor
-            user.papelID == 2 ? getFabricas() : backRoute(router.pathname)
+            user.papelID == 2 ? getFabricas() : noPermissions()
         } else {
-            getFormStructure(loggedUnity.unidadeID)
-            getFormData(id)
+            getData(id)
         }
     }, [])
 
@@ -193,7 +207,8 @@ const FormFornecedor = () => {
         <>
             {isLoading ? (
                 <Loading />
-            ) : (
+            ) : //* Renderiza o formulário
+            data || viewNewForm ? (
                 <form onSubmit={handleSubmit(onSubmit)}>
                     {/* Card Header */}
                     <Card>
@@ -207,8 +222,19 @@ const FormFornecedor = () => {
                             title='Fornecedor'
                         />
                         <CardContent>
+                            {fabrica && (
+                                <Grid container spacing={4}>
+                                    <Grid item xs={12} md={12}>
+                                        <Typography variant='caption'>Fábrica:</Typography>
+                                        <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                            {fabrica.nomeFantasia}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            )}
+
                             {/* Header */}
-                            <Grid container spacing={4}>
+                            <Grid container spacing={4} sx={{ mt: 4 }}>
                                 {fields &&
                                     fields.map((field, index) => (
                                         <Grid key={index} item xs={12} md={3}>
@@ -237,7 +263,9 @@ const FormFornecedor = () => {
                                                 {/* Textfield */}
                                                 {field && field.tipo == 'string' && (
                                                     <TextField
-                                                        defaultValue={defaultValues[field.nomeColuna] ?? ''}
+                                                        defaultValue={
+                                                            defaultValues ? defaultValues[field.nomeColuna] : ''
+                                                        }
                                                         label={field.nomeCampo}
                                                         placeholder={field.nomeCampo}
                                                         name={`header.${field.nomeColuna}`}
@@ -560,6 +588,45 @@ const FormFornecedor = () => {
                         </CardContent>
                     </Card>
                 </form>
+            ) : (
+                <>
+                    {/* Fornecedor preenchendo um novo formulário, seleciona uma fábrica (unidadeID) */}
+                    <Grid container spacing={4}>
+                        <Grid item xs={12} md={12}>
+                            <Autocomplete
+                                options={fabricas}
+                                id='autocomplete-outlined'
+                                getOptionLabel={option => option.nomeFantasia}
+                                onChange={(event, value) => {
+                                    setFabrica(value ? value : null)
+                                }}
+                                renderInput={params => (
+                                    <TextField
+                                        {...params}
+                                        name={`fabrica`}
+                                        label='Selecione uma fábrica'
+                                        placeholder='Selecione uma fábrica'
+                                        {...register(`fabrica`)}
+                                    />
+                                )}
+                            />
+                        </Grid>
+
+                        {/* Botão de proxima etapa */}
+                        <Grid item xs={12} md={12}>
+                            <Button
+                                variant='contained'
+                                color='primary'
+                                size='large'
+                                disabled={!fabrica}
+                                startIcon={<Icon icon='eva:arrow-right-fill' />}
+                                onClick={() => getFormStructure()}
+                            >
+                                Avançar
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </>
             )}
         </>
     )
