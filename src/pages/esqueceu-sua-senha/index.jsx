@@ -42,12 +42,11 @@ const EsqueceuSenha = () => {
     // ** Hook
     const theme = useTheme()
     const [type, setType] = useState()
-    const [email, setEmail] = useState()
-    const [nome, setNome] = useState()
-    const [usuarioID, setUsuarioID] = useState()
+    const [getData, setGetData] = useState()
+    const [campo, setCampo] = useState()
     const router = Router
 
-    const emailToShow = email?.replace(/^(.{3}).*@/, '$1****@')
+    const emailToShow = getData?.email?.replace(/^(.{3}).*@/, '$1****@')
 
     useEffect(() => {
         setType(router.query.type)
@@ -60,30 +59,28 @@ const EsqueceuSenha = () => {
         register
     } = useForm({})
 
+    console.log('errors', errors)
+
     function OnchangeValue(value) {
-        setEmail(null)
+        setGetData('')
         if (type == 'login' && value.length == 14 && validationCPF(value)) {
             api.post(`esqueceuSenha/validation?type=${type}`, { data: value }).then(response => {
-                setEmail(response.data[0]?.email)
-                setNome(response.data[0]?.nome)
-                setUsuarioID(response.data[0]?.usuarioID)
+                setGetData(response.data)
             })
-        } else if (type == 'fornecedor' && value.length == 18 && validationCNPJ(value)) {
+        } else if (type == 'fornecedor' && value.length == 18) {
+            console.log('ENVIA PRO BACKEND')
             api.post(`esqueceuSenha/validation?type=${type}`, { data: value }).then(response => {
-                setEmail(response.data[0]?.email)
-                setNome(response.data[0]?.nome)
-                setUsuarioID(response.data[0]?.usuarioID)
+                setGetData(response.data)
             })
         }
     }
-    console.log(email)
 
     const onSubmit = value => {
         const newValue = {
             ...value,
-            email,
-            nome,
-            usuarioID
+            email: getData?.email,
+            nome: getData?.nome,
+            usuarioID: getData?.usuarioID
         }
         api.post(`/esqueceuSenha?type=${type}`, { data: newValue }).then(response => {
             if (response.status === 200) {
@@ -130,6 +127,7 @@ const EsqueceuSenha = () => {
                                         onChange: e => {
                                             setValue('cpf', cpfMask(e.target.value))
                                             OnchangeValue(e.target.value)
+                                            setCampo(e.target.value)
                                         }
                                     }}
                                 />
@@ -145,23 +143,33 @@ const EsqueceuSenha = () => {
                                         required: true,
                                         validate: value => validationCNPJ(value) || 'CNPJ inválido'
                                     })}
-                                    error={errors.cnpj}
-                                    helperText={errors.cnpj?.message}
+                                    error={errors?.cnpj}
+                                    helperText={errors?.cnpj?.message}
                                     inputProps={{
                                         maxLength: 18,
                                         onChange: e => {
                                             setValue('cnpj', cnpjMask(e.target.value))
                                             OnchangeValue(e.target.value)
+                                            setCampo(e.target.value)
                                         }
                                     }}
                                 />
                             </FormControl>
                         )}
 
-                        {email && (
+                        {getData?.email && (
                             <Alert severity='info' sx={{ mt: 2 }}>
                                 <Typography variant='body2'>
                                     Um link para a redefinição da senha será enviado para {emailToShow}
+                                </Typography>
+                            </Alert>
+                        )}
+
+                        {/* Gerar um alerte de erro se o email não existir no banco de dados ou se o email não for validado */}
+                        {!getData && campo?.length == (type == 'login' ? 14 : 18) && (
+                            <Alert severity='error' sx={{ mt: 2 }}>
+                                <Typography variant='body2'>
+                                    Esse {type == 'login' ? 'CPF' : 'CNPJ'} não está na nossa base de dados!
                                 </Typography>
                             </Alert>
                         )}
@@ -172,7 +180,7 @@ const EsqueceuSenha = () => {
                             type='submit'
                             variant='contained'
                             sx={{ mb: 5.25, mt: 4 }}
-                            disabled={!email || !validationEmail(email)}
+                            disabled={!getData?.email || !validationEmail(getData?.email)}
                         >
                             Enviar
                         </Button>
