@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react'
 
 import { useForm } from 'react-hook-form'
 import {
+    Alert,
     Autocomplete,
     Button,
     Card,
@@ -287,7 +288,62 @@ const FormParametrosFornecedor = () => {
                                 </Grid>
 
                                 {/* Atividades e Importador/Fabricante */}
+                                <Grid container spacing={4} sx={{ mt: 2 }}>
+                                    <Grid item xs={12} md={12}>
+                                        <Alert severity='info'>
+                                            Esse bloco será habilitado se satisfazer as condições abaixo:
+                                        </Alert>
+                                    </Grid>
+                                </Grid>
+
                                 <Grid container spacing={4}>
+                                    {/* Fabricante/Importador */}
+                                    <Grid item xs={12} md={3}>
+                                        <ListItem disablePadding>
+                                            <ListItemButton>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Mostrar esse bloco quando é:
+                                                </Typography>
+                                            </ListItemButton>
+                                        </ListItem>
+                                        {block.categorias &&
+                                            block.categorias.map((categoria, indexCategoria) => (
+                                                <ListItem key={indexCategoria} disablePadding>
+                                                    <ListItemButton>
+                                                        <input
+                                                            type='hidden'
+                                                            name={`blocks.[${index}].categorias[${indexCategoria}].categoriaID`}
+                                                            defaultValue={categoria.categoriaID}
+                                                            {...register(
+                                                                `blocks.[${index}].categorias[${indexCategoria}].categoriaID`
+                                                            )}
+                                                        />
+
+                                                        <FormControlLabel
+                                                            control={
+                                                                <Checkbox
+                                                                    name={`blocks.[${index}].categorias[${indexCategoria}].checked`}
+                                                                    {...register(
+                                                                        `blocks.[${index}].categorias[${indexCategoria}].checked`
+                                                                    )}
+                                                                    defaultChecked={
+                                                                        categoria.checked == 1 ? true : false
+                                                                    }
+                                                                />
+                                                            }
+                                                            label={categoria.nome}
+                                                        />
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            ))}
+                                    </Grid>
+
+                                    <Grid item xs={12} md={1}>
+                                        <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                            -- E --
+                                        </Typography>
+                                    </Grid>
+
                                     {/* Atividade */}
                                     <Grid item xs={12} md={4}>
                                         <ListItem disablePadding>
@@ -323,47 +379,6 @@ const FormParametrosFornecedor = () => {
                                                                 />
                                                             }
                                                             label={atividade.nome}
-                                                        />
-                                                    </ListItemButton>
-                                                </ListItem>
-                                            ))}
-                                    </Grid>
-
-                                    {/* Fabricante/Importador */}
-                                    <Grid item xs={12} md={4}>
-                                        <ListItem disablePadding>
-                                            <ListItemButton>
-                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                    Mostrar esse bloco quando é:
-                                                </Typography>
-                                            </ListItemButton>
-                                        </ListItem>
-                                        {block.categorias &&
-                                            block.categorias.map((categoria, indexCategoria) => (
-                                                <ListItem key={indexCategoria} disablePadding>
-                                                    <ListItemButton>
-                                                        <input
-                                                            type='hidden'
-                                                            name={`blocks.[${index}].categorias[${indexCategoria}].categoriaID`}
-                                                            defaultValue={categoria.categoriaID}
-                                                            {...register(
-                                                                `blocks.[${index}].categorias[${indexCategoria}].categoriaID`
-                                                            )}
-                                                        />
-
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Checkbox
-                                                                    name={`blocks.[${index}].categorias[${indexCategoria}].checked`}
-                                                                    {...register(
-                                                                        `blocks.[${index}].categorias[${indexCategoria}].checked`
-                                                                    )}
-                                                                    defaultChecked={
-                                                                        categoria.checked == 1 ? true : false
-                                                                    }
-                                                                />
-                                                            }
-                                                            label={categoria.nome}
                                                         />
                                                     </ListItemButton>
                                                 </ListItem>
