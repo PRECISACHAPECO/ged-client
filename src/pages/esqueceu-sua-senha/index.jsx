@@ -67,7 +67,7 @@ const EsqueceuSenha = () => {
             api.post(`esqueceuSenha/validation?type=${type}`, { data: value }).then(response => {
                 setGetData(response.data)
             })
-        } else if (type == 'fornecedor' && value.length == 18) {
+        } else if (type == 'fornecedor' && value.length == 18 && validationCNPJ(value)) {
             console.log('ENVIA PRO BACKEND')
             api.post(`esqueceuSenha/validation?type=${type}`, { data: value }).then(response => {
                 setGetData(response.data)
@@ -157,7 +157,7 @@ const EsqueceuSenha = () => {
                             </FormControl>
                         )}
 
-                        {getData?.email && (
+                        {getData?.email && validationEmail(getData?.email) && (
                             <Alert severity='info' sx={{ mt: 2 }}>
                                 <Typography variant='body2'>
                                     Um link para a redefinição da senha será enviado para {emailToShow}
