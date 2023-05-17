@@ -83,9 +83,15 @@ const FormFornecedor = () => {
     const onSubmit = async data => {
         console.log('onSubmit: ', data)
         try {
-            await api.put(`${staticUrl}/${id}`, data).then(response => {
-                toast.success(toastMessage.successUpdate)
-            })
+            if (type === 'new') {
+                const result = await api.post(`${staticUrl}/novo`, data)
+                router.replace(`${staticUrl}/${result.data.id}`)
+                toast.success(toastMessage.successNew)
+            } else {
+                await api.put(`${staticUrl}/${id}`, data).then(response => {
+                    toast.success(toastMessage.successUpdate)
+                })
+            }
         } catch (error) {
             console.log(error)
         }
@@ -223,14 +229,23 @@ const FormFornecedor = () => {
                         />
                         <CardContent>
                             {fabrica && (
-                                <Grid container spacing={4}>
-                                    <Grid item xs={12} md={12}>
-                                        <Typography variant='caption'>Fábrica:</Typography>
-                                        <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                            {fabrica.nomeFantasia}
-                                        </Typography>
+                                <>
+                                    <input
+                                        type='hidden'
+                                        value={fabrica.unidadeID}
+                                        name='unidadeID'
+                                        {...register(`unidadeID`)}
+                                    />
+
+                                    <Grid container spacing={4}>
+                                        <Grid item xs={12} md={12}>
+                                            <Typography variant='caption'>Fábrica:</Typography>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                {fabrica.nomeFantasia}
+                                            </Typography>
+                                        </Grid>
                                     </Grid>
-                                </Grid>
+                                </>
                             )}
 
                             {/* Header */}
