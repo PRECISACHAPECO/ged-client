@@ -138,7 +138,7 @@ const EsqueceuSenha = () => {
                             <FormControl fullWidth>
                                 <TextField
                                     label='CNPJ'
-                                    placeholder='CPF'
+                                    placeholder='CNPJ'
                                     aria-describedby='validation-schema-nome'
                                     name='cnpj'
                                     {...register(`cnpj`, {

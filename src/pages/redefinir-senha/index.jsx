@@ -93,7 +93,6 @@ const ResetPassword = () => {
         api.post(`/esqueceuSenha/newPassword`, { data }).then(response => {
             if (response.status === 200) {
                 toast.success('Senha redefinida com sucesso!')
-                console.log(response)
                 router.push(type === 'login' ? '/login' : '/fornecedor')
             } else {
                 toast.error('Erro ao redefinir senha!')
