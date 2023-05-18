@@ -27,6 +27,7 @@ import toast from 'react-hot-toast'
 import { toastMessage } from 'src/configs/defaultConfigs'
 import Loading from 'src/components/Loading'
 import Icon from 'src/@core/components/icon'
+import DialogConfirmScore from 'src/components/Defaults/Dialogs/DialogConfirmScore'
 
 const FormParametrosFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
@@ -34,6 +35,8 @@ const FormParametrosFornecedor = () => {
     const [optionsItens, setOptionsItens] = useState([])
     const [blocks, setBlocks] = useState()
     const [orientacoes, setOrientacoes] = useState()
+    const [openModalConfirmScore, setOpenModalConfirmScore] = useState(false)
+    const [itemScore, setItemScore] = useState()
 
     const router = Router
     const staticUrl = backRoute(router.pathname) // Url sem ID
@@ -73,6 +76,17 @@ const FormParametrosFornecedor = () => {
         setBlocks(newBlock)
     }
 
+    //  Ao clicar no icone de pontuação, abre o modal de confirmação de pontuação e envia para o back o item selecionado
+    const openScoreModal = item => {
+        setItemScore(null)
+        api.post(`/formularios/fornecedor/getItemScore`, { data: item }).then(response => {
+            setItemScore(response.data)
+        })
+        if (setItemScore) {
+            setOpenModalConfirmScore(true)
+        }
+    }
+
     const addBlock = () => {
         const newBlock = [...blocks]
         newBlock.push({
@@ -108,54 +122,55 @@ const FormParametrosFornecedor = () => {
         setBlocks(newBlock)
     }
 
+    // Obtem os blocos do formulário
+    const getBlocks = () => {
+        api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
+            headers: { 'function-name': 'getBlocks' }
+        }).then(response => {
+            console.log('getBlocks: ', response.data)
+            setBlocks(response.data)
+        })
+    }
+
+    // Obtem o cabeçalho do formulário
+    const getHeader = () => {
+        api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
+            headers: { 'function-name': 'getHeader' }
+        }).then(response => {
+            console.log('getHeader: ', response.data)
+            setHeaders(response.data)
+        })
+    }
+
+    // Obtem as opções pra seleção da listagem dos selects de itens e alternativas
+    const getOptionsItens = () => {
+        api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
+            headers: { 'function-name': 'getOptionsItens' }
+        }).then(response => {
+            console.log('getOptionsItens: ', response.data)
+            setOptionsItens(response.data)
+        })
+    }
+
+    // Obtem os blocos do formulário
+    const getOrientacoes = () => {
+        api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
+            headers: { 'function-name': 'getOrientacoes' }
+        }).then(response => {
+            console.log('getOrientacoes: ', response.data)
+            setOrientacoes(response.data.obs)
+        })
+    }
+
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
-
-        // Obtem o cabeçalho do formulário
-        const getHeader = () => {
-            api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
-                headers: { 'function-name': 'getHeader' }
-            }).then(response => {
-                console.log('getHeader: ', response.data)
-                setHeaders(response.data)
-            })
-        }
-
-        // Obtem as opções pra seleção da listagem dos selects de itens e alternativas
-        const getOptionsItens = () => {
-            api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
-                headers: { 'function-name': 'getOptionsItens' }
-            }).then(response => {
-                console.log('getOptionsItens: ', response.data)
-                setOptionsItens(response.data)
-            })
-        }
-
-        // Obtem os blocos do formulário
-        const getBlocks = () => {
-            api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
-                headers: { 'function-name': 'getBlocks' }
-            }).then(response => {
-                console.log('getBlocks: ', response.data)
-                setBlocks(response.data)
-            })
-        }
-
-        // Obtem os blocos do formulário
-        const getOrientacoes = () => {
-            api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
-                headers: { 'function-name': 'getOrientacoes' }
-            }).then(response => {
-                console.log('getOrientacoes: ', response.data)
-                setOrientacoes(response.data.obs)
-            })
-        }
-
         getHeader()
         getOptionsItens()
         getBlocks()
         getOrientacoes()
     }, [])
+
+    console.log('blocks: ', blocks)
 
     return (
         <>
@@ -414,7 +429,7 @@ const FormParametrosFornecedor = () => {
                                                     </FormControl>
                                                 </Grid>
 
-                                                <Grid item xs={12} md={6}>
+                                                <Grid item xs={12} md={5}>
                                                     <FormControl fullWidth>
                                                         {blocks[index].itens[indexItem].nome !== '' && (
                                                             <Autocomplete
@@ -508,8 +523,36 @@ const FormParametrosFornecedor = () => {
                                                         defaultChecked={item.obrigatorio == 1 ? true : false}
                                                     />
                                                 </Grid>
+                                                {/* Abre o modal que define a pontuação das respostas */}
+                                                <Grid item md={1}>
+                                                    <Typography variant='body2'>
+                                                        {indexItem == 0 ? 'Pontuação' : ''}
+                                                    </Typography>
+                                                    <Button
+                                                        style={item.pontuacao === 0 ? { opacity: 0.3 } : {}}
+                                                        title={
+                                                            !item.parFornecedorBlocoID
+                                                                ? 'Salve o bloco para definir a pontuação'
+                                                                : 'Definir pontuação para as respostas'
+                                                        }
+                                                        disabled={!item.parFornecedorBlocoID}
+                                                        onClick={() => openScoreModal(item)}
+                                                    >
+                                                        <Icon icon='ic:baseline-assessment' />
+                                                    </Button>
+                                                </Grid>
                                             </>
                                         ))}
+                                    {/* Modal que define a pontuação das respostas */}
+                                    {openModalConfirmScore && itemScore && (
+                                        <DialogConfirmScore
+                                            openModal={openModalConfirmScore}
+                                            setOpenModalConfirmScore={setOpenModalConfirmScore}
+                                            itemScore={itemScore}
+                                            setItemScore={setItemScore}
+                                            getBlocks={getBlocks}
+                                        />
+                                    )}
 
                                     {/* Botão inserir item */}
                                     <Grid item xs={12} md={12}>

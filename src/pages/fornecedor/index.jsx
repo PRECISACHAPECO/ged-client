@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -36,7 +36,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Hooks
 import { useAuth } from 'src/hooks/useAuth'
-import { AuthContext } from 'src/context/AuthContext'
 
 import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
@@ -51,6 +50,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
 import { toast } from 'react-hot-toast'
 import Logo from 'src/components/Defaults/Logo'
+import Router from 'next/router'
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)(({ theme }) => ({
@@ -145,6 +145,7 @@ const FornecedorPage = ({ units }) => {
 
     const onSubmit = data => {
         const { cnpj, password } = data
+        console.log('login fornecedor', cnpj, password)
         auth.loginFornecedor({ cnpj, password, rememberMe }, error => {
             setError('cnpj', {
                 type: 'manual',
@@ -155,6 +156,7 @@ const FornecedorPage = ({ units }) => {
             }
         })
     }
+
     const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
 
     return (

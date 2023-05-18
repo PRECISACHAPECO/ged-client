@@ -88,7 +88,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
             .string()
             .when('cnpj', {
                 is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
-                then: yup.string().required('Senha é obrigatório')
+                then: yup.string().required('Senha é obrigatório').min(4, 'Senha deve ter no mínimo 4 caracteres')
             }),
 
         confirmaSenha: yup
@@ -96,7 +96,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
             .oneOf([yup.ref('senha')], 'As senhas não conferem')
             .when('cnpj', {
                 is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
-                then: yup.string().required('Confirmação de senha é obrigatório')
+                then: yup.string().required('Confirmação de senha é obrigatório').min(4, 'Senha deve ter no mínimo 4 caracteres')
             })
     })
 
