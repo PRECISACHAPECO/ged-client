@@ -55,6 +55,11 @@ const Fornecedor = () => {
             size: 0.4
         },
         {
+            title: 'Fábrica',
+            field: 'fabrica',
+            size: 0.2
+        },
+        {
             title: 'CNPJ',
             field: 'cnpj',
             size: 0.2
@@ -76,7 +81,7 @@ const Fornecedor = () => {
         }
     ]
 
-    const columns = configColumns(currentLink, arrColumns)
+    const columns = configColumns(currentLink, arrColumns, true)
 
     return (
         <>
@@ -93,6 +98,7 @@ const Fornecedor = () => {
                                     btnPrint: true,
                                     openModal: user.papelID == 1 ? openModal : null
                                 }}
+                                rowColors
                             />
                         </CardContent>
                     </Card>

@@ -146,7 +146,8 @@ const AuthProvider = ({ children }) => {
             getRoutes(response.data.userData.usuarioID, response.data.unidades[0].unidadeID, response.data.userData.admin, response.data.unidades[0].papelID)
 
             params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
-            const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+            // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+            const redirectURL = '/formularios/fornecedor/'
             router.replace(redirectURL)
 
         }).catch(err => {

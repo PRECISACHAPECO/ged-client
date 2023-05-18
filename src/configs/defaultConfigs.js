@@ -29,7 +29,7 @@ const statusDefault = {
     70: { title: 'Aprovado', color: 'success' },
 }
 
-const configColumns = (currentLink, arrColumns) => {
+const configColumns = (currentLink, arrColumns, simpleStatus = false) => {
 
     return arrColumns.map((column, i) => {
         const currentColumns = arrColumns[i].field
@@ -47,16 +47,20 @@ const configColumns = (currentLink, arrColumns) => {
                                     if (c.field == 'status') {
                                         const status = statusDefault[params.row.status]
 
-                                        return (
-                                            <CustomChip
-                                                key={j}
-                                                size='small'
-                                                skin='light'
-                                                color={status.color}
-                                                label={status.title}
-                                                sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
-                                            />
-                                        )
+                                        if (!simpleStatus) {
+                                            return (
+                                                <CustomChip
+                                                    key={j}
+                                                    size='small'
+                                                    skin='light'
+                                                    color={status.color}
+                                                    label={status.title}
+                                                    sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
+                                                />
+                                            )
+                                        } else {
+                                            return status.title
+                                        }
                                     } else {
                                         return params.row[c.field]
                                     }
