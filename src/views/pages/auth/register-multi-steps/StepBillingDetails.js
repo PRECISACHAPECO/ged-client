@@ -12,23 +12,35 @@ import Router from 'next/router'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
+import { useAuth } from 'src/hooks/useAuth'
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+
 
 const StepBillingDetails = ({ handlePrev, dataGlobal, setDataGlobal }) => {
     const router = Router
+    const [rememberMe, setRememberMe] = useState(true)
+    const [loadingConclusion, setLoadingConclusion] = useState(false)
+    const auth = useAuth()
 
     const handleSubmit = () => {
-        console.log(dataGlobal)
+        setLoadingConclusion(true)
+        // Salva o fornecedor no banco de dados
         api.post('/registro-fornecedor', { data: dataGlobal }, { headers: { 'function-name': 'handleSaveFornecedor' } })
             .then(response => {
                 if (response.status === 201) {
                     toast.error(response.data.message)
                 } else {
-                    toast.success(response.data.message)
+                    // Efetua login de forma automática após o cadastro
+                    toast.success("Cadastro efetuado com sucesso!")
+                    setTimeout(() => {
+                        toast.success("Efetuando login no sistema")
+                        const { cnpj, senha: password } = dataGlobal?.usuario?.fields
+                        auth.loginFornecedor({ cnpj, password, rememberMe }, error => {
+                        })
+                    }, 2000)
                 }
-                // router.push('/fornecedor')
             }
             ).catch(error => {
                 toast.error(error.message)
@@ -111,8 +123,8 @@ const StepBillingDetails = ({ handlePrev, dataGlobal, setDataGlobal }) => {
                         >
                             Anterior
                         </Button>
-                        <Button type='submit' onClick={handleSubmit} color='success' variant='contained'>
-                            Enviar
+                        <Button type='submit' onClick={handleSubmit} disabled={loadingConclusion} color='success' variant='contained'>
+                            Concluir
                         </Button>
                     </Box>
                 </Grid>

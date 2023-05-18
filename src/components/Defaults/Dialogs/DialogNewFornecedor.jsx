@@ -106,7 +106,12 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
         setViewEmail(true)
 
         if (viewEmail && validationEmail(email)) {
-            api.post('/formularios/fornecedor/sendMail', { destinatario: email })
+            const data = {
+                unidadeID: loggedUnity.unidadeID,
+                cnpj: cnpj,
+                destinatario: email
+            }
+            api.post('/formularios/fornecedor/sendMail', { data })
                 .then(response => {
                     toast.success('E-mail enviado com sucesso')
                     //! handleClose()
