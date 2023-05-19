@@ -12,7 +12,9 @@ import Fab from '@mui/material/Fab'
 const FormHeader = ({
     btnCancel,
     btnSave,
+    btnSend,
     handleSubmit,
+    handleSend,
     btnDelete,
     onclickDelete,
     btnPrint,
@@ -21,7 +23,7 @@ const FormHeader = ({
     dataReports
 }) => {
     const router = Router
-    const { routes } = useContext(AuthContext)
+    const { user, routes } = useContext(AuthContext)
     const [isVisible, setIsVisible] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
 
@@ -147,6 +149,23 @@ const FormHeader = ({
                         </Button>
                     )}
 
+                    {/* Fornecedor concluir formulário e envia pra fábrica avaliar */}
+                    {btnSend && user.papelID == 2 && (
+                        <Button
+                            onClick={handleSend}
+                            type='submit'
+                            variant='contained'
+                            size='medium'
+                            color='primary'
+                            disabled={disabled}
+                            sx={{ ml: 2 }}
+                            startIcon={<Icon icon='carbon:send-filled' />}
+                        >
+                            Enviar Formulário
+                        </Button>
+                    )}
+
+                    {/* Botão flutuante de salvar (aparece quando o usuário dá scroll na página) */}
                     {isVisible && (
                         <div
                             className={`

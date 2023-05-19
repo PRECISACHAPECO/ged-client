@@ -18,7 +18,7 @@ const escapeRegExp = value => {
 
 import { ParametersContext } from 'src/context/ParametersContext'
 
-const TableColumns = ({ rows, columns, buttonsHeader, rowColors }) => {
+const TableColumns = ({ rows, columns, buttonsHeader }) => {
     const {
         handleSearch,
         pageSize,
@@ -47,57 +47,7 @@ const TableColumns = ({ rows, columns, buttonsHeader, rowColors }) => {
             onRowClick={row => router.push(`${currentLink}/${row.row.id}`)}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
 
-            getRowClassName={(params) => {
-                if (rowColors) {
-                    const row = params.row;
-                    let rowColor = '';
-                    //* Cores para o fornecedor
-                    if (row.status == '10' || row.status == '20' || row.status == '30') { // Fornecedor preenchendo
-                        rowColor = 'warning-row';
-                    } else if (row.status == '40') { // Fornecedor concluiu o preenchimento (aguardando)
-                        rowColor = 'primary-row';
-                    } else if (row.status == '50') { // Fábrica reprovou
-                        rowColor = 'error-row';
-                    } else if (row.status == '60') { // Fábrica aprovou parcialmente
-                        rowColor = 'secondary-row';
-                    } else if (row.status == '70') { // Fábrica aprovou
-                        rowColor = 'success-row';
-                    }
-                    return rowColor;
-                }
-            }}
-
             sx={{
-                '& .error-row': {
-                    backgroundColor: red[200],
-                    '&:hover': {
-                        backgroundColor: red[300],
-                    }
-                },
-                '& .warning-row': {
-                    backgroundColor: orange[200],
-                    '&:hover': {
-                        backgroundColor: orange[300],
-                    }
-                },
-                '& .success-row': {
-                    backgroundColor: green[300],
-                    '&:hover': {
-                        backgroundColor: green[400],
-                    }
-                },
-                '& .primary-row': {
-                    backgroundColor: indigo[200],
-                    '&:hover': {
-                        backgroundColor: indigo[300],
-                    }
-                },
-                '& .secondary-row': {
-                    backgroundColor: green[100],
-                    '&:hover': {
-                        backgroundColor: green[200],
-                    }
-                },
                 '& .MuiDataGrid-cell': { cursor: 'pointer' }
             }}
             componentsProps={{
