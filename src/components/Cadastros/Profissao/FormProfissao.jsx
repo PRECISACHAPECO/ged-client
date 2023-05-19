@@ -1,5 +1,5 @@
 import Router from 'next/router'
-import { useEffect, useState, useRef, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { api } from 'src/configs/api'
 import { Card, CardContent, Grid, FormControl, TextField, Button, FormControlLabel, Checkbox } from '@mui/material'
