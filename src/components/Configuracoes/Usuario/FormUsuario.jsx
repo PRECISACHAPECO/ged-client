@@ -27,7 +27,8 @@ import {
     OutlinedInput,
     InputAdornment,
     IconButton,
-    InputLabel
+    InputLabel,
+    Avatar
 } from '@mui/material'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
@@ -174,6 +175,7 @@ const FormUsuario = () => {
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)}>
+                {/* Deixar atualizar e salvar a foto do usuário */}
                 {(type == 'new' || data) && (
                     <Card>
                         <FormHeader
@@ -302,6 +304,17 @@ const FormUsuario = () => {
                                         />
                                     </FormControl>
                                 </Grid>
+
+                                {/* Foto do usuário e upload */}
+                                {/* <Grid item xs={12} md={2}>
+                                    <FormControl fullWidth>
+                                        <Avatar
+                                            alt='Victor Anderson'
+                                            sx={{ width: 56, height: 56 }}
+                                            src='/materialize-nextjs-admin-template/demo-3/images/avatars/3.png'
+                                        />
+                                    </FormControl>
+                                </Grid> */}
 
                                 {data && user.admin == 0 && (
                                     <>
