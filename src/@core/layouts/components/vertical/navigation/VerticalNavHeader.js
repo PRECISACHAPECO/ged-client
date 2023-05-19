@@ -13,6 +13,7 @@ import Icon from 'src/@core/components/icon'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 import Logo from 'src/components/Defaults/Logo'
+import LogoSimplified from 'src/components/Defaults/LogoSimplified'
 
 // ** Styled Components
 const MenuHeaderWrapper = styled(Box)(({ theme }) => ({
@@ -116,8 +117,9 @@ const VerticalNavHeader = props => {
                 ) : (
                     <StyledLink href='/'>
                         {/* GED AGRO / LOGO DO SISTEMA */}
-                        <Logo />
-
+                        {
+                            navCollapsed && !navHover ? (<LogoSimplified />) : (<Logo />)
+                        }
                     </StyledLink>
                 )}
 

@@ -179,7 +179,6 @@ const FornecedorPage = ({ units }) => {
     useEffect(() => {
         if (unidadeIDRouter && cnpjRouter) {
             setAcessLink(unidadeIDRouter, cnpjRouter)
-            console.log('Usuario', user)
         }
     }, [[unidadeIDRouter, cnpjRouter]])
 
