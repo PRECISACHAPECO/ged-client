@@ -153,7 +153,7 @@ const FormHeader = ({
                     {btnSend && user.papelID == 2 && (
                         <Button
                             onClick={handleSend}
-                            type='submit'
+                            type='button'
                             variant='contained'
                             size='medium'
                             color='primary'

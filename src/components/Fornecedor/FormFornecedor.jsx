@@ -51,8 +51,8 @@ const FormFornecedor = () => {
     const [sistemasQualidade, setSistemasQualidade] = useState([])
     const [blocos, setBlocos] = useState([])
     const [info, setInfo] = useState('')
-    const [fabrica, setFabrica] = useState(null)
     const [openModal, setOpenModal] = useState(false)
+    const [verifyOpenModal, setVerifyOpenModal] = useState(false)
     const [unidade, setUnidade] = useState(null)
 
     const router = Router
@@ -81,29 +81,8 @@ const FormFornecedor = () => {
 
     console.log('errors: ', errors)
 
-    const handleSend = async () => {
-        // aguardar 1 segundo e verificar se errors nao for == {}
-        setTimeout(() => {
-            if (Object.keys(errors).length === 0) {
-                console.log('Sem erros, abre modal')
-                setOpenModal(true)
-            }
-        }, 2000)
-    }
-
     const sendForm = async () => {
         console.log('sendForm')
-    }
-
-    const onSubmit = async data => {
-        console.log('onSubmit: ', data)
-        try {
-            await api.put(`${staticUrl}/${id}`, data).then(response => {
-                toast.success(toastMessage.successUpdate)
-            })
-        } catch (error) {
-            console.log(error)
-        }
     }
 
     const handleRadioChange = event => {
@@ -165,17 +144,6 @@ const FormFornecedor = () => {
         }
     ]
 
-    const getFormStructure = async () => {
-        setLoading(true)
-        await api.post(`${staticUrl}/getFormStructure`, { unidadeID: fabrica.unidadeID }).then(response => {
-            setFields(response.data.fields)
-            setAtividades(response.data.atividades)
-            setSistemasQualidade(response.data.sistemasQualidade)
-            setBlocos(response.data.blocos)
-            setLoading(false)
-        })
-    }
-
     const getData = id => {
         api.get(`${staticUrl}/${id}`).then(response => {
             console.log('getData: ', response.data)
@@ -197,6 +165,34 @@ const FormFornecedor = () => {
         toast.error('Você não tem permissões para acessar esta página!')
     }
 
+    const handleSendForm = () => {
+        console.log('handleSendForm')
+        setVerifyOpenModal(true)
+        handleSubmit(onSubmit)()
+    }
+
+    const onSubmit = async data => {
+        if (verifyOpenModal) {
+            submitData(data)
+            setOpenModal(true) // abre modal
+        } else {
+            submitData(data)
+            setOpenModal(false)
+            setVerifyOpenModal(false)
+        }
+    }
+
+    const submitData = async data => {
+        console.log('submit data...')
+        // try {
+        //     await api.put(`${staticUrl}/${id}`, data).then(response => {
+        //         toast.success(toastMessage.successUpdate)
+        //     })
+        // } catch (error) {
+        //     console.log(error)
+        // }
+    }
+
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
 
@@ -209,10 +205,14 @@ const FormFornecedor = () => {
 
     return (
         <>
-            {isLoading ? (
-                <Loading />
-            ) : (
-                <form onSubmit={handleSubmit(onSubmit)}>
+            {isLoading && <Loading />}
+            {data && (
+                <form
+                    onSubmit={handleSubmit(data => {
+                        onSubmit(data)
+                        setVerifyOpenModal(false) // Reiniciar o estado do modal após o envio do formulário
+                    })}
+                >
                     {/* Card Header */}
                     <Card>
                         <FormHeader
@@ -222,8 +222,11 @@ const FormFornecedor = () => {
                             btnPrint
                             generateReport={generateReport}
                             dataReports={dataReports}
-                            handleSubmit={() => handleSubmit(onSubmit)}
-                            handleSend={handleSend}
+                            handleSubmit={e => {
+                                handleSubmit(onSubmit)
+                                setVerifyOpenModal(false)
+                            }}
+                            handleSend={handleSendForm}
                             title='Fornecedor'
                         />
                         <CardContent>
