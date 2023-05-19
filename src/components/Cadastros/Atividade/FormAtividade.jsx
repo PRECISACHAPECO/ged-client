@@ -12,6 +12,8 @@ import { formType } from 'src/configs/defaultConfigs'
 import FormHeader from '../../Defaults/FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { toastMessage } from 'src/configs/defaultConfigs'
+import { ParametersContext } from 'src/context/ParametersContext'
+import { useContext } from 'react'
 
 const FormAtividade = () => {
     const [open, setOpen] = useState(false)
@@ -20,6 +22,7 @@ const FormAtividade = () => {
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const inputRef = useRef(null)
+    const { title } = useContext(ParametersContext)
 
     const schema = yup.object().shape({
         nome: yup.string().required('Campo obrigatório')
@@ -155,7 +158,7 @@ const FormAtividade = () => {
 
             <DialogForm
                 text='Tem certeza que deseja excluir?'
-                title='Excluir dado'
+                title={'Excluir ' + title}
                 openModal={open}
                 handleClose={() => setOpen(false)}
                 handleSubmit={handleClickDelete}

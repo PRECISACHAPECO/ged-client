@@ -9,6 +9,7 @@ import Switch from '@mui/material/Switch'
 import toast from 'react-hot-toast'
 import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
 import { AuthContext } from 'src/context/AuthContext'
+import { ParametersContext } from 'src/context/ParametersContext'
 import { formType } from 'src/configs/defaultConfigs'
 import FormHeader from '../../Defaults/FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
@@ -19,6 +20,7 @@ const FormProdutos = () => {
     const { id } = Router.query
     const router = Router
     const { user, loggedUnity } = useContext(AuthContext)
+    const { title } = useContext(ParametersContext)
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const inputRef = useRef(null)
@@ -177,7 +179,7 @@ const FormProdutos = () => {
 
             <DialogForm
                 text='Tem certeza que deseja excluir?'
-                title='Excluir dado'
+                title={'Excluir ' + title}
                 openModal={open}
                 handleClose={() => setOpen(false)}
                 handleSubmit={handleClickDelete}

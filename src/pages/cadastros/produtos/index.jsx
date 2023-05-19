@@ -27,7 +27,7 @@ const Produtos = () => {
         const getList = async () => {
             await api.post(currentLink, { unidadeID: loggedUnity.unidadeID }).then(response => {
                 setResult(response.data)
-                setTitle('Produtos')
+                setTitle('Produto')
             })
         }
         getList()

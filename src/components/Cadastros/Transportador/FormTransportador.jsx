@@ -1,5 +1,6 @@
 import Router from 'next/router'
 import { useEffect, useState, useRef, useContext } from 'react'
+import { ParametersContext } from 'src/context/ParametersContext'
 import { api } from 'src/configs/api'
 import { Card, CardContent, Grid, FormControl, TextField, FormControlLabel, Checkbox } from '@mui/material'
 import * as yup from 'yup'
@@ -22,6 +23,7 @@ const FormTransportador = () => {
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const inputRef = useRef(null)
+    const { title } = useContext(ParametersContext)
 
     const schema = yup.object().shape({
         nome: yup.string().required('Campo obrigatório')
@@ -157,7 +159,7 @@ const FormTransportador = () => {
 
             <DialogForm
                 text='Tem certeza que deseja excluir?'
-                title='Excluir dado'
+                title={'Excluir ' + title}
                 openModal={open}
                 handleClose={() => setOpen(false)}
                 handleSubmit={handleClickDelete}
