@@ -22,6 +22,7 @@ import { validationCNPJ, validationEmail } from '../../../configs/validations'
 import { useForm } from 'react-hook-form'
 import { api } from 'src/configs/api'
 import { toast } from 'react-hot-toast'
+import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
 
 const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit }) => {
     const [loading, setLoading] = useState(false)
@@ -32,6 +33,7 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
     const [viewEmail, setViewEmail] = useState(false)
     const [email, setEmail] = useState(null)
     const [errorEmail, setErrorEmail] = useState(false)
+    const [openConfirmMakeFornecedor, setOpenConfirmMakeFornecedor] = useState(false)
 
     console.log('unidade logada: ' + loggedUnity.nomeFantasia)
 
@@ -86,6 +88,10 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
             })
     }
 
+    const confirmMakeFornecedor = () => {
+        setOpenConfirmMakeFornecedor(true)
+    }
+
     const makeFornecedor = async () => {
         setLoading(true)
         await api
@@ -98,6 +104,7 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
                     toast.error('Erro ao tornar fornecedor')
                 }
                 setLoading(false)
+                setOpenConfirmMakeFornecedor(false) // Fecha modal de confirmação
             })
     }
 
@@ -244,7 +251,7 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
                                     : !data.isFornecedor && data.hasFormulario
                                     ? fornecedorStatus
                                     : !data.isFornecedor && !data.hasFormulario
-                                    ? makeFornecedor
+                                    ? confirmMakeFornecedor
                                     : null
                             }
                         >
@@ -261,6 +268,18 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
                     )}
                 </DialogActions>
             </Dialog>
+
+            {/* Dialog pra confirmar a ação de tornar meu fornecedor */}
+            <DialogForm
+                title='Confirmar novo fornecedor'
+                text={`Tem certeza que deseja tornar o CNPJ ${cnpj} um fornecedor ativo na ${loggedUnity.nomeFantasia} ? Se sim, o mesmo poderá preencher formulários de Fornecedor para a sua empresa.`}
+                handleClose={() => setOpenConfirmMakeFornecedor(false)}
+                openModal={openConfirmMakeFornecedor}
+                handleSubmit={() => makeFornecedor()}
+                btnCancel
+                btnConfirm
+                btnConfirmColor='primary'
+            />
         </>
     )
 }

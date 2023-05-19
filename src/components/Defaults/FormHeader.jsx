@@ -23,15 +23,24 @@ const FormHeader = ({
     const router = Router
     const { routes } = useContext(AuthContext)
     const [isVisible, setIsVisible] = useState(false)
-    const dynamicRoute = router.pathname.split('/').slice(0, -1).join('/')
     const [anchorEl, setAnchorEl] = useState(null)
+
     const open = Boolean(anchorEl)
     const handleClick = event => {
         setAnchorEl(event.currentTarget)
     }
+
     const handleClose = () => {
         setAnchorEl(null)
     }
+
+    //* Função remove /id (se houver) da rota caso seja dentro de um cadastro pra poder validar as rotas de permissao
+    const getStaticRoute = () => {
+        const route = router.pathname.split('/').slice(0, -1).join('/')
+        return route ? route : router.pathname
+    }
+
+    const dynamicRoute = getStaticRoute()
 
     //? Verifica se o usuário deu scroll na página e mostra o botão de salvar
     useEffect(() => {
@@ -48,7 +57,7 @@ const FormHeader = ({
         return () => window.removeEventListener('scroll', toggleVisibility)
     }, [])
 
-    console.log('vizibilidade', isVisible)
+    console.log('Header: ', btnSave, dynamicRoute)
 
     return (
         <>

@@ -1,5 +1,5 @@
 import Router from 'next/router'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useContext } from 'react'
 import { api } from 'src/configs/api'
 import { Card, CardContent, Grid, FormControl, TextField, Typography } from '@mui/material'
 import * as yup from 'yup'
@@ -15,14 +15,21 @@ import { toastMessage } from 'src/configs/defaultConfigs'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 import { validationCNPJ } from 'src/configs/validations'
 import { formatDate } from 'src/configs/conversions'
+import { AuthContext } from 'src/context/AuthContext'
 
-const FormUnidade = () => {
+const FormUnidade = ({ paramFornecedorUnidadeID }) => {
+    const { user } = useContext(AuthContext)
+
     const [open, setOpen] = useState(false)
     const [data, setData] = useState('')
-    const { id } = Router.query
+
+    //* Componente é chamado na tela da unidade e Meus dados do fornecedor
+    const id = paramFornecedorUnidadeID ? paramFornecedorUnidadeID : Router.query.id //? id vem por parametro se for home do fornecedor
+
     const router = Router
     const type = formType(router.pathname) // Verifica se é novo ou edição
-    const staticUrl = backRoute(router.pathname) // Url sem ID
+    // const staticUrl = backRoute(router.pathname) // Url sem ID
+    const staticUrl = '/configuracoes/unidade'
     const inputRef = useRef(null)
 
     const schema = yup.object().shape({
@@ -155,38 +162,13 @@ const FormUnidade = () => {
 
     return (
         <>
-            {JSON.stringify(errors)}
-            {/*  Ajustar onde vai ficar */}
-            {/* <Grid item xs={12} md={1}>
-                <FormControl>
-                    <Controller
-                        name='status'
-                        control={control}
-                        rules={{ required: false }}
-                        render={({ field: { value, onChange } }) => (
-                            <FormControlLabel
-                                checked={value == '1' ? true : false}
-                                onChange={onChange}
-                                inputProps={{ 'aria-label': 'controlled' }}
-                                label='Status'
-                                labelPlacement='top'
-                                sx={{ mr: 8 }}
-                                control={<Switch />}
-                            />
-                        )}
-                    />
-                    {errors.status && (
-                        <FormHelperText sx={{ color: 'error.main' }} id='validation-schema-status'></FormHelperText>
-                    )}
-                </FormControl>
-            </Grid> */}
             <Card>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <FormHeader
-                        btnCancel
+                        btnCancel={user.papelID === 1 ? true : false}
                         btnSave
                         handleSubmit={() => handleSubmit(onSubmit)}
-                        btnDelete={type === 'edit' ? true : false}
+                        btnDelete={type === 'edit' && user.papelID === 1 ? true : false}
                         onclickDelete={() => setOpen(true)}
                     />
                     <CardContent>
