@@ -1,5 +1,6 @@
 // ** React Imports
 import { useState, useContext, useEffect } from 'react'
+import { api } from 'src/configs/api'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -36,6 +37,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Hooks
 import { useAuth } from 'src/hooks/useAuth'
+import { AuthContext } from 'src/context/AuthContext'
 
 import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
@@ -120,9 +122,12 @@ const defaultValues = {
 const FornecedorPage = ({ units }) => {
     const [rememberMe, setRememberMe] = useState(true)
     const [showPassword, setShowPassword] = useState(false)
+    const router = Router
+    const currentLink = router.pathname
 
     // ** Hooks
     const auth = useAuth()
+    const { user } = useContext(AuthContext)
 
     const theme = useTheme()
     const bgColors = useBgColor()
@@ -158,6 +163,25 @@ const FornecedorPage = ({ units }) => {
     }
 
     const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
+
+    // UnidadeID e CNPJ criptografados / CNPJ esta com mascara de apenas numeros
+    const unidadeIDRouter = router.query.u
+    const cnpjRouter = router.query.c
+
+    const setAcessLink = async (unidadeID, cnpj) => {
+        const data = {
+            unidadeID,
+            cnpj
+        }
+        await api.post(`/login-fornecedor/setAcessLink`, { data })
+    }
+
+    useEffect(() => {
+        if (unidadeIDRouter && cnpjRouter) {
+            setAcessLink(unidadeIDRouter, cnpjRouter)
+            console.log('Usuario', user)
+        }
+    }, [[unidadeIDRouter, cnpjRouter]])
 
     return (
         <>

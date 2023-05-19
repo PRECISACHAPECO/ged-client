@@ -1,5 +1,6 @@
 // ** React Imports
-import { useState, useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
+import Router from 'next/router'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -125,12 +126,11 @@ const LoginPage = ({ units }) => {
 
     // Abre modal para selecionar unidade
     const [openModalSelectUnit, setOpenModalSelectUnit] = useState(false)
-
     // Dados do usuário
     const [data, setData] = useState({})
-
     // Unidade selecionada
     const [selectedUnit, setSelectedUnit] = useState(null)
+    const router = Router
 
     // ** Hooks
     const auth = useAuth()
