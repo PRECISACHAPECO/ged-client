@@ -415,8 +415,8 @@ const FormParametrosFornecedor = () => {
                                                     )}
                                                 />
 
-                                                <Grid item xs={12} md={1}>
-                                                    <FormControl fullWidth>
+                                                <Grid item xs={12} md={1} sx={{ textAlign: 'right' }}>
+                                                    <FormControl>
                                                         <TextField
                                                             label='Sequência'
                                                             placeholder='Sequência'

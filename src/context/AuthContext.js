@@ -48,11 +48,13 @@ const AuthProvider = ({ children }) => {
     useEffect(() => {
         const initAuth = async () => {
             setCurrentRoute(router.pathname)
-
             const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)
             if (storedToken) {
+
                 setLoading(true)
                 const data = JSON.parse(window.localStorage.getItem('userData'))
+
+
                 setUnitsUser(JSON.parse(window.localStorage.getItem('userUnits')))
                 setLoggedUnity(JSON.parse(window.localStorage.getItem('loggedUnity')))
                 setRoutes(JSON.parse(window.localStorage.getItem('routes')))
@@ -78,6 +80,7 @@ const AuthProvider = ({ children }) => {
                 }
 
             } else {
+                console.log('Não tem token')
                 setLoading(false)
             }
         }

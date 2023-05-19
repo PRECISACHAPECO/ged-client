@@ -5,6 +5,7 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useState } from 'react'
 import { api } from '../../../../configs/api'
+import { useEffect } from 'react'
 
 // ** MUI Components
 import Box from '@mui/material/Box'
@@ -165,6 +166,24 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
             }
         })
     }
+
+    // UnidadeID e CNPJ criptografados / CNPJ esta com mascara de apenas numeros
+    const unidadeIDRouter = router.query.u
+    const cnpjRouter = router.query.c
+
+    const setAcessLink = async (unidadeID, cnpj) => {
+        const data = {
+            unidadeID,
+            cnpj
+        }
+        await api.post(`/login-fornecedor/setAcessLink`, { data })
+    }
+
+    useEffect(() => {
+        if (unidadeIDRouter && cnpjRouter) {
+            setAcessLink(unidadeIDRouter, cnpjRouter)
+        }
+    }, [unidadeIDRouter, cnpjRouter])
 
     return (
         <>

@@ -1,5 +1,5 @@
 import Router from 'next/router'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useContext } from 'react'
 import { api } from 'src/configs/api'
 import { Card, CardContent, Grid, FormControl, TextField, Button, FormControlLabel, Checkbox } from '@mui/material'
 import * as yup from 'yup'
@@ -13,6 +13,7 @@ import { formType } from 'src/configs/defaultConfigs'
 import FormHeader from '../../Defaults/FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { toastMessage } from 'src/configs/defaultConfigs'
+import { ParametersContext } from 'src/context/ParametersContext'
 
 const FormApresentacao = () => {
     const [open, setOpen] = useState(false)
@@ -21,6 +22,7 @@ const FormApresentacao = () => {
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const inputRef = useRef(null)
+    const { title } = useContext(ParametersContext)
 
     const schema = yup.object().shape({
         nome: yup.string().required('Campo obrigatório')
@@ -160,7 +162,7 @@ const FormApresentacao = () => {
 
             <DialogForm
                 text='Tem certeza que deseja excluir?'
-                title='Excluir dado'
+                title={'Excluir ' + title}
                 openModal={open}
                 handleClose={() => setOpen(false)}
                 handleSubmit={handleClickDelete}
