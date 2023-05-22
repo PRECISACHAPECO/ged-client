@@ -88,9 +88,9 @@ const FormRecebimentoMp = () => {
 
     console.log('errors: ', errors)
 
-    // fields.map((field, index) => {
-    //     setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
-    // })
+    fields.map((field, index) => {
+        setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
+    })
 
     // Seta autocomplete com o valor do banco em um objeto com id e nome
     dataProducts.map((data, indexData) => {
@@ -99,15 +99,15 @@ const FormRecebimentoMp = () => {
         })
     })
 
-    const onSubmit = async data => {
+    const onSubmit = data => {
         console.log('onSubmit: ', data)
-        try {
-            await api.put(`${staticUrl}/${id}`, data).then(response => {
-                toast.success(toastMessage.successUpdate)
-            })
-        } catch (error) {
-            console.log(error)
-        }
+        // try {
+        //     await api.put(`${staticUrl}/${id}`, data).then(response => {
+        //         toast.success(toastMessage.successUpdate)
+        //     })
+        // } catch (error) {
+        //     console.log(error)
+        // }
     }
 
     const handleRadioChange = event => {
@@ -198,13 +198,20 @@ const FormRecebimentoMp = () => {
         getData()
     }, [])
 
-    // useEffect(() => {
-    //     setTimeout(() => {
-    //         trigger() // chama a validação do formulário
-    //     }, 1000)
-    // }, [trigger])
+    useEffect(() => {
+        setTimeout(() => {
+            trigger() // chama a validação do formulário
+        }, 1000)
+    }, [trigger])
 
-    console.log('fields', fields)
+    // preencher campos defauylts com os dados do banco
+    useEffect(() => {
+        if (data) {
+            fields.map((field, index) => {
+                setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
+            })
+        }
+    }, [data])
 
     return (
         <>
@@ -233,6 +240,7 @@ const FormRecebimentoMp = () => {
                                                 {field && field.tipo === 'int' && field.tabela && (
                                                     <Autocomplete
                                                         options={field.options}
+                                                        getOptionSelected={(option, value) => option.id === value.id}
                                                         defaultValue={defaultValues?.[field.tabela]}
                                                         getOptionLabel={option => option.nome}
                                                         name={`header.${field.tabela}`}
@@ -519,41 +527,33 @@ const FormRecebimentoMp = () => {
 
                                                         <FormControl fullWidth>
                                                             {/* +1 opção pra selecionar (Select) */}
-                                                            {item.alternativas && item.alternativas.length > 1 && (
+                                                            {item && item.alternativas && item.alternativas.length > 1 && (
                                                                 <Autocomplete
                                                                     options={item.alternativas}
-                                                                    defaultValue={
-                                                                        item.resposta
-                                                                            ? { nome: item?.resposta }
-                                                                            : { nome: '' }
-                                                                    }
-                                                                    id='autocomplete-outlined'
                                                                     getOptionLabel={option => option.nome}
+                                                                    // Se pelo menus uma opção ser selecionada, pintar a borda do autocomplete de ver
                                                                     name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                     {...register(
                                                                         `blocos[${indexBloco}].itens[${indexItem}].resposta`,
                                                                         { required: true }
                                                                     )}
-                                                                    // onChange={(event, value) => {
-                                                                    //     setValue(
-                                                                    //         `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
-                                                                    //         value.alternativaID
-                                                                    //             ? value.alternativaID
-                                                                    //             : ''
-                                                                    //     )
-                                                                    // }}
+                                                                    defaultValue={
+                                                                        item.resposta
+                                                                            ? { nome: item?.resposta }
+                                                                            : { nome: '' }
+                                                                    }
+                                                                    onChange={(event, newValue) => {
+                                                                        setValue(
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                            newValue ? newValue.nome : ''
+                                                                        )
+                                                                    }}
                                                                     renderInput={params => (
                                                                         <TextField
                                                                             {...params}
                                                                             label='Selecione uma resposta'
                                                                             placeholder='Selecione uma resposta'
-                                                                            // error={
-                                                                            //     errors?.blocos[indexBloco]?.itens[
-                                                                            //         indexItem
-                                                                            //     ]?.respostaID
-                                                                            //         ? true
-                                                                            //         : false
-                                                                            // }
+                                                                            // Se uma opções for selecionada, pintar a borda do autocomplete de verde
                                                                         />
                                                                     )}
                                                                 />

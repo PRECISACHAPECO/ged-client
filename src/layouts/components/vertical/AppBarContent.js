@@ -97,7 +97,6 @@ const AppBarContent = props => {
                         )
                     }
 
-                    {/* <Typography variant='caption' sx={{ mr: 2 }}>{JSON.stringify(unitsUser)}</Typography> */}
                     <ModeToggler settings={settings} saveSettings={saveSettings} />
                     <NotificationDropdown settings={settings} notifications={notifications} />
                     <UserDropdown settings={settings} />
