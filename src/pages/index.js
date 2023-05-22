@@ -14,16 +14,17 @@ export const getHomeRoute = role => {
   if (role === 'client') return '/acl'
   else return '/home'
 }
-
 const Home = () => {
   // ** Hooks
   const auth = useAuth()
   const router = useRouter()
 
+
   useEffect(() => {
     if (!router.isReady) {
       return
     }
+
 
     if (auth.user && auth.user.role) {
       const homeRoute = getHomeRoute(auth.user.role)
@@ -33,6 +34,7 @@ const Home = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
 
   return <Spinner />
 }

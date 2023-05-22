@@ -169,7 +169,7 @@ const AuthProvider = ({ children }) => {
         window.localStorage.removeItem('routes')
         window.localStorage.removeItem('menu')
         window.localStorage.removeItem(authConfig.storageTokenKeyName)
-        router.push(user.papelID === 2 ? '/fornecedor' : '/login') //? /login ou /login-fornecedor
+        router.push(user?.papelID === 2 ? '/fornecedor' : '/login') //? /login ou /login-fornecedor
     }
 
     const handleRegister = (params, errorCallback) => {
@@ -246,6 +246,17 @@ const AuthProvider = ({ children }) => {
         }
         getLatestTag()
     }, [])
+
+
+    // //? se rota atual for igual a /fornecedor, limpar o localstorage e dar reload na pagina, faça o reaload apenas uma vez
+    useEffect(() => {
+        const hasReloaded = localStorage.getItem('hasReloaded');
+        if (!hasReloaded && (router.pathname === '/fornecedor' || router.pathname === '/registro')) {
+            localStorage.clear();
+            localStorage.setItem('hasReloaded', true);
+            window.location.reload();
+        }
+    }, []);
 
     const values = {
         user,
