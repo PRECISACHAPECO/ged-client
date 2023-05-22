@@ -21,7 +21,7 @@ class CustomDocument extends Document {
             rel='stylesheet'
             href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'
           />
-          <link rel='shortcut icon' href='/logos/Ultima.ico' width={16} height={16} />
+          <link rel='shortcut icon' href='/logos/Ico.svg' width={16} height={16} />
         </Head>
         <body>
           <Main />

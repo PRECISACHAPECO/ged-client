@@ -134,16 +134,19 @@ const Navigation = props => {
             {userNavMenuContent ? (
               userNavMenuContent(props)
             ) : (
-              <List className='nav-items' sx={{ pt: 0, '& > :first-child': { mt: '0' } }}>
-                <VerticalNavItems
-                  navHover={navHover}
-                  groupActive={groupActive}
-                  setGroupActive={setGroupActive}
-                  currentActiveGroup={currentActiveGroup}
-                  setCurrentActiveGroup={setCurrentActiveGroup}
-                  {...props}
-                />
-              </List>
+              <>
+                <List className='nav-items' sx={{ pt: 0, '& > :first-child': { mt: '0' } }}>
+                  <VerticalNavItems
+                    navHover={navHover}
+                    groupActive={groupActive}
+                    setGroupActive={setGroupActive}
+                    currentActiveGroup={currentActiveGroup}
+                    setCurrentActiveGroup={setCurrentActiveGroup}
+                    {...props}
+                  />
+                </List>
+                {/* <h1>grgfrttrrtrt</h1> */}
+              </>
             )}
             {afterNavMenuContent && afterVerticalNavMenuContentPosition === 'static' ? afterNavMenuContent(props) : null}
           </ScrollWrapper>
@@ -155,7 +158,7 @@ const Navigation = props => {
               component={'span'}
               variant={'caption'}
               color={'textSecondary'}
-              style={{ position: "absolute", bottom: "4px", left: "37%" }}>
+              style={{ position: "absolute", bottom: "14px", left: "10%" }}>
               Versão: {latestVersion}
             </Typography>
           )
