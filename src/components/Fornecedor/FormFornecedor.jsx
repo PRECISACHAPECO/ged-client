@@ -52,7 +52,6 @@ const FormFornecedor = () => {
     const [blocos, setBlocos] = useState([])
     const [info, setInfo] = useState('')
     const [openModal, setOpenModal] = useState(false)
-    const [verifyOpenModal, setVerifyOpenModal] = useState(false)
     const [unidade, setUnidade] = useState(null)
 
     const router = Router
@@ -81,8 +80,19 @@ const FormFornecedor = () => {
 
     console.log('errors: ', errors)
 
-    const sendForm = async () => {
-        console.log('sendForm')
+    //* Formulário já foi enviado e atualizado, função apenas altera o status e envia o email
+    const conclusionAndSendForm = async () => {
+        await api.post(`${staticUrl}/conclusionAndSendForm/${id}`).then(response => {
+            if (response.status === 201) {
+                toast.error(`Erro ao concluir o formulário!`)
+            } else if (response.status === 202) {
+                toast.error(`Erro ao realizar o envio de email para ${user.email}`)
+                toast.success(`Formulário concluído com sucesso!`)
+            } else {
+                toast.success(`Formulário concluído com sucesso!`)
+            }
+            setOpenModal(false)
+        })
     }
 
     const handleRadioChange = event => {
@@ -165,20 +175,18 @@ const FormFornecedor = () => {
         toast.error('Você não tem permissões para acessar esta página!')
     }
 
-    const handleSendForm = () => {
-        console.log('handleSendForm')
-        setVerifyOpenModal(true)
-        handleSubmit(onSubmit)()
+    const handleSendForm = async () => {
+        console.log('handleSendForm.....')
+        handleSubmit(onSubmit)(true)
     }
 
-    const onSubmit = async data => {
-        if (verifyOpenModal) {
+    const onSubmit = async (data, canOpenModal) => {
+        if (canOpenModal) {
             submitData(data)
             setOpenModal(true) // abre modal
         } else {
             submitData(data)
             setOpenModal(false)
-            setVerifyOpenModal(false)
         }
     }
 
@@ -209,8 +217,7 @@ const FormFornecedor = () => {
             {data && (
                 <form
                     onSubmit={handleSubmit(data => {
-                        onSubmit(data)
-                        setVerifyOpenModal(false) // Reiniciar o estado do modal após o envio do formulário
+                        onSubmit(data, false)
                     })}
                 >
                     {/* Card Header */}
@@ -222,10 +229,7 @@ const FormFornecedor = () => {
                             btnPrint
                             generateReport={generateReport}
                             dataReports={dataReports}
-                            handleSubmit={e => {
-                                handleSubmit(onSubmit)
-                                setVerifyOpenModal(false)
-                            }}
+                            handleSubmit={e => handleSubmit(onSubmit)}
                             handleSend={handleSendForm}
                             title='Fornecedor'
                         />
@@ -616,7 +620,7 @@ const FormFornecedor = () => {
                 btnCancel
                 btnConfirm
                 btnConfirmColor='primary'
-                handleSubmit={sendForm}
+                handleSubmit={conclusionAndSendForm}
             />
         </>
     )
