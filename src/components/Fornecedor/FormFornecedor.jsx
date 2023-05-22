@@ -38,6 +38,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br' // import locale
+import DialogForm from '../Defaults/Dialogs/Dialog'
 
 const FormFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
@@ -50,9 +51,9 @@ const FormFornecedor = () => {
     const [sistemasQualidade, setSistemasQualidade] = useState([])
     const [blocos, setBlocos] = useState([])
     const [info, setInfo] = useState('')
-    const [fabricas, setFabricas] = useState([])
-    const [fabrica, setFabrica] = useState(null)
-    const [viewNewForm, setViewNewForm] = useState(false)
+    const [openModal, setOpenModal] = useState(false)
+    const [verifyOpenModal, setVerifyOpenModal] = useState(false)
+    const [unidade, setUnidade] = useState(null)
 
     const router = Router
     const { id } = router.query
@@ -80,21 +81,8 @@ const FormFornecedor = () => {
 
     console.log('errors: ', errors)
 
-    const onSubmit = async data => {
-        console.log('onSubmit: ', data)
-        try {
-            if (type === 'new') {
-                const result = await api.post(`${staticUrl}/novo`, data)
-                router.replace(`${staticUrl}/${result.data.id}`)
-                toast.success(toastMessage.successNew)
-            } else {
-                await api.put(`${staticUrl}/${id}`, data).then(response => {
-                    toast.success(toastMessage.successUpdate)
-                })
-            }
-        } catch (error) {
-            console.log(error)
-        }
+    const sendForm = async () => {
+        console.log('sendForm')
     }
 
     const handleRadioChange = event => {
@@ -156,54 +144,60 @@ const FormFornecedor = () => {
         }
     ]
 
-    const getFabricas = async () => {
-        console.log('🚀 getFabricas: ', user.cnpj)
-        setLoading(true)
-        await api.post(`${staticUrl}/getFabricas`, { cnpj: user.cnpj }).then(response => {
-            setFabricas(response.data)
-            setLoading(false)
-        })
-    }
-
-    const getFormStructure = async () => {
-        console.log('🚀 ~ file: FormFornecedor.jsx:164 ~ getFormStructure ~ value:', fabrica)
-        setLoading(true)
-        await api.post(`${staticUrl}/getFormStructure`, { unidadeID: fabrica.unidadeID }).then(response => {
+    const getData = id => {
+        api.get(`${staticUrl}/${id}`).then(response => {
+            console.log('getData: ', response.data)
             setFields(response.data.fields)
             setAtividades(response.data.atividades)
             setSistemasQualidade(response.data.sistemasQualidade)
             setBlocos(response.data.blocos)
-            setViewNewForm(true)
+
+            setData(response.data.data)
+            setInfo(response.data.info)
+            setUnidade(response.data.unidade)
+
             setLoading(false)
         })
+    }
+
+    const noPermissions = () => {
+        router.push('/formularios/fornecedor/')
+        toast.error('Você não tem permissões para acessar esta página!')
+    }
+
+    const handleSendForm = () => {
+        console.log('handleSendForm')
+        setVerifyOpenModal(true)
+        handleSubmit(onSubmit)()
+    }
+
+    const onSubmit = async data => {
+        if (verifyOpenModal) {
+            submitData(data)
+            setOpenModal(true) // abre modal
+        } else {
+            submitData(data)
+            setOpenModal(false)
+            setVerifyOpenModal(false)
+        }
+    }
+
+    const submitData = async data => {
+        console.log('submit data...')
+        // try {
+        //     await api.put(`${staticUrl}/${id}`, data).then(response => {
+        //         toast.success(toastMessage.successUpdate)
+        //     })
+        // } catch (error) {
+        //     console.log(error)
+        // }
     }
 
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
 
-        const getData = id => {
-            api.get(`${staticUrl}/${id}`).then(response => {
-                console.log('getData: ', response.data)
-                setFields(response.data.fields)
-                setAtividades(response.data.atividades)
-                setSistemasQualidade(response.data.sistemasQualidade)
-                setBlocos(response.data.blocos)
-
-                setData(response.data.data)
-                setInfo(response.data.info)
-
-                setLoading(false)
-            })
-        }
-
-        const noPermissions = () => {
-            router.push('/formularios/fornecedor/')
-            toast.error('Você não tem permissões para acessar esta página!')
-        }
-
         if (type == 'new') {
-            //? Fornecedor
-            user.papelID == 2 ? getFabricas() : noPermissions()
+            noPermissions()
         } else {
             getData(id)
         }
@@ -211,28 +205,36 @@ const FormFornecedor = () => {
 
     return (
         <>
-            {isLoading ? (
-                <Loading />
-            ) : //* Renderiza o formulário
-            data || viewNewForm ? (
-                <form onSubmit={handleSubmit(onSubmit)}>
+            {isLoading && <Loading />}
+            {data && (
+                <form
+                    onSubmit={handleSubmit(data => {
+                        onSubmit(data)
+                        setVerifyOpenModal(false) // Reiniciar o estado do modal após o envio do formulário
+                    })}
+                >
                     {/* Card Header */}
                     <Card>
                         <FormHeader
                             btnCancel
                             btnSave
+                            btnSend
                             btnPrint
                             generateReport={generateReport}
                             dataReports={dataReports}
-                            handleSubmit={() => handleSubmit(onSubmit)}
+                            handleSubmit={e => {
+                                handleSubmit(onSubmit)
+                                setVerifyOpenModal(false)
+                            }}
+                            handleSend={handleSendForm}
                             title='Fornecedor'
                         />
                         <CardContent>
-                            {fabrica && (
+                            {unidade && (
                                 <>
                                     <input
                                         type='hidden'
-                                        value={fabrica.unidadeID}
+                                        value={unidade.unidadeID}
                                         name='unidadeID'
                                         {...register(`unidadeID`)}
                                     />
@@ -241,7 +243,7 @@ const FormFornecedor = () => {
                                         <Grid item xs={12} md={12}>
                                             <Typography variant='caption'>Fábrica:</Typography>
                                             <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                {fabrica.nomeFantasia}
+                                                {unidade.nomeFantasia}
                                             </Typography>
                                         </Grid>
                                     </Grid>
@@ -603,46 +605,19 @@ const FormFornecedor = () => {
                         </CardContent>
                     </Card>
                 </form>
-            ) : (
-                <>
-                    {/* Fornecedor preenchendo um novo formulário, seleciona uma fábrica (unidadeID) */}
-                    <Grid container spacing={4}>
-                        <Grid item xs={12} md={12}>
-                            <Autocomplete
-                                options={fabricas}
-                                id='autocomplete-outlined'
-                                getOptionLabel={option => option.nomeFantasia}
-                                onChange={(event, value) => {
-                                    setFabrica(value ? value : null)
-                                }}
-                                renderInput={params => (
-                                    <TextField
-                                        {...params}
-                                        name={`fabrica`}
-                                        label='Selecione uma fábrica'
-                                        placeholder='Selecione uma fábrica'
-                                        {...register(`fabrica`)}
-                                    />
-                                )}
-                            />
-                        </Grid>
-
-                        {/* Botão de proxima etapa */}
-                        <Grid item xs={12} md={12}>
-                            <Button
-                                variant='contained'
-                                color='primary'
-                                size='large'
-                                disabled={!fabrica}
-                                startIcon={<Icon icon='eva:arrow-right-fill' />}
-                                onClick={() => getFormStructure()}
-                            >
-                                Avançar
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </>
             )}
+
+            {/* Dialog de confirmação de envio */}
+            <DialogForm
+                openModal={openModal}
+                handleClose={() => setOpenModal(false)}
+                title='Concluir e Enviar Formulário'
+                text={`Deseja realmente concluir e enviar? Após a conclusão, você não poderá mais alterar esse formulário. Um e-mail será enviado e agora basta aguardar a análise do ${unidade?.nomeFantasia}. Após a conclusão você será alertado no email ${user.email}`}
+                btnCancel
+                btnConfirm
+                btnConfirmColor='primary'
+                handleSubmit={sendForm}
+            />
         </>
     )
 }

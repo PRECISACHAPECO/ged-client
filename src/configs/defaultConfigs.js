@@ -19,17 +19,17 @@ const statusDefault = {
     1: { title: 'Ativo', color: 'success' },
     0: { title: 'Inativo', color: 'secondary' },
 
-    // Status do s formulários
+    //* Status dos formulários do fornecedor
     10: { title: 'Pendente', color: 'warning' },
-    20: { title: 'Acessou o link', color: 'warning' },
+    20: { title: 'Acessou link', color: 'info' },
     30: { title: 'Em preenchimento', color: 'warning' },
-    40: { title: 'Fornecedor concluiu preenchimento', color: 'warning' },
+    40: { title: 'Concluído', color: 'primary' },
     50: { title: 'Reprovado', color: 'error' },
     60: { title: 'Aprovado Parcial', color: 'warning' },
     70: { title: 'Aprovado', color: 'success' },
 }
 
-const configColumns = (currentLink, arrColumns, simpleStatus = false) => {
+const configColumns = (currentLink, arrColumns) => {
 
     return arrColumns.map((column, i) => {
         const currentColumns = arrColumns[i].field
@@ -47,20 +47,17 @@ const configColumns = (currentLink, arrColumns, simpleStatus = false) => {
                                     if (c.field == 'status') {
                                         const status = statusDefault[params.row.status]
 
-                                        if (!simpleStatus) {
-                                            return (
-                                                <CustomChip
-                                                    key={j}
-                                                    size='small'
-                                                    skin='light'
-                                                    color={status.color}
-                                                    label={status.title}
-                                                    sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
-                                                />
-                                            )
-                                        } else {
-                                            return status.title
-                                        }
+                                        return (
+                                            <CustomChip
+                                                key={j}
+                                                size='small'
+                                                skin='light'
+                                                color={status.color}
+                                                label={status.title}
+                                                sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
+                                            />
+                                        )
+
                                     } else {
                                         return params.row[c.field]
                                     }

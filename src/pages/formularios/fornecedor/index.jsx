@@ -27,19 +27,20 @@ const Fornecedor = () => {
         setOpen(true)
     }
 
+    const getList = async () => {
+        await api
+            .post(`${currentLink}/getList`, {
+                unidadeID: loggedUnity.unidadeID,
+                papelID: user.papelID,
+                cnpj: user.cnpj ? user.cnpj : null
+            })
+            .then(response => {
+                setResult(response.data)
+                setTitle('Fornecedor')
+            })
+    }
+
     useEffect(() => {
-        const getList = async () => {
-            await api
-                .post(`${currentLink}/getList`, {
-                    unidadeID: loggedUnity.unidadeID,
-                    papelID: user.papelID,
-                    cnpj: user.cnpj ? user.cnpj : null
-                })
-                .then(response => {
-                    setResult(response.data)
-                    setTitle('Fornecedor')
-                })
-        }
         getList()
     }, [])
 
@@ -81,7 +82,7 @@ const Fornecedor = () => {
         }
     ]
 
-    const columns = configColumns(currentLink, arrColumns, true)
+    const columns = configColumns(currentLink, arrColumns)
 
     return (
         <>
@@ -94,11 +95,10 @@ const Fornecedor = () => {
                                 rows={result}
                                 columns={columns}
                                 buttonsHeader={{
-                                    btnNew: true,
+                                    btnNew: user.papelID == 1 ? true : false,
                                     btnPrint: true,
                                     openModal: user.papelID == 1 ? openModal : null
                                 }}
-                                rowColors
                             />
                         </CardContent>
                     </Card>
