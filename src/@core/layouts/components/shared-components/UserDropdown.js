@@ -79,7 +79,6 @@ const UserDropdown = props => {
         handleDropdownClose()
     }
 
-    console.log(user)
 
     return (
         <Fragment>

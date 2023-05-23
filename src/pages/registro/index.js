@@ -67,16 +67,12 @@ const Registro = () => {
 
   return (
     <Box className='content-right'>
-      {/* {!hidden ? (
-        // <LeftWrapper>
-        //   <RegisterMultiStepsIllustration
-        //     alt='register-multi-steps-illustration'
-        //     src='/images/pages/auth-v2-register-multi-steps-illustration.png'
-        //   />
-        // </LeftWrapper>
-      ) : null} */}
-      <img src='/images/storyset/fornecedorRegistro.svg' style={{ height: '100vh', width: "35%" }} />
-      {/* <img
+      {!hidden ? (
+        <LeftWrapper>
+          <img src='/images/storyset/fornecedorRegistro.svg' width={520} />
+        </LeftWrapper>
+      ) : null}
+      <img
         alt='mask'
         src='https://demos.pixinvent.com/materialize-nextjs-admin-template/demo-3/images/pages/misc-mask-light.png'
         className='css-84vgca'
@@ -87,7 +83,7 @@ const Registro = () => {
           left: '0',
           width: '100%'
         }}
-      /> */}
+      />
       <RightWrapper sx={skin === 'bordered' && !hidden ? { borderLeft: `1px solid ${theme.palette.divider}` } : {}}>
         <WizardWrapper>
           <RegisterMultiStepsWizard />

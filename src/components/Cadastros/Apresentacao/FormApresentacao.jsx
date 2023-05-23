@@ -147,7 +147,7 @@ const FormApresentacao = () => {
                                                         onChange={onChange}
                                                     />
                                                 }
-                                                label='Status'
+                                                label='Ativo'
                                                 labelPlacement='top'
                                                 sx={{ mr: 8 }}
                                             />
