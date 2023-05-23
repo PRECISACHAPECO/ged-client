@@ -35,20 +35,14 @@ const FormItem = () => {
     const inputRef = useRef(null)
     const { title } = useContext(ParametersContext)
 
-    const schema = yup.object().shape({
-        nome: yup.string().required('Campo obrigatório')
-    })
-
     const {
         control,
         handleSubmit,
         formState: { errors },
         register
-    } = useForm({
-        // defaultValues: {},
-        // mode: 'onChange',
-        resolver: yupResolver(schema)
-    })
+    } = useForm({})
+
+    console.log(errors)
 
     // Função que atualiza os dados ou cria novo dependendo do tipo da rota
     const onSubmit = async data => {
@@ -122,7 +116,7 @@ const FormItem = () => {
                     <FormHeader
                         btnCancel
                         btnSave
-                        disabled={Object.keys(errors).length > 0 ? true : false}
+                        // disabled={Object.keys(errors).length > 0 ? true : false}
                         handleSubmit={() => handleSubmit(onSubmit)}
                         btnDelete={type === 'edit' ? true : false}
                         onclickDelete={() => setOpen(true)}
@@ -136,7 +130,7 @@ const FormItem = () => {
                                             label='Nome'
                                             placeholder='Nome'
                                             name='nome'
-                                            {...register('nome')}
+                                            {...register('nome', { required: true })}
                                             defaultValue={data?.value?.nome ?? ''}
                                             error={Boolean(errors.nome)}
                                             aria-describedby='validation-schema-nome'
@@ -146,7 +140,6 @@ const FormItem = () => {
                                 </FormControl>
                             </Grid>
 
-                            {/* Auto complete que traga o campo data.tipoFornecedor.nome preenchido, mas que traga os dados do campo data.formularios para poder escolher outro */}
                             <Grid item xs={12} md={3}>
                                 <FormControl fullWidth>
                                     {data && (
@@ -163,16 +156,17 @@ const FormItem = () => {
                                             }}
                                             defaultValue={data?.tipoFormulario ?? null}
                                             renderInput={params => (
-                                                <TextField
-                                                    {...params}
-                                                    label='Formulário'
-                                                    placeholder='Formulário'
-                                                    name='formulario'
-                                                    {...register('formulario', { required: true })}
-                                                    defaultValue={data?.tipoFormulario ?? null}
-                                                    error={Boolean(errors.formulario)}
-                                                    aria-describedby='formulario-error'
-                                                />
+                                                <>
+                                                    <TextField
+                                                        {...params}
+                                                        label='Formulário'
+                                                        placeholder='Formulário'
+                                                        name='formulario'
+                                                        {...register('formulario', { required: true })}
+                                                        defaultValue={data?.tipoFormulario ?? ''}
+                                                        error={Boolean(errors.formulario)}
+                                                    />
+                                                </>
                                             )}
                                         />
                                     )}
@@ -182,7 +176,7 @@ const FormItem = () => {
                             <Grid item xs={12} md={1}>
                                 {data && (
                                     <>
-                                        <Typography>Status</Typography>
+                                        <Typography>Ativo</Typography>
                                         <FormControlLabel
                                             control={
                                                 <Checkbox

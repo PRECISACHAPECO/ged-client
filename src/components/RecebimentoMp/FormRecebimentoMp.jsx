@@ -532,16 +532,12 @@ const FormRecebimentoMp = () => {
                                                                     options={item.alternativas}
                                                                     getOptionLabel={option => option.nome}
                                                                     // Se pelo menus uma opção ser selecionada, pintar a borda do autocomplete de ver
-                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].respostaID`}
                                                                     {...register(
-                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                        { required: true }
+                                                                        `blocos[${indexBloco}].itens[${indexItem}].respostaID`
+                                                                        // { required: true }
                                                                     )}
-                                                                    defaultValue={
-                                                                        item.resposta
-                                                                            ? { nome: item?.resposta }
-                                                                            : { nome: '' }
-                                                                    }
+                                                                    defaultValue={item?.resposta}
                                                                     onChange={(event, newValue) => {
                                                                         setValue(
                                                                             `blocos[${indexBloco}].itens[${indexItem}].resposta`,

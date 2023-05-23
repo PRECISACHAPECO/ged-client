@@ -59,8 +59,6 @@ const FormHeader = ({
         return () => window.removeEventListener('scroll', toggleVisibility)
     }, [])
 
-    console.log('Header: ', btnSave, dynamicRoute)
-
     return (
         <>
             <CardContent sx={{ display: 'flex', justifyContent: 'space-between' }}>
