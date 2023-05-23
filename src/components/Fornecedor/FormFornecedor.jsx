@@ -5,6 +5,7 @@ import { useForm, Controller } from 'react-hook-form'
 import Icon from 'src/@core/components/icon'
 
 import {
+    Alert,
     Autocomplete,
     Box,
     Button,
@@ -16,6 +17,7 @@ import {
     ListItem,
     ListItemButton,
     Radio,
+    RadioGroup,
     TextField,
     Typography
 } from '@mui/material'
@@ -26,11 +28,14 @@ import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
 import Loading from 'src/components/Loading'
-import { toastMessage, formType } from 'src/configs/defaultConfigs'
+import { toastMessage, formType, statusDefault } from 'src/configs/defaultConfigs'
 import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
+
+// ** Custom Components
+import CustomChip from 'src/@core/components/mui/chip'
 
 // Date
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -53,6 +58,13 @@ const FormFornecedor = () => {
     const [info, setInfo] = useState('')
     const [openModal, setOpenModal] = useState(false)
     const [unidade, setUnidade] = useState(null)
+    const [status, setStatus] = useState(null)
+
+    const [canEdit, setCanEdit] = useState({
+        status: false,
+        message: 'Voce nao tem permissoes mais garoto...',
+        messageType: 'info'
+    })
 
     const router = Router
     const { id } = router.query
@@ -80,6 +92,17 @@ const FormFornecedor = () => {
 
     console.log('errors: ', errors)
 
+    //* Altera status do formulário (aprovado, aprovado parcial, reprovado)
+    const handleChangeFormStatus = event => {
+        const newValue = event.target.value
+
+        const newInfo = {
+            ...info,
+            status: newValue
+        }
+        setInfo(newInfo)
+    }
+
     //* Formulário já foi enviado e atualizado, função apenas altera o status e envia o email
     const conclusionAndSendForm = async () => {
         await api.post(`${staticUrl}/conclusionAndSendForm/${id}`).then(response => {
@@ -93,16 +116,6 @@ const FormFornecedor = () => {
             }
             setOpenModal(false)
         })
-    }
-
-    const handleRadioChange = event => {
-        const newValue = event.target.value
-
-        const newInfo = {
-            ...info,
-            status: newValue
-        }
-        setInfo(newInfo)
     }
 
     const getAddressByCep = cepString => {
@@ -166,6 +179,18 @@ const FormFornecedor = () => {
             setInfo(response.data.info)
             setUnidade(response.data.unidade)
 
+            let objStatus = statusDefault[response.data.info.status]
+            setStatus(objStatus)
+
+            setCanEdit({
+                status: user.papelID == 2 && response.data.info.status < 40 ? true : false,
+                message:
+                    user.papelID == 2
+                        ? 'Esse formulário já foi concluído e enviado pra fábrica, não é mais possível alterar as informações!'
+                        : 'Somente o fornecedor pode alterar as informações deste formulário!',
+                messageType: user.papelID == 2 ? 'warning' : 'info'
+            })
+
             setLoading(false)
         })
     }
@@ -173,6 +198,26 @@ const FormFornecedor = () => {
     const noPermissions = () => {
         router.push('/formularios/fornecedor/')
         toast.error('Você não tem permissões para acessar esta página!')
+    }
+
+    const updateFormStatus = async () => {
+        console.log('updateFormStatus')
+        const data = {
+            status: 30, //,info.status,
+            auth: {
+                usuarioID: user.usuarioID,
+                papelID: user.papelID,
+                unidadeID: loggedUnity.unidadeID
+            }
+        }
+
+        try {
+            await api.put(`${staticUrl}/updateFormStatus/${id}`, data).then(response => {
+                toast.success(toastMessage.successUpdate)
+            })
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const handleSendForm = async () => {
@@ -190,15 +235,25 @@ const FormFornecedor = () => {
         }
     }
 
-    const submitData = async data => {
-        console.log('submit data...')
-        // try {
-        //     await api.put(`${staticUrl}/${id}`, data).then(response => {
-        //         toast.success(toastMessage.successUpdate)
-        //     })
-        // } catch (error) {
-        //     console.log(error)
-        // }
+    const submitData = async values => {
+        console.log('submitData')
+        const data = {
+            forms: values,
+            auth: {
+                usuarioID: user.usuarioID,
+                papelID: user.papelID,
+                unidadeID: loggedUnity.unidadeID
+            }
+        }
+
+        console.log('submit data: ', data)
+        try {
+            await api.put(`${staticUrl}/${id}`, data).then(response => {
+                toast.success(toastMessage.successUpdate)
+            })
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     useEffect(() => {
@@ -224,16 +279,21 @@ const FormFornecedor = () => {
                     <Card>
                         <FormHeader
                             btnCancel
-                            btnSave
+                            btnSave={canEdit.status || (user.papelID == 1 && info.status >= 40)}
                             btnSend
                             btnPrint
                             generateReport={generateReport}
                             dataReports={dataReports}
-                            handleSubmit={e => handleSubmit(onSubmit)}
+                            handleSubmit={e => (canEdit.status ? handleSubmit(onSubmit) : updateFormStatus())}
                             handleSend={handleSendForm}
                             title='Fornecedor'
                         />
                         <CardContent>
+                            {!canEdit.status && (
+                                <Alert severity={canEdit.messageType} sx={{ mb: 4 }}>
+                                    {canEdit.message}
+                                </Alert>
+                            )}
                             {unidade && (
                                 <>
                                     <input
@@ -244,11 +304,25 @@ const FormFornecedor = () => {
                                     />
 
                                     <Grid container spacing={4}>
-                                        <Grid item xs={12} md={12}>
+                                        <Grid item xs={12} md={6}>
                                             <Typography variant='caption'>Fábrica:</Typography>
                                             <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
                                                 {unidade.nomeFantasia}
                                             </Typography>
+                                        </Grid>
+
+                                        <Grid item xs={12} md={6}>
+                                            {status && (
+                                                <Box display='flex' alignItems='center' justifyContent='flex-end'>
+                                                    <CustomChip
+                                                        size='small'
+                                                        skin='light'
+                                                        color={status.color}
+                                                        label={status.title}
+                                                        sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
+                                                    />
+                                                </Box>
+                                            )}
                                         </Grid>
                                     </Grid>
                                 </>
@@ -265,6 +339,7 @@ const FormFornecedor = () => {
                                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                         <DatePicker
                                                             label='Selecione uma data'
+                                                            disabled={!canEdit.status}
                                                             locale={dayjs.locale('pt-br')}
                                                             format='DD/MM/YYYY'
                                                             defaultValue={dayjs(new Date())}
@@ -274,7 +349,7 @@ const FormFornecedor = () => {
                                                                     variant='outlined'
                                                                     name={`header.${field.nomeColuna}`}
                                                                     {...register(`header.${field.nomeColuna}`, {
-                                                                        required: !!field.obrigatorio
+                                                                        required: !!field.obrigatorio && canEdit.status
                                                                     })}
                                                                 />
                                                             )}
@@ -288,12 +363,13 @@ const FormFornecedor = () => {
                                                             defaultValues ? defaultValues[field.nomeColuna] : ''
                                                         }
                                                         label={field.nomeCampo}
+                                                        disabled={!canEdit.status}
                                                         placeholder={field.nomeCampo}
                                                         name={`header.${field.nomeColuna}`}
                                                         aria-describedby='validation-schema-nome'
                                                         error={errors?.header?.[field.nomeColuna] ? true : false}
                                                         {...register(`header.${field.nomeColuna}`, {
-                                                            required: !!field.obrigatorio
+                                                            required: !!field.obrigatorio && canEdit.status
                                                         })}
                                                         // Validações
                                                         onChange={e => {
@@ -354,6 +430,7 @@ const FormFornecedor = () => {
                                                         control={
                                                             <Checkbox
                                                                 name={`atividades[${indexAtividade}].checked`}
+                                                                disabled={!canEdit.status}
                                                                 {...register(`atividades[${indexAtividade}].checked`)}
                                                                 defaultChecked={atividade.checked == 1 ? true : false}
                                                             />
@@ -390,6 +467,7 @@ const FormFornecedor = () => {
                                                         control={
                                                             <Checkbox
                                                                 name={`sistemasQualidade[${indexSistemaQualidade}].checked`}
+                                                                disabled={!canEdit.status}
                                                                 {...register(
                                                                     `sistemasQualidade[${indexSistemaQualidade}].checked`
                                                                 )}
@@ -489,6 +567,7 @@ const FormFornecedor = () => {
                                                                         }
                                                                         id='autocomplete-outlined'
                                                                         getOptionLabel={option => option.nome}
+                                                                        disabled={!canEdit.status}
                                                                         onChange={(event, value) => {
                                                                             setValue(
                                                                                 `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
@@ -519,6 +598,7 @@ const FormFornecedor = () => {
                                                                                 label='Selecione uma data'
                                                                                 locale={dayjs.locale('pt-br')}
                                                                                 format='DD/MM/YYYY'
+                                                                                disabled={!canEdit.status}
                                                                                 defaultValue={
                                                                                     item.resposta
                                                                                         ? dayjs(new Date(item.resposta))
@@ -550,6 +630,7 @@ const FormFornecedor = () => {
                                                                         <TextField
                                                                             multiline
                                                                             label='Descreva a resposta'
+                                                                            disabled={!canEdit.status}
                                                                             placeholder='Descreva a resposta'
                                                                             name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                             defaultValue={item.resposta ?? ''}
@@ -568,6 +649,7 @@ const FormFornecedor = () => {
                                                                     <TextField
                                                                         label='Observação'
                                                                         placeholder='Observação'
+                                                                        disabled={!canEdit.status}
                                                                         name={`blocos[${indexBloco}].itens[${indexItem}].observacao`}
                                                                         defaultValue={item.observacao ?? ''}
                                                                         {...register(
@@ -598,6 +680,7 @@ const FormFornecedor = () => {
                                             multiline
                                             rows={4}
                                             label='Observação (opcional)'
+                                            disabled={!canEdit.status}
                                             placeholder='Observação (opcional)'
                                             name='obs'
                                             defaultValue={info.obs ?? ''}
@@ -608,6 +691,48 @@ const FormFornecedor = () => {
                             </Grid>
                         </CardContent>
                     </Card>
+
+                    {/* Status que a fábrica irá setar (aprovado, aprovado parcial ou reprovado) */}
+                    {user && user.papelID == 1 && info.status >= 40 && (
+                        <Card sx={{ mt: 4 }}>
+                            <CardContent>
+                                <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
+                                    Status do Formulário
+                                </Typography>
+                                <Box display='flex' gap={8}>
+                                    <RadioGroup
+                                        row
+                                        aria-label='colored'
+                                        name='colored'
+                                        value={info.status}
+                                        onChange={handleChangeFormStatus}
+                                    >
+                                        <FormControlLabel
+                                            value={70}
+                                            name={`status`}
+                                            {...register(`status`)}
+                                            control={<Radio color='success' />}
+                                            label='Aprovado'
+                                        />
+                                        <FormControlLabel
+                                            value={60}
+                                            name={`status`}
+                                            {...register(`status`)}
+                                            label='Aprovado parcial'
+                                            control={<Radio color='warning' />}
+                                        />
+                                        <FormControlLabel
+                                            value={50}
+                                            name={`status`}
+                                            {...register(`status`)}
+                                            label='Reprovado'
+                                            control={<Radio color='error' />}
+                                        />
+                                    </RadioGroup>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    )}
                 </form>
             )}
 

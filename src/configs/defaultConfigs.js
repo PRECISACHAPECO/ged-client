@@ -119,4 +119,3 @@ const generateReport = props => {
 }
 
 export { configColumns, formType, backRoute, statusDefault, toastMessage, generateReport }
-

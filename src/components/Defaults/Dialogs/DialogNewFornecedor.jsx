@@ -26,7 +26,7 @@ import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
 
 const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit }) => {
     const [loading, setLoading] = useState(false)
-    const { loggedUnity } = useContext(AuthContext)
+    const { user, loggedUnity } = useContext(AuthContext)
     const { handleSearch } = useContext(ParametersContext)
     const [data, setData] = useState(null)
     const [cnpj, setCnpj] = useState(null)
@@ -95,7 +95,12 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
     const makeFornecedor = async () => {
         setLoading(true)
         await api
-            .post(`/formularios/fornecedor/makeFornecedor`, { unidadeID: loggedUnity.unidadeID, cnpj: cnpj })
+            .post(`/formularios/fornecedor/makeFornecedor`, {
+                usuarioID: user.usuarioID,
+                unidadeID: loggedUnity.unidadeID,
+                papelID: user.papelID,
+                cnpj: cnpj
+            })
             .then(response => {
                 if (response.status === 200) {
                     setData(response.data)
