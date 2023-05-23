@@ -13,8 +13,10 @@ const FormHeader = ({
     btnCancel,
     btnSave,
     btnSend,
+    btnChangeStatus,
     handleSubmit,
     handleSend,
+    handleChangeStatus,
     btnDelete,
     onclickDelete,
     btnPrint,
@@ -83,6 +85,19 @@ const FormHeader = ({
                             startIcon={<Icon icon='material-symbols:delete-outline' />}
                         >
                             Excluir
+                        </Button>
+                    )}
+
+                    {btnChangeStatus && (
+                        <Button
+                            type='button'
+                            onClick={handleChangeStatus}
+                            variant='outlined'
+                            color='primary'
+                            size='medium'
+                            startIcon={<Icon icon='fluent:status-12-filled' />}
+                        >
+                            Status
                         </Button>
                     )}
                 </Box>
@@ -166,7 +181,7 @@ const FormHeader = ({
                     )}
 
                     {/* Botão flutuante de salvar (aparece quando o usuário dá scroll na página) */}
-                    {isVisible && (
+                    {isVisible && btnSave && routes.find(route => route.rota === dynamicRoute && route.editar) && (
                         <div
                             className={`
                                 ${isVisible ? 'fadeIn' : 'fadeOut'}

@@ -44,6 +44,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br' // import locale
 import DialogForm from '../Defaults/Dialogs/Dialog'
+import DialogChangeFormStatus from '../Defaults/Dialogs/DialogChangeFormStatus'
 
 const FormFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
@@ -59,6 +60,8 @@ const FormFornecedor = () => {
     const [openModal, setOpenModal] = useState(false)
     const [unidade, setUnidade] = useState(null)
     const [status, setStatus] = useState(null)
+    const [statusEdit, setStatusEdit] = useState(false)
+    const [openModalStatus, setOpenModalStatus] = useState(false)
 
     const [canEdit, setCanEdit] = useState({
         status: false,
@@ -92,6 +95,55 @@ const FormFornecedor = () => {
 
     console.log('errors: ', errors)
 
+    //* Reabre o formulário pro fornecedor alterar novamente se ainda nao estiver vinculado com recebimento
+    const reOpenFormStatus = async status => {
+        console.log('reOpenFormStatus: ', status)
+        const data = {
+            status: status,
+            auth: {
+                usuarioID: user.usuarioID,
+                papelID: user.papelID,
+                unidadeID: loggedUnity.unidadeID
+            }
+        }
+
+        console.log('reopen: ', data)
+        try {
+            await api.post(`${staticUrl}/reOpenFormStatus/${id}`, data).then(response => {
+                toast.success(toastMessage.successUpdate)
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const updateFormStatus = async () => {
+        const data = {
+            status: {
+                edit: statusEdit, // true/false
+                status: info.status
+            },
+            auth: {
+                usuarioID: user.usuarioID,
+                papelID: user.papelID,
+                unidadeID: loggedUnity.unidadeID
+            }
+        }
+
+        if (statusEdit) {
+            console.log('updateFormStatus: ', data)
+            try {
+                await api.post(`${staticUrl}/updateFormStatus/${id}`, data).then(response => {
+                    toast.success(toastMessage.successUpdate)
+                })
+            } catch (error) {
+                console.log(error)
+            }
+        } else {
+            toast.error('Não há dados a serem atualizados!')
+        }
+    }
+
     //* Altera status do formulário (aprovado, aprovado parcial, reprovado)
     const handleChangeFormStatus = event => {
         const newValue = event.target.value
@@ -105,12 +157,18 @@ const FormFornecedor = () => {
 
     //* Formulário já foi enviado e atualizado, função apenas altera o status e envia o email
     const conclusionAndSendForm = async () => {
-        await api.post(`${staticUrl}/conclusionAndSendForm/${id}`).then(response => {
+        const data = {
+            usuarioID: user.usuarioID,
+            unidadeID: loggedUnity.unidadeID,
+            papelID: user.papelID
+        }
+        await api.post(`${staticUrl}/conclusionAndSendForm/${id}`, data).then(response => {
             if (response.status === 201) {
                 toast.error(`Erro ao concluir o formulário!`)
             } else if (response.status === 202) {
                 toast.error(`Erro ao realizar o envio de email para ${user.email}`)
                 toast.success(`Formulário concluído com sucesso!`)
+                getData(id)
             } else {
                 toast.success(`Formulário concluído com sucesso!`)
             }
@@ -200,26 +258,6 @@ const FormFornecedor = () => {
         toast.error('Você não tem permissões para acessar esta página!')
     }
 
-    const updateFormStatus = async () => {
-        console.log('updateFormStatus')
-        const data = {
-            status: 30, //,info.status,
-            auth: {
-                usuarioID: user.usuarioID,
-                papelID: user.papelID,
-                unidadeID: loggedUnity.unidadeID
-            }
-        }
-
-        try {
-            await api.put(`${staticUrl}/updateFormStatus/${id}`, data).then(response => {
-                toast.success(toastMessage.successUpdate)
-            })
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
     const handleSendForm = async () => {
         console.log('handleSendForm.....')
         handleSubmit(onSubmit)(true)
@@ -272,20 +310,22 @@ const FormFornecedor = () => {
             {data && (
                 <form
                     onSubmit={handleSubmit(data => {
-                        onSubmit(data, false)
+                        canEdit.status ? onSubmit(data, false) : updateFormStatus()
                     })}
                 >
                     {/* Card Header */}
                     <Card>
                         <FormHeader
                             btnCancel
+                            btnChangeStatus
                             btnSave={canEdit.status || (user.papelID == 1 && info.status >= 40)}
-                            btnSend
+                            btnSend={user.papelID == 2 && info.status < 40 ? true : false}
                             btnPrint
                             generateReport={generateReport}
                             dataReports={dataReports}
-                            handleSubmit={e => (canEdit.status ? handleSubmit(onSubmit) : updateFormStatus())}
+                            handleSubmit={e => handleSubmit(onSubmit)}
                             handleSend={handleSendForm}
+                            handleChangeStatus={() => setOpenModalStatus(true)}
                             title='Fornecedor'
                         />
                         <CardContent>
@@ -711,6 +751,7 @@ const FormFornecedor = () => {
                                             value={70}
                                             name={`status`}
                                             {...register(`status`)}
+                                            onChange={() => setStatusEdit(true)}
                                             control={<Radio color='success' />}
                                             label='Aprovado'
                                         />
@@ -718,6 +759,7 @@ const FormFornecedor = () => {
                                             value={60}
                                             name={`status`}
                                             {...register(`status`)}
+                                            onChange={() => setStatusEdit(true)}
                                             label='Aprovado parcial'
                                             control={<Radio color='warning' />}
                                         />
@@ -725,6 +767,7 @@ const FormFornecedor = () => {
                                             value={50}
                                             name={`status`}
                                             {...register(`status`)}
+                                            onChange={() => setStatusEdit(true)}
                                             label='Reprovado'
                                             control={<Radio color='error' />}
                                         />
@@ -747,6 +790,22 @@ const FormFornecedor = () => {
                 btnConfirmColor='primary'
                 handleSubmit={conclusionAndSendForm}
             />
+
+            {/* Dialog pra alterar status do formulário (se formulário estiver concluído e fábrica queira reabrir pro preenchimento do fornecedor) */}
+            {openModalStatus && (
+                <DialogChangeFormStatus
+                    id={id}
+                    parFormularioID={1} // Fornecedor
+                    formStatus={info.status}
+                    openModal={openModalStatus}
+                    handleClose={() => setOpenModalStatus(false)}
+                    title='Histórico do Formulário'
+                    text={`Listagem do histórico das movimentações do formulário ${id} do Fornecedor.`}
+                    btnCancel
+                    btnConfirm
+                    handleSubmit={reOpenFormStatus}
+                />
+            )}
         </>
     )
 }
