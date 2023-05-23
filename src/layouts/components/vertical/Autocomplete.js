@@ -170,7 +170,7 @@ const AutocompleteComponent = ({ hidden, settings }) => {
             })
             .then(response => {
                 if (response.data && response.data.length) {
-                    setOptions(teste)
+                    setOptions(response.data)
                 } else {
                     setOptions([])
                 }
