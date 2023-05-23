@@ -1,104 +1,109 @@
-const defaultSuggestionsData = [
-    {
-        category: 'Principais buscas',
-        suggestions: [
-            {
-                icon: 'mdi:chart-donut',
-                suggestion: 'Fornecedor',
-                link: '/pop01/fornecedor/'
-            },
-            {
-                icon: 'mdi:poll',
-                suggestion: 'Unidade',
-                link: '/configuracoes/unidade/'
-            },
-            {
-                icon: 'mdi:chart-bubble',
-                suggestion: 'Formularios',
-                link: 'configuracoes/formularios/'
-            },
-            {
-                icon: 'mdi:account-group',
-                suggestion: 'User List',
-                link: '/apps/user/list'
+// ** React Imports
+import { useState, useContext } from 'react'
+
+// ** Hooks
+import { AuthContext } from 'src/context/AuthContext'
+
+const defaultSuggestionsData = () => {
+    const { menu, routes } = useContext(AuthContext)
+
+    const hasPermission = (currentRoute, arrSubmenu = []) => {
+        let response = false
+        routes.forEach(permission => {
+            if ((permission.rota === currentRoute && permission.ler) || arrSubmenu.length > 0) {
+                response = true
             }
-        ]
-    },
-    {
-        category: 'Cadastros',
-        suggestions: [
-            {
-                icon: 'mdi:calendar-blank',
-                suggestion: 'Atividade',
-                link: '/cadastros/atividade'
-            },
-            {
-                icon: 'mdi:format-list-numbered',
-                suggestion: 'Item',
-                link: '/cadastros/item'
-            },
-            {
-                icon: 'mdi:currency-usd',
-                suggestion: 'Sistema de Qualidade',
-                link: '/cadastros/sistema-qualidade'
-            },
-            {
-                icon: 'mdi:account-cog-outline',
-                suggestion: 'Account Settings',
-                link: '/pages/account-settings/account'
-            }
-        ]
-    },
-    {
-        category: 'Configurações',
-        suggestions: [
-            {
-                icon: 'mdi:format-text-variant-outline',
-                suggestion: 'Formularios',
-                link: '/configuracoes/formularios'
-            },
-            {
-                icon: 'mdi:tab',
-                suggestion: 'Tabs',
-                link: '/components/tabs'
-            },
-            {
-                icon: 'mdi:gesture-tap-button',
-                suggestion: 'Buttons',
-                link: '/components/buttons'
-            },
-            {
-                icon: 'mdi:card-bulleted-settings-outline',
-                suggestion: 'Advanced Cards',
-                link: '/ui/cards/advanced'
-            }
-        ]
-    },
-    {
-        category: 'Formularios',
-        suggestions: [
-            {
-                icon: 'mdi:format-list-checkbox',
-                suggestion: 'Fornecedor',
-                link: '/pop01/fornecedor'
-            },
-            {
-                icon: 'mdi:lastpass',
-                suggestion: 'Autocomplete',
-                link: '/forms/form-elements/autocomplete'
-            },
-            {
-                icon: 'mdi:view-grid-outline',
-                suggestion: 'Table',
-                link: '/tables/mui'
-            },
-            {
-                icon: 'mdi:calendar-range',
-                suggestion: 'Date Pickers',
-                link: '/forms/form-elements/pickers'
-            }
-        ]
+        })
+
+        return response
     }
-]
+
+    const hasSubmenu = (currentRoute, arrSubmenu = []) => {
+        let response = true
+        if (!currentRoute) {
+            response = false
+            arrSubmenu.forEach(permission => {
+                if (hasPermission(permission.rota)) response = true
+            })
+        }
+
+        return response
+    }
+
+    const hasMenu = divider => {
+        let response = false
+        divider.menu.forEach(permission => {
+            // Menu(s) com permissão
+            if (hasPermission(permission.rota)) {
+                response = true
+            }
+
+            // Submenu(s) com permissão (pelo menos 1)
+            if (permission.submenu && permission.submenu.length > 0) {
+                permission.submenu.forEach(permissionSub => {
+                    routes.forEach(row => {
+                        if (row.rota === permissionSub.rota && row.ler) response = true
+                    })
+                })
+            }
+        })
+
+        return response
+    }
+
+    const defaultSuggestionsData = [];
+    let title = ''
+    for (const divisor of menu) {
+        // Divider
+        if (hasMenu(divisor)) { // 3x
+            title = divisor.nome
+            let arrMenu = []
+            for (const item of divisor.menu) {
+                // Menu
+                if (hasPermission(item.rota)) {
+                    arrMenu.push({
+                        icon: 'eva:arrow-right-outline',
+                        suggestion: item.nome,
+                        link: item.rota
+                    })
+                }
+                else {
+                    // virar titulo
+                    if (arrMenu.length > 0) {
+                        defaultSuggestionsData.push({
+                            category: title,
+                            suggestions: arrMenu
+                        });
+                    }
+
+                    title = item.nome
+                    arrMenu = []
+                }
+
+                // Submenu
+                if (item.submenu && item.submenu.length > 0) {
+                    for (const subitem of item.submenu) {
+                        if (hasPermission(subitem.rota)) {
+                            arrMenu.push({
+                                icon: 'eva:arrow-right-outline',
+                                suggestion: subitem.nome,
+                                link: subitem.rota
+                            })
+                        }
+                    }
+                }
+            }
+
+            if (arrMenu.length > 0) {
+                defaultSuggestionsData.push({
+                    category: title,
+                    suggestions: arrMenu
+                });
+            }
+        }
+    }
+
+    return defaultSuggestionsData
+}
 
 export default defaultSuggestionsData

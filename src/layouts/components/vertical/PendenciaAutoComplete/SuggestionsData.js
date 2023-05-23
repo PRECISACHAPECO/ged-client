@@ -1,12 +1,12 @@
 
 import { Box, Grid, List, ListItem, Typography } from '@mui/material'
-import data from './data'
+import SuggestionsData from './data'
 import Link from 'next/link'
 import { Icon } from '@iconify/react'
 
 
 const DefaultSuggestions = ({ setOpenDialog }) => {
-    const defaultSuggestionsData = data()
+    const defaultSuggestionsData = SuggestionsData()
 
     return (
         <Grid container spacing={6} sx={{ ml: 0 }}>

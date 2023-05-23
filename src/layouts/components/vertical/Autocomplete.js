@@ -1,5 +1,6 @@
 // ** React Imports
-import { useEffect, useCallback, useRef, useState } from 'react'
+import { useEffect, useCallback, useRef, useState, useContext } from 'react'
+import { AuthContext } from 'src/context/AuthContext'
 
 // ** Next Imports
 
@@ -120,6 +121,39 @@ const AutocompleteComponent = ({ hidden, settings }) => {
     const [searchValue, setSearchValue] = useState('')
     const [openDialog, setOpenDialog] = useState(false)
     const [options, setOptions] = useState([])
+    const { routes, menu } = useContext(AuthContext)
+
+    console.log("menu", menu)
+    console.log("routes", routes)
+
+
+    const searchDataNew = () => {
+        const data = [
+            {
+                id: 1,
+                url: '/pop01/fornecedor',
+                icon: 'mdi:chart-donut',
+                title: 'danone',
+                category: 'Fornecedor'
+            },
+            {
+                id: 1,
+                url: '/pop01/fornecedor',
+                icon: 'mdi:chart-donut',
+                title: 'aadsddff',
+                category: 'Fornecedor'
+            },
+            {
+                id: 1,
+                url: '/pop01/fornecedor',
+                icon: 'mdi:chart-donut',
+                title: 'Teste33',
+                category: 'Fornecedor'
+            },
+        ]
+        return data
+    }
+
 
     // ** Hooks & Vars
     const theme = useTheme()
@@ -136,7 +170,7 @@ const AutocompleteComponent = ({ hidden, settings }) => {
             })
             .then(response => {
                 if (response.data && response.data.length) {
-                    setOptions(response.data)
+                    setOptions(teste)
                 } else {
                     setOptions([])
                 }
