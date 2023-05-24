@@ -85,7 +85,7 @@ const defaultSuggestionsData = () => {
                     for (const subitem of item.submenu) {
                         if (hasPermission(subitem.rota)) {
                             arrMenu.push({
-                                icon: 'eva:arrow-right-outline',
+                                icon: subitem.icone,
                                 suggestion: subitem.nome,
                                 link: subitem.rota
                             })
