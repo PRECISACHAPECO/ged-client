@@ -1,9 +1,10 @@
 // ** React Imports
-import { useEffect, useCallback, useRef, useState, useContext } from 'react'
-import { AuthContext } from 'src/context/AuthContext'
+import { useEffect, useCallback, useRef, useState } from 'react'
+import SearchDataNew from './SearchDataNew'
+const searchData = SearchDataNew
+
 
 // ** Next Imports
-
 import { useRouter } from 'next/router'
 
 // ** MUI Imports
@@ -18,8 +19,6 @@ import { styled, useTheme } from '@mui/material/styles'
 import ListItemButton from '@mui/material/ListItemButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import MuiAutocomplete from '@mui/material/Autocomplete'
-import axios from 'axios'
-
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -29,11 +28,15 @@ import themeConfig from 'src/configs/themeConfig'
 import NoResult from './PendenciaAutoComplete/NoResult'
 import DefaultSuggestions from './PendenciaAutoComplete/DefaultSuggestions'
 
-
+//! FilterDataNew
+import FilterDataNewContent from './filterDataNew'
+const filterDataNew = FilterDataNewContent
 
 const categoryTitle = {
+    Geral: 'Geral',
+    Formulários: 'Formulários',
+    Definições: 'Definições',
     Cadastros: 'Cadastros',
-    Fornecedor: 'Fornecedor',
     Configurações: 'Configurações',
 }
 
@@ -121,38 +124,7 @@ const AutocompleteComponent = ({ hidden, settings }) => {
     const [searchValue, setSearchValue] = useState('')
     const [openDialog, setOpenDialog] = useState(false)
     const [options, setOptions] = useState([])
-    const { routes, menu } = useContext(AuthContext)
 
-    console.log("menu", menu)
-    console.log("routes", routes)
-
-
-    const searchDataNew = () => {
-        const data = [
-            {
-                id: 1,
-                url: '/pop01/fornecedor',
-                icon: 'mdi:chart-donut',
-                title: 'danone',
-                category: 'Fornecedor'
-            },
-            {
-                id: 1,
-                url: '/pop01/fornecedor',
-                icon: 'mdi:chart-donut',
-                title: 'aadsddff',
-                category: 'Fornecedor'
-            },
-            {
-                id: 1,
-                url: '/pop01/fornecedor',
-                icon: 'mdi:chart-donut',
-                title: 'Teste33',
-                category: 'Fornecedor'
-            },
-        ]
-        return data
-    }
 
 
     // ** Hooks & Vars
@@ -164,18 +136,19 @@ const AutocompleteComponent = ({ hidden, settings }) => {
 
     // Get all data using API
     useEffect(() => {
-        axios
-            .get('/app-bar/search', {
-                params: { q: searchValue }
-            })
-            .then(response => {
-                if (response.data && response.data.length) {
-                    setOptions(teste)
-                } else {
-                    setOptions([])
-                }
-            })
+        setOptions(searchData)
+
+        console.log('options', options)
+
+        let resultFilter = filterDataNew(searchValue)
+        if (resultFilter) {
+            setOptions(searchData)
+        } else {
+            setOptions([])
+        }
+
     }, [searchValue])
+
     useEffect(() => {
         if (!openDialog) {
             setSearchValue('')

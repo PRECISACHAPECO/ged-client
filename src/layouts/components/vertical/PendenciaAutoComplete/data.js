@@ -62,7 +62,7 @@ const defaultSuggestionsData = () => {
                 // Menu
                 if (hasPermission(item.rota)) {
                     arrMenu.push({
-                        icon: 'eva:arrow-right-outline',
+                        icon: item.icone,
                         suggestion: item.nome,
                         link: item.rota
                     })
