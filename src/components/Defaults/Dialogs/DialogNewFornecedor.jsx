@@ -259,8 +259,8 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
                                         </Button>
                                     </>
                                 ) : data.isFornecedor && !data.hasFormulario ? (
-                                    <Alert severity='success'>
-                                        Esse CNPJ já é seu fornecedor, mas ainda não preencheu nenhum formulário
+                                    <Alert severity='warning'>
+                                        Esse CNPJ já é seu fornecedor, mas não há nenhum formulário criado
                                     </Alert>
                                 ) : !data.isFornecedor && data.hasFormulario ? (
                                     <Alert severity='warning'>
