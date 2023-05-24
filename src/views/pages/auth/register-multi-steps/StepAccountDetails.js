@@ -185,12 +185,13 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
         }
     }, [unidadeIDRouter, cnpjRouter])
 
+
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Box sx={{ mb: 4 }}>
-                    <Typography variant='h5'>Informações do usuário</Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>Insira os detalhes da usuario</Typography>
+                    <Typography variant='h5'>Informações obrigatórios</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>Insira as informações obrigatórias</Typography>
                 </Box>
                 <Grid container spacing={5}>
 
@@ -235,6 +236,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                     <TextField
                                         fullWidth
                                         label='Razão Social'
+                                        className='required'
                                         defaultValue={dataGlobal?.usuario?.fields?.razaoSocial}
                                         {...register('razaoSocial', { required: true })}
                                         error={errors.razaoSocial && true}

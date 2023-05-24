@@ -27,22 +27,27 @@ const Fornecedor = () => {
         setOpen(true)
     }
 
-    const getList = async () => {
-        await api
-            .post(`${currentLink}/getList`, {
-                unidadeID: loggedUnity.unidadeID,
-                papelID: user.papelID,
-                cnpj: user.cnpj ? user.cnpj : null
-            })
-            .then(response => {
-                setResult(response.data)
-                setTitle('Fornecedor')
-            })
-    }
-
     useEffect(() => {
+        const getList = async () => {
+            await api
+                .post(`${currentLink}/getList`, {
+                    unidadeID: loggedUnity.unidadeID,
+                    papelID: user.papelID,
+                    cnpj: user.cnpj ? user.cnpj : null
+                })
+                .then(response => {
+                    setResult(response.data)
+                    setTitle('Fornecedor')
+                })
+        }
         getList()
     }, [])
+
+    teste = [
+        {
+            id: 1
+        }
+    ]
 
     const arrColumns = [
         {
@@ -52,17 +57,12 @@ const Fornecedor = () => {
         },
         {
             title: 'Fantasia',
-            field: 'nome',
+            field: 'fantasia',
             size: 0.4
         },
         {
             title: 'Fábrica',
             field: 'fabrica',
-            size: 0.2
-        },
-        {
-            title: 'CNPJ',
-            field: 'cnpj',
             size: 0.2
         },
         {
