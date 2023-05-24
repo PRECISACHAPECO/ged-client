@@ -49,7 +49,8 @@ import DialogChangeFormStatus from '../Defaults/Dialogs/DialogChangeFormStatus'
 const FormFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
     const { setTitle } = useContext(ParametersContext)
-    const [isLoading, setLoading] = useState(true)
+    const [isLoading, setLoading] = useState(false) //? loading de carregamento da página
+    const [isLoadingSave, setLoadingSave] = useState(false) //? dependencia do useEffect pra atualizar a página após salvar
 
     const [fields, setFields] = useState([])
     const [data, setData] = useState(null)
@@ -62,6 +63,7 @@ const FormFornecedor = () => {
     const [status, setStatus] = useState(null)
     const [statusEdit, setStatusEdit] = useState(false)
     const [openModalStatus, setOpenModalStatus] = useState(false)
+    const [hasFormPending, setHasFormPending] = useState(true) //? Tem pendencia no formulário (já vinculado em formulário de recebimento, não altera mais o status)
 
     const [canEdit, setCanEdit] = useState({
         status: false,
@@ -95,6 +97,18 @@ const FormFornecedor = () => {
 
     console.log('errors: ', errors)
 
+    const verifyFormPending = async () => {
+        try {
+            const parFormularioID = 1
+            await api.post(`/formularios/fornecedor/verifyFormPending/${id}`, { parFormularioID }).then(response => {
+                console.log('🚀 ~ verifyFormPending:', response.data)
+                setHasFormPending(response.data) //! true/false
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     //* Reabre o formulário pro fornecedor alterar novamente se ainda nao estiver vinculado com recebimento
     const reOpenFormStatus = async status => {
         console.log('reOpenFormStatus: ', status)
@@ -109,8 +123,10 @@ const FormFornecedor = () => {
 
         console.log('reopen: ', data)
         try {
+            setLoadingSave(true)
             await api.post(`${staticUrl}/reOpenFormStatus/${id}`, data).then(response => {
                 toast.success(toastMessage.successUpdate)
+                setLoadingSave(false)
             })
         } catch (error) {
             console.log(error)
@@ -133,8 +149,10 @@ const FormFornecedor = () => {
         if (statusEdit) {
             console.log('updateFormStatus: ', data)
             try {
+                setLoadingSave(true)
                 await api.post(`${staticUrl}/updateFormStatus/${id}`, data).then(response => {
                     toast.success(toastMessage.successUpdate)
+                    setLoadingSave(false)
                 })
             } catch (error) {
                 console.log(error)
@@ -162,18 +180,24 @@ const FormFornecedor = () => {
             unidadeID: loggedUnity.unidadeID,
             papelID: user.papelID
         }
-        await api.post(`${staticUrl}/conclusionAndSendForm/${id}`, data).then(response => {
-            if (response.status === 201) {
-                toast.error(`Erro ao concluir o formulário!`)
-            } else if (response.status === 202) {
-                toast.error(`Erro ao realizar o envio de email para ${user.email}`)
-                toast.success(`Formulário concluído com sucesso!`)
-                getData(id)
-            } else {
-                toast.success(`Formulário concluído com sucesso!`)
-            }
-            setOpenModal(false)
-        })
+        try {
+            setLoadingSave(true)
+            await api.post(`${staticUrl}/conclusionAndSendForm/${id}`, data).then(response => {
+                if (response.status === 201) {
+                    toast.error(`Erro ao concluir o formulário!`)
+                } else if (response.status === 202) {
+                    toast.error(`Erro ao realizar o envio de email para ${user.email}`)
+                    toast.success(`Formulário concluído com sucesso!`)
+                    getData()
+                } else {
+                    toast.success(`Formulário concluído com sucesso!`)
+                }
+                setOpenModal(false)
+                setLoadingSave(false)
+            })
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const getAddressByCep = cepString => {
@@ -225,32 +249,38 @@ const FormFornecedor = () => {
         }
     ]
 
-    const getData = id => {
-        api.get(`${staticUrl}/${id}`).then(response => {
-            console.log('getData: ', response.data)
-            setFields(response.data.fields)
-            setAtividades(response.data.atividades)
-            setSistemasQualidade(response.data.sistemasQualidade)
-            setBlocos(response.data.blocos)
+    const getData = () => {
+        try {
+            setLoading(true)
+            api.get(`${staticUrl}/${id}`).then(response => {
+                console.log('getData: ', response.data)
 
-            setData(response.data.data)
-            setInfo(response.data.info)
-            setUnidade(response.data.unidade)
+                setFields(response.data.fields)
+                setAtividades(response.data.atividades)
+                setSistemasQualidade(response.data.sistemasQualidade)
+                setBlocos(response.data.blocos)
 
-            let objStatus = statusDefault[response.data.info.status]
-            setStatus(objStatus)
+                setData(response.data.data)
+                setInfo(response.data.info)
+                setUnidade(response.data.unidade)
 
-            setCanEdit({
-                status: user.papelID == 2 && response.data.info.status < 40 ? true : false,
-                message:
-                    user.papelID == 2
-                        ? 'Esse formulário já foi concluído e enviado pra fábrica, não é mais possível alterar as informações!'
-                        : 'Somente o fornecedor pode alterar as informações deste formulário!',
-                messageType: user.papelID == 2 ? 'warning' : 'info'
+                let objStatus = statusDefault[response.data.info.status]
+                setStatus(objStatus)
+
+                setCanEdit({
+                    status: user.papelID == 2 && response.data.info.status < 40 ? true : false,
+                    message:
+                        user.papelID == 2
+                            ? 'Esse formulário já foi concluído e enviado pra fábrica, não é mais possível alterar as informações!'
+                            : 'Somente o fornecedor pode alterar as informações deste formulário!',
+                    messageType: user.papelID == 2 ? 'warning' : 'info'
+                })
+
+                setLoading(false)
             })
-
-            setLoading(false)
-        })
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const noPermissions = () => {
@@ -286,8 +316,10 @@ const FormFornecedor = () => {
 
         console.log('submit data: ', data)
         try {
+            setLoadingSave(true)
             await api.put(`${staticUrl}/${id}`, data).then(response => {
                 toast.success(toastMessage.successUpdate)
+                setLoadingSave(false)
             })
         } catch (error) {
             console.log(error)
@@ -296,13 +328,10 @@ const FormFornecedor = () => {
 
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
-
-        if (type == 'new') {
-            noPermissions()
-        } else {
-            getData(id)
-        }
-    }, [])
+        //? Form Fornecedor não tem página NOVO
+        type == 'edit' ? getData() : noPermissions()
+        verifyFormPending()
+    }, [isLoadingSave])
 
     return (
         <>
@@ -739,6 +768,13 @@ const FormFornecedor = () => {
                                 <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
                                     Status do Formulário
                                 </Typography>
+                                {/* Mensagem que não pode mais alterar pq já foi usado */}
+                                {hasFormPending && (
+                                    <Alert severity='warning' sx={{ mb: 4 }}>
+                                        O Status não pode mais ser alterado pois já está sendo utilizado em outro
+                                        formulário!
+                                    </Alert>
+                                )}
                                 <Box display='flex' gap={8}>
                                     <RadioGroup
                                         row
@@ -749,6 +785,7 @@ const FormFornecedor = () => {
                                     >
                                         <FormControlLabel
                                             value={70}
+                                            disabled={hasFormPending}
                                             name={`status`}
                                             {...register(`status`)}
                                             onChange={() => setStatusEdit(true)}
@@ -757,6 +794,7 @@ const FormFornecedor = () => {
                                         />
                                         <FormControlLabel
                                             value={60}
+                                            disabled={hasFormPending}
                                             name={`status`}
                                             {...register(`status`)}
                                             onChange={() => setStatusEdit(true)}
@@ -765,6 +803,7 @@ const FormFornecedor = () => {
                                         />
                                         <FormControlLabel
                                             value={50}
+                                            disabled={hasFormPending}
                                             name={`status`}
                                             {...register(`status`)}
                                             onChange={() => setStatusEdit(true)}
@@ -797,6 +836,7 @@ const FormFornecedor = () => {
                     id={id}
                     parFormularioID={1} // Fornecedor
                     formStatus={info.status}
+                    hasFormPending={hasFormPending}
                     openModal={openModalStatus}
                     handleClose={() => setOpenModalStatus(false)}
                     title='Histórico do Formulário'

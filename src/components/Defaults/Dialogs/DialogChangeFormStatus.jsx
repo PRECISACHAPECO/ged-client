@@ -11,6 +11,9 @@ import { Alert, Autocomplete, Box, FormControl, TextField } from '@mui/material'
 import { statusDefault } from 'src/configs/defaultConfigs'
 import { AuthContext } from 'src/context/AuthContext'
 
+// ** Custom Components
+import CustomChip from 'src/@core/components/mui/chip'
+
 //? Timeline
 import { styled } from '@mui/material/styles'
 import TimelineDot from '@mui/lab/TimelineDot'
@@ -39,6 +42,7 @@ const DialogChangeFormStatus = ({
     id,
     parFormularioID,
     formStatus,
+    hasFormPending,
     title,
     text,
     handleClose,
@@ -49,7 +53,6 @@ const DialogChangeFormStatus = ({
     btnConfirmColor
 }) => {
     const [historic, setHistoric] = useState(false)
-    const [hasFormPending, setHasFormPending] = useState(true) //? Tem pendencia no formulário (já vinculado em formulário de recebimento, não altera mais o status)
     const { user, loggedUnity } = useContext(AuthContext)
     const [selectedStatus, setSelectedStatus] = useState(null)
     const [openModalConfirm, setOpenModalConfirm] = useState(false)
@@ -61,17 +64,6 @@ const DialogChangeFormStatus = ({
             await api.post(`/formularios/fornecedor/getMovementHistory/${id}`, { parFormularioID }).then(response => {
                 console.log('🚀 ~ response:', response.data)
                 setHistoric(response.data)
-            })
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    const verifyFormPending = async () => {
-        try {
-            await api.post(`/formularios/fornecedor/verifyFormPending/${id}`, { parFormularioID }).then(response => {
-                console.log('🚀 ~ verifyFormPending:', response.data)
-                setHasFormPending(response.data) //! true/false
             })
         } catch (error) {
             console.log(error)
@@ -91,7 +83,6 @@ const DialogChangeFormStatus = ({
     useEffect(() => {
         console.log('entrou no useeffect...')
         getMovementHistory()
-        verifyFormPending()
     }, [openModalConfirm]) // Estado do modal de confirmação como dependência
 
     return (
@@ -102,7 +93,7 @@ const DialogChangeFormStatus = ({
                     <DialogContentText sx={{ mb: 3 }}>{text}</DialogContentText>
 
                     {/* Altera status do formulário */}
-                    {user && user.papelID == 1 && !hasFormPending && (
+                    {user && user.papelID == 1 && !hasFormPending && formStatus > 30 && (
                         <Box>
                             <FormControl fullWidth>
                                 <Autocomplete
@@ -158,7 +149,20 @@ const DialogChangeFormStatus = ({
                                                     variant='body2'
                                                     sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}
                                                 >
-                                                    {mov.data + ' - ' + mov.hora}
+                                                    {mov.data + ' - ' + mov.hora + ' '}
+                                                    {index == 0 && (
+                                                        <CustomChip
+                                                            size='small'
+                                                            skin='light'
+                                                            color={statusDefault[mov.statusAtual].color}
+                                                            label='Atual'
+                                                            sx={{
+                                                                '& .MuiChip-label': {
+                                                                    textTransform: 'capitalize'
+                                                                }
+                                                            }}
+                                                        />
+                                                    )}
                                                 </Typography>
                                                 <Typography variant='caption'>{mov.usuario}</Typography>
                                             </Box>

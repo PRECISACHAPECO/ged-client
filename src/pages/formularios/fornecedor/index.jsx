@@ -5,6 +5,7 @@ import { CardContent } from '@mui/material'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
 import DialogNewFornecedor from 'src/components/Defaults/Dialogs/DialogNewFornecedor'
+import { toast } from 'react-hot-toast'
 
 import Loading from 'src/components/Loading'
 
@@ -22,11 +23,49 @@ const Fornecedor = () => {
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
     const [open, setOpen] = useState(false)
+    const [loadingSave, setLoadingSave] = useState(false) //? Dependencia do useEffect pra atualizar listagem ao salvar
 
+    //* Controles modal pra inserir fornecedor
     const openModal = () => {
         setOpen(true)
     }
 
+    const makeFornecedor = async (cnpj, email) => {
+        console.log('🚀 ~ makeFornecedor ~ cnpj, email:', cnpj, email)
+        // setLoading(true)
+        try {
+            setLoadingSave(true)
+            await api
+                .post(`/formularios/fornecedor/makeFornecedor`, {
+                    usuarioID: user.usuarioID,
+                    unidadeID: loggedUnity.unidadeID,
+                    papelID: user.papelID,
+                    cnpj: cnpj
+                })
+                .then(response => {
+                    if (response.status === 200) {
+                        // setData(response.data)
+                        toast.success('Fornecedor habilitado com sucesso')
+                        console.log('tornou um fornecedor.....')
+                        // if (email) {
+                        //     console.log('🚀 enviando email para ', email)
+                        //     sendMail(email)
+                        // }
+                        // setCnpj(null)
+                        // setEmail(null)
+                    } else {
+                        toast.error('Erro ao tornar fornecedor')
+                    }
+                    setLoadingSave(false)
+                    // setLoading(false)
+                    // setOpenConfirmMakeFornecedor(false) // Fecha modal de confirmação
+                })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    //* Controles da listagem
     const getList = async () => {
         await api
             .post(`${currentLink}/getList`, {
@@ -41,8 +80,9 @@ const Fornecedor = () => {
     }
 
     useEffect(() => {
+        console.log('useEffect da listagem...')
         getList()
-    }, [])
+    }, [loadingSave])
 
     const arrColumns = [
         {
@@ -110,9 +150,10 @@ const Fornecedor = () => {
                 text='Tem certeza que deseja excluir?'
                 openModal={open}
                 handleClose={() => setOpen(false)}
-                // handleSubmit={() => envia()}
+                makeFornecedor={makeFornecedor}
                 btnCancel
                 btnConfirm
+                loadingSave={loadingSave}
             />
         </>
     )

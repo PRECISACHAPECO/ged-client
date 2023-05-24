@@ -8,13 +8,20 @@ import {
     TextField,
     DialogContentText,
     Grid,
-    Alert
+    Alert,
+    Typography
 } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import { useEffect, useState, useContext } from 'react'
-import Icon from 'src/@core/components/icon'
 import { AuthContext } from 'src/context/AuthContext'
 import { ParametersContext } from 'src/context/ParametersContext'
+
+import { useRouter } from 'next/router'
+
+// ** Icon Imports
+import Icon from 'src/@core/components/icon'
+
+import { criptoMd5, onlyNumber } from 'src/configs/conversions'
 
 //* CNPJ Mask
 import { cnpjMask } from '../../../configs/masks'
@@ -24,7 +31,9 @@ import { api } from 'src/configs/api'
 import { toast } from 'react-hot-toast'
 import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
 
-const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit }) => {
+const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit, makeFornecedor, loadingSave }) => {
+    const router = useRouter()
+
     const [loading, setLoading] = useState(false)
     const { user, loggedUnity } = useContext(AuthContext)
     const { handleSearch } = useContext(ParametersContext)
@@ -32,8 +41,10 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
     const [cnpj, setCnpj] = useState(null)
     const [viewEmail, setViewEmail] = useState(false)
     const [email, setEmail] = useState(null)
+    const [errorCnpj, setErrorCnpj] = useState(false)
     const [errorEmail, setErrorEmail] = useState(false)
     const [openConfirmMakeFornecedor, setOpenConfirmMakeFornecedor] = useState(false)
+    const [messageCopied, setMessageCopied] = useState(false)
 
     console.log('unidade logada: ' + loggedUnity.nomeFantasia)
 
@@ -46,19 +57,38 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
 
     console.log('🚀 ~ errors:', errors)
 
+    const copyLink = () => {
+        setMessageCopied(true)
+        setTimeout(() => {
+            setMessageCopied(false)
+        }, 5000)
+        //? Criptografa CNPJ e unidadeID, monta URL e copia pra clipboard
+        const cnpjMd5 = criptoMd5(onlyNumber(cnpj))
+        const unidadeIDMd5 = criptoMd5(loggedUnity.unidadeID)
+        const originRoute = window.location.origin
+        const url = `${originRoute}/fornecedor?c=${cnpjMd5}&u=${unidadeIDMd5}`
+        navigator.clipboard.writeText(url)
+    }
+
     const getFornecedorByCnpj = async cnpj => {
-        if (cnpj && cnpj.length === 18 && validationCNPJ(cnpj)) {
-            setLoading(true)
-            await api
-                .post(`/formularios/fornecedor/cnpj`, { unidadeID: loggedUnity.unidadeID, cnpj: cnpj })
-                .then(response => {
-                    console.log('🚀 ~ response:', response.data)
-                    setData(response.data)
-                    setCnpj(cnpj)
-                    setLoading(false)
-                })
-        } else {
-            setCnpj(null)
+        console.log('getFornecedorByCnpj: ', cnpj)
+
+        if (cnpj && cnpj.length === 18) {
+            if (validationCNPJ(cnpj)) {
+                setLoading(true)
+                setErrorCnpj(false)
+                await api
+                    .post(`/formularios/fornecedor/cnpj`, { unidadeID: loggedUnity.unidadeID, cnpj: cnpj })
+                    .then(response => {
+                        console.log('🚀 ~ getFornecedorByCnpj response:', response.data)
+                        setData(response.data)
+                        setCnpj(cnpj)
+                        setLoading(false)
+                    })
+            } else {
+                setCnpj(null)
+                setErrorCnpj(true)
+            }
         }
     }
 
@@ -92,41 +122,20 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
         setOpenConfirmMakeFornecedor(true)
     }
 
-    const makeFornecedor = async () => {
-        setLoading(true)
-        await api
-            .post(`/formularios/fornecedor/makeFornecedor`, {
-                usuarioID: user.usuarioID,
-                unidadeID: loggedUnity.unidadeID,
-                papelID: user.papelID,
-                cnpj: cnpj
-            })
-            .then(response => {
-                if (response.status === 200) {
-                    setData(response.data)
-                    toast.success('Fornecedor habilitado com sucesso')
-                } else {
-                    toast.error('Erro ao tornar fornecedor')
-                }
-                setLoading(false)
-                setOpenConfirmMakeFornecedor(false) // Fecha modal de confirmação
-            })
-    }
-
     // Abre o formulário para enviar e-mail para o fornecedor
-    function sendMail() {
-        setViewEmail(true)
-
-        if (viewEmail && validationEmail(email)) {
+    function sendMail(email) {
+        // setViewEmail(true)
+        if (email && validationEmail(email)) {
             const data = {
                 unidadeID: loggedUnity.unidadeID,
                 cnpj: cnpj,
                 destinatario: email
             }
+            console.log('send email data: ', data)
             api.post('/formularios/fornecedor/sendMail', { data })
                 .then(response => {
                     toast.success('E-mail enviado com sucesso')
-                    handleClose()
+                    // handleClose()
                 })
                 .catch(error => {
                     console.error('Erro ao enviar email', error)
@@ -137,6 +146,13 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
     const onSubmit = values => {
         console.log('🚀 ~ onSubmit ~ values:', values)
     }
+
+    useEffect(() => {
+        console.log('ON USEeFFECT: ', loadingSave)
+        getFornecedorByCnpj(cnpj)
+        setData(null)
+        handleSubmit(onSubmit)
+    }, [loadingSave])
 
     return (
         <>
@@ -157,22 +173,28 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
                                         placeholder='CNPJ'
                                         aria-describedby='validation-schema-nome'
                                         name='cnpj'
+                                        error={errorCnpj}
                                         {...register(`cnpj`, {
                                             required: true,
                                             validate: value => validationCNPJ(value) || 'CNPJ inválido'
                                         })}
-                                        error={errors?.cnpj}
                                         helperText={errors.cnpj?.message}
                                         inputProps={{
                                             maxLength: 18,
                                             onChange: e => {
                                                 setData(null)
                                                 setValue('cnpj', cnpjMask(e.target.value)),
+                                                    setCnpj(cnpjMask(e.target.value)),
                                                     getFornecedorByCnpj(e.target.value),
                                                     setViewEmail(false)
                                             }
                                         }}
                                     />
+                                    {errorCnpj && (
+                                        <Typography variant='body2' color='error'>
+                                            Por favor, insira um CNPJ válido!
+                                        </Typography>
+                                    )}
                                 </FormControl>
                             </Grid>
 
@@ -220,9 +242,22 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
                         <Grid container sx={{ mt: 2 }}>
                             <Grid item xs={12} md={12}>
                                 {data.isFornecedor && data.hasFormulario ? (
-                                    <Alert severity='info'>
-                                        Esse CNPJ já possui formulários preenchidos pra {loggedUnity.nomeFantasia}
-                                    </Alert>
+                                    <>
+                                        <Alert severity='success'>
+                                            Esse CNPJ está habilitado como um Fornecedor da {loggedUnity.nomeFantasia}
+                                        </Alert>
+                                        {/* Copiar link */}
+                                        <Button
+                                            startIcon={
+                                                <Icon icon={messageCopied ? 'mdi:check-bold' : 'iconamoon:copy-bold'} />
+                                            }
+                                            sx={{ mt: 2 }}
+                                            onClick={!messageCopied ? copyLink : null}
+                                            style={{ cursor: messageCopied ? 'default' : 'pointer' }}
+                                        >
+                                            {messageCopied ? 'Copiado!' : 'Copiar Link do Formulário'}
+                                        </Button>
+                                    </>
                                 ) : data.isFornecedor && !data.hasFormulario ? (
                                     <Alert severity='success'>
                                         Esse CNPJ já é seu fornecedor, mas ainda não preencheu nenhum formulário
@@ -242,35 +277,38 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
 
                 <DialogActions className='dialog-actions-dense' sx={{ mx: 2, mb: 2 }}>
                     <Button variant='outlined' onClick={handleClose}>
-                        Cancelar
+                        Fechar
                     </Button>
 
-                    {data && (
-                        <Button
-                            variant='contained'
-                            onClick={
-                                data.isFornecedor && data.hasFormulario
-                                    ? formFilter
-                                    : data.isFornecedor && !data.hasFormulario
-                                    ? sendMail
-                                    : !data.isFornecedor && data.hasFormulario
-                                    ? fornecedorStatus
+                    {data &&
+                        ((data.isFornecedor && data.hasFormulario) ||
+                            (!data.isFornecedor && data.hasFormulario) ||
+                            (!data.isFornecedor && !data.hasFormulario)) && (
+                            <Button
+                                variant='contained'
+                                onClick={
+                                    data.isFornecedor && data.hasFormulario
+                                        ? formFilter
+                                        : // : data.isFornecedor && !data.hasFormulario
+                                        // ? sendMail
+                                        !data.isFornecedor && data.hasFormulario
+                                        ? fornecedorStatus
+                                        : !data.isFornecedor && !data.hasFormulario
+                                        ? confirmMakeFornecedor
+                                        : null
+                                }
+                            >
+                                {data.isFornecedor && data.hasFormulario
+                                    ? 'Filtrar formulários'
+                                    : // : data.isFornecedor && !data.hasFormulario
+                                    // ? 'Enviar e-mail'
+                                    !data.isFornecedor && data.hasFormulario
+                                    ? 'Reativar fornecedor'
                                     : !data.isFornecedor && !data.hasFormulario
-                                    ? confirmMakeFornecedor
-                                    : null
-                            }
-                        >
-                            {data.isFornecedor && data.hasFormulario
-                                ? 'Filtrar formulários'
-                                : data.isFornecedor && !data.hasFormulario
-                                ? 'Enviar e-mail'
-                                : !data.isFornecedor && data.hasFormulario
-                                ? 'Reativar fornecedor'
-                                : !data.isFornecedor && !data.hasFormulario
-                                ? 'Tornar meu fornecedor'
-                                : null}
-                        </Button>
-                    )}
+                                    ? 'Tornar meu fornecedor'
+                                    : null}
+                            </Button>
+                        )}
                 </DialogActions>
             </Dialog>
 
@@ -280,7 +318,9 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
                 text={`Tem certeza que deseja tornar o CNPJ ${cnpj} um fornecedor ativo na ${loggedUnity.nomeFantasia} ? Se sim, o mesmo poderá preencher formulários de Fornecedor para a sua empresa.`}
                 handleClose={() => setOpenConfirmMakeFornecedor(false)}
                 openModal={openConfirmMakeFornecedor}
-                handleSubmit={() => makeFornecedor()}
+                handleSubmit={makeFornecedor}
+                inputEmail
+                cnpj={cnpj}
                 btnCancel
                 btnConfirm
                 btnConfirmColor='primary'
