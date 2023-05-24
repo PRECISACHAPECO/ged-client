@@ -6,23 +6,10 @@ const searchData = [
         id: 1,
         url: '/pop01/fornecedor',
         icon: 'mdi:chart-donut',
-        title: 'Fornecedor',
-        category: 'Fornecedor'
+        title: 'Início',
+        category: 'Geral'
     },
-    {
-        id: 2,
-        url: '/pop01/fornecedor',
-        icon: 'mdi:chart-donut',
-        title: 'Atividade',
-        category: 'Cadastros'
-    },
-    {
-        id: 2,
-        url: '/pop01/fornecedor',
-        icon: 'mdi:chart-donut',
-        title: 'Outros',
-        category: 'Cadastros'
-    }
+
 ]
 
 // ** GET Search Data
@@ -31,15 +18,19 @@ mock.onGet('/app-bar/search').reply(config => {
     const queryLowered = q.toLowerCase()
 
     const exactData = {
+        Geral: [],
         Fornecedor: [],
         Cadastros: [],
         Configurações: [],
+        Definições: [],
     }
 
     const includeData = {
+        Geral: [],
         Fornecedor: [],
         Cadastros: [],
         Configurações: [],
+        Definições: [],
     }
     searchData.forEach(obj => {
         const isMatched = obj.title.toLowerCase().startsWith(queryLowered)
@@ -68,14 +59,16 @@ mock.onGet('/app-bar/search').reply(config => {
         })
     }
     const resultsLength = categoriesCheck.length === 1 ? 5 : 3
+    console.log("🚀 resultsLength:", resultsLength)
 
     return [
         200,
         [
+            ...exactData.Geral.concat(includeData.Geral).slice(0, resultsLength),
             ...exactData.Fornecedor.concat(includeData.Fornecedor).slice(0, resultsLength),
             ...exactData.Cadastros.concat(includeData.Cadastros).slice(0, resultsLength),
             ...exactData.Configurações.concat(includeData.Configurações).slice(0, resultsLength),
-
+            ...exactData.Definições.concat(includeData.Definições).slice(0, resultsLength),
         ]
     ]
 })
