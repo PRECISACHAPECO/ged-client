@@ -6,32 +6,34 @@ import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 
 import { ParametersContext } from 'src/context/ParametersContext'
+import { AuthContext } from 'src/context/AuthContext'
 import { useContext, useEffect } from 'react'
+import Factory from 'src/components/Grapics/factory'
+import Company from 'src/components/Graphics/Company'
 
 const Home = () => {
     const { setTitle } = useContext(ParametersContext)
+    const { user } = useContext(AuthContext)
+
+    console.log(user)
 
     useEffect(() => {
-        setTitle('Home')
+        setTitle(user.papelID == 1 ? 'Home' : user.papelID == 2 ? 'Dashboard' : '')
     }, [])
 
-    return (
+    return user.papelID === 1 ? (
         <Grid container spacing={6}>
             <Grid item xs={12}>
-                <Card>
-                    <CardHeader title='Home' />
-                    <CardContent>
-                        <Typography variant='body1'>lorem ipsum</Typography>
-                    </CardContent>
-                </Card>
+                <Company />
             </Grid>
         </Grid>
-    )
-}
-
-Home.acl = {
-    action: 'read',
-    subject: 'acl-page'
+    ) : user.papelID === 2 ? (
+        <Grid container spacing={6}>
+            <Grid item xs={12}>
+                <Factory />
+            </Grid>
+        </Grid>
+    ) : null
 }
 
 export default Home
