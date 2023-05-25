@@ -104,36 +104,19 @@ const generateReport = props => {
     const route = props.route
     console.log("função report")
 
-    // api.post(route, props.params, { responseType: 'arraybuffer' })
-    //     .then(response => {
-    //         // Converter o buffer do PDF em um objeto Blob
-    //         const blob = new Blob([response.data], { type: 'application/pdf' })
-    //         // Criar um objeto URL para o Blob
-
-    //         const url = URL.createObjectURL(blob)
-    //         // Abrir uma nova aba com o URL do relatório
-    //         window.open(url, '_blank') // '_blank' abre em uma nova aba
-    //     })
-    //     .catch(error => {
-    //         console.error('Erro ao gerar relatório', error)
-    //     })
-    api.post(route, null, { responseType: 'arraybuffer' })
+    api.post(route, props.params, { responseType: 'arraybuffer' })
         .then(response => {
             // Converter o buffer do PDF em um objeto Blob
-            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const blob = new Blob([response.data], { type: 'application/pdf' })
             // Criar um objeto URL para o Blob
-            const url = URL.createObjectURL(blob);
+
+            const url = URL.createObjectURL(blob)
             // Abrir uma nova aba com o URL do relatório
-            const newTab = window.open(url, '_blank'); // '_blank' abre em uma nova aba
-            if (!newTab) {
-                // Se a abertura da nova aba falhar, redirecionar o usuário para o URL
-                window.location.href = url;
-            }
+            // window.open(url, '_blank') // '_blank' abre em uma nova aba
         })
         .catch(error => {
-            console.error('Erro ao gerar relatório', error);
-        });
-
+            console.error('Erro ao gerar relatório', error)
+        })
 }
 
 export { configColumns, formType, backRoute, statusDefault, toastMessage, generateReport }
