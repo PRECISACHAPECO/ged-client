@@ -102,6 +102,7 @@ const backRoute = (route) => {
 // Função pra gerar relatórios
 const generateReport = props => {
     const route = props.route
+    console.log("função report")
 
     api.post(route, props.params, { responseType: 'arraybuffer' })
         .then(response => {

@@ -1,11 +1,11 @@
 // ** React Imports
 
-import { useForm } from 'react-hook-form'
+import { get, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useState } from 'react'
 import { api } from '../../../../configs/api'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 // ** MUI Components
 import Box from '@mui/material/Box'
@@ -25,11 +25,13 @@ import IconButton from '@mui/material/IconButton'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import Link from 'next/link'
+import { set } from 'nprogress'
 
 const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
     const router = Router
     const rota = router.pathname
     const [existsTableFactory, setExistsTableFactory] = useState(null)
+    const inputRef = useRef(null)
 
     const [values, setValues] = useState({
         showPassword: false,
@@ -182,14 +184,21 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
             cnpj
         }
         await api.post(`/login-fornecedor/setAcessLink`, { data })
+            .then((response, err) => {
+                handleGetCnpj(response.data[0].cnpj)
+                setValue('cnpj', response.data[0].cnpj)
+            })
     }
 
     useEffect(() => {
         if (unidadeIDRouter && cnpjRouter) {
             setAcessLink(unidadeIDRouter, cnpjRouter)
+            setTimeout(() => {
+                inputRef.current.focus()
+            }, 500)
         }
-    }, [unidadeIDRouter, cnpjRouter])
 
+    }, [unidadeIDRouter, cnpjRouter])
 
     return (
         <>
@@ -218,7 +227,6 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 inputMode: 'numeric', // define o inputMode como 'numeric'
                                 onChange: e => {
                                     setValue('cnpj', cnpjMask(e.target.value))
-
                                 }
                             }}
                         />
@@ -243,6 +251,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                         defaultValue={dataGlobal?.usuario?.fields?.nomeFantasia}
                                         {...register('nomeFantasia', { required: true })}
                                         error={errors.nomeFantasia && true}
+                                        inputRef={inputRef}
                                         helperText={errors.nomeFantasia && errors.nomeFantasia.message}
                                     />
                                 </Grid>

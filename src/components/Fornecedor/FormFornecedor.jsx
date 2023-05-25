@@ -233,7 +233,7 @@ const FormFornecedor = () => {
             id: 2,
             name: 'Recepção',
             identification: '02',
-            route: '/relatorio/recepcao'
+            route: 'relatorio/recepcao'
         },
         {
             id: 3,
