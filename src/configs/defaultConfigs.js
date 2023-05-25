@@ -102,6 +102,7 @@ const backRoute = (route) => {
 // Função pra gerar relatórios
 const generateReport = props => {
     const route = props.route
+    console.log("função report")
 
     api.post(route, props.params, { responseType: 'arraybuffer' })
         .then(response => {
@@ -111,7 +112,7 @@ const generateReport = props => {
 
             const url = URL.createObjectURL(blob)
             // Abrir uma nova aba com o URL do relatório
-            window.open(url, '_blank') // '_blank' abre em uma nova aba
+            // window.open(url, '_blank') // '_blank' abre em uma nova aba
         })
         .catch(error => {
             console.error('Erro ao gerar relatório', error)

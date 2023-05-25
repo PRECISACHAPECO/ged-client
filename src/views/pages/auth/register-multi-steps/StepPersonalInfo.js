@@ -51,8 +51,8 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <Box sx={{ mb: 4 }}>
-                <Typography variant='h5'>Informações do usuário</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>Insira os detalhes do usuário</Typography>
+                <Typography variant='h5'>Informações opcionais</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>Insira as informações opcionais</Typography>
             </Box>
 
             <Grid container spacing={5}>

@@ -16,7 +16,6 @@ body {
     height: 100%;
 }
 
-
 code {
     font-family: 'Inter', sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
         'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue';
@@ -49,7 +48,6 @@ code[class*='language-'] {
     border-bottom: 1px solid #4c4e641f;
     border-radius: 4px;
 }
-
 
 .fadeIn {
     animation: fadeIn ease 1s;

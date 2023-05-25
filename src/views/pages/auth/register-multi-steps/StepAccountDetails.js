@@ -1,11 +1,11 @@
 // ** React Imports
 
-import { useForm } from 'react-hook-form'
+import { get, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useState } from 'react'
 import { api } from '../../../../configs/api'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 // ** MUI Components
 import Box from '@mui/material/Box'
@@ -19,16 +19,19 @@ import Router from 'next/router'
 import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
 import InputAdornment from '@mui/material/InputAdornment'
-import { OutlinedInput } from '@mui/material'
+import { Alert, OutlinedInput } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import Link from 'next/link'
+import { set } from 'nprogress'
 
 const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
     const router = Router
     const rota = router.pathname
+    const [existsTableFactory, setExistsTableFactory] = useState(null)
+    const inputRef = useRef(null)
 
     const [values, setValues] = useState({
         showPassword: false,
@@ -110,8 +113,12 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
         resolver: yupResolver(schema)
     })
 
+
     const handleGetCnpj = (cnpj) => {
         if (cnpj.length === 18 && validationCNPJ(cnpj)) {
+            api.post(`/registro-fornecedor`, { value: cnpj }, { headers: { 'function-name': 'VerifyCnpjTableFactory' } }).then((response, err) => {
+                setExistsTableFactory(response.data)
+            })
             api.post(`/registro-fornecedor`, { cnpj: cnpj }, { headers: { 'function-name': 'handleGetCnpj' } }).then((response, err) => {
                 console.log("🚀 ~ :", response.data)
                 if (response.data.length > 0) {
@@ -177,20 +184,28 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
             cnpj
         }
         await api.post(`/login-fornecedor/setAcessLink`, { data })
+            .then((response, err) => {
+                handleGetCnpj(response.data[0].cnpj)
+                setValue('cnpj', response.data[0].cnpj)
+            })
     }
 
     useEffect(() => {
         if (unidadeIDRouter && cnpjRouter) {
             setAcessLink(unidadeIDRouter, cnpjRouter)
+            setTimeout(() => {
+                inputRef.current.focus()
+            }, 500)
         }
+
     }, [unidadeIDRouter, cnpjRouter])
 
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Box sx={{ mb: 4 }}>
-                    <Typography variant='h5'>Informações do usuário</Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>Insira os detalhes da usuario</Typography>
+                    <Typography variant='h5'>Informações obrigatórios</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>Insira as informações obrigatórias</Typography>
                 </Box>
                 <Grid container spacing={5}>
 
@@ -212,14 +227,22 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 inputMode: 'numeric', // define o inputMode como 'numeric'
                                 onChange: e => {
                                     setValue('cnpj', cnpjMask(e.target.value))
-
                                 }
                             }}
                         />
                     </Grid>
 
                     {
-                        dataGlobal && dataGlobal?.usuario?.exists === false && (
+                        !existsTableFactory && dataGlobal?.usuario?.exists === false && (
+                            <Grid item xs={12} md={12}>
+                                <Alert severity='warning'>
+                                    Antes de realizar o cadastro, é necessário que uma fábrica habilite o seu CNPJ como um fornecedor.
+                                </Alert>
+                            </Grid>
+                        )
+                    }
+                    {
+                        dataGlobal && dataGlobal?.usuario?.exists === false && existsTableFactory === true && (
                             <>
                                 <Grid item xs={12} md={6}>
                                     <TextField
@@ -228,6 +251,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                         defaultValue={dataGlobal?.usuario?.fields?.nomeFantasia}
                                         {...register('nomeFantasia', { required: true })}
                                         error={errors.nomeFantasia && true}
+                                        inputRef={inputRef}
                                         helperText={errors.nomeFantasia && errors.nomeFantasia.message}
                                     />
                                 </Grid>
@@ -235,6 +259,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                     <TextField
                                         fullWidth
                                         label='Razão Social'
+                                        className='required'
                                         defaultValue={dataGlobal?.usuario?.fields?.razaoSocial}
                                         {...register('razaoSocial', { required: true })}
                                         error={errors.razaoSocial && true}
@@ -346,7 +371,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 </Box>
 
                                 {
-                                    dataGlobal?.usuario?.fields?.existsFornecedor === 0 && (
+                                    dataGlobal?.usuario?.fields?.existsFornecedor === 0 && existsTableFactory && (
                                         <>
                                             <h3 sx={{ color: 'text.primary', marginTop: "10px" }}>Empresa já cadastrada, apenas é necessario criar um usuário</h3>
                                             <Grid item xs={12} sm={6} mt={6}>
@@ -415,7 +440,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 Anterior
                             </Button>
                             <Button
-                                disabled={dataGlobal?.usuario?.exists === true && dataGlobal?.usuario?.fields?.existsFornecedor > 0 ? true : false}
+                                disabled={!existsTableFactory || (dataGlobal?.usuario?.exists === true && dataGlobal?.usuario?.fields?.existsFornecedor > 0 ? true : false)}
                                 type='submit'
                                 variant='contained'
                                 onClick={handleSubmit}

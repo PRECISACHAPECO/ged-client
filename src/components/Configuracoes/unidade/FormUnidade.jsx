@@ -114,7 +114,6 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
             } else if (type === 'edit') {
                 await api.put(`${staticUrl}/${id}`, data)
                 toast.success(toastMessage.successUpdate)
-                console.log('editado')
                 console.log(data)
             }
         } catch (error) {
@@ -149,7 +148,7 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
                 const response = await api.get(`${staticUrl}/${id}`)
                 reset(response.data)
                 setData(response.data)
-                console.log(response.data)
+                console.log('vem do banco', response.data)
             } catch (error) {
                 console.log(error)
             }
@@ -159,6 +158,8 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
             inputRef.current.focus()
         }
     }, [])
+
+    console.log('unidade')
 
     return (
         <>
