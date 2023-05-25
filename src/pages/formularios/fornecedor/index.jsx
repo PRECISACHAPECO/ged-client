@@ -33,7 +33,6 @@ const Fornecedor = () => {
         setOpen(true)
     }
 
-<<<<<<< HEAD
     useEffect(() => {
         const getList = async () => {
             await api
@@ -47,7 +46,9 @@ const Fornecedor = () => {
                     setTitle('Fornecedor')
                 })
         }
-=======
+        getList()
+    }, [loadingSave])
+
     const makeFornecedor = async (cnpj, email) => {
         console.log('🚀 ~ makeFornecedor ~ cnpj, email:', cnpj, email)
         // setLoading(true)
