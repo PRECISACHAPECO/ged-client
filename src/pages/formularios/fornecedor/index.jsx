@@ -5,6 +5,7 @@ import { CardContent } from '@mui/material'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
 import DialogNewFornecedor from 'src/components/Defaults/Dialogs/DialogNewFornecedor'
+import { validationCNPJ, validationEmail } from '../../../configs/validations'
 import { toast } from 'react-hot-toast'
 
 import Loading from 'src/components/Loading'
@@ -24,6 +25,8 @@ const Fornecedor = () => {
     const { setTitle } = useContext(ParametersContext)
     const [open, setOpen] = useState(false)
     const [loadingSave, setLoadingSave] = useState(false) //? Dependencia do useEffect pra atualizar listagem ao salvar
+
+    console.log('result: ', result)
 
     //* Controles modal pra inserir fornecedor
     const openModal = () => {
@@ -47,12 +50,10 @@ const Fornecedor = () => {
                         // setData(response.data)
                         toast.success('Fornecedor habilitado com sucesso')
                         console.log('tornou um fornecedor.....')
-                        // if (email) {
-                        //     console.log('🚀 enviando email para ', email)
-                        //     sendMail(email)
-                        // }
-                        // setCnpj(null)
-                        // setEmail(null)
+                        if (email) {
+                            console.log('🚀 enviando email para ', email)
+                            sendMail(email, cnpj)
+                        }
                     } else {
                         toast.error('Erro ao tornar fornecedor')
                     }
@@ -62,6 +63,27 @@ const Fornecedor = () => {
                 })
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    // Abre o formulário para enviar e-mail para o fornecedor
+    const sendMail = (email, cnpj) => {
+        // setViewEmail(true)
+        if (email && validationEmail(email)) {
+            const data = {
+                unidadeID: loggedUnity.unidadeID,
+                cnpj: cnpj,
+                destinatario: email
+            }
+            console.log('send email data: ', data)
+            api.post('/formularios/fornecedor/sendMail', { data })
+                .then(response => {
+                    toast.success('E-mail enviado com sucesso')
+                    // handleClose()
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar email', error)
+                })
         }
     }
 
@@ -80,8 +102,8 @@ const Fornecedor = () => {
     }
 
     useEffect(() => {
-        console.log('useEffect da listagem...')
         getList()
+        console.log('useEffect da listagem...')
     }, [loadingSave])
 
     const arrColumns = [
@@ -92,13 +114,8 @@ const Fornecedor = () => {
         },
         {
             title: 'Fantasia',
-            field: 'nome',
+            field: 'fantasia',
             size: 0.4
-        },
-        {
-            title: 'Fábrica',
-            field: 'fabrica',
-            size: 0.2
         },
         {
             title: 'CNPJ',

@@ -56,8 +56,10 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
     } = useForm({})
 
     console.log('🚀 ~ errors:', errors)
+    console.log('🚀 ~ email:', email)
 
     const copyLink = () => {
+        //? Mantém o "copiado" por 5 segundos
         setMessageCopied(true)
         setTimeout(() => {
             setMessageCopied(false)
@@ -122,27 +124,6 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
         setOpenConfirmMakeFornecedor(true)
     }
 
-    // Abre o formulário para enviar e-mail para o fornecedor
-    function sendMail(email) {
-        // setViewEmail(true)
-        if (email && validationEmail(email)) {
-            const data = {
-                unidadeID: loggedUnity.unidadeID,
-                cnpj: cnpj,
-                destinatario: email
-            }
-            console.log('send email data: ', data)
-            api.post('/formularios/fornecedor/sendMail', { data })
-                .then(response => {
-                    toast.success('E-mail enviado com sucesso')
-                    // handleClose()
-                })
-                .catch(error => {
-                    console.error('Erro ao enviar email', error)
-                })
-        }
-    }
-
     const onSubmit = values => {
         console.log('🚀 ~ onSubmit ~ values:', values)
     }
@@ -152,7 +133,10 @@ const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit
         getFornecedorByCnpj(cnpj)
         setData(null)
         handleSubmit(onSubmit)
-    }, [loadingSave])
+
+        setCnpj(null)
+        setEmail(null)
+    }, [openModal, loadingSave])
 
     return (
         <>

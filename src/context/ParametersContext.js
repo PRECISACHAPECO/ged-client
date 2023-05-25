@@ -11,8 +11,10 @@ const ParametersProvider = ({ children }) => {
 
     //* Função para filtrar os dados da tabela
     const handleSearch = searchValue => {
+
         setSearchText(searchValue)
         const searchWords = searchValue.toLowerCase().split(' ').filter(word => word !== '')
+
         const filteredRows = data.filter(row => {
             return searchWords.every(word => {
                 return Object.keys(row).some(field => {

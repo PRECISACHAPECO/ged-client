@@ -25,6 +25,8 @@ const DialogForm = ({
     const [email, setEmail] = useState(null)
     const [errorEmail, setErrorEmail] = useState(false)
 
+    console.log('dialog email: ', email)
+
     return (
         <>
             <Dialog open={openModal} onClose={handleClose} aria-labelledby='form-dialog-title'>
@@ -85,11 +87,13 @@ const DialogForm = ({
                                 inputEmail && cnpj
                                     ? () => {
                                           handleSubmit(cnpj, email)
+                                          setEmail(null)
                                           handleClose()
                                       }
                                     : inputEmail && !cnpj
                                     ? () => {
                                           handleSubmit(email)
+                                          setEmail(null)
                                           handleClose()
                                       }
                                     : () => {
