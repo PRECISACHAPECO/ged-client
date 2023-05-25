@@ -64,6 +64,7 @@ const FormFornecedor = () => {
     const [statusEdit, setStatusEdit] = useState(false)
     const [openModalStatus, setOpenModalStatus] = useState(false)
     const [hasFormPending, setHasFormPending] = useState(true) //? Tem pendencia no formulário (já vinculado em formulário de recebimento, não altera mais o status)
+    const [watchRegistroEstabelecimento, setWatchRegistroEstabelecimento] = useState(null)
 
     const [canEdit, setCanEdit] = useState({
         status: false,
@@ -79,15 +80,25 @@ const FormFornecedor = () => {
     const { settings } = useContext(SettingsContext)
     const mode = settings.mode
 
-    // criar validação DINAMICA com reduce no Yup, varrendo campos fields e validando os valores vindos em defaultValues
     const defaultValues =
         data &&
         fields.reduce((defaultValues, field) => {
-            defaultValues[field.nomeColuna] = data[field.nomeColuna]
+            if (field.tabela) {
+                // Select (objeto com id e nome)
+                defaultValues[field.tabela] = {
+                    id: data[field.tabela]?.id,
+                    nome: data[field.tabela]?.nome
+                }
+            } else {
+                // Input
+                defaultValues[field.nomeColuna] = data[field.nomeColuna]
+            }
+
             return defaultValues
         }, {})
 
     const {
+        watch,
         register,
         control,
         setValue,
@@ -97,11 +108,12 @@ const FormFornecedor = () => {
 
     console.log('errors: ', errors)
 
+    console.log('controlRegistroEstabelecimento > watchRegistroEstabelecimento > ', watchRegistroEstabelecimento)
+
     const verifyFormPending = async () => {
         try {
             const parFormularioID = 1
             await api.post(`/formularios/fornecedor/verifyFormPending/${id}`, { parFormularioID }).then(response => {
-                console.log('🚀 ~ verifyFormPending:', response.data)
                 setHasFormPending(response.data) //! true/false
             })
         } catch (error) {
@@ -121,7 +133,6 @@ const FormFornecedor = () => {
             }
         }
 
-        console.log('reopen: ', data)
         try {
             setLoadingSave(true)
             await api.post(`${staticUrl}/reOpenFormStatus/${id}`, data).then(response => {
@@ -276,6 +287,8 @@ const FormFornecedor = () => {
                     messageType: user.papelID == 2 ? 'warning' : 'info'
                 })
 
+                setWatchRegistroEstabelecimento(response.data.data?.registroestabelecimento)
+
                 setLoading(false)
             })
         } catch (error) {
@@ -403,6 +416,41 @@ const FormFornecedor = () => {
                                     fields.map((field, index) => (
                                         <Grid key={index} item xs={12} md={3}>
                                             <FormControl fullWidth>
+                                                {/* int (select) */}
+                                                {field && field.tipo === 'int' && field.tabela && (
+                                                    <Autocomplete
+                                                        disabled={!canEdit.status}
+                                                        options={field.options}
+                                                        getOptionSelected={(option, value) => option.id === value.id}
+                                                        defaultValue={
+                                                            defaultValues?.[field.tabela]?.id
+                                                                ? defaultValues[field.tabela]
+                                                                : null
+                                                        }
+                                                        getOptionLabel={option => option.nome}
+                                                        name={`header.${field.tabela}`}
+                                                        {...register(`header.${field.tabela}`, {
+                                                            required: !!field.obrigatorio
+                                                        })}
+                                                        onChange={(event, newValue) => {
+                                                            setValue(`header.${field.tabela}`, newValue ? newValue : '')
+                                                            field.tabela == 'registroestabelecimento'
+                                                                ? setWatchRegistroEstabelecimento(
+                                                                      watch('header.registroestabelecimento')
+                                                                  )
+                                                                : null
+                                                        }}
+                                                        renderInput={params => (
+                                                            <TextField
+                                                                {...params}
+                                                                label={field.nomeCampo}
+                                                                placeholder={field.nomeCampo}
+                                                                error={errors?.header?.[field.tabela] ? true : false}
+                                                            />
+                                                        )}
+                                                    />
+                                                )}
+
                                                 {/* Date */}
                                                 {field && field.tipo == 'date' && (
                                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -426,48 +474,52 @@ const FormFornecedor = () => {
                                                     </LocalizationProvider>
                                                 )}
                                                 {/* Textfield */}
-                                                {field && field.tipo == 'string' && (
-                                                    <TextField
-                                                        defaultValue={
-                                                            defaultValues ? defaultValues[field.nomeColuna] : ''
-                                                        }
-                                                        label={field.nomeCampo}
-                                                        disabled={!canEdit.status}
-                                                        placeholder={field.nomeCampo}
-                                                        name={`header.${field.nomeColuna}`}
-                                                        aria-describedby='validation-schema-nome'
-                                                        error={errors?.header?.[field.nomeColuna] ? true : false}
-                                                        {...register(`header.${field.nomeColuna}`, {
-                                                            required: !!field.obrigatorio && canEdit.status
-                                                        })}
-                                                        // Validações
-                                                        onChange={e => {
-                                                            field.nomeColuna == 'cnpj'
-                                                                ? (e.target.value = cnpjMask(e.target.value))
-                                                                : field.nomeColuna == 'cep'
-                                                                ? ((e.target.value = cepMask(e.target.value)),
-                                                                  getAddressByCep(e.target.value))
-                                                                : field.nomeColuna == 'telefone'
-                                                                ? (e.target.value = cellPhoneMask(e.target.value))
-                                                                : field.nomeColuna == 'estado'
-                                                                ? (e.target.value = ufMask(e.target.value))
-                                                                : (e.target.value = e.target.value)
-                                                        }}
-                                                        // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
-                                                        inputProps={
-                                                            // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
-                                                            field.nomeColuna == 'cnpj'
-                                                                ? { maxLength: 18 }
-                                                                : field.nomeColuna == 'cep'
-                                                                ? { maxLength: 9 }
-                                                                : field.nomeColuna == 'telefone'
-                                                                ? { maxLength: 15 }
-                                                                : field.nomeColuna == 'estado'
-                                                                ? { maxLength: 2 }
-                                                                : {}
-                                                        }
-                                                    />
-                                                )}
+                                                {/* Nº Registro, só mostra se registro do estabelecimento for MAPA ou ANVISA */}
+                                                {field &&
+                                                    field.tipo == 'string' &&
+                                                    (field.nomeColuna != 'numeroRegistro' ||
+                                                        watchRegistroEstabelecimento?.id > 1) && (
+                                                        <TextField
+                                                            defaultValue={
+                                                                defaultValues ? defaultValues[field.nomeColuna] : ''
+                                                            }
+                                                            label={field.nomeCampo}
+                                                            disabled={!canEdit.status}
+                                                            placeholder={field.nomeCampo}
+                                                            name={`header.${field.nomeColuna}`}
+                                                            aria-describedby='validation-schema-nome'
+                                                            error={errors?.header?.[field.nomeColuna] ? true : false}
+                                                            {...register(`header.${field.nomeColuna}`, {
+                                                                required: !!field.obrigatorio && canEdit.status
+                                                            })}
+                                                            // Validações
+                                                            onChange={e => {
+                                                                field.nomeColuna == 'cnpj'
+                                                                    ? (e.target.value = cnpjMask(e.target.value))
+                                                                    : field.nomeColuna == 'cep'
+                                                                    ? ((e.target.value = cepMask(e.target.value)),
+                                                                      getAddressByCep(e.target.value))
+                                                                    : field.nomeColuna == 'telefone'
+                                                                    ? (e.target.value = cellPhoneMask(e.target.value))
+                                                                    : field.nomeColuna == 'estado'
+                                                                    ? (e.target.value = ufMask(e.target.value))
+                                                                    : (e.target.value = e.target.value)
+                                                            }}
+                                                            // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
+                                                            inputProps={
+                                                                // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
+                                                                field.nomeColuna == 'cnpj'
+                                                                    ? { maxLength: 18 }
+                                                                    : field.nomeColuna == 'cep'
+                                                                    ? { maxLength: 9 }
+                                                                    : field.nomeColuna == 'telefone'
+                                                                    ? { maxLength: 15 }
+                                                                    : field.nomeColuna == 'estado'
+                                                                    ? { maxLength: 2 }
+                                                                    : {}
+                                                            }
+                                                        />
+                                                    )}
                                             </FormControl>
                                         </Grid>
                                     ))}

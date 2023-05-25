@@ -34,12 +34,10 @@ const Fornecedor = () => {
     }
 
     const makeFornecedor = async (cnpj, email) => {
-        console.log('🚀 ~ makeFornecedor ~ cnpj, email:', cnpj, email)
-        // setLoading(true)
         try {
             setLoadingSave(true)
             await api
-                .post(`/formularios/fornecedor/makeFornecedor`, {
+                .post(`${currentLink}/makeFornecedor`, {
                     usuarioID: user.usuarioID,
                     unidadeID: loggedUnity.unidadeID,
                     papelID: user.papelID,
@@ -47,39 +45,31 @@ const Fornecedor = () => {
                 })
                 .then(response => {
                     if (response.status === 200) {
-                        // setData(response.data)
                         toast.success('Fornecedor habilitado com sucesso')
                         console.log('tornou um fornecedor.....')
                         if (email) {
-                            console.log('🚀 enviando email para ', email)
                             sendMail(email, cnpj)
                         }
                     } else {
                         toast.error('Erro ao tornar fornecedor')
                     }
                     setLoadingSave(false)
-                    // setLoading(false)
-                    // setOpenConfirmMakeFornecedor(false) // Fecha modal de confirmação
                 })
         } catch (error) {
             console.log(error)
         }
     }
 
-    // Abre o formulário para enviar e-mail para o fornecedor
     const sendMail = (email, cnpj) => {
-        // setViewEmail(true)
         if (email && validationEmail(email)) {
             const data = {
                 unidadeID: loggedUnity.unidadeID,
                 cnpj: cnpj,
                 destinatario: email
             }
-            console.log('send email data: ', data)
-            api.post('/formularios/fornecedor/sendMail', { data })
+            api.post(`${currentLink}/sendMail`, { data })
                 .then(response => {
                     toast.success('E-mail enviado com sucesso')
-                    // handleClose()
                 })
                 .catch(error => {
                     console.error('Erro ao enviar email', error)
@@ -103,7 +93,6 @@ const Fornecedor = () => {
 
     useEffect(() => {
         getList()
-        console.log('useEffect da listagem...')
     }, [loadingSave])
 
     const arrColumns = [
@@ -163,13 +152,9 @@ const Fornecedor = () => {
             )}
 
             <DialogNewFornecedor
-                title='Excluir dado'
-                text='Tem certeza que deseja excluir?'
                 openModal={open}
                 handleClose={() => setOpen(false)}
                 makeFornecedor={makeFornecedor}
-                btnCancel
-                btnConfirm
                 loadingSave={loadingSave}
             />
         </>
