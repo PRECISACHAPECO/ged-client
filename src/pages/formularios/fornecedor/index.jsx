@@ -43,11 +43,7 @@ const Fornecedor = () => {
         getList()
     }, [])
 
-    teste = [
-        {
-            id: 1
-        }
-    ]
+    console.log('dados do bakc', result)
 
     const arrColumns = [
         {
