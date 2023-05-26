@@ -1,28 +1,27 @@
 import React from 'react'
 import { api } from 'src/configs/api'
 
-const App = () => {
-    const handleGerarRelatorio = () => {
-        const fornecedorID = 1
-        const unidadeID = 1
-        api.get(`/relatorio/fornecedor/?fornecedorID=${fornecedorID}&unidadeID=${unidadeID}`, {
-            responseType: 'blob' // Define o tipo de resposta como um blob (arquivo)
-        })
-            .then(response => {
-                const file = new Blob([response.data], { type: 'application/pdf' })
-                const fileURL = URL.createObjectURL(file)
-                window.open(fileURL) // Abre o arquivo em uma nova guia
-            })
-            .catch(error => {
-                console.error('Erro ao gerar relatório:', error)
-            })
+function Report() {
+    const openReport = async () => {
+        try {
+            // const response = await fetch('http://localhost:3333/api/report')
+            const response = await fetch('https://demo.gedagro.com.br/api/report')
+
+            const blob = await response.blob()
+            const url = URL.createObjectURL(blob)
+
+            // Abrir o relatório em uma nova guia do navegador
+            window.open(url, '_blank')
+        } catch (error) {
+            console.error('Erro ao abrir o relatório:', error)
+        }
     }
 
     return (
         <div>
-            <button onClick={handleGerarRelatorio}>Gerar Relatório</button>
+            <button onClick={openReport}>Abrir Relatório</button>
         </div>
     )
 }
 
-export default App
+export default Report
