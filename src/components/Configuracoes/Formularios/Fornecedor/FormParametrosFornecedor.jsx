@@ -588,11 +588,6 @@ const FormParametrosFornecedor = () => {
                                                     </IconButton>
                                                 </Tooltip>
                                             </Grid>
-
-                                            {/* <Grid item md={1}>
-                                                <Typography variant='body2'>{indexItem == 0 ? 'ID' : ''}</Typography>
-                                                <Typography variant='body2'>2589</Typography>
-                                            </Grid> */}
                                         </Grid>
                                     ))}
                                 {/* Modal que define a pontuação das respostas */}
