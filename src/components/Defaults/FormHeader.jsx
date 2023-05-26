@@ -15,7 +15,9 @@ const FormHeader = ({
     btnSend,
     btnChangeStatus,
     handleSubmit,
+    disabledSubmit,
     handleSend,
+    disabledSend,
     handleChangeStatus,
     btnDelete,
     onclickDelete,
@@ -155,7 +157,7 @@ const FormHeader = ({
                             variant='outlined'
                             size='medium'
                             color='primary'
-                            disabled={disabled}
+                            disabled={disabled || disabledSubmit}
                             startIcon={<Icon icon='material-symbols:save' />}
                         >
                             Salvar
@@ -170,7 +172,7 @@ const FormHeader = ({
                             variant='contained'
                             size='medium'
                             color='primary'
-                            disabled={disabled}
+                            disabled={disabled || disabledSend}
                             sx={{ ml: 2 }}
                             startIcon={<Icon icon='carbon:send-filled' />}
                         >
@@ -198,7 +200,7 @@ const FormHeader = ({
                                 onClick={handleSubmit}
                                 type='submit'
                                 variant='contained'
-                                disabled={disabled}
+                                disabled={disabled || disabledSubmit}
                             >
                                 <Icon icon='material-symbols:save' />
                             </Fab>

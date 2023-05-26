@@ -57,7 +57,10 @@ const FormFornecedor = () => {
     const [categorias, setCategorias] = useState([])
     const [atividades, setAtividades] = useState([])
     const [sistemasQualidade, setSistemasQualidade] = useState([])
-    const [blocos, setBlocos] = useState([])
+
+    const [allBlocks, setAllBlocks] = useState([])
+    const [blocks, setBlocks] = useState([])
+
     const [info, setInfo] = useState('')
     const [openModal, setOpenModal] = useState(false)
     const [unidade, setUnidade] = useState(null)
@@ -66,6 +69,7 @@ const FormFornecedor = () => {
     const [openModalStatus, setOpenModalStatus] = useState(false)
     const [hasFormPending, setHasFormPending] = useState(true) //? Tem pendencia no formulário (já vinculado em formulário de recebimento, não altera mais o status)
     const [watchRegistroEstabelecimento, setWatchRegistroEstabelecimento] = useState(null)
+    const [countViewBlocks, setCountViewBlocks] = useState(0)
 
     const [canEdit, setCanEdit] = useState({
         status: false,
@@ -265,6 +269,54 @@ const FormFornecedor = () => {
         }
     ]
 
+    const setVisibleBlocks = (blocks, categorias) => {
+        let arrVisibleBlocks = []
+
+        blocks.map((block, index) => {
+            if (canViewBlock(block.categorias, categorias)) {
+                //? Fornecedor pode ver o bloco
+                arrVisibleBlocks.push(block)
+            }
+        })
+
+        setBlocks(arrVisibleBlocks)
+    }
+
+    const changeCategory = (id, checked) => {
+        const arrNewCategories = categorias.map(categoria => {
+            if (categoria.categoriaID === id) {
+                return {
+                    ...categoria,
+                    checked: checked
+                }
+            }
+            return categoria
+        })
+        setCategorias(arrNewCategories)
+        setVisibleBlocks(allBlocks, arrNewCategories)
+    }
+
+    //! Controla visualização do bloco baseado na categoria e atividade
+    const canViewBlock = (arrCategoriasBloco, categorias) => {
+        const categoriasBloco = arrCategoriasBloco.map(objeto => objeto.categoriaID)
+        const categoriasFornecedor = categorias.filter(objeto => objeto.checked).map(objeto => objeto.categoriaID)
+
+        if (categoriasBloco.length !== categoriasFornecedor.length) {
+            return false // Se os arrays tiverem comprimentos diferentes, não contêm os mesmos valores
+        }
+
+        const sortedCategoriasBloco = [...categoriasBloco].sort()
+        const sortedCategoriasFornecedor = [...categoriasFornecedor].sort()
+
+        for (let i = 0; i < sortedCategoriasBloco.length; i++) {
+            if (sortedCategoriasBloco[i] !== sortedCategoriasFornecedor[i]) {
+                return false // Se houver diferença em qualquer posição, não contêm os mesmos valores
+            }
+        }
+
+        return true // Se chegou até aqui, os arrays contêm os mesmos valores
+    }
+
     const getData = () => {
         try {
             setLoading(true)
@@ -275,7 +327,9 @@ const FormFornecedor = () => {
                 setCategorias(response.data.categorias)
                 setAtividades(response.data.atividades)
                 setSistemasQualidade(response.data.sistemasQualidade)
-                setBlocos(response.data.blocos)
+
+                setAllBlocks(response.data.blocos)
+                setVisibleBlocks(response.data.blocos, response.data.categorias)
 
                 setData(response.data.data)
                 setInfo(response.data.info)
@@ -345,29 +399,6 @@ const FormFornecedor = () => {
         }
     }
 
-    //! Controla visualização do bloco baseado na categoria e atividade
-    const canViewBlock = (arrCategoriasBloco, arrAtividadesBloco) => {
-        console.log('🚀 Bloco: arrCategoriasBloco, arrAtividadesBloco:', arrCategoriasBloco, arrAtividadesBloco)
-
-        console.log('🚀 Fornecedor: Categorias, Atividades:', categorias, atividades)
-
-        // Mapeia os IDs das categorias da array A
-        const categoriasBloco = arrCategoriasBloco.map(objeto => objeto.categoriaID)
-        console.log('🚀 categoriasBloco:', categoriasBloco)
-
-        // Mapeia os IDs das categorias da array B
-        // const categoriasFornecedor = categorias.map(objeto => objeto.categoriaID)
-        const categoriasFornecedor = categorias.filter(objeto => objeto.checked).map(objeto => objeto.categoriaID)
-
-        console.log('🚀 categoriasFornecedor:', categoriasFornecedor)
-
-        // Verifica se todas as categorias de A estão presentes em B
-        const pertenceFornecedorBloco = categoriasBloco.every(categoria => categoriasFornecedor.includes(categoria))
-        console.log('pertenceFornecedorBloco: ', pertenceFornecedorBloco)
-
-        return pertenceFornecedorBloco
-    }
-
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
         //? Form Fornecedor não tem página NOVO
@@ -385,6 +416,13 @@ const FormFornecedor = () => {
                         canEdit.status ? onSubmit(data, false) : updateFormStatus()
                     })}
                 >
+                    {/* Mensagem de que não possui nenhum bloco */}
+                    {blocks && blocks.length === 0 && (
+                        <Alert severity='warning' sx={{ mb: 4 }}>
+                            Não há nenhum bloco disponível para as categorias selecionadas!
+                        </Alert>
+                    )}
+
                     {/* Card Header */}
                     <Card>
                         <FormHeader
@@ -396,6 +434,8 @@ const FormFornecedor = () => {
                             generateReport={generateReport}
                             dataReports={dataReports}
                             handleSubmit={e => handleSubmit(onSubmit)}
+                            disabledSubmit={blocks.length === 0 ? true : false}
+                            disabledSend={blocks.length === 0 ? true : false}
                             handleSend={handleSendForm}
                             handleChangeStatus={() => setOpenModalStatus(true)}
                             title='Fornecedor'
@@ -584,6 +624,12 @@ const FormFornecedor = () => {
                                                                 disabled={!canEdit.status}
                                                                 {...register(`categorias[${indexCategoria}].checked`)}
                                                                 defaultChecked={categoria.checked == 1 ? true : false}
+                                                                onClick={event =>
+                                                                    changeCategory(
+                                                                        categoria.categoriaID,
+                                                                        event.target.checked
+                                                                    )
+                                                                }
                                                             />
                                                         }
                                                         label={categoria.nome}
@@ -674,197 +720,185 @@ const FormFornecedor = () => {
                     </Card>
 
                     {/* Blocos */}
-                    {blocos &&
-                        blocos.map(
-                            (bloco, indexBloco) =>
-                                canViewBlock(bloco.categorias, bloco.atividades) && (
-                                    <Card key={indexBloco} sx={{ mt: 4 }}>
-                                        <CardContent>
-                                            <Grid container>
-                                                {/* Hidden do parFornecedorBlocoID */}
-                                                <input
-                                                    type='hidden'
-                                                    name={`blocos[${indexBloco}].parFornecedorBlocoID`}
-                                                    defaultValue={bloco.parFornecedorBlocoID}
-                                                    {...register(`blocos[${indexBloco}].parFornecedorBlocoID`)}
-                                                />
+                    {blocks &&
+                        blocks.map((bloco, indexBloco) => (
+                            <Card key={indexBloco} sx={{ mt: 4 }}>
+                                <CardContent>
+                                    <Grid container>
+                                        {/* Hidden do parFornecedorBlocoID */}
+                                        <input
+                                            type='hidden'
+                                            name={`blocos[${indexBloco}].parFornecedorBlocoID`}
+                                            defaultValue={bloco.parFornecedorBlocoID}
+                                            {...register(`blocos[${indexBloco}].parFornecedorBlocoID`)}
+                                        />
 
-                                                <Grid item xs={12} md={12}>
-                                                    <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                        {bloco.nome}
-                                                    </Typography>
-                                                </Grid>
+                                        <Grid item xs={12} md={12}>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                {bloco.nome}
+                                            </Typography>
+                                        </Grid>
 
-                                                {/* Itens */}
-                                                {bloco.itens &&
-                                                    bloco.itens.map((item, indexItem) => (
-                                                        <>
-                                                            <Grid key={indexItem} container spacing={4} sx={{ mb: 4 }}>
-                                                                {/* Hidden do itemID */}
-                                                                <input
-                                                                    type='hidden'
-                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].itemID`}
-                                                                    defaultValue={item.itemID}
-                                                                    {...register(
-                                                                        `blocos[${indexBloco}].itens[${indexItem}].itemID`
-                                                                    )}
-                                                                />
+                                        {/* Itens */}
+                                        {bloco.itens &&
+                                            bloco.itens.map((item, indexItem) => (
+                                                <>
+                                                    <Grid key={indexItem} container spacing={4} sx={{ mb: 4 }}>
+                                                        {/* Hidden do itemID */}
+                                                        <input
+                                                            type='hidden'
+                                                            name={`blocos[${indexBloco}].itens[${indexItem}].itemID`}
+                                                            defaultValue={item.itemID}
+                                                            {...register(
+                                                                `blocos[${indexBloco}].itens[${indexItem}].itemID`
+                                                            )}
+                                                        />
 
-                                                                {/* Descrição do item */}
-                                                                <Grid
-                                                                    item
-                                                                    xs={12}
-                                                                    md={6}
-                                                                    sx={{
-                                                                        display: 'flex',
-                                                                        alignItems: 'center',
-                                                                        gap: '10px'
-                                                                    }}
-                                                                >
-                                                                    <Icon
-                                                                        icon={
-                                                                            'line-md:circle-to-confirm-circle-transition'
+                                                        {/* Descrição do item */}
+                                                        <Grid
+                                                            item
+                                                            xs={12}
+                                                            md={6}
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '10px'
+                                                            }}
+                                                        >
+                                                            <Icon
+                                                                icon={'line-md:circle-to-confirm-circle-transition'}
+                                                                style={{
+                                                                    color: item.resposta ? 'green' : 'gray',
+                                                                    fontSize: '20px'
+                                                                }}
+                                                            />
+
+                                                            {item.ordem + ' - ' + item.nome}
+                                                        </Grid>
+
+                                                        {/* Alternativas de respostas */}
+                                                        <Grid item xs={12} md={3}>
+                                                            {/* Tipo de alternativa  */}
+                                                            <input
+                                                                type='hidden'
+                                                                name={`blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`}
+                                                                defaultValue={item.alternativa}
+                                                                {...register(
+                                                                    `blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`
+                                                                )}
+                                                            />
+
+                                                            <FormControl fullWidth>
+                                                                {/* +1 que umaopção pra selecionar (Select) */}
+                                                                {item.alternativas && item.alternativas.length > 1 && (
+                                                                    <Autocomplete
+                                                                        options={item.alternativas}
+                                                                        defaultValue={
+                                                                            item.resposta
+                                                                                ? { nome: item?.resposta }
+                                                                                : { nome: '' }
                                                                         }
-                                                                        style={{
-                                                                            color: item.resposta ? 'green' : 'gray',
-                                                                            fontSize: '20px'
+                                                                        id='autocomplete-outlined'
+                                                                        getOptionLabel={option => option.nome}
+                                                                        disabled={!canEdit.status}
+                                                                        onChange={(event, value) => {
+                                                                            setValue(
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
+                                                                                value?.alternativaID
+                                                                            )
                                                                         }}
-                                                                    />
-
-                                                                    {item.ordem + ' - ' + item.nome}
-                                                                </Grid>
-
-                                                                {/* Alternativas de respostas */}
-                                                                <Grid item xs={12} md={3}>
-                                                                    {/* Tipo de alternativa  */}
-                                                                    <input
-                                                                        type='hidden'
-                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`}
-                                                                        defaultValue={item.alternativa}
-                                                                        {...register(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`
-                                                                        )}
-                                                                    />
-
-                                                                    <FormControl fullWidth>
-                                                                        {/* +1 que umaopção pra selecionar (Select) */}
-                                                                        {item.alternativas &&
-                                                                            item.alternativas.length > 1 && (
-                                                                                <Autocomplete
-                                                                                    options={item.alternativas}
-                                                                                    defaultValue={
-                                                                                        item.resposta
-                                                                                            ? { nome: item?.resposta }
-                                                                                            : { nome: '' }
-                                                                                    }
-                                                                                    id='autocomplete-outlined'
-                                                                                    getOptionLabel={option =>
-                                                                                        option.nome
-                                                                                    }
-                                                                                    disabled={!canEdit.status}
-                                                                                    onChange={(event, value) => {
-                                                                                        setValue(
-                                                                                            `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
-                                                                                            value?.alternativaID
-                                                                                        )
-                                                                                    }}
-                                                                                    renderInput={params => (
-                                                                                        <TextField
-                                                                                            {...params}
-                                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                                            label='Selecione uma resposta'
-                                                                                            placeholder='Selecione uma resposta'
-                                                                                            {...register(
-                                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
-                                                                                            )}
-                                                                                        />
-                                                                                    )}
-                                                                                />
-                                                                            )}
-
-                                                                        {/* Data */}
-                                                                        {item.alternativas.length == 0 &&
-                                                                            item.alternativa == 'Data' && (
-                                                                                <LocalizationProvider
-                                                                                    dateAdapter={AdapterDayjs}
-                                                                                >
-                                                                                    <DatePicker
-                                                                                        label='Selecione uma data'
-                                                                                        locale={dayjs.locale('pt-br')}
-                                                                                        format='DD/MM/YYYY'
-                                                                                        disabled={!canEdit.status}
-                                                                                        defaultValue={
-                                                                                            item.resposta
-                                                                                                ? dayjs(
-                                                                                                      new Date(
-                                                                                                          item.resposta
-                                                                                                      )
-                                                                                                  )
-                                                                                                : ''
-                                                                                        }
-                                                                                        onChange={newValue => {
-                                                                                            setValue(
-                                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                                newValue
-                                                                                            )
-                                                                                        }}
-                                                                                        renderInput={params => (
-                                                                                            <TextField
-                                                                                                {...params}
-                                                                                                variant='outlined'
-                                                                                                name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                                                {...register(
-                                                                                                    `blocos[${indexBloco}].itens[${indexItem}].resposta`
-                                                                                                )}
-                                                                                            />
-                                                                                        )}
-                                                                                    />
-                                                                                </LocalizationProvider>
-                                                                            )}
-
-                                                                        {/* Dissertativa */}
-                                                                        {item.alternativas.length == 0 &&
-                                                                            item.alternativa == 'Dissertativa' && (
-                                                                                <TextField
-                                                                                    multiline
-                                                                                    label='Descreva a resposta'
-                                                                                    disabled={!canEdit.status}
-                                                                                    placeholder='Descreva a resposta'
-                                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                                    defaultValue={item.resposta ?? ''}
-                                                                                    {...register(
-                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`
-                                                                                    )}
-                                                                                />
-                                                                            )}
-                                                                    </FormControl>
-                                                                </Grid>
-
-                                                                {/* Obs */}
-                                                                {item && item.obs == 1 && (
-                                                                    <Grid item xs={12} md={3}>
-                                                                        <FormControl fullWidth>
+                                                                        renderInput={params => (
                                                                             <TextField
-                                                                                label='Observação'
-                                                                                placeholder='Observação'
-                                                                                disabled={!canEdit.status}
-                                                                                name={`blocos[${indexBloco}].itens[${indexItem}].observacao`}
-                                                                                defaultValue={item.observacao ?? ''}
+                                                                                {...params}
+                                                                                name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                                label='Selecione uma resposta'
+                                                                                placeholder='Selecione uma resposta'
                                                                                 {...register(
-                                                                                    `blocos[${indexBloco}].itens[${indexItem}].observacao`
+                                                                                    `blocos[${indexBloco}].itens[${indexItem}].resposta`
                                                                                 )}
                                                                             />
-                                                                        </FormControl>
-                                                                    </Grid>
+                                                                        )}
+                                                                    />
                                                                 )}
+
+                                                                {/* Data */}
+                                                                {item.alternativas.length == 0 &&
+                                                                    item.alternativa == 'Data' && (
+                                                                        <LocalizationProvider
+                                                                            dateAdapter={AdapterDayjs}
+                                                                        >
+                                                                            <DatePicker
+                                                                                label='Selecione uma data'
+                                                                                locale={dayjs.locale('pt-br')}
+                                                                                format='DD/MM/YYYY'
+                                                                                disabled={!canEdit.status}
+                                                                                defaultValue={
+                                                                                    item.resposta
+                                                                                        ? dayjs(new Date(item.resposta))
+                                                                                        : ''
+                                                                                }
+                                                                                onChange={newValue => {
+                                                                                    setValue(
+                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                        newValue
+                                                                                    )
+                                                                                }}
+                                                                                renderInput={params => (
+                                                                                    <TextField
+                                                                                        {...params}
+                                                                                        variant='outlined'
+                                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                                        {...register(
+                                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                                        )}
+                                                                                    />
+                                                                                )}
+                                                                            />
+                                                                        </LocalizationProvider>
+                                                                    )}
+
+                                                                {/* Dissertativa */}
+                                                                {item.alternativas.length == 0 &&
+                                                                    item.alternativa == 'Dissertativa' && (
+                                                                        <TextField
+                                                                            multiline
+                                                                            label='Descreva a resposta'
+                                                                            disabled={!canEdit.status}
+                                                                            placeholder='Descreva a resposta'
+                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                            defaultValue={item.resposta ?? ''}
+                                                                            {...register(
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                            )}
+                                                                        />
+                                                                    )}
+                                                            </FormControl>
+                                                        </Grid>
+
+                                                        {/* Obs */}
+                                                        {item && item.obs == 1 && (
+                                                            <Grid item xs={12} md={3}>
+                                                                <FormControl fullWidth>
+                                                                    <TextField
+                                                                        label='Observação'
+                                                                        placeholder='Observação'
+                                                                        disabled={!canEdit.status}
+                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].observacao`}
+                                                                        defaultValue={item.observacao ?? ''}
+                                                                        {...register(
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].observacao`
+                                                                        )}
+                                                                    />
+                                                                </FormControl>
                                                             </Grid>
-                                                        </>
-                                                    ))}
-                                            </Grid>
-                                        </CardContent>
-                                    </Card>
-                                )
-                        )}
+                                                        )}
+                                                    </Grid>
+                                                </>
+                                            ))}
+                                    </Grid>
+                                </CardContent>
+                            </Card>
+                        ))}
 
                     {/* Observação do formulário */}
                     <Card sx={{ mt: 4 }}>
