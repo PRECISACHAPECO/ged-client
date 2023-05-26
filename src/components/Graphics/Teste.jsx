@@ -1,12 +1,12 @@
 import React from 'react'
 import axios from 'axios'
+import { api } from 'src/configs/api'
 
 const App = () => {
     const handleGerarRelatorio = () => {
-        axios
-            .get('http://localhost:3333/gerar-relatorio', {
-                responseType: 'blob' // Define o tipo de resposta como um blob (arquivo)
-            })
+        api.get('/gerar-relatorio', {
+            responseType: 'blob' // Define o tipo de resposta como um blob (arquivo)
+        })
             .then(response => {
                 const file = new Blob([response.data], { type: 'application/pdf' })
                 const fileURL = URL.createObjectURL(file)
