@@ -25,26 +25,10 @@ import CrmMeetingSchedule from 'src/views/dashboards/crm/CrmMeetingSchedule'
 import CrmSocialNetworkVisits from 'src/views/dashboards/crm/CrmSocialNetworkVisits'
 import CrmMostSalesInCountries from 'src/views/dashboards/crm/CrmMostSalesInCountries'
 import { Button } from '@mui/material'
-import { generateReport } from '../../configs/defaultConfigs'
-import Report from './Teste'
 
 const Company = () => {
-    const dataReports = [
-        {
-            id: 1,
-            name: 'Teste',
-            identification: '01',
-            route: '/teste',
-            params: {
-                fornecedorID: 1,
-                unidadeID: 1
-            }
-        }
-    ]
-
     const testeRelatorio = () => {
         console.log('teste')
-        generateReport(dataReports[0])
     }
 
     return (
@@ -52,7 +36,6 @@ const Company = () => {
             <Grid container spacing={6} className='match-height'>
                 <Grid item xs={12} md={4}>
                     <Button onClick={testeRelatorio}>Relatório</Button>
-                    <Report />
 
                     <CrmAward />
                 </Grid>
