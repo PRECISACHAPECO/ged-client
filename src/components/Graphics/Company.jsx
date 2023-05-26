@@ -26,6 +26,7 @@ import CrmSocialNetworkVisits from 'src/views/dashboards/crm/CrmSocialNetworkVis
 import CrmMostSalesInCountries from 'src/views/dashboards/crm/CrmMostSalesInCountries'
 import { Button } from '@mui/material'
 import { generateReport } from '../../configs/defaultConfigs'
+import Report from './Teste'
 
 const Company = () => {
     const dataReports = [
@@ -51,6 +52,8 @@ const Company = () => {
             <Grid container spacing={6} className='match-height'>
                 <Grid item xs={12} md={4}>
                     <Button onClick={testeRelatorio}>Relatório</Button>
+                    <Report />
+
                     <CrmAward />
                 </Grid>
                 <Grid item xs={6} sm={3} md={2}>

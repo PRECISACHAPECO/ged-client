@@ -2,6 +2,7 @@
 // ** Material UI
 import { Typography } from '@mui/material'
 
+
 // ** Next
 import Link from 'next/link'
 
@@ -13,6 +14,7 @@ import { AuthContext } from 'src/context/AuthContext'
 
 // ** API
 import { api } from 'src/configs/api'
+import axios from 'axios'
 
 // Status Default
 const statusDefault = {
@@ -99,10 +101,9 @@ const backRoute = (route) => {
     return arrRoute.join('/')
 }
 
-// Função pra gerar relatórios
+// // Função pra gerar relatórios
 const generateReport = props => {
     const route = props.route
-    console.log("função report")
 
     api.post(route, props.params, { responseType: 'arraybuffer' })
         .then(response => {
@@ -112,11 +113,13 @@ const generateReport = props => {
 
             const url = URL.createObjectURL(blob)
             // Abrir uma nova aba com o URL do relatório
-            // window.open(url, '_blank') // '_blank' abre em uma nova aba
+            window.open(url, '_blank') // '_blank' abre em uma nova aba
         })
         .catch(error => {
             console.error('Erro ao gerar relatório', error)
         })
 }
+
+
 
 export { configColumns, formType, backRoute, statusDefault, toastMessage, generateReport }
