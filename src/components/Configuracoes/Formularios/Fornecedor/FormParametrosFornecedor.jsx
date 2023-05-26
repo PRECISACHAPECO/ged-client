@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import {
     Alert,
     Autocomplete,
+    Box,
     Button,
     Card,
     CardContent,
@@ -11,10 +12,12 @@ import {
     FormControl,
     FormControlLabel,
     Grid,
+    IconButton,
     List,
     ListItem,
     ListItemButton,
     TextField,
+    Tooltip,
     Typography
 } from '@mui/material'
 import Router from 'next/router'
@@ -75,6 +78,15 @@ const FormParametrosFornecedor = () => {
             obrigatorio: 1
         })
         setBlocks(newBlock)
+    }
+
+    const removeItem = (item, indexBlock, indexItem) => {
+        item.removed = true
+
+        setValue(`blocks.[${indexBlock}].itens.[${indexItem}].removed`, true)
+        document.getElementById(`item-${indexBlock}-${indexItem}`).style.display = 'none'
+        toast.success('Item pré removido, salve para concluir!')
+        console.log('🚀 item:', item)
     }
 
     //  Ao clicar no icone de pontuação, abre o modal de confirmação de pontuação e envia para o back o item selecionado
@@ -155,12 +167,16 @@ const FormParametrosFornecedor = () => {
 
     // Obtem os blocos do formulário
     const getOrientacoes = () => {
-        api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
-            headers: { 'function-name': 'getOrientacoes' }
-        }).then(response => {
-            console.log('getOrientacoes: ', response.data)
-            setOrientacoes(response.data.obs)
-        })
+        try {
+            api.get(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, {
+                headers: { 'function-name': 'getOrientacoes' }
+            }).then(response => {
+                console.log('getOrientacoes: ', response.data)
+                setOrientacoes(response.data)
+            })
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     useEffect(() => {
@@ -168,7 +184,7 @@ const FormParametrosFornecedor = () => {
         getHeader()
         getOptionsItens()
         getBlocks()
-        getOrientacoes()
+        // getOrientacoes()
     }, [])
 
     console.log('blocks: ', blocks)
@@ -307,7 +323,8 @@ const FormParametrosFornecedor = () => {
                                 <Grid container spacing={4} sx={{ mt: 2 }}>
                                     <Grid item xs={12} md={12}>
                                         <Alert severity='info'>
-                                            Esse bloco será habilitado se satisfazer as condições abaixo:
+                                            Esse bloco será habilitado para o Fornecedor se satisfazer as condições
+                                            abaixo:
                                         </Alert>
                                     </Grid>
                                 </Grid>
@@ -354,12 +371,6 @@ const FormParametrosFornecedor = () => {
                                             ))}
                                     </Grid>
 
-                                    <Grid item xs={12} md={1}>
-                                        <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                            -- E --
-                                        </Typography>
-                                    </Grid>
-
                                     {/* Atividade */}
                                     <Grid item xs={12} md={4}>
                                         <ListItem disablePadding>
@@ -403,159 +414,200 @@ const FormParametrosFornecedor = () => {
                                 </Grid>
 
                                 {/* Itens */}
-                                <Grid container spacing={4} sx={{ mt: 4 }}>
-                                    {block.itens &&
-                                        block.itens.map((item, indexItem) => (
-                                            <>
-                                                <input
-                                                    type='hidden'
-                                                    name={`blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`}
-                                                    defaultValue={item.parFornecedorBlocoItemID}
-                                                    {...register(
-                                                        `blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`
-                                                    )}
-                                                />
+                                {block.itens &&
+                                    block.itens.map((item, indexItem) => (
+                                        <Grid
+                                            id={`item-${index}-${indexItem}`}
+                                            key={indexItem}
+                                            container
+                                            spacing={4}
+                                            sx={{ mt: 4 }}
+                                        >
+                                            <input
+                                                type='hidden'
+                                                name={`blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`}
+                                                defaultValue={item.parFornecedorBlocoItemID}
+                                                {...register(
+                                                    `blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`
+                                                )}
+                                            />
 
-                                                <Grid item xs={12} md={1} sx={{ textAlign: 'right' }}>
-                                                    <FormControl>
-                                                        <TextField
-                                                            label='Sequência'
-                                                            placeholder='Sequência'
-                                                            name={`blocks.[${index}].itens.[${indexItem}].sequencia`}
-                                                            defaultValue={item.ordem}
-                                                            {...register(
-                                                                `blocks.[${index}].itens.[${indexItem}].sequencia`
-                                                            )}
-                                                        />
-                                                    </FormControl>
-                                                </Grid>
-
-                                                <Grid item xs={12} md={5}>
-                                                    <FormControl fullWidth>
-                                                        {blocks[index].itens[indexItem].nome !== '' && (
-                                                            <Autocomplete
-                                                                options={optionsItens.itens}
-                                                                defaultValue={blocks[index].itens[indexItem]}
-                                                                id='autocomplete-outlined'
-                                                                getOptionLabel={option => option.nome || ''}
-                                                                onChange={(event, value) => {
-                                                                    setValue(
-                                                                        `blocks.[${index}].itens.[${indexItem}].itemID`,
-                                                                        value?.itemID
-                                                                    )
-                                                                }}
-                                                                renderInput={params => (
-                                                                    <TextField
-                                                                        {...params}
-                                                                        name={`blocks.[${index}].itens.[${indexItem}].nome`}
-                                                                        label='Item'
-                                                                        placeholder='Item'
-                                                                        {...register(
-                                                                            `blocks.[${index}].itens.[${indexItem}].nome`
-                                                                        )}
-                                                                    />
-                                                                )}
-                                                            />
+                                            <Grid item xs={12} md={1} sx={{ textAlign: 'right' }}>
+                                                <FormControl>
+                                                    <TextField
+                                                        label='Sequência'
+                                                        placeholder='Sequência'
+                                                        name={`blocks.[${index}].itens.[${indexItem}].sequencia`}
+                                                        defaultValue={item.ordem}
+                                                        {...register(
+                                                            `blocks.[${index}].itens.[${indexItem}].sequencia`
                                                         )}
-                                                    </FormControl>
-                                                </Grid>
+                                                    />
+                                                </FormControl>
+                                            </Grid>
 
-                                                <Grid item xs={12} md={2}>
-                                                    <FormControl fullWidth>
+                                            {/* Item */}
+                                            <Grid item xs={12} md={4}>
+                                                <FormControl fullWidth>
+                                                    {blocks[index].itens[indexItem].nome !== '' && (
                                                         <Autocomplete
-                                                            options={optionsItens.alternativas}
+                                                            options={optionsItens.itens}
                                                             defaultValue={blocks[index].itens[indexItem]}
                                                             id='autocomplete-outlined'
-                                                            getOptionLabel={option => option.alternativa || ''}
+                                                            getOptionLabel={option => option.nome || ''}
+                                                            disabled={item.hasPending == 1}
                                                             onChange={(event, value) => {
                                                                 setValue(
-                                                                    `blocks.[${index}].itens.[${indexItem}].alternativaID`,
-                                                                    value?.alternativaID
+                                                                    `blocks.[${index}].itens.[${indexItem}].itemID`,
+                                                                    value?.itemID
                                                                 )
                                                             }}
                                                             renderInput={params => (
                                                                 <TextField
                                                                     {...params}
-                                                                    name={`blocks.[${index}].itens.[${indexItem}].alternativa`}
-                                                                    label='Alternativa'
-                                                                    placeholder='Alternativa'
+                                                                    name={`blocks.[${index}].itens.[${indexItem}].nome`}
+                                                                    label={
+                                                                        item.itemID ? `Item [${item.itemID}]` : `Item`
+                                                                    }
+                                                                    placeholder={
+                                                                        item.itemID ? `Item [${item.itemID}]` : `Item`
+                                                                    }
                                                                     {...register(
-                                                                        `blocks.[${index}].itens.[${indexItem}].alternativa`
+                                                                        `blocks.[${index}].itens.[${indexItem}].nome`
                                                                     )}
                                                                 />
                                                             )}
                                                         />
-                                                    </FormControl>
-                                                </Grid>
+                                                    )}
+                                                </FormControl>
+                                            </Grid>
 
-                                                <Grid item md={1}>
-                                                    <Typography variant='body2'>
-                                                        {indexItem == 0 ? 'Ativo' : ''}
-                                                    </Typography>
-                                                    <Checkbox
-                                                        name={`blocks.[${index}][${indexItem}].status`}
-                                                        {...register(`blocks.[${index}].itens.[${indexItem}].status`)}
-                                                        defaultChecked={item.status == 1 ? true : false}
-                                                    />
-                                                </Grid>
-
-                                                <Grid item md={1}>
-                                                    <Typography variant='body2'>
-                                                        {indexItem == 0 ? 'Obs' : ''}
-                                                    </Typography>
-                                                    <Checkbox
-                                                        name={`blocks.[${index}][${indexItem}].obs`}
-                                                        // disabled checkbox se blocks.[${index}][${indexItem}].status for false
-                                                        disabled={item.status == 0 ? true : false}
-                                                        {...register(`blocks.[${index}].itens.[${indexItem}].obs`)}
-                                                        defaultChecked={item.obs == 1 ? true : false}
-                                                    />
-                                                </Grid>
-
-                                                <Grid item md={1}>
-                                                    <Typography variant='body2'>
-                                                        {indexItem == 0 ? 'Obrigatório' : ''}
-                                                    </Typography>
-                                                    <Checkbox
-                                                        name={`blocks.[${index}][${indexItem}].obrigatorio`}
-                                                        {...register(
-                                                            `blocks.[${index}].itens.[${indexItem}].obrigatorio`
+                                            <Grid item xs={12} md={2}>
+                                                <FormControl fullWidth>
+                                                    <Autocomplete
+                                                        options={optionsItens.alternativas}
+                                                        defaultValue={blocks[index].itens[indexItem]}
+                                                        id='autocomplete-outlined'
+                                                        getOptionLabel={option => option.alternativa || ''}
+                                                        disabled={item.hasPending == 1}
+                                                        onChange={(event, value) => {
+                                                            setValue(
+                                                                `blocks.[${index}].itens.[${indexItem}].alternativaID`,
+                                                                value?.alternativaID
+                                                            )
+                                                        }}
+                                                        renderInput={params => (
+                                                            <TextField
+                                                                {...params}
+                                                                name={`blocks.[${index}].itens.[${indexItem}].alternativa`}
+                                                                label='Alternativa'
+                                                                placeholder='Alternativa'
+                                                                {...register(
+                                                                    `blocks.[${index}].itens.[${indexItem}].alternativa`
+                                                                )}
+                                                            />
                                                         )}
-                                                        defaultChecked={item.obrigatorio == 1 ? true : false}
                                                     />
-                                                </Grid>
-                                                {/* Abre o modal que define a pontuação das respostas */}
-                                                <Grid item md={1}>
-                                                    <Typography variant='body2'>
-                                                        {indexItem == 0 ? 'Pontuação' : ''}
-                                                    </Typography>
-                                                    <Button
-                                                        style={item.pontuacao === 0 ? { opacity: 0.3 } : {}}
-                                                        title={
-                                                            !item.parFornecedorBlocoID
-                                                                ? 'Salve o bloco para definir a pontuação'
-                                                                : 'Definir pontuação para as respostas'
-                                                        }
-                                                        disabled={!item.parFornecedorBlocoID}
-                                                        onClick={() => openScoreModal(item)}
-                                                    >
-                                                        <Icon icon='ic:baseline-assessment' />
-                                                    </Button>
-                                                </Grid>
-                                            </>
-                                        ))}
-                                    {/* Modal que define a pontuação das respostas */}
-                                    {openModalConfirmScore && itemScore && (
-                                        <DialogConfirmScore
-                                            openModal={openModalConfirmScore}
-                                            setOpenModalConfirmScore={setOpenModalConfirmScore}
-                                            itemScore={itemScore}
-                                            setItemScore={setItemScore}
-                                            getBlocks={getBlocks}
-                                        />
-                                    )}
+                                                </FormControl>
+                                            </Grid>
 
-                                    {/* Botão inserir item */}
+                                            <Grid item md={1}>
+                                                <Typography variant='body2'>{indexItem == 0 ? 'Ativo' : ''}</Typography>
+                                                <Checkbox
+                                                    name={`blocks.[${index}][${indexItem}].status`}
+                                                    {...register(`blocks.[${index}].itens.[${indexItem}].status`)}
+                                                    defaultChecked={item.status == 1 ? true : false}
+                                                />
+                                            </Grid>
+
+                                            <Grid item md={1}>
+                                                <Typography variant='body2'>{indexItem == 0 ? 'Obs' : ''}</Typography>
+                                                <Checkbox
+                                                    name={`blocks.[${index}][${indexItem}].obs`}
+                                                    // disabled checkbox se blocks.[${index}][${indexItem}].status for false
+                                                    disabled={item.status == 0 ? true : false}
+                                                    {...register(`blocks.[${index}].itens.[${indexItem}].obs`)}
+                                                    defaultChecked={item.obs == 1 ? true : false}
+                                                />
+                                            </Grid>
+
+                                            <Grid item md={1}>
+                                                <Typography variant='body2'>
+                                                    {indexItem == 0 ? 'Obrigatório' : ''}
+                                                </Typography>
+                                                <Checkbox
+                                                    name={`blocks.[${index}][${indexItem}].obrigatorio`}
+                                                    {...register(`blocks.[${index}].itens.[${indexItem}].obrigatorio`)}
+                                                    defaultChecked={item.obrigatorio == 1 ? true : false}
+                                                />
+                                            </Grid>
+                                            {/* Abre o modal que define a pontuação das respostas */}
+                                            <Grid item md={1}>
+                                                <Typography variant='body2'>
+                                                    {indexItem == 0 ? 'Pontuação' : ''}
+                                                </Typography>
+                                                <Button
+                                                    style={item.pontuacao === 0 ? { opacity: 0.3 } : {}}
+                                                    title={
+                                                        !item.parFornecedorBlocoID
+                                                            ? 'Salve o bloco para definir a pontuação'
+                                                            : 'Definir pontuação para as respostas'
+                                                    }
+                                                    disabled={!item.parFornecedorBlocoID}
+                                                    onClick={() => openScoreModal(item)}
+                                                >
+                                                    <Icon icon='ic:baseline-assessment' />
+                                                </Button>
+                                            </Grid>
+
+                                            {/* Deletar */}
+                                            <Grid item md={1}>
+                                                <Typography variant='body2'>
+                                                    {indexItem == 0 ? 'Remover' : ''}
+                                                </Typography>
+                                                <Tooltip
+                                                    title={
+                                                        item.hasPending == 1
+                                                            ? `Este item não pode mais ser removido pois já foi respondido em um formulário`
+                                                            : `Remover este item`
+                                                    }
+                                                >
+                                                    <IconButton
+                                                        color='error'
+                                                        onClick={() => {
+                                                            item.hasPending == 1
+                                                                ? null
+                                                                : removeItem(item, index, indexItem)
+                                                        }}
+                                                        sx={{
+                                                            opacity: item.hasPending == 1 ? 0.5 : 1,
+                                                            cursor: item.hasPending == 1 ? 'default' : 'pointer'
+                                                        }}
+                                                    >
+                                                        <Icon icon='tabler:trash-filled' />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Grid>
+
+                                            {/* <Grid item md={1}>
+                                                <Typography variant='body2'>{indexItem == 0 ? 'ID' : ''}</Typography>
+                                                <Typography variant='body2'>2589</Typography>
+                                            </Grid> */}
+                                        </Grid>
+                                    ))}
+                                {/* Modal que define a pontuação das respostas */}
+                                {openModalConfirmScore && itemScore && (
+                                    <DialogConfirmScore
+                                        openModal={openModalConfirmScore}
+                                        setOpenModalConfirmScore={setOpenModalConfirmScore}
+                                        itemScore={itemScore}
+                                        setItemScore={setItemScore}
+                                        getBlocks={getBlocks}
+                                    />
+                                )}
+
+                                {/* Botão inserir item */}
+                                <Grid container spacing={4} sx={{ mt: 4 }}>
                                     <Grid item xs={12} md={12}>
                                         <Button
                                             variant='outlined'
@@ -599,7 +651,7 @@ const FormParametrosFornecedor = () => {
                                     multiline
                                     fullWidth
                                     name={`orientacoes`}
-                                    defaultValue={orientacoes ?? ''}
+                                    defaultValue={orientacoes?.obs ?? ''}
                                     {...register(`orientacoes`)}
                                 />
                             </Grid>
