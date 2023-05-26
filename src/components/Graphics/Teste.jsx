@@ -1,10 +1,11 @@
 import React from 'react'
-import axios from 'axios'
 import { api } from 'src/configs/api'
 
 const App = () => {
     const handleGerarRelatorio = () => {
-        api.get('/gerar-relatorio', {
+        const fornecedorID = 1
+        const unidadeID = 1
+        api.get(`/relatorio/fornecedor/?fornecedorID=${fornecedorID}&unidadeID=${unidadeID}`, {
             responseType: 'blob' // Define o tipo de resposta como um blob (arquivo)
         })
             .then(response => {
