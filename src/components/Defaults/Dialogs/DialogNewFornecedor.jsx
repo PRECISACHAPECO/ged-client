@@ -31,7 +31,7 @@ import { api } from 'src/configs/api'
 import { toast } from 'react-hot-toast'
 import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
 
-const DialogNewFornecedor = ({ handleClose, openModal, unidades, setSelectedUnit, makeFornecedor, loadingSave }) => {
+const DialogNewFornecedor = ({ handleClose, openModal, makeFornecedor, loadingSave }) => {
     const router = useRouter()
 
     const [loading, setLoading] = useState(false)

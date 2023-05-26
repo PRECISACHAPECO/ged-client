@@ -57,6 +57,7 @@ const FormParametrosFornecedor = () => {
         }
 
         try {
+            console.log('onSubmit: ', dataForm)
             await api.put(`${staticUrl}/fornecedor/${loggedUnity.unidadeID}`, dataForm).then(response => {
                 toast.success(toastMessage.successUpdate)
             })
