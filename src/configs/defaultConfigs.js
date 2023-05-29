@@ -105,7 +105,7 @@ const backRoute = (route) => {
 const generateReport = props => {
     const route = props.route
 
-    api.get(route, props.params, { responseType: 'arraybuffer' })
+    api.post(route, props.params, { responseType: 'arraybuffer' })
         .then(response => {
             // Converter o buffer do PDF em um objeto Blob
             const blob = new Blob([response.data], { type: 'application/pdf' })
