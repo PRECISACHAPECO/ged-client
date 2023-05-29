@@ -20,10 +20,15 @@ import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
+import { AuthContext } from 'src/context/AuthContext'
+import { useContext } from 'react'
+import { Alert, Button, Icon, IconButton, Snackbar, Typography } from '@mui/material'
 
 const UserLayout = ({ children, contentHeightFixed }) => {
     // ** Hooks
     const { settings, saveSettings } = useSettings()
+    const { newVersionAvailable, setNewVersionAvailable, setOpenModalUpdate, openModalUpdate } = useContext(AuthContext)
+    const currentVersion = localStorage.getItem('latestVersion')
 
     // ** Vars for server side navigation
     // const { menuItems: verticalMenuItems } = ServerSideVerticalNavItems()
@@ -40,6 +45,16 @@ const UserLayout = ({ children, contentHeightFixed }) => {
     if (hidden && settings.layout === 'horizontal') {
         settings.layout = 'vertical'
     }
+
+    const ClickUpdateAcept = () => {
+        localStorage.setItem('latestVersion', newVersionAvailable.version)
+        setNewVersionAvailable({ status: false, version: '' })
+        window.location.reload()
+    }
+
+    const handleClose = () => {
+        setOpenModalUpdate(false)
+    };
 
     return (
         <Layout
@@ -80,6 +95,33 @@ const UserLayout = ({ children, contentHeightFixed }) => {
             })}
         >
             {children}
+
+            {/* Versão do sistema */}
+            <Typography variant='caption' style={{ position: "fixed", left: "35px", bottom: "15px", zIndex: "999999999999", color: "#6D788D" }}>v {currentVersion}</Typography>
+
+            {/* Mostra se tiver uma nova versão do sistema*/}
+            {
+                newVersionAvailable.status == true && (
+                    <Snackbar
+                        open={openModalUpdate}
+                        onClose={handleClose}
+                        autoHideDuration={null}
+                    >
+                        <Alert
+                            sx={{ display: 'flex', alignItems: 'center', }}
+                            elevation={3}
+                            variant='filled'
+                            onClose={handleClose}
+                            severity='secondary'
+                        >
+                            Nova versão disponível, deseja atualizar para {newVersionAvailable.version} ?
+                            <Button color="primary" variant='contained' size="small" onClick={ClickUpdateAcept} sx={{ ml: 4 }}>
+                                Atualizar
+                            </Button>
+                        </Alert>
+                    </Snackbar>
+                )
+            }
         </Layout>
     )
 }

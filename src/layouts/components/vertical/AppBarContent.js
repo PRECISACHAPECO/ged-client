@@ -18,7 +18,7 @@ import Autocomplete from 'src/layouts/components/vertical/Autocomplete'
 import ModeToggler from 'src/@core/layouts/components/shared-components/ModeToggler'
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
 import NotificationDropdown from 'src/@core/layouts/components/shared-components/NotificationDropdown'
-import { Button, Typography } from '@mui/material'
+import { Button, Snackbar, Typography } from '@mui/material'
 import DialogSelectUnit from 'src/components/Defaults/Dialogs/DialogSelectUnit'
 
 const notifications = [
@@ -35,7 +35,7 @@ const AppBarContent = props => {
     // ** Props
     const { hidden, settings, saveSettings, toggleNavVisibility } = props
     const { title } = useContext(ParametersContext)
-    const { user, setLoggedUnity, loggedUnity, unitsUser, getRoutes, getMenu } = useContext(AuthContext)
+    const { user, setLoggedUnity, loggedUnity, unitsUser, getRoutes, getMenu, newVersionAvailable, setNewVersionAvailable, setOpenModalUpdate, openModalUpdate } = useContext(AuthContext)
 
     // ** Hooks
     const router = useRouter()
@@ -60,6 +60,7 @@ const AppBarContent = props => {
         router.replace('/home')
         toast.success('Unidade alterada com sucesso!')
     }
+
 
     return (
         <>

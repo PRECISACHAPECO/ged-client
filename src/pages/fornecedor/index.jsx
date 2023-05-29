@@ -122,6 +122,7 @@ const defaultValues = {
 const FornecedorPage = ({ units }) => {
     const [rememberMe, setRememberMe] = useState(true)
     const [showPassword, setShowPassword] = useState(false)
+    const [codeCNPJ, setCodeCNPJ] = useState(null)
     const router = Router
     const currentLink = router.pathname
 
@@ -176,12 +177,21 @@ const FornecedorPage = ({ units }) => {
         await api.post(`/login-fornecedor/setAcessLink`, { data })
     }
 
+    // Validar se o CNPJ esta na tabela fabrica_fornecedor
+    const validationExistCNPJ = e => {
+        setCodeCNPJ(null)
+        if (e.target.value.length === 18 && validationCNPJ(e.target.value)) {
+            api.post(`/login-fornecedor/validationCNPJ`, { cnpj: e.target.value }).then(response => {
+                setCodeCNPJ(response.status)
+            })
+        }
+    }
+
     useEffect(() => {
         if (unidadeIDRouter && cnpjRouter) {
             setAcessLink(unidadeIDRouter, cnpjRouter)
         }
     }, [[unidadeIDRouter, cnpjRouter]])
-
     return (
         <>
             <Box className='content-right'>
@@ -254,7 +264,10 @@ const FornecedorPage = ({ units }) => {
                                                 label='CNPJ'
                                                 value={cnpjMask(value ?? '')}
                                                 onBlur={onBlur}
-                                                onChange={onChange}
+                                                onChange={e => {
+                                                    onChange(e)
+                                                    validationExistCNPJ(e)
+                                                }}
                                                 error={Boolean(errors.cnpj)}
                                                 placeholder='00.000.000/0000-00'
                                                 inputProps={{
@@ -342,15 +355,43 @@ const FornecedorPage = ({ units }) => {
                                         Esqueceu sua senha?
                                     </Typography>
                                 </Box>
-                                <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
+                                <Button
+                                    fullWidth
+                                    size='large'
+                                    type='submit'
+                                    variant='contained'
+                                    sx={{ mb: 4 }}
+                                    disabled={!codeCNPJ || codeCNPJ == 202 || codeCNPJ == 201}
+                                >
                                     Entrar
                                 </Button>
+                                {/* Verifica se o CNPJ existe na tabela fornecedor_fabrica e mostra mensagem de acordo*/}
+                                {codeCNPJ && codeCNPJ == 202 ? (
+                                    <Alert severity='warning'>
+                                        Antes de realizar o cadastro, é necessário que uma fábrica habilite o seu CNPJ
+                                        como um fornecedor.
+                                    </Alert>
+                                ) : codeCNPJ == 201 ? (
+                                    <Alert severity='warning'>
+                                        É necessário fazer o cadastro para que você possa acessar o sistema.{'  '}
+                                        <Typography
+                                            href='/registro'
+                                            component={Link}
+                                            sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                        >
+                                            Registre-se
+                                        </Typography>
+                                    </Alert>
+                                ) : (
+                                    ''
+                                )}
                                 <Box
                                     sx={{
                                         display: 'flex',
                                         alignItems: 'center',
                                         flexWrap: 'wrap',
-                                        justifyContent: 'center'
+                                        justifyContent: 'center',
+                                        mt: 4
                                     }}
                                 >
                                     <Typography sx={{ mr: 2, color: 'text.secondary' }}>
