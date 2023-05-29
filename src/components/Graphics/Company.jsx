@@ -25,19 +25,30 @@ import CrmMeetingSchedule from 'src/views/dashboards/crm/CrmMeetingSchedule'
 import CrmSocialNetworkVisits from 'src/views/dashboards/crm/CrmSocialNetworkVisits'
 import CrmMostSalesInCountries from 'src/views/dashboards/crm/CrmMostSalesInCountries'
 import { Button } from '@mui/material'
+import { api } from 'src/configs/api'
+import axios from 'axios'
 
 const Company = () => {
-    const testeRelatorio = () => {
-        console.log('teste')
+    const gerarPDF = () => {
+        api.get('/relatorio', { responseType: 'arraybuffer' })
+            .then(response => {
+                const file = new Blob([response.data], { type: 'application/pdf' })
+                const fileURL = URL.createObjectURL(file)
+                window.open(fileURL)
+            })
+            .catch(error => {
+                console.error('Erro ao gerar o PDF:', error)
+            })
     }
 
     return (
         <ApexChartWrapper>
             <Grid container spacing={6} className='match-height'>
                 <Grid item xs={12} md={4}>
-                    <Button onClick={testeRelatorio}>Relatório</Button>
-
                     <CrmAward />
+                    <Button variant='contained' color='primary' onClick={gerarPDF}>
+                        Report
+                    </Button>
                 </Grid>
                 <Grid item xs={6} sm={3} md={2}>
                     <CardStatisticsVertical
