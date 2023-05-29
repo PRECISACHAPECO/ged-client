@@ -61,7 +61,7 @@ const GlobalStyles = theme => {
         top: 0,
         height: 3,
         width: '100%',
-        zIndex: 2000,
+
         position: 'fixed',
         backgroundColor: theme.palette.primary.main
       }

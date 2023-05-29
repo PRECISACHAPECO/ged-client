@@ -97,7 +97,7 @@ const UserLayout = ({ children, contentHeightFixed }) => {
             {children}
 
             {/* Versão do sistema */}
-            <Typography variant='caption' style={{ position: "fixed", left: "35px", bottom: "15px", zIndex: "999999999999", color: "#6D788D" }}>v {currentVersion}</Typography>
+            <Typography variant='caption' style={{ position: "fixed", left: "35px", bottom: "15px", zIndex: "99999", color: "#6D788D" }}>v {currentVersion}</Typography>
 
             {/* Mostra se tiver uma nova versão do sistema*/}
             {

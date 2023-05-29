@@ -190,7 +190,7 @@ const FormHeader = ({
                                 position: 'fixed',
                                 bottom: '40px',
                                 right: '30px',
-                                zIndex: '5555',
+
                                 textAlign: 'center'
                             }}
                         >
