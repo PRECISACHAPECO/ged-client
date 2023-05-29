@@ -25,23 +25,20 @@ import CrmMeetingSchedule from 'src/views/dashboards/crm/CrmMeetingSchedule'
 import CrmSocialNetworkVisits from 'src/views/dashboards/crm/CrmSocialNetworkVisits'
 import CrmMostSalesInCountries from 'src/views/dashboards/crm/CrmMostSalesInCountries'
 import { Button } from '@mui/material'
-import { api } from 'src/configs/api'
-import axios from 'axios'
+import Fornecedor from 'src/pages/formularios/fornecedor'
 
 const Company = () => {
-    const gerarPDF = () => {
-        api.get('/relatorio', { responseType: 'arraybuffer' })
-            .then(response => {
-                const file = new Blob([response.data], { type: 'application/pdf' })
-                const fileURL = URL.createObjectURL(file)
-                window.open(fileURL)
-            })
-            .catch(error => {
-                console.error('Erro ao gerar o PDF:', error)
-            })
+    const abrirNovaGuia = rota => {
+        window.open(rota, '_blank')
     }
 
+    const gerarPDF = () => {
+        const nome = 'Fornecedor'
+        const rotaRelatorio = `/relatorio/?nome=${nome}`
+        abrirNovaGuia(rotaRelatorio)
+    }
     return (
+        // relatorio-fornecedor
         <ApexChartWrapper>
             <Grid container spacing={6} className='match-height'>
                 <Grid item xs={12} md={4}>
