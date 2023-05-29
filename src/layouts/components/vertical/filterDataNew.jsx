@@ -39,7 +39,6 @@ function FilterDataNewContent() {
             })
         }
         const resultsLength = categoriesCheck.length === 1 ? 5 : 3
-        console.log('🚀 resultsLength:', resultsLength)
 
         return [200, [...exactData.Geral.concat(includeData.Geral).slice(0, resultsLength)]]
     }

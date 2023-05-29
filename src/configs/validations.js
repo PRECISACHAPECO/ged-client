@@ -1,7 +1,7 @@
 // Valida se o CNPJ é válido
 function validationCNPJ(cnpj) {
     // Remove caracteres indesejados do CNPJ
-    cnpj = cnpj.replace(/[^\d]+/g, '')
+    cnpj = cnpj?.replace(/[^\d]+/g, '')
 
     // Valida a quantidade de dígitos do CNPJ
     if (cnpj.length !== 14) {

@@ -41,6 +41,11 @@ const AuthProvider = ({ children }) => {
     const [menu, setMenu] = useState([])
     const [routeBackend, setRouteBackend] = useState()
     const [latestVersion, setLatestVersion] = useState()
+    const [openModalUpdate, setOpenModalUpdate] = useState(false)
+    const [newVersionAvailable, setNewVersionAvailable] = useState({
+        status: false,
+        version: null,
+    })
 
     const router = useRouter();
 
@@ -73,6 +78,7 @@ const AuthProvider = ({ children }) => {
                 localStorage.removeItem('loggedUnity')
                 localStorage.removeItem('routes')
                 localStorage.removeItem('menu')
+                localStorage.removeItem('latestVersion')
                 setUser(null)
                 setLoading(false)
                 if (authConfig.onTokenExpiration === 'logout' && !router.pathname.includes('login')) {
@@ -168,6 +174,7 @@ const AuthProvider = ({ children }) => {
         window.localStorage.removeItem('loggedUnity')
         window.localStorage.removeItem('routes')
         window.localStorage.removeItem('menu')
+        window.localStorage.removeItem('latestVersion')
         window.localStorage.removeItem(authConfig.storageTokenKeyName)
         router.push(user?.papelID === 2 ? '/fornecedor' : '/login') //? /login ou /login-fornecedor
     }
@@ -230,23 +237,47 @@ const AuthProvider = ({ children }) => {
         }
     }, [currentRoute])
 
-    //* faz um get ao github para saber a versão atual do sistema
+
+    // //*? faz um get ao github para saber a versão atual do sistema
+    useEffect(() => {
+        function getLatestVersion() {
+            axios.get("https://api.github.com/repos/PRECISACHAPECO/ged-frontend/releases")
+                .then((response) => {
+                    localStorage.setItem('latestVersion', response.data[0].tag_name)
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+        getLatestVersion();
+    }, [])
+
+    // //*? faz um get ao github a cada 10 segundos para saber se existe uma nova versão do sistema
     useEffect(() => {
         function getLatestTag() {
             axios.get("https://api.github.com/repos/PRECISACHAPECO/ged-frontend/releases")
                 .then((response) => {
-                    if (response.data && response.data.length > 0) {
-                        const latestTag = response.data[0].tag_name;
-                        setLatestVersion(latestTag);
+                    // console.log("req", response.data[0].tag_name)
+                    // console.log("local", localStorage.getItem('latestVersion'))
+                    if (response.data[0].tag_name !== localStorage.getItem('latestVersion')) {
+                        setNewVersionAvailable({
+                            status: true,
+                            version: response.data[0].tag_name,
+                        })
+                        setOpenModalUpdate(true)
                     }
                 })
                 .catch((error) => {
                     console.log(error);
                 });
         }
-        getLatestTag()
-    }, [])
-
+        const interval = setInterval(() => {
+            getLatestTag();
+        }, 10000);
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
 
     // //? se rota atual for igual a /fornecedor, limpar o localstorage e dar reload na pagina, faça o reaload apenas uma vez
     useEffect(() => {
@@ -277,7 +308,11 @@ const AuthProvider = ({ children }) => {
         loginFornecedor: handleLoginFornecedor,
         logout: handleLogout,
         register: handleRegister,
-        latestVersion
+        latestVersion,
+        newVersionAvailable,
+        setNewVersionAvailable,
+        setOpenModalUpdate,
+        openModalUpdate,
     }
 
     return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>
