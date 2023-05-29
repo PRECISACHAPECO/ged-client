@@ -46,6 +46,9 @@ import 'dayjs/locale/pt-br' // import locale
 import DialogForm from '../Defaults/Dialogs/Dialog'
 import DialogChangeFormStatus from '../Defaults/Dialogs/DialogChangeFormStatus'
 
+// import DatePicker from 'react-datepicker'
+// import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+
 const FormFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
     const { setTitle } = useContext(ParametersContext)
@@ -111,8 +114,16 @@ const FormFornecedor = () => {
         formState: { errors }
     } = useForm()
 
+    // Seta header no formulário
     fields.map((field, index) => {
         setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
+    })
+    // Seta itens no formulário
+    blocks.map((block, indexBlock) => {
+        block.itens.map((item, indexItem) => {
+            setValue(`blocos[${indexBlock}].itens[${indexItem}].respostaID`, item?.respostaID)
+            setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
+        })
     })
 
     console.log('errors: ', errors)
@@ -527,18 +538,23 @@ const FormFornecedor = () => {
                                                         <DatePicker
                                                             label='Selecione uma data'
                                                             disabled={!canEdit.status}
-                                                            locale={dayjs.locale('pt-br')}
-                                                            format='DD/MM/YYYY'
-                                                            defaultValue={dayjs(new Date())}
+                                                            // locale={dayjs.locale('pt-br')}
+                                                            // format='DD/MM/YYYY'
+                                                            // defaultValue={dayjs(new Date())}
+                                                            name={`header.${field.nomeColuna}`}
+                                                            {...register(`header.${field.nomeColuna}`, {
+                                                                required: true // !!field.obrigatorio && canEdit.status
+                                                            })}
+                                                            onChange={value => {
+                                                                console.log('setando data pra ', value)
+                                                                setValue(
+                                                                    `header.${field.nomeColuna}`,
+                                                                    value ? value : null
+                                                                )
+                                                            }}
+                                                            error={true}
                                                             renderInput={params => (
-                                                                <TextField
-                                                                    {...params}
-                                                                    variant='outlined'
-                                                                    name={`header.${field.nomeColuna}`}
-                                                                    {...register(`header.${field.nomeColuna}`, {
-                                                                        required: !!field.obrigatorio && canEdit.status
-                                                                    })}
-                                                                />
+                                                                <TextField {...params} variant='outlined' />
                                                             )}
                                                         />
                                                     </LocalizationProvider>
@@ -814,8 +830,21 @@ const FormFornecedor = () => {
                                                                                 label='Selecione uma resposta'
                                                                                 placeholder='Selecione uma resposta'
                                                                                 {...register(
-                                                                                    `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                                    `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                    {
+                                                                                        required:
+                                                                                            item.obrigatorio == 1
+                                                                                                ? true
+                                                                                                : false
+                                                                                    }
                                                                                 )}
+                                                                                error={
+                                                                                    errors?.blocos?.[indexBloco]?.itens[
+                                                                                        indexItem
+                                                                                    ]?.resposta
+                                                                                        ? true
+                                                                                        : false
+                                                                                }
                                                                             />
                                                                         )}
                                                                     />
@@ -829,28 +858,32 @@ const FormFornecedor = () => {
                                                                         >
                                                                             <DatePicker
                                                                                 label='Selecione uma data'
+                                                                                disabled={!canEdit.status}
                                                                                 locale={dayjs.locale('pt-br')}
                                                                                 format='DD/MM/YYYY'
-                                                                                disabled={!canEdit.status}
-                                                                                defaultValue={
-                                                                                    item.resposta
-                                                                                        ? dayjs(new Date(item.resposta))
-                                                                                        : ''
-                                                                                }
-                                                                                onChange={newValue => {
-                                                                                    setValue(
-                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                        newValue
-                                                                                    )
-                                                                                }}
+                                                                                defaultValue={dayjs(new Date())}
                                                                                 renderInput={params => (
                                                                                     <TextField
                                                                                         {...params}
                                                                                         variant='outlined'
                                                                                         name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                                         {...register(
-                                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                            {
+                                                                                                required:
+                                                                                                    item.obrigatorio ==
+                                                                                                    1
+                                                                                                        ? true
+                                                                                                        : false
+                                                                                            }
                                                                                         )}
+                                                                                        error={
+                                                                                            errors?.blocos?.[indexBloco]
+                                                                                                ?.itens[indexItem]
+                                                                                                ?.resposta
+                                                                                                ? true
+                                                                                                : false
+                                                                                        }
                                                                                     />
                                                                                 )}
                                                                             />
@@ -868,8 +901,21 @@ const FormFornecedor = () => {
                                                                             name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                             defaultValue={item.resposta ?? ''}
                                                                             {...register(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                {
+                                                                                    required:
+                                                                                        item.obrigatorio == 1
+                                                                                            ? true
+                                                                                            : false
+                                                                                }
                                                                             )}
+                                                                            error={
+                                                                                errors?.blocos?.[indexBloco]?.itens[
+                                                                                    indexItem
+                                                                                ]?.resposta
+                                                                                    ? true
+                                                                                    : false
+                                                                            }
                                                                         />
                                                                     )}
                                                             </FormControl>
