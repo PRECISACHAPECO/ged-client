@@ -33,22 +33,6 @@ const Fornecedor = () => {
         setOpen(true)
     }
 
-    useEffect(() => {
-        const getList = async () => {
-            await api
-                .post(`${currentLink}/getList`, {
-                    unidadeID: loggedUnity.unidadeID,
-                    papelID: user.papelID,
-                    cnpj: user.cnpj ? user.cnpj : null
-                })
-                .then(response => {
-                    setResult(response.data)
-                    setTitle('Fornecedor')
-                })
-        }
-        getList()
-    }, [loadingSave])
-
     const makeFornecedor = async (cnpj, email) => {
         try {
             setLoadingSave(true)
@@ -95,6 +79,7 @@ const Fornecedor = () => {
 
     //* Controles da listagem
     const getList = async () => {
+        console.log('getList> ', currentLink)
         await api
             .post(`${currentLink}/getList`, {
                 unidadeID: loggedUnity.unidadeID,
@@ -147,7 +132,8 @@ const Fornecedor = () => {
                       size: 0.2
                   }
               ]
-            : [
+            : user.papelID == 2
+            ? [
                   {
                       headerName: 'ID',
                       field: 'id',
@@ -179,6 +165,7 @@ const Fornecedor = () => {
                       size: 0.2
                   }
               ]
+            : []
 
     const columns = configColumns(currentLink, arrColumns)
 
