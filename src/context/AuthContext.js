@@ -59,7 +59,6 @@ const AuthProvider = ({ children }) => {
                 setLoading(true)
                 const data = JSON.parse(window.localStorage.getItem('userData'))
 
-
                 setUnitsUser(JSON.parse(window.localStorage.getItem('userUnits')))
                 setLoggedUnity(JSON.parse(window.localStorage.getItem('loggedUnity')))
                 setRoutes(JSON.parse(window.localStorage.getItem('routes')))
