@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import { useContext } from 'react'
 import { AuthContext } from 'src/context/AuthContext'
+import { ParametersContext } from 'src/context/ParametersContext'
 
 // Styled component for the trophy image
 const TrophyImg = styled('img')(({ theme }) => ({
@@ -21,6 +22,7 @@ const TrophyImg = styled('img')(({ theme }) => ({
 
 const CrmAward = () => {
     const { user, loggedUnity } = useContext(AuthContext)
+    const { generateReport } = useContext(ParametersContext)
 
     console.log("Unidade logada: ", loggedUnity)
 
@@ -43,8 +45,13 @@ const CrmAward = () => {
                 <Typography variant='body2' sx={{ mb: 3.25 }}>
                     78% of target 🤟🏻
                 </Typography>
-                <Button size='small' variant='contained'>
-                    View Sales
+                <Button size='small' variant='contained' onClick={() =>
+                    generateReport({
+                        id: 1,
+                        component: 'Fornecedor'
+                    })
+                }>
+                    Teste relatório
                 </Button>
                 <TrophyImg alt='trophy' src='/images/cards/trophy.png' />
             </CardContent>
