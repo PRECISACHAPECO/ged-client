@@ -33,22 +33,6 @@ const Fornecedor = () => {
         setOpen(true)
     }
 
-    useEffect(() => {
-        const getList = async () => {
-            await api
-                .post(`${currentLink}/getList`, {
-                    unidadeID: loggedUnity.unidadeID,
-                    papelID: user.papelID,
-                    cnpj: user.cnpj ? user.cnpj : null
-                })
-                .then(response => {
-                    setResult(response.data)
-                    setTitle('Fornecedor')
-                })
-        }
-        getList()
-    }, [loadingSave])
-
     const makeFornecedor = async (cnpj, email) => {
         try {
             setLoadingSave(true)
@@ -95,6 +79,7 @@ const Fornecedor = () => {
 
     //* Controles da listagem
     const getList = async () => {
+        console.log('getList> ', currentLink)
         await api
             .post(`${currentLink}/getList`, {
                 unidadeID: loggedUnity.unidadeID,
@@ -113,38 +98,74 @@ const Fornecedor = () => {
 
     console.log('dados do bakc', result)
 
-    const arrColumns = [
-        {
-            title: 'ID',
-            field: 'id',
-            size: 0.1
-        },
-        {
-            title: 'Fantasia',
-            field: 'fantasia',
-            size: 0.4
-        },
-        {
-            title: 'CNPJ',
-            field: 'cnpj',
-            size: 0.2
-        },
-        {
-            title: 'Cidade',
-            field: 'cidade',
-            size: 0.2
-        },
-        {
-            title: 'UF',
-            field: 'estado',
-            size: 0.1
-        },
-        {
-            title: 'Status',
-            field: 'status',
-            size: 0.2
-        }
-    ]
+    const arrColumns =
+        user.papelID == 1
+            ? [
+                  {
+                      headerName: 'ID',
+                      field: 'id',
+                      size: 0.1
+                  },
+                  {
+                      headerName: 'Data da Avaliação',
+                      field: 'dataAvaliacao',
+                      size: 0.2
+                  },
+                  {
+                      headerName: 'Nome Fantasia',
+                      field: 'fantasia',
+                      size: 0.4
+                  },
+                  {
+                      headerName: 'CNPJ',
+                      field: 'cnpj',
+                      size: 0.1
+                  },
+                  {
+                      headerName: 'Cidade',
+                      field: 'cidade',
+                      size: 0.2
+                  },
+                  {
+                      headerName: 'Status',
+                      field: 'status',
+                      size: 0.2
+                  }
+              ]
+            : user.papelID == 2
+            ? [
+                  {
+                      headerName: 'ID',
+                      field: 'id',
+                      size: 0.1
+                  },
+                  {
+                      headerName: 'Data da Avaliação',
+                      field: 'dataAvaliacao',
+                      size: 0.2
+                  },
+                  {
+                      headerName: 'Fábrica',
+                      field: 'fabrica',
+                      size: 0.4
+                  },
+                  {
+                      headerName: 'CNPJ',
+                      field: 'cnpjFabrica',
+                      size: 0.2
+                  },
+                  {
+                      headerName: 'Cidade',
+                      field: 'cidade',
+                      size: 0.2
+                  },
+                  {
+                      headerName: 'Status',
+                      field: 'status',
+                      size: 0.2
+                  }
+              ]
+            : []
 
     const columns = configColumns(currentLink, arrColumns)
 
