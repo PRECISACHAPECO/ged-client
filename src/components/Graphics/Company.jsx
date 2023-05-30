@@ -25,25 +25,28 @@ import CrmMeetingSchedule from 'src/views/dashboards/crm/CrmMeetingSchedule'
 import CrmSocialNetworkVisits from 'src/views/dashboards/crm/CrmSocialNetworkVisits'
 import CrmMostSalesInCountries from 'src/views/dashboards/crm/CrmMostSalesInCountries'
 import { Button } from '@mui/material'
-import Fornecedor from 'src/pages/formularios/fornecedor'
+import { ParametersContext } from 'src/context/ParametersContext'
+import { useContext } from 'react'
 
 const Company = () => {
-    const abrirNovaGuia = rota => {
-        window.open(rota, '_blank')
-    }
+    const { generateReport } = useContext(ParametersContext)
 
-    const gerarPDF = () => {
-        const nome = 'Fornecedor'
-        const rotaRelatorio = `/relatorio/?nome=${nome}`
-        abrirNovaGuia(rotaRelatorio)
-    }
     return (
         // relatorio-fornecedor
         <ApexChartWrapper>
             <Grid container spacing={6} className='match-height'>
                 <Grid item xs={12} md={4}>
                     <CrmAward />
-                    <Button variant='contained' color='primary' onClick={gerarPDF}>
+                    <Button
+                        variant='contained'
+                        color='primary'
+                        onClick={() =>
+                            generateReport({
+                                id: 1,
+                                component: 'Fornecedor'
+                            })
+                        }
+                    >
                         Report
                     </Button>
                 </Grid>

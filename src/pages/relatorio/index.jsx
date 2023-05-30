@@ -1,16 +1,21 @@
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-import Router from 'next/router'
-
-// ** Demo Components Imports
 import Fornecedor from './fornecedor'
 
-const InvoicePrint = (componente, id) => {
-    const router = Router
-    const Nome = router.query.nome
+const InvoicePrint = () => {
+    const reportParameters = JSON.parse(localStorage.getItem('reportParameters'))
+    localStorage.removeItem('reportParameters')
 
-    return <Fornecedor id='4987' />
+    if (reportParameters) {
+        switch (reportParameters.component) {
+            case 'Fornecedor':
+                return <Fornecedor />
+            default:
+                return <div>Conteudo não encontrando</div>
+        }
+    }
 }
+
 InvoicePrint.getLayout = page => <BlankLayout>{page}</BlankLayout>
 InvoicePrint.setConfig = () => {
     return {

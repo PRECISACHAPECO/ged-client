@@ -30,6 +30,13 @@ const ParametersProvider = ({ children }) => {
         }
     }
 
+    // *? Função para gerar o relatório
+    const generateReport = async reportParameters => {
+        localStorage.setItem('reportParameters', JSON.stringify(reportParameters))
+        window.open('/relatorio', '_blank')
+    }
+
+
     const values = {
         title,
         setTitle,
@@ -41,7 +48,8 @@ const ParametersProvider = ({ children }) => {
         filteredData,
         setFilteredData,
         data,
-        setData
+        setData,
+        generateReport
     }
 
     return <ParametersContext.Provider value={values}>{children}</ParametersContext.Provider>
