@@ -46,9 +46,6 @@ import 'dayjs/locale/pt-br' // import locale
 import DialogForm from '../Defaults/Dialogs/Dialog'
 import DialogChangeFormStatus from '../Defaults/Dialogs/DialogChangeFormStatus'
 
-// import DatePicker from 'react-datepicker'
-// import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
-
 const FormFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
     const { setTitle } = useContext(ParametersContext)
@@ -73,6 +70,7 @@ const FormFornecedor = () => {
     const [hasFormPending, setHasFormPending] = useState(true) //? Tem pendencia no formulário (já vinculado em formulário de recebimento, não altera mais o status)
     const [watchRegistroEstabelecimento, setWatchRegistroEstabelecimento] = useState(null)
     const [countViewBlocks, setCountViewBlocks] = useState(0)
+    const [answers, setAnswers] = useState([])
 
     const [canEdit, setCanEdit] = useState({
         status: false,
@@ -99,7 +97,14 @@ const FormFornecedor = () => {
                 }
             } else {
                 // Input
+                const loggedUnityItem = loggedUnity[field.nomeColuna]
+                console.log('🚀 ~ loggedUnityItem:', field.nomeColuna, loggedUnityItem)
+
                 defaultValues[field.nomeColuna] = data[field.nomeColuna]
+                    ? data[field.nomeColuna]
+                    : loggedUnityItem
+                    ? loggedUnityItem
+                    : null
             }
 
             return defaultValues
@@ -129,6 +134,18 @@ const FormFornecedor = () => {
     console.log('errors: ', errors)
 
     console.log('controlRegistroEstabelecimento > watchRegistroEstabelecimento > ', watchRegistroEstabelecimento)
+
+    //* Controle dos ícones de respondido (verde ou cinza)
+    const handleAnswerChange = (blockIndex, questionIndex, value) => {
+        console.log('===> ', value)
+        const newAnswers = [...answers]
+        newAnswers[blockIndex] = newAnswers[blockIndex] || []
+        newAnswers[blockIndex][questionIndex] = value
+        setAnswers(newAnswers)
+    }
+    const isAnswered = (blockIndex, questionIndex) => {
+        return answers[blockIndex] && !!answers[blockIndex][questionIndex]
+    }
 
     const verifyFormPending = async () => {
         try {
@@ -429,8 +446,13 @@ const FormFornecedor = () => {
                 >
                     {/* Mensagem de que não possui nenhum bloco */}
                     {blocks && blocks.length === 0 && (
-                        <Alert severity='warning' sx={{ mb: 4 }}>
+                        <Alert severity='warning' sx={{ mb: 2 }}>
                             Não há nenhum bloco disponível para as categorias selecionadas!
+                        </Alert>
+                    )}
+                    {!canEdit.status && (
+                        <Alert severity={canEdit.messageType} sx={{ mb: 2 }}>
+                            {canEdit.message}
                         </Alert>
                     )}
 
@@ -452,11 +474,6 @@ const FormFornecedor = () => {
                             title='Fornecedor'
                         />
                         <CardContent>
-                            {!canEdit.status && (
-                                <Alert severity={canEdit.messageType} sx={{ mb: 4 }}>
-                                    {canEdit.message}
-                                </Alert>
-                            )}
                             {unidade && (
                                 <>
                                     <input
@@ -540,7 +557,7 @@ const FormFornecedor = () => {
                                                             disabled={!canEdit.status}
                                                             // locale={dayjs.locale('pt-br')}
                                                             // format='DD/MM/YYYY'
-                                                            // defaultValue={dayjs(new Date())}
+                                                            defaultValue={null}
                                                             name={`header.${field.nomeColuna}`}
                                                             {...register(`header.${field.nomeColuna}`, {
                                                                 required: true // !!field.obrigatorio && canEdit.status
@@ -552,10 +569,10 @@ const FormFornecedor = () => {
                                                                     value ? value : null
                                                                 )
                                                             }}
-                                                            error={true}
                                                             renderInput={params => (
                                                                 <TextField {...params} variant='outlined' />
                                                             )}
+                                                            required={true}
                                                         />
                                                     </LocalizationProvider>
                                                 )}
@@ -781,15 +798,24 @@ const FormFornecedor = () => {
                                                                 gap: '10px'
                                                             }}
                                                         >
-                                                            <Icon
-                                                                icon={'line-md:circle-to-confirm-circle-transition'}
-                                                                style={{
-                                                                    color: item.resposta ? 'green' : 'gray',
-                                                                    fontSize: '20px'
-                                                                }}
-                                                            />
+                                                            {/* Icone do item preenchido */}
+                                                            <Box>
+                                                                <Icon
+                                                                    icon={
+                                                                        isAnswered(indexBloco, indexItem)
+                                                                            ? 'line-md:confirm-circle-twotone'
+                                                                            : 'line-md:confirm-circle'
+                                                                    }
+                                                                    style={{
+                                                                        color: isAnswered(indexBloco, indexItem)
+                                                                            ? 'green'
+                                                                            : 'gray',
+                                                                        marginTop: '8px'
+                                                                    }}
+                                                                />
+                                                            </Box>
 
-                                                            {item.ordem + ' - ' + item.nome}
+                                                            <Box>{item.ordem + ' - ' + item.nome}</Box>
                                                         </Grid>
 
                                                         {/* Alternativas de respostas */}
@@ -818,8 +844,13 @@ const FormFornecedor = () => {
                                                                         getOptionLabel={option => option.nome}
                                                                         disabled={!canEdit.status}
                                                                         onChange={(event, value) => {
-                                                                            setValue(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
+                                                                            // setValue(
+                                                                            //     `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
+                                                                            //     value?.alternativaID
+                                                                            // )
+                                                                            handleAnswerChange(
+                                                                                indexBloco,
+                                                                                indexItem,
                                                                                 value?.alternativaID
                                                                             )
                                                                         }}
@@ -862,21 +893,31 @@ const FormFornecedor = () => {
                                                                                 locale={dayjs.locale('pt-br')}
                                                                                 format='DD/MM/YYYY'
                                                                                 defaultValue={dayjs(new Date())}
+                                                                                name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                                {...register(
+                                                                                    `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                    {
+                                                                                        required:
+                                                                                            item.obrigatorio == 1
+                                                                                                ? true
+                                                                                                : false
+                                                                                    }
+                                                                                )}
+                                                                                onChange={value => {
+                                                                                    handleAnswerChange(
+                                                                                        indexBloco,
+                                                                                        indexItem,
+                                                                                        value
+                                                                                    )
+                                                                                    setValue(
+                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                        value ? value : null
+                                                                                    )
+                                                                                }}
                                                                                 renderInput={params => (
                                                                                     <TextField
                                                                                         {...params}
                                                                                         variant='outlined'
-                                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                                        {...register(
-                                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                            {
-                                                                                                required:
-                                                                                                    item.obrigatorio ==
-                                                                                                    1
-                                                                                                        ? true
-                                                                                                        : false
-                                                                                            }
-                                                                                        )}
                                                                                         error={
                                                                                             errors?.blocos?.[indexBloco]
                                                                                                 ?.itens[indexItem]
@@ -886,6 +927,7 @@ const FormFornecedor = () => {
                                                                                         }
                                                                                     />
                                                                                 )}
+                                                                                required={true}
                                                                             />
                                                                         </LocalizationProvider>
                                                                     )}
@@ -898,8 +940,8 @@ const FormFornecedor = () => {
                                                                             label='Descreva a resposta'
                                                                             disabled={!canEdit.status}
                                                                             placeholder='Descreva a resposta'
-                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                             defaultValue={item.resposta ?? ''}
+                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                             {...register(
                                                                                 `blocos[${indexBloco}].itens[${indexItem}].resposta`,
                                                                                 {
@@ -909,6 +951,13 @@ const FormFornecedor = () => {
                                                                                             : false
                                                                                 }
                                                                             )}
+                                                                            onChange={e => {
+                                                                                handleAnswerChange(
+                                                                                    indexBloco,
+                                                                                    indexItem,
+                                                                                    e.target.value ? e.target.value : ''
+                                                                                )
+                                                                            }}
                                                                             error={
                                                                                 errors?.blocos?.[indexBloco]?.itens[
                                                                                     indexItem
