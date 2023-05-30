@@ -15,7 +15,7 @@ const Home = () => {
     const { setTitle } = useContext(ParametersContext)
     const { user } = useContext(AuthContext)
 
-    console.log(user)
+    console.log('user', user)
 
     useEffect(() => {
         setTitle(user.papelID == 1 ? 'Home' : user.papelID == 2 ? 'Dashboard' : '')
