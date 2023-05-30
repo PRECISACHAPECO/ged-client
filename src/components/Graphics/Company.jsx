@@ -24,31 +24,13 @@ import CrmProjectTimeline from 'src/views/dashboards/crm/CrmProjectTimeline'
 import CrmMeetingSchedule from 'src/views/dashboards/crm/CrmMeetingSchedule'
 import CrmSocialNetworkVisits from 'src/views/dashboards/crm/CrmSocialNetworkVisits'
 import CrmMostSalesInCountries from 'src/views/dashboards/crm/CrmMostSalesInCountries'
-import { Button } from '@mui/material'
-import { ParametersContext } from 'src/context/ParametersContext'
-import { useContext } from 'react'
-
 const Company = () => {
-    const { generateReport } = useContext(ParametersContext)
-
     return (
         // relatorio-fornecedor
         <ApexChartWrapper>
             <Grid container spacing={6} className='match-height'>
                 <Grid item xs={12} md={4}>
                     <CrmAward />
-                    <Button
-                        variant='contained'
-                        color='primary'
-                        onClick={() =>
-                            generateReport({
-                                id: 1,
-                                component: 'Fornecedor'
-                            })
-                        }
-                    >
-                        Report
-                    </Button>
                 </Grid>
                 <Grid item xs={6} sm={3} md={2}>
                     <CardStatisticsVertical
