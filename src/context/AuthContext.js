@@ -47,6 +47,7 @@ const AuthProvider = ({ children }) => {
         version: null,
     })
 
+
     const router = useRouter();
 
     // ** Hooks

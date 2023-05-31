@@ -7,6 +7,7 @@ import Icon from 'src/@core/components/icon'
 import { backRoute } from 'src/configs/defaultConfigs'
 import MenuReports from './MenuReports'
 import { AuthContext } from 'src/context/AuthContext'
+import { ParametersContext } from 'src/context/ParametersContext'
 import Fab from '@mui/material/Fab'
 
 const FormHeader = ({
@@ -23,11 +24,11 @@ const FormHeader = ({
     onclickDelete,
     btnPrint,
     disabled,
-    generateReport,
     dataReports
 }) => {
     const router = Router
     const { user, routes } = useContext(AuthContext)
+    const { generateReport } = useContext(ParametersContext)
     const [isVisible, setIsVisible] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
 
@@ -182,29 +183,55 @@ const FormHeader = ({
 
                     {/* Botão flutuante de salvar (aparece quando o usuário dá scroll na página) */}
                     {isVisible && btnSave && routes.find(route => route.rota === dynamicRoute && route.editar) && (
-                        <div
-                            className={`
+                        <>
+                            <div
+                                className={`
                                 ${isVisible ? 'fadeIn' : 'fadeOut'}
                             `}
-                            style={{
-                                position: 'fixed',
-                                bottom: '40px',
-                                right: '30px',
+                                style={{
+                                    position: 'fixed',
+                                    bottom: '40px',
+                                    right: '30px',
 
-                                textAlign: 'center'
-                            }}
-                        >
-                            <Fab
-                                color='primary'
-                                size='large'
-                                onClick={handleSubmit}
-                                type='submit'
-                                variant='contained'
-                                disabled={disabled || disabledSubmit}
+                                    textAlign: 'center'
+                                }}
                             >
-                                <Icon icon='material-symbols:save' />
-                            </Fab>
-                        </div>
+                                <Fab
+                                    color='primary'
+                                    size='large'
+                                    onClick={handleSubmit}
+                                    type='submit'
+                                    variant='contained'
+                                    disabled={disabled || disabledSubmit}
+                                >
+                                    <Icon icon='material-symbols:save' />
+                                </Fab>
+                            </div>
+
+                            <div
+                                className={`
+                                ${isVisible ? 'fadeIn' : 'fadeOut'}
+                            `}
+                                style={{
+                                    position: 'fixed',
+                                    bottom: '40px',
+                                    right: '30px',
+
+                                    textAlign: 'center'
+                                }}
+                            >
+                                <Fab
+                                    color='primary'
+                                    size='large'
+                                    onClick={handleSubmit}
+                                    type='submit'
+                                    variant='contained'
+                                    disabled={disabled || disabledSubmit}
+                                >
+                                    <Icon icon='material-symbols:save' />
+                                </Fab>
+                            </div>
+                        </>
                     )}
                 </Box>
             </CardContent>

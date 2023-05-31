@@ -8,6 +8,7 @@ import CardContent from '@mui/material/CardContent'
 import { useContext } from 'react'
 import { AuthContext } from 'src/context/AuthContext'
 import { ParametersContext } from 'src/context/ParametersContext'
+import Link from 'next/link'
 
 // Styled component for the trophy image
 const TrophyImg = styled('img')(({ theme }) => ({

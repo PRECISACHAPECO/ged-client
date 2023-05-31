@@ -1,22 +1,26 @@
-// ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-import Fornecedor from './fornecedor'
+import Fornecedor from './formularios/fornecedor'
+import PageReport from 'src/components/Defaults/Reports/PageReport'
 
 const InvoicePrint = () => {
     const reportParameters = JSON.parse(localStorage.getItem('reportParameters'))
-    localStorage.removeItem('reportParameters')
 
     if (reportParameters) {
         switch (reportParameters.component) {
             case 'Fornecedor':
-                return <Fornecedor />
+                return <Fornecedor data={reportParameters} />
             default:
-                return <div>Conteudo não encontrando</div>
+                return <div>Conteudo não encontrado</div>
         }
     }
 }
 
-InvoicePrint.getLayout = page => <BlankLayout>{page}</BlankLayout>
+InvoicePrint.getLayout = page => (
+    <BlankLayout>
+        <PageReport>{page}</PageReport>
+    </BlankLayout>
+)
+
 InvoicePrint.setConfig = () => {
     return {
         mode: 'light'

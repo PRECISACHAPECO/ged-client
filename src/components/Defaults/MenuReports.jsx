@@ -1,17 +1,12 @@
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Fade from '@mui/material/Fade'
-import React from 'react'
+import { ParametersContext } from 'src/context/ParametersContext'
+import { useContext } from 'react'
 
-export default function MenuReports({
-    disabled,
-    generateReport,
-    dataReports,
-    open,
-    anchorEl,
-    handleClick,
-    handleClose
-}) {
+export default function MenuReports({ disabled, dataReports, open, anchorEl, handleClick, handleClose }) {
+    const { generateReport } = useContext(ParametersContext)
+
     return (
         <div>
             <Menu

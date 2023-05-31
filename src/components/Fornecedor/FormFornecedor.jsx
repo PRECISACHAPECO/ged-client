@@ -273,31 +273,20 @@ const FormFornecedor = () => {
     const dataReports = [
         {
             id: 1,
-            name: 'Fornecedor',
+            name: 'Formulário do fornecedor',
+            component: 'Fornecedor',
+            papelID: user.papelID,
             identification: '01',
-            route: 'relatorio/fornecedor',
             params: {
-                fornecedorID: id,
-                unidadeID: loggedUnity.unidadeID
+                fornecedorID: id
             }
         },
         {
             id: 2,
             name: 'Recepção',
-            identification: '02',
-            route: 'relatorio/recepcao'
-        },
-        {
-            id: 3,
-            name: 'Ficha de Matrícula',
-            identification: '03',
-            route: '/'
-        },
-        {
-            id: 4,
-            name: 'Ficha de Nacionalidade',
-            identification: '04',
-            route: '/'
+            component: 'Fornecedor',
+            papelID: user.papelID,
+            identification: '02'
         }
     ]
 
@@ -470,7 +459,6 @@ const FormFornecedor = () => {
                             btnSave={canEdit.status || (user.papelID == 1 && info.status >= 40)}
                             btnSend={user.papelID == 2 && info.status < 40 ? true : false}
                             btnPrint
-                            generateReport={generateReport}
                             dataReports={dataReports}
                             handleSubmit={e => handleSubmit(onSubmit)}
                             disabledSubmit={blocks.length === 0 ? true : false}

@@ -1,3 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 html,
 * {
     box-sizing: border-box;
@@ -82,5 +87,13 @@ code[class*='language-'] {
 
     100% {
         opacity: 0;
+    }
+}
+
+
+@media print {
+    .no-print {
+        display: none;
+
     }
 }
