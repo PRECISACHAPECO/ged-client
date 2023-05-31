@@ -1,9 +1,9 @@
 import Fab from '@mui/material/Fab'
 import Icon from 'src/@core/components/icon'
-import React from 'react'
+import { useState, useEffect } from 'react'
 
 const ButtonsReport = () => {
-    const reportParameters = JSON.parse(localStorage.getItem('reportParameters'))
+    const [data, setData] = useState(null)
 
     const signature = () => {
         console.log('Assinatura eletronica')
@@ -14,7 +14,7 @@ const ButtonsReport = () => {
     }
 
     const savePdf = () => {
-        console.log('savepdf', reportParameters)
+        console.log('data', data)
     }
 
     const closePage = () => {
@@ -59,6 +59,13 @@ const ButtonsReport = () => {
             function: closePage
         }
     ]
+
+    useEffect(() => {
+        const reportParameters = JSON.parse(localStorage.getItem('reportParameters'))
+        setData(reportParameters)
+        localStorage.removeItem('reportParameters')
+    }, [])
+
     return (
         <div className='fixed bottom-10 right-8 flex flex-col-reverse gap-2 no-print '>
             {dataButtons &&
