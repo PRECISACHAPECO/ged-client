@@ -49,6 +49,45 @@ const FormHeader = ({
 
     const dynamicRoute = getStaticRoute()
 
+    const dataButtons = [
+        {
+            id: 1,
+            title: 'Imprimir',
+            color: 'primary',
+            size: 'large',
+            variant: 'contained',
+            icon: 'material-symbols:print',
+            function: print
+        },
+        {
+            id: 2,
+            title: 'Voltar ao topo',
+            color: 'primary',
+            size: 'large',
+            variant: 'outlined',
+            icon: 'fluent:signature-24-filled',
+            function: backToTop
+        },
+        {
+            id: 3,
+            title: 'Salvar PDF',
+            color: 'primary',
+            size: 'large',
+            variant: 'outlined',
+            icon: 'basil:download-solid',
+            function: savePdf
+        },
+        {
+            id: 4,
+            title: 'Fechar',
+            color: 'primary',
+            size: 'large',
+            variant: 'outlined',
+            icon: 'ooui:close',
+            function: closePage
+        }
+    ]
+
     //? Verifica se o usuário deu scroll na página e mostra o botão de salvar
     useEffect(() => {
         const toggleVisibility = () => {
@@ -182,20 +221,14 @@ const FormHeader = ({
                     )}
 
                     {/* Botão flutuante de salvar (aparece quando o usuário dá scroll na página) */}
-                    {isVisible && btnSave && routes.find(route => route.rota === dynamicRoute && route.editar) && (
-                        <>
-                            <div
-                                className={`
-                                ${isVisible ? 'fadeIn' : 'fadeOut'}
-                            `}
-                                style={{
-                                    position: 'fixed',
-                                    bottom: '40px',
-                                    right: '30px',
 
-                                    textAlign: 'center'
-                                }}
-                            >
+                    <div
+                        className={`
+                        ${isVisible ? 'fadeIn' : 'fadeOut'} fixed bottom-10 right-8 z-50
+                    `}
+                    >
+                        {isVisible && btnSave && routes.find(route => route.rota === dynamicRoute && route.editar) && (
+                            <div>
                                 <Fab
                                     color='primary'
                                     size='large'
@@ -207,32 +240,8 @@ const FormHeader = ({
                                     <Icon icon='material-symbols:save' />
                                 </Fab>
                             </div>
-
-                            <div
-                                className={`
-                                ${isVisible ? 'fadeIn' : 'fadeOut'}
-                            `}
-                                style={{
-                                    position: 'fixed',
-                                    bottom: '40px',
-                                    right: '30px',
-
-                                    textAlign: 'center'
-                                }}
-                            >
-                                <Fab
-                                    color='primary'
-                                    size='large'
-                                    onClick={handleSubmit}
-                                    type='submit'
-                                    variant='contained'
-                                    disabled={disabled || disabledSubmit}
-                                >
-                                    <Icon icon='material-symbols:save' />
-                                </Fab>
-                            </div>
-                        </>
-                    )}
+                        )}
+                    </div>
                 </Box>
             </CardContent>
         </>
