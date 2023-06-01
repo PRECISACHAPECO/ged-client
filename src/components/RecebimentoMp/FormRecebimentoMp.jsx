@@ -16,6 +16,7 @@ import {
     ListItem,
     ListItemButton,
     Radio,
+    RadioGroup,
     TextField,
     Typography
 } from '@mui/material'
@@ -27,7 +28,7 @@ import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
 import Loading from 'src/components/Loading'
-import { toastMessage } from 'src/configs/defaultConfigs'
+import { formType, toastMessage } from 'src/configs/defaultConfigs'
 import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
@@ -55,6 +56,7 @@ const FormRecebimentoMp = () => {
     const router = Router
     const { id } = router.query
     const staticUrl = backRoute(router.pathname) // Url sem ID
+    const type = formType(router.pathname) // Verifica se é novo ou edição
 
     const { settings } = useContext(SettingsContext)
     const mode = settings.mode
@@ -82,35 +84,50 @@ const FormRecebimentoMp = () => {
         control,
         setValue,
         handleSubmit,
-        formState: { errors },
-        trigger
-    } = useForm({ mode: 'onBlur' })
+        formState: { errors }
+    } = useForm()
 
     console.log('errors: ', errors)
+    console.log('info status: ', info.status)
 
-    fields.map((field, index) => {
-        setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
-    })
+    const initializeValues = values => {
+        console.log('🚀 ~ initializeValues values:', values)
 
-    // Seta autocomplete com o valor do banco em um objeto com id e nome
-    dataProducts.map((data, indexData) => {
-        fieldProducts.map((field, indexFields) => {
-            setValue(`produtos[${indexData}].${field.tabela}`, data?.[field.tabela])
+        // Seta fields do cabeçalho
+        values.fields.map((field, index) => {
+            if (defaultValues?.[field.tabela]) {
+                setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
+            }
         })
-    })
 
-    const onSubmit = data => {
-        console.log('onSubmit: ', data)
-        // try {
-        //     await api.put(`${staticUrl}/${id}`, data).then(response => {
-        //         toast.success(toastMessage.successUpdate)
-        //     })
-        // } catch (error) {
-        //     console.log(error)
-        // }
+        // Seta autocomplete com o valor do banco em um objeto com id e nome
+        values.dataProducts.map((data, indexData) => {
+            values.fieldsProducts.map((field, indexFields) => {
+                if (data?.[field.tabela]?.id) {
+                    setValue(`produtos[${indexData}].${field.tabela}`, data?.[field.tabela])
+                }
+            })
+        })
+
+        // Seta bloco com o valor do banco em um objeto com id e nome
+        values.blocos.map((block, indexBlock) => {
+            block.itens.map((item, indexItem) => {
+                if (item?.respostaID) {
+                    setValue(`blocos[${indexBlock}].itens[${indexItem}].respostaID`, item?.respostaID)
+                }
+                if (item?.resposta) {
+                    setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
+                }
+            })
+        })
+
+        // Seta infos
+        setValue('obs', values?.info?.obs)
+        setValue('status', values?.info?.status)
     }
 
-    const handleRadioChange = event => {
+    //* Altera status do formulário (aprovado, aprovado parcial, reprovado)
+    const handleChangeFormStatus = event => {
         const newValue = event.target.value
 
         const newInfo = {
@@ -118,6 +135,27 @@ const FormRecebimentoMp = () => {
             status: newValue
         }
         setInfo(newInfo)
+        setValue('header.status', newValue)
+    }
+
+    const onSubmit = async data => {
+        console.log('onSubmit: ', data)
+
+        try {
+            if (type == 'edit') {
+                await api.put(`${staticUrl}/${id}`, data).then(response => {
+                    toast.success(toastMessage.successUpdate)
+                })
+            } else if (type == 'new') {
+                await api.post(`${staticUrl}/insertData`, data).then(response => {
+                    toast.success(toastMessage.successNew)
+                })
+            } else {
+                toast.error(toastMessage.error)
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const getAddressByCep = cepString => {
@@ -178,31 +216,33 @@ const FormRecebimentoMp = () => {
         }
     ]
 
+    const getData = () => {
+        api.post(`${staticUrl}/getData/${id}`, { type: type, unidadeID: loggedUnity.unidadeID }).then(response => {
+            console.log('getData: ', response.data)
+
+            setFields(response.data.fields)
+            setData(response.data.data)
+            setFieldsProducts(response.data.fieldsProducts)
+            setDataProducts(response.data.dataProducts)
+            setBlocos(response.data.blocos)
+            setInfo(response.data.info)
+
+            initializeValues(response.data)
+
+            setLoading(false)
+        })
+    }
+
     useEffect(() => {
         setTitle('Recebimento de MP')
-
-        const getData = () => {
-            api.get(`${staticUrl}/${loggedUnity.unidadeID}`, { headers: { 'function-name': 'getData' } }).then(
-                response => {
-                    console.log('getData: ', response.data)
-                    setFields(response.data.fields)
-                    setData(response.data.data)
-                    setFieldsProducts(response.data.fieldsProducts)
-                    setDataProducts(response.data.dataProducts)
-                    setBlocos(response.data.blocos)
-                    setInfo(response.data.info)
-                    setLoading(false)
-                }
-            )
-        }
         getData()
     }, [])
 
-    useEffect(() => {
-        setTimeout(() => {
-            trigger() // chama a validação do formulário
-        }, 1000)
-    }, [trigger])
+    // useEffect(() => {
+    //     setTimeout(() => {
+    //         trigger() // chama a validação do formulário
+    //     }, 1000)
+    // }, [trigger])
 
     // preencher campos defauylts com os dados do banco
     useEffect(() => {
@@ -241,14 +281,22 @@ const FormRecebimentoMp = () => {
                                                     <Autocomplete
                                                         options={field.options}
                                                         getOptionSelected={(option, value) => option.id === value.id}
-                                                        defaultValue={defaultValues?.[field.tabela]}
+                                                        defaultValue={
+                                                            defaultValues?.[field.tabela]?.id
+                                                                ? defaultValues?.[field.tabela]
+                                                                : null
+                                                        }
                                                         getOptionLabel={option => option.nome}
                                                         name={`header.${field.tabela}`}
                                                         {...register(`header.${field.tabela}`, {
                                                             required: !!field.obrigatorio
                                                         })}
                                                         onChange={(event, newValue) => {
-                                                            setValue(`header.${field.tabela}`, newValue ? newValue : '')
+                                                            console.log('🚀 ~ newValue:', newValue)
+                                                            setValue(
+                                                                `header.${field.tabela}`,
+                                                                newValue ? newValue : null
+                                                            )
                                                         }}
                                                         renderInput={params => (
                                                             <TextField
@@ -358,7 +406,11 @@ const FormRecebimentoMp = () => {
                                                         <>
                                                             <Autocomplete
                                                                 options={field.options}
-                                                                defaultValue={data?.[field.tabela]}
+                                                                defaultValue={
+                                                                    data?.[field.tabela]?.id
+                                                                        ? data?.[field.tabela]
+                                                                        : null
+                                                                }
                                                                 getOptionLabel={option => option.nome}
                                                                 name={`produtos[${indexData}].${field.tabela}`}
                                                                 {...register(`produtos[${indexData}].${field.tabela}`, {
@@ -367,7 +419,7 @@ const FormRecebimentoMp = () => {
                                                                 onChange={(event, newValue) => {
                                                                     setValue(
                                                                         `produtos[${indexData}].${field.tabela}`,
-                                                                        newValue ? newValue : ''
+                                                                        newValue ? newValue : null
                                                                     )
                                                                 }}
                                                                 renderInput={params => (
@@ -503,14 +555,16 @@ const FormRecebimentoMp = () => {
                                                             gap: '10px'
                                                         }}
                                                     >
-                                                        <Icon
-                                                            icon={'line-md:circle-to-confirm-circle-transition'}
-                                                            style={{
-                                                                color: item.resposta ? 'green' : 'grey',
-                                                                fontSize: '20px'
-                                                            }}
-                                                        />
-                                                        {item.ordem + ' - ' + item.nome}
+                                                        <Box>
+                                                            <Icon
+                                                                icon={'line-md:circle-to-confirm-circle-transition'}
+                                                                style={{
+                                                                    color: item.resposta ? 'green' : 'grey',
+                                                                    fontSize: '20px'
+                                                                }}
+                                                            />
+                                                        </Box>
+                                                        <Box>{item.ordem + ' - ' + item.nome}</Box>
                                                     </Grid>
 
                                                     {/* Alternativas de respostas */}
@@ -532,13 +586,21 @@ const FormRecebimentoMp = () => {
                                                                     options={item.alternativas}
                                                                     getOptionLabel={option => option.nome}
                                                                     // Se pelo menus uma opção ser selecionada, pintar a borda do autocomplete de ver
-                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].respostaID`}
+                                                                    defaultValue={
+                                                                        item.resposta
+                                                                            ? { nome: item?.resposta }
+                                                                            : { nome: '' }
+                                                                    }
+                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                     {...register(
                                                                         `blocos[${indexBloco}].itens[${indexItem}].respostaID`
                                                                         // { required: true }
                                                                     )}
-                                                                    defaultValue={item?.resposta}
                                                                     onChange={(event, newValue) => {
+                                                                        setValue(
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
+                                                                            newValue ? newValue.alternativaID : ''
+                                                                        )
                                                                         setValue(
                                                                             `blocos[${indexBloco}].itens[${indexItem}].resposta`,
                                                                             newValue ? newValue.nome : ''
@@ -664,49 +726,42 @@ const FormRecebimentoMp = () => {
                                     <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
                                         Resultado
                                     </Typography>
-
-                                    <Grid container spacing={4}>
-                                        <Grid item xs={12} md={12}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Radio
-                                                        name='status'
-                                                        value={70}
-                                                        checked={info.status == 70}
-                                                        {...register('status')}
-                                                        onChange={handleRadioChange}
-                                                    />
-                                                }
-                                                label='Aprovado'
-                                            />
-
-                                            <FormControlLabel
-                                                control={
-                                                    <Radio
-                                                        name='status'
-                                                        value={60}
-                                                        checked={info.status == 60}
-                                                        {...register('status')}
-                                                        onChange={handleRadioChange}
-                                                    />
-                                                }
-                                                label='Aprovado Parcial'
-                                            />
-
-                                            <FormControlLabel
-                                                control={
-                                                    <Radio
-                                                        name='status'
-                                                        value={50}
-                                                        checked={info.status == 50}
-                                                        {...register('status')}
-                                                        onChange={handleRadioChange}
-                                                    />
-                                                }
-                                                label='Reprovado'
-                                            />
-                                        </Grid>
-                                    </Grid>
+                                    {info && (
+                                        <Box display='flex' gap={8}>
+                                            <RadioGroup
+                                                row
+                                                aria-label='colored'
+                                                name='colored'
+                                                value={info.status}
+                                                onChange={handleChangeFormStatus}
+                                            >
+                                                <FormControlLabel
+                                                    value={70}
+                                                    // disabled={hasFormPending}
+                                                    name={`status`}
+                                                    {...register(`status`)}
+                                                    control={<Radio color='success' />}
+                                                    label='Aprovado'
+                                                />
+                                                <FormControlLabel
+                                                    value={60}
+                                                    // disabled={hasFormPending}
+                                                    name={`status`}
+                                                    {...register(`status`)}
+                                                    label='Aprovado parcial'
+                                                    control={<Radio color='warning' />}
+                                                />
+                                                <FormControlLabel
+                                                    value={50}
+                                                    // disabled={hasFormPending}
+                                                    name={`status`}
+                                                    {...register(`status`)}
+                                                    label='Reprovado'
+                                                    control={<Radio color='error' />}
+                                                />
+                                            </RadioGroup>
+                                        </Box>
+                                    )}
                                 </FormControl>
                             </Grid>
                         </Grid>
