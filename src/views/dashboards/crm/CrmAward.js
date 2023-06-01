@@ -32,7 +32,7 @@ const CrmAward = () => {
 
         const componenteHTML = ReactDOMServer.renderToString(<Fornecedor />);
 
-        fetch('http://localhost:3333/api/pdf', {
+        fetch('https://demo.gedagro.com.br/api/pdf', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -42,7 +42,7 @@ const CrmAward = () => {
             .then(response => {
                 if (response.ok) {
                     // PDF criado com sucesso, faça o download do PDF
-                    window.location.href = 'http://localhost:3333/api/pdf/download';
+                    window.location.href = 'https://demo.gedagro.com.br/api/pdf/download';
                 } else {
                     console.error('Erro ao criar o PDF');
                 }
@@ -57,7 +57,7 @@ const CrmAward = () => {
     const gerarPdf = () => {
         const generateReport = async () => {
             try {
-                const response = await fetch('http://localhost:3333/api/pdf/gerar', {
+                const response = await fetch('https://demo.gedagro.com.br/api/pdf/gerar', {
                     method: 'POST',
                 });
 
