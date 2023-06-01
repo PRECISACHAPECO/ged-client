@@ -2,7 +2,7 @@ import Fab from '@mui/material/Fab'
 import Icon from 'src/@core/components/icon'
 import { useState, useEffect } from 'react'
 
-const ButtonsReport = () => {
+const ButtonsReport = ({ savePdf }) => {
     const [data, setData] = useState(null)
 
     const signature = () => {
@@ -11,10 +11,6 @@ const ButtonsReport = () => {
 
     const print = () => {
         window.print()
-    }
-
-    const savePdf = () => {
-        console.log('data', data)
     }
 
     const closePage = () => {

@@ -1,7 +1,7 @@
 import Router from 'next/router'
 import { useState, useContext, useEffect } from 'react'
 
-import { CardContent, Button, Box } from '@mui/material'
+import { CardContent, Button, Box, Tooltip } from '@mui/material'
 import Link from 'next/link'
 import Icon from 'src/@core/components/icon'
 import { backRoute } from 'src/configs/defaultConfigs'
@@ -49,9 +49,70 @@ const FormHeader = ({
 
     const dynamicRoute = getStaticRoute()
 
+    //? Função que volta ao topo
+    const backToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        })
+    }
+
+    //? Função que volta a página anterior
+    const previousPage = () => {
+        window.history.back()
+    }
+
+    const dataButtons = [
+        {
+            id: 1,
+            title: 'Salvar',
+            color: 'primary',
+            size: 'large',
+            type: 'submit',
+            variant: 'contained',
+            disabled: disabled || disabledSubmit,
+            icon: 'material-symbols:save',
+            function: handleSubmit
+        },
+        {
+            id: 2,
+            title: 'Imprimir',
+            color: 'default',
+            size: 'large',
+            type: 'button',
+            variant: 'outlined',
+            disabled: false,
+            icon: 'material-symbols:print',
+            function: handleClick
+        },
+        {
+            id: 3,
+            title: 'Voltar ao topo',
+            color: 'default',
+            size: 'large',
+            type: 'button',
+            variant: 'outlined',
+            disabled: false,
+            icon: 'ion:arrow-up',
+            function: backToTop
+        },
+        {
+            id: 4,
+            title: 'Voltar para a página anterior',
+            color: 'default',
+            size: 'large',
+            type: 'button',
+            variant: 'outlined',
+            disabled: false,
+            icon: 'material-symbols:arrow-back-rounded',
+            function: previousPage
+        }
+    ]
+
     //? Verifica se o usuário deu scroll na página e mostra o botão de salvar
     useEffect(() => {
         const toggleVisibility = () => {
+            setIsVisible(false)
             if (window.scrollY > 0) {
                 setIsVisible(true)
             } else {
@@ -182,57 +243,45 @@ const FormHeader = ({
                     )}
 
                     {/* Botão flutuante de salvar (aparece quando o usuário dá scroll na página) */}
-                    {isVisible && btnSave && routes.find(route => route.rota === dynamicRoute && route.editar) && (
-                        <>
-                            <div
-                                className={`
-                                ${isVisible ? 'fadeIn' : 'fadeOut'}
-                            `}
-                                style={{
-                                    position: 'fixed',
-                                    bottom: '40px',
-                                    right: '30px',
 
-                                    textAlign: 'center'
-                                }}
-                            >
-                                <Fab
-                                    color='primary'
-                                    size='large'
-                                    onClick={handleSubmit}
-                                    type='submit'
-                                    variant='contained'
-                                    disabled={disabled || disabledSubmit}
-                                >
-                                    <Icon icon='material-symbols:save' />
-                                </Fab>
-                            </div>
+                    <div
+                        className={`
+                        ${
+                            isVisible ? 'fadeIn' : 'hidden'
+                        } trasition duration-200 fixed bottom-10 right-8 z-50 flex flex-col-reverse gap-3
+                    `}
+                    >
+                        {/*  Oculta o botão de salvar se o usuário não tiver permissão para editar */}
+                        {dataButtons.map(item => {
+                            if (
+                                item.id === 1 &&
+                                (!btnSave || !routes.find(route => route.rota === dynamicRoute && route.editar))
+                            ) {
+                                return null
+                            }
 
-                            <div
-                                className={`
-                                ${isVisible ? 'fadeIn' : 'fadeOut'}
-                            `}
-                                style={{
-                                    position: 'fixed',
-                                    bottom: '40px',
-                                    right: '30px',
+                            if (item.id === 2 && !btnPrint) {
+                                return null
+                            }
 
-                                    textAlign: 'center'
-                                }}
-                            >
-                                <Fab
-                                    color='primary'
-                                    size='large'
-                                    onClick={handleSubmit}
-                                    type='submit'
-                                    variant='contained'
-                                    disabled={disabled || disabledSubmit}
-                                >
-                                    <Icon icon='material-symbols:save' />
-                                </Fab>
-                            </div>
-                        </>
-                    )}
+                            return (
+                                <Tooltip title={item.title} key={item.id} placement='left'>
+                                    <div key={item.id}>
+                                        <Fab
+                                            color={item.color}
+                                            size='large'
+                                            onClick={item.function}
+                                            variant='contained'
+                                            type={item.type}
+                                            disabled={item.disabled}
+                                        >
+                                            <Icon icon={item.icon} />
+                                        </Fab>
+                                    </div>
+                                </Tooltip>
+                            )
+                        })}
+                    </div>
                 </Box>
             </CardContent>
         </>

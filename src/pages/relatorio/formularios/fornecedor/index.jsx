@@ -23,6 +23,7 @@ const Fornecedor = ({ data }) => {
                 setSistemaQualidade(response.data.sistemaQualidade)
                 setBlocos(response.data.blocos)
                 setIsLoading(false)
+                setPronto(true)
                 console.log(response.data)
             } catch (error) {
                 console.error(error)
@@ -59,7 +60,9 @@ const Fornecedor = ({ data }) => {
                     <title className='no-print'>GED</title>
                 </Head>
                 {isLoading ? (
-                    <div style={{ paddingBottom: '10px' }}>Carregando dados...</div>
+                    <div style={{ paddingBottom: '10px' }}>
+                        Carregando dados... <h1>esse é um teste</h1>
+                    </div>
                 ) : (
                     fields && (
                         <>
