@@ -23,15 +23,14 @@ const RecebimentoMp = () => {
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
 
+    const getList = async () => {
+        await api.get(`${currentLink}/getList/${loggedUnity.unidadeID}`).then(response => {
+            setResult(response.data)
+            setTitle('Recebimento de MP')
+        })
+    }
+
     useEffect(() => {
-        const getList = async () => {
-            await api
-                .get(currentLink + '/' + loggedUnity.unidadeID, { headers: { 'function-name': 'getList' } })
-                .then(response => {
-                    setResult(response.data)
-                    setTitle('Recebimento de MP')
-                })
-        }
         getList()
     }, [])
 
