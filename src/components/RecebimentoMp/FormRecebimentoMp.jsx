@@ -13,11 +13,13 @@ import {
     FormControl,
     FormControlLabel,
     Grid,
+    IconButton,
     ListItem,
     ListItemButton,
     Radio,
     RadioGroup,
     TextField,
+    Tooltip,
     Typography
 } from '@mui/material'
 import Router from 'next/router'
@@ -44,12 +46,14 @@ import 'dayjs/locale/pt-br' // import locale
 const FormRecebimentoMp = () => {
     const { user, loggedUnity } = useContext(AuthContext)
     const { setTitle } = useContext(ParametersContext)
-    const [isLoading, setLoading] = useState(true)
+    const [isLoading, setLoading] = useState(false)
+    const [savingForm, setSavingForm] = useState(false)
 
     const [fields, setFields] = useState([])
     const [data, setData] = useState(null)
     const [fieldProducts, setFieldsProducts] = useState([])
     const [dataProducts, setDataProducts] = useState([])
+    const [removedProducts, setRemovedProducts] = useState([])
     const [blocos, setBlocos] = useState([])
     const [info, setInfo] = useState('')
 
@@ -80,6 +84,7 @@ const FormRecebimentoMp = () => {
 
     const {
         watch,
+        reset,
         register,
         control,
         setValue,
@@ -88,7 +93,7 @@ const FormRecebimentoMp = () => {
     } = useForm()
 
     console.log('errors: ', errors)
-    console.log('info status: ', info.status)
+    console.log('isLoading: ', isLoading)
 
     const initializeValues = values => {
         console.log('🚀 ~ initializeValues values:', values)
@@ -126,6 +131,41 @@ const FormRecebimentoMp = () => {
         setValue('status', values?.info?.status)
     }
 
+    // const removeProduct = (data, indexData) => {
+    //     let newDataProducts = [...dataProducts]
+    //     newDataProducts.splice(indexData, 1)
+    //     setDataProducts(newDataProducts)
+
+    //     setValue(`produtos[${indexData}].removed`, true)
+    //     document.getElementById('productLine-' + indexData).style.display = 'none'
+    //     toast.success('Produto pré removido, salve para concluir!')
+    // }
+    const removeProduct = (product, indexData) => {
+        console.log('🚀 ~ product:', product)
+
+        // Insere no array de produtos removidos (se houver recebimentompProdutoID)
+        if (product?.recebimentompProdutoID > 0) {
+            setRemovedProducts([...removedProducts, product.recebimentompProdutoID])
+            setValue(`removedProducts[${indexData}]`, product.recebimentompProdutoID)
+        }
+
+        // Remove do array dataProducts
+        let newDataProducts = [...dataProducts]
+        newDataProducts.splice(indexData, 1)
+        setDataProducts(newDataProducts)
+
+        // Remove do array de produtos
+        // let newFieldsProducts = [...fieldProducts]
+        // newFieldsProducts.splice(indexData, 1)
+        // setFieldsProducts(newFieldsProducts)
+
+        // Remove do formulário
+        setValue(`produtos[${indexData}]`, '') // Define o valor como vazio
+        reset({ produtos: newDataProducts }) // Limpa o campo do formulário
+
+        // setValue(`produtos[${indexData}]`, '')
+    }
+
     //* Altera status do formulário (aprovado, aprovado parcial, reprovado)
     const handleChangeFormStatus = event => {
         const newValue = event.target.value
@@ -141,21 +181,29 @@ const FormRecebimentoMp = () => {
     const onSubmit = async data => {
         console.log('onSubmit: ', data)
 
-        try {
-            if (type == 'edit') {
-                await api.put(`${staticUrl}/${id}`, data).then(response => {
-                    toast.success(toastMessage.successUpdate)
-                })
-            } else if (type == 'new') {
-                await api.post(`${staticUrl}/insertData`, data).then(response => {
-                    toast.success(toastMessage.successNew)
-                })
-            } else {
-                toast.error(toastMessage.error)
-            }
-        } catch (error) {
-            console.log(error)
-        }
+        // try {
+        //     setSavingForm(true)
+        //     if (type == 'edit') {
+        //         await api.put(`${staticUrl}/${id}`, data).then(response => {
+        //             toast.success(toastMessage.successUpdate)
+        //             setSavingForm(false)
+        //         })
+        //     } else if (type == 'new') {
+        //         await api
+        //             .post(`${staticUrl}/insertData`, { data: data, unidadeID: loggedUnity.unidadeID })
+        //             .then(response => {
+        //                 const newId = response.data
+        //                 router.push(`${staticUrl}/${newId}`)
+        //                 toast.success(toastMessage.successNew)
+        //                 setSavingForm(false)
+        //             })
+        //     } else {
+        //         toast.error(toastMessage.error)
+        //         setSavingForm(false)
+        //     }
+        // } catch (error) {
+        //     console.log(error)
+        // }
     }
 
     const getAddressByCep = cepString => {
@@ -217,6 +265,7 @@ const FormRecebimentoMp = () => {
     ]
 
     const getData = () => {
+        setLoading(true)
         api.post(`${staticUrl}/getData/${id}`, { type: type, unidadeID: loggedUnity.unidadeID }).then(response => {
             console.log('getData: ', response.data)
 
@@ -227,26 +276,22 @@ const FormRecebimentoMp = () => {
             setBlocos(response.data.blocos)
             setInfo(response.data.info)
 
-            initializeValues(response.data)
-
             setLoading(false)
+
+            initializeValues(response.data)
         })
     }
 
     useEffect(() => {
+        console.log('useEffect 1')
         setTitle('Recebimento de MP')
         getData()
-    }, [])
-
-    // useEffect(() => {
-    //     setTimeout(() => {
-    //         trigger() // chama a validação do formulário
-    //     }, 1000)
-    // }, [trigger])
+    }, [savingForm])
 
     // preencher campos defauylts com os dados do banco
     useEffect(() => {
         if (data) {
+            console.log('useEffect 2')
             fields.map((field, index) => {
                 setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
             })
@@ -255,519 +300,573 @@ const FormRecebimentoMp = () => {
 
     return (
         <>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                {/* Card Header */}
-                <Card>
-                    <FormHeader
-                        btnCancel
-                        btnSave
-                        btnPrint
-                        generateReport={generateReport}
-                        dataReports={dataReports}
-                        handleSubmit={() => handleSubmit(onSubmit)}
-                        title='Fornecedor'
-                    />
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    {/* Card Header */}
+                    <Card>
+                        <FormHeader
+                            btnCancel
+                            btnSave
+                            btnPrint
+                            generateReport={generateReport}
+                            dataReports={dataReports}
+                            handleSubmit={() => handleSubmit(onSubmit)}
+                            title='Fornecedor'
+                        />
 
-                    {/* Header */}
-                    <CardContent>
-                        <Grid container spacing={4}>
-                            {fields &&
-                                fields.map((field, index) => (
-                                    <>
-                                        <Grid key={index} item xs={12} md={3}>
-                                            <FormControl fullWidth>
-                                                {/* int (select) */}
-                                                {field && field.tipo === 'int' && field.tabela && (
-                                                    <Autocomplete
-                                                        options={field.options}
-                                                        getOptionSelected={(option, value) => option.id === value.id}
-                                                        defaultValue={
-                                                            defaultValues?.[field.tabela]?.id
-                                                                ? defaultValues?.[field.tabela]
-                                                                : null
-                                                        }
-                                                        getOptionLabel={option => option.nome}
-                                                        name={`header.${field.tabela}`}
-                                                        {...register(`header.${field.tabela}`, {
-                                                            required: !!field.obrigatorio
-                                                        })}
-                                                        onChange={(event, newValue) => {
-                                                            console.log('🚀 ~ newValue:', newValue)
-                                                            setValue(
-                                                                `header.${field.tabela}`,
-                                                                newValue ? newValue : null
-                                                            )
-                                                        }}
-                                                        renderInput={params => (
-                                                            <TextField
-                                                                {...params}
-                                                                label={field.nomeCampo}
-                                                                placeholder={field.nomeCampo}
-                                                                error={errors?.header?.[field.tabela] ? true : false}
-                                                            />
-                                                        )}
-                                                    />
-                                                )}
-
-                                                {/* Date */}
-                                                {field && field.tipo == 'date' && (
-                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                        <DatePicker
-                                                            label='Selecione uma data'
-                                                            locale={dayjs.locale('pt-br')}
-                                                            format='DD/MM/YYYY'
-                                                            defaultValue={dayjs(new Date())}
-                                                            renderInput={params => (
-                                                                <TextField
-                                                                    {...params}
-                                                                    variant='outlined'
-                                                                    name={`header.${field.nomeColuna}`}
-                                                                    {...register(`header.${field.nomeColuna}`, {
-                                                                        required: field.obrigatorio ? true : false
-                                                                    })}
-                                                                />
-                                                            )}
-                                                        />
-                                                    </LocalizationProvider>
-                                                )}
-
-                                                {/* Textfield */}
-                                                {field && field.tipo == 'string' && (
-                                                    <TextField
-                                                        defaultValue={defaultValues[field.nomeColuna] ?? ''}
-                                                        label={field.nomeCampo}
-                                                        placeholder={field.nomeCampo}
-                                                        name={`header.${field.nomeColuna}`}
-                                                        aria-describedby='validation-schema-nome'
-                                                        error={errors?.header?.[field.nomeColuna] ? true : false}
-                                                        {...register(`header.${field.nomeColuna}`, {
-                                                            required: !!field.obrigatorio
-                                                        })}
-                                                        // Validações
-                                                        onChange={e => {
-                                                            field.nomeColuna == 'cnpj'
-                                                                ? (e.target.value = cnpjMask(e.target.value))
-                                                                : field.nomeColuna == 'cep'
-                                                                ? ((e.target.value = cepMask(e.target.value)),
-                                                                  getAddressByCep(e.target.value))
-                                                                : field.nomeColuna == 'telefone'
-                                                                ? (e.target.value = cellPhoneMask(e.target.value))
-                                                                : field.nomeColuna == 'estado'
-                                                                ? (e.target.value = ufMask(e.target.value))
-                                                                : (e.target.value = e.target.value)
-                                                        }}
-                                                        // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
-                                                        inputProps={
-                                                            // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
-                                                            field.nomeColuna == 'cnpj'
-                                                                ? { maxLength: 18 }
-                                                                : field.nomeColuna == 'cep'
-                                                                ? { maxLength: 9 }
-                                                                : field.nomeColuna == 'telefone'
-                                                                ? { maxLength: 15 }
-                                                                : field.nomeColuna == 'estado'
-                                                                ? { maxLength: 2 }
-                                                                : {}
-                                                        }
-                                                    />
-                                                )}
-                                            </FormControl>
-                                        </Grid>
-                                    </>
-                                ))}
-                        </Grid>
-                    </CardContent>
-                </Card>
-
-                {/* Produtos */}
-                <Card sx={{ mt: 4 }}>
-                    <CardContent>
-                        <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 4 }}>
-                            PRODUTOS
-                        </Typography>
-                        <Grid container spacing={4}>
-                            {fieldProducts &&
-                                dataProducts &&
-                                dataProducts.map((data, indexData) =>
-                                    fieldProducts.map((field, indexField) => (
+                        {/* Header */}
+                        <CardContent>
+                            <Grid container spacing={4}>
+                                {fields &&
+                                    fields.map((field, index) => (
                                         <>
-                                            {/* Enviar hidden de recebimentompProdutoID */}
-                                            <input
-                                                type='hidden'
-                                                name={`produtos[${indexData}].recebimentompProdutoID`}
-                                                defaultValue={data?.recebimentompProdutoID}
-                                                {...register(`produtos[${indexData}].recebimentompProdutoID`)}
-                                            />
-
-                                            <Grid key={indexData} item xs={12} md={4}>
+                                            <Grid key={index} item xs={12} md={3}>
                                                 <FormControl fullWidth>
                                                     {/* int (select) */}
                                                     {field && field.tipo === 'int' && field.tabela && (
-                                                        <>
-                                                            <Autocomplete
-                                                                options={field.options}
-                                                                defaultValue={
-                                                                    data?.[field.tabela]?.id
-                                                                        ? data?.[field.tabela]
-                                                                        : null
-                                                                }
-                                                                getOptionLabel={option => option.nome}
-                                                                name={`produtos[${indexData}].${field.tabela}`}
-                                                                {...register(`produtos[${indexData}].${field.tabela}`, {
-                                                                    required: true
-                                                                })}
-                                                                onChange={(event, newValue) => {
-                                                                    setValue(
-                                                                        `produtos[${indexData}].${field.tabela}`,
-                                                                        newValue ? newValue : null
-                                                                    )
-                                                                }}
+                                                        <Autocomplete
+                                                            options={field.options}
+                                                            getOptionSelected={(option, value) =>
+                                                                option.id === value.id
+                                                            }
+                                                            defaultValue={
+                                                                defaultValues?.[field.tabela]?.id
+                                                                    ? defaultValues?.[field.tabela]
+                                                                    : null
+                                                            }
+                                                            getOptionLabel={option => option.nome}
+                                                            name={`header.${field.tabela}`}
+                                                            {...register(`header.${field.tabela}`, {
+                                                                required: !!field.obrigatorio
+                                                            })}
+                                                            onChange={(event, newValue) => {
+                                                                console.log('🚀 ~ newValue:', newValue)
+                                                                setValue(
+                                                                    `header.${field.tabela}`,
+                                                                    newValue ? newValue : null
+                                                                )
+                                                            }}
+                                                            renderInput={params => (
+                                                                <TextField
+                                                                    {...params}
+                                                                    label={field.nomeCampo}
+                                                                    placeholder={field.nomeCampo}
+                                                                    error={
+                                                                        errors?.header?.[field.tabela] ? true : false
+                                                                    }
+                                                                />
+                                                            )}
+                                                        />
+                                                    )}
+
+                                                    {/* Date */}
+                                                    {field && field.tipo == 'date' && (
+                                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                            <DatePicker
+                                                                label='Selecione uma data'
+                                                                locale={dayjs.locale('pt-br')}
+                                                                format='DD/MM/YYYY'
+                                                                defaultValue={dayjs(new Date())}
                                                                 renderInput={params => (
                                                                     <TextField
                                                                         {...params}
-                                                                        label={field.nomeCampo}
-                                                                        placeholder={field.nomeCampo}
-                                                                        error={
-                                                                            errors?.produtos?.[field.tabela]
-                                                                                ? true
-                                                                                : false
-                                                                        }
+                                                                        variant='outlined'
+                                                                        name={`header.${field.nomeColuna}`}
+                                                                        {...register(`header.${field.nomeColuna}`, {
+                                                                            required: field.obrigatorio ? true : false
+                                                                        })}
                                                                     />
                                                                 )}
                                                             />
-                                                        </>
+                                                        </LocalizationProvider>
                                                     )}
 
                                                     {/* Textfield */}
                                                     {field && field.tipo == 'string' && (
-                                                        <>
-                                                            <TextField
-                                                                defaultValue={data?.[field.nomeColuna]}
-                                                                label={field.nomeCampo}
-                                                                placeholder={field.nomeCampo}
-                                                                name={`produtos[${indexData}].${field.nomeColuna}`}
-                                                                aria-describedby='validation-schema-nome'
-                                                                error={
-                                                                    errors?.produtos?.[field.nomeColuna] ? true : false
-                                                                }
-                                                                {...register(
-                                                                    `produtos[${indexData}].${field.nomeColuna}`,
-                                                                    {
-                                                                        required: !!field.obrigatorio
-                                                                    }
-                                                                )}
-                                                                // Validações
-                                                                onChange={e => {
-                                                                    field.nomeColuna == 'cnpj'
-                                                                        ? (e.target.value = cnpjMask(e.target.value))
-                                                                        : field.nomeColuna == 'cep'
-                                                                        ? ((e.target.value = cepMask(e.target.value)),
-                                                                          getAddressByCep(e.target.value))
-                                                                        : field.nomeColuna == 'telefone'
-                                                                        ? (e.target.value = cellPhoneMask(
-                                                                              e.target.value
-                                                                          ))
-                                                                        : field.nomeColuna == 'estado'
-                                                                        ? (e.target.value = ufMask(e.target.value))
-                                                                        : (e.target.value = e.target.value)
-                                                                }}
-                                                                // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
-                                                                inputProps={
-                                                                    // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
-                                                                    field.nomeColuna == 'cnpj'
-                                                                        ? { maxLength: 18 }
-                                                                        : field.nomeColuna == 'cep'
-                                                                        ? { maxLength: 9 }
-                                                                        : field.nomeColuna == 'telefone'
-                                                                        ? { maxLength: 15 }
-                                                                        : field.nomeColuna == 'estado'
-                                                                        ? { maxLength: 2 }
-                                                                        : {}
-                                                                }
-                                                            />
-                                                        </>
+                                                        <TextField
+                                                            defaultValue={defaultValues[field.nomeColuna] ?? ''}
+                                                            label={field.nomeCampo}
+                                                            placeholder={field.nomeCampo}
+                                                            name={`header.${field.nomeColuna}`}
+                                                            aria-describedby='validation-schema-nome'
+                                                            error={errors?.header?.[field.nomeColuna] ? true : false}
+                                                            {...register(`header.${field.nomeColuna}`, {
+                                                                required: !!field.obrigatorio
+                                                            })}
+                                                            // Validações
+                                                            onChange={e => {
+                                                                field.nomeColuna == 'cnpj'
+                                                                    ? (e.target.value = cnpjMask(e.target.value))
+                                                                    : field.nomeColuna == 'cep'
+                                                                    ? ((e.target.value = cepMask(e.target.value)),
+                                                                      getAddressByCep(e.target.value))
+                                                                    : field.nomeColuna == 'telefone'
+                                                                    ? (e.target.value = cellPhoneMask(e.target.value))
+                                                                    : field.nomeColuna == 'estado'
+                                                                    ? (e.target.value = ufMask(e.target.value))
+                                                                    : (e.target.value = e.target.value)
+                                                            }}
+                                                            // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
+                                                            inputProps={
+                                                                // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
+                                                                field.nomeColuna == 'cnpj'
+                                                                    ? { maxLength: 18 }
+                                                                    : field.nomeColuna == 'cep'
+                                                                    ? { maxLength: 9 }
+                                                                    : field.nomeColuna == 'telefone'
+                                                                    ? { maxLength: 15 }
+                                                                    : field.nomeColuna == 'estado'
+                                                                    ? { maxLength: 2 }
+                                                                    : {}
+                                                            }
+                                                        />
                                                     )}
                                                 </FormControl>
                                             </Grid>
                                         </>
-                                    ))
-                                )}
-                        </Grid>
+                                    ))}
+                            </Grid>
+                        </CardContent>
+                    </Card>
 
-                        {/* Botão de adicionar produto */}
-                        <Button
-                            variant='outlined'
-                            color='primary'
-                            sx={{ mt: 4 }}
-                            startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
-                            onClick={() => {
-                                addProduct()
-                            }}
-                        >
-                            Inserir produto
-                        </Button>
-                    </CardContent>
-                </Card>
+                    {/* Produtos */}
+                    <Card sx={{ mt: 4 }}>
+                        <CardContent>
+                            <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 5 }}>
+                                PRODUTOS
+                            </Typography>
+                            {fieldProducts &&
+                                dataProducts &&
+                                dataProducts.map((data, indexData) => (
+                                    <Grid
+                                        id={`productLine-${indexData}`}
+                                        container
+                                        spacing={4}
+                                        key={indexData}
+                                        sx={{ mb: 3 }}
+                                    >
+                                        {fieldProducts.map((field, indexField) => (
+                                            <Grid item xs={12} md={12 / fieldProducts.length} key={indexField}>
+                                                {/* Enviar hidden de recebimentompProdutoID */}
+                                                <input
+                                                    type='hidden'
+                                                    name={`produtos[${indexData}].recebimentompProdutoID`}
+                                                    defaultValue={data?.recebimentompProdutoID}
+                                                    {...register(`produtos[${indexData}].recebimentompProdutoID`)}
+                                                />
 
-                {/* Blocos */}
-                {blocos &&
-                    blocos.map((bloco, indexBloco) => (
-                        <Card key={indexBloco} sx={{ mt: 4 }}>
-                            <CardContent>
-                                <Grid container>
-                                    {/* Hidden do parRecebimentompBlocoID */}
-                                    <input
-                                        type='hidden'
-                                        name={`blocos[${indexBloco}].parRecebimentompBlocoID`}
-                                        defaultValue={bloco.parRecebimentompBlocoID}
-                                        {...register(`blocos[${indexBloco}].parRecebimentompBlocoID`)}
-                                    />
+                                                {/* int (select) */}
+                                                {field && field.tipo === 'int' && field.tabela && (
+                                                    <FormControl fullWidth>
+                                                        <Autocomplete
+                                                            options={field.options}
+                                                            defaultValue={
+                                                                data?.[field.tabela]?.id ? data?.[field.tabela] : null
+                                                            }
+                                                            getOptionLabel={option => option.nome}
+                                                            name={`produtos[${indexData}].${field.tabela}`}
+                                                            {...register(`produtos[${indexData}].${field.tabela}`, {
+                                                                required: true
+                                                            })}
+                                                            onChange={(event, newValue) => {
+                                                                setValue(
+                                                                    `produtos[${indexData}].${field.tabela}`,
+                                                                    newValue ? newValue : null
+                                                                )
+                                                            }}
+                                                            renderInput={params => (
+                                                                <TextField
+                                                                    {...params}
+                                                                    label={field.nomeCampo}
+                                                                    placeholder={field.nomeCampo}
+                                                                    error={
+                                                                        errors?.produtos?.[field.tabela] ? true : false
+                                                                    }
+                                                                />
+                                                            )}
+                                                        />
+                                                    </FormControl>
+                                                )}
 
-                                    <Grid item xs={12} md={12}>
-                                        <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                            {bloco.nome}
-                                        </Typography>
-                                    </Grid>
-
-                                    {/* Itens */}
-                                    {bloco.itens &&
-                                        bloco.itens.map((item, indexItem) => (
-                                            <>
-                                                <Grid key={indexItem} container spacing={4} sx={{ mb: 4 }}>
-                                                    {/* Hidden do itemID */}
-                                                    <input
-                                                        type='hidden'
-                                                        name={`blocos[${indexBloco}].itens[${indexItem}].itemID`}
-                                                        defaultValue={item.itemID}
-                                                        {...register(
-                                                            `blocos[${indexBloco}].itens[${indexItem}].itemID`
-                                                        )}
-                                                    />
-
-                                                    {/* Descrição do item */}
-                                                    <Grid
-                                                        item
-                                                        xs={12}
-                                                        md={6}
-                                                        sx={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '10px'
-                                                        }}
-                                                    >
-                                                        <Box>
-                                                            <Icon
-                                                                icon={'line-md:circle-to-confirm-circle-transition'}
-                                                                style={{
-                                                                    color: item.resposta ? 'green' : 'grey',
-                                                                    fontSize: '20px'
-                                                                }}
-                                                            />
+                                                {/* Textfield */}
+                                                {field && field.tipo === 'string' && (
+                                                    <Box display='flex'>
+                                                        <Box flexBasis='80%'>
+                                                            <FormControl fullWidth>
+                                                                <TextField
+                                                                    defaultValue={data?.[field.nomeColuna]}
+                                                                    label={field.nomeCampo}
+                                                                    placeholder={field.nomeCampo}
+                                                                    name={`produtos[${indexData}].${field.nomeColuna}`}
+                                                                    aria-describedby='validation-schema-nome'
+                                                                    error={
+                                                                        errors?.produtos?.[field.nomeColuna]
+                                                                            ? true
+                                                                            : false
+                                                                    }
+                                                                    {...register(
+                                                                        `produtos[${indexData}].${field.nomeColuna}`,
+                                                                        {
+                                                                            required: !!field.obrigatorio
+                                                                        }
+                                                                    )}
+                                                                    // Validações
+                                                                    onChange={e => {
+                                                                        field.nomeColuna === 'cnpj'
+                                                                            ? (e.target.value = cnpjMask(
+                                                                                  e.target.value
+                                                                              ))
+                                                                            : field.nomeColuna === 'cep'
+                                                                            ? ((e.target.value = cepMask(
+                                                                                  e.target.value
+                                                                              )),
+                                                                              getAddressByCep(e.target.value))
+                                                                            : field.nomeColuna === 'telefone'
+                                                                            ? (e.target.value = cellPhoneMask(
+                                                                                  e.target.value
+                                                                              ))
+                                                                            : field.nomeColuna === 'estado'
+                                                                            ? (e.target.value = ufMask(e.target.value))
+                                                                            : (e.target.value = e.target.value)
+                                                                    }}
+                                                                    // inputProps com maxLength 18 se field.nomeColuna === 'cnpj'
+                                                                    inputProps={
+                                                                        // inputProps validando maxLength para cnpj, cep e telefone baseado no field.nomeColuna
+                                                                        field.nomeColuna === 'cnpj'
+                                                                            ? { maxLength: 18 }
+                                                                            : field.nomeColuna === 'cep'
+                                                                            ? { maxLength: 9 }
+                                                                            : field.nomeColuna === 'telefone'
+                                                                            ? { maxLength: 15 }
+                                                                            : field.nomeColuna === 'estado'
+                                                                            ? { maxLength: 2 }
+                                                                            : {}
+                                                                    }
+                                                                />
+                                                            </FormControl>
                                                         </Box>
-                                                        <Box>{item.ordem + ' - ' + item.nome}</Box>
-                                                    </Grid>
 
-                                                    {/* Alternativas de respostas */}
-                                                    <Grid item xs={12} md={3}>
-                                                        {/* Tipo de alternativa  */}
+                                                        {/* Botão Delete (insere botão na última coluna da linha) */}
+                                                        {indexField == fieldProducts.length - 1 && (
+                                                            <Box flexBasis='20%' textAlign='center'>
+                                                                <Tooltip
+                                                                    title={
+                                                                        2 == 1
+                                                                            ? `Este item não pode mais ser removido pois já foi respondido em um formulário`
+                                                                            : `Remover este item`
+                                                                    }
+                                                                >
+                                                                    <IconButton
+                                                                        color='error'
+                                                                        onClick={() => {
+                                                                            2 === 1
+                                                                                ? null
+                                                                                : removeProduct(data, indexData)
+                                                                        }}
+                                                                        sx={{
+                                                                            marginTop: 2,
+                                                                            opacity: 2 === 1 ? 0.5 : 1,
+                                                                            cursor: 2 === 1 ? 'default' : 'pointer'
+                                                                        }}
+                                                                    >
+                                                                        <Icon icon='tabler:trash-filled' />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </Box>
+                                                        )}
+                                                    </Box>
+                                                )}
+                                            </Grid>
+                                        ))}
+                                    </Grid>
+                                ))}
+
+                            {/* Botão de adicionar produto */}
+                            <Button
+                                variant='outlined'
+                                color='primary'
+                                sx={{ mt: 1 }}
+                                startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
+                                onClick={() => {
+                                    addProduct()
+                                }}
+                            >
+                                Inserir produto
+                            </Button>
+                        </CardContent>
+                    </Card>
+
+                    {/* Blocos */}
+                    {blocos &&
+                        blocos.map((bloco, indexBloco) => (
+                            <Card key={indexBloco} sx={{ mt: 4 }}>
+                                <CardContent>
+                                    <Grid container>
+                                        {/* Hidden do parRecebimentompBlocoID */}
+                                        <input
+                                            type='hidden'
+                                            name={`blocos[${indexBloco}].parRecebimentompBlocoID`}
+                                            defaultValue={bloco.parRecebimentompBlocoID}
+                                            {...register(`blocos[${indexBloco}].parRecebimentompBlocoID`)}
+                                        />
+
+                                        <Grid item xs={12} md={12}>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                {bloco.nome}
+                                            </Typography>
+                                        </Grid>
+
+                                        {/* Itens */}
+                                        {bloco.itens &&
+                                            bloco.itens.map((item, indexItem) => (
+                                                <>
+                                                    <Grid key={indexItem} container spacing={4} sx={{ mb: 4 }}>
+                                                        {/* Hidden do itemID */}
                                                         <input
                                                             type='hidden'
-                                                            name={`blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`}
-                                                            defaultValue={item.alternativa}
+                                                            name={`blocos[${indexBloco}].itens[${indexItem}].itemID`}
+                                                            defaultValue={item.itemID}
                                                             {...register(
-                                                                `blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`
+                                                                `blocos[${indexBloco}].itens[${indexItem}].itemID`
                                                             )}
                                                         />
 
-                                                        <FormControl fullWidth>
-                                                            {/* +1 opção pra selecionar (Select) */}
-                                                            {item && item.alternativas && item.alternativas.length > 1 && (
-                                                                <Autocomplete
-                                                                    options={item.alternativas}
-                                                                    getOptionLabel={option => option.nome}
-                                                                    // Se pelo menus uma opção ser selecionada, pintar a borda do autocomplete de ver
-                                                                    defaultValue={
-                                                                        item.resposta
-                                                                            ? { nome: item?.resposta }
-                                                                            : { nome: '' }
-                                                                    }
-                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                    {...register(
-                                                                        `blocos[${indexBloco}].itens[${indexItem}].respostaID`
-                                                                        // { required: true }
-                                                                    )}
-                                                                    onChange={(event, newValue) => {
-                                                                        setValue(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
-                                                                            newValue ? newValue.alternativaID : ''
-                                                                        )
-                                                                        setValue(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                            newValue ? newValue.nome : ''
-                                                                        )
+                                                        {/* Descrição do item */}
+                                                        <Grid
+                                                            item
+                                                            xs={12}
+                                                            md={6}
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '10px'
+                                                            }}
+                                                        >
+                                                            <Box>
+                                                                <Icon
+                                                                    icon={'line-md:circle-to-confirm-circle-transition'}
+                                                                    style={{
+                                                                        color: item.resposta ? 'green' : 'grey',
+                                                                        fontSize: '20px'
                                                                     }}
-                                                                    renderInput={params => (
-                                                                        <TextField
-                                                                            {...params}
-                                                                            label='Selecione uma resposta'
-                                                                            placeholder='Selecione uma resposta'
-                                                                            // Se uma opções for selecionada, pintar a borda do autocomplete de verde
-                                                                        />
-                                                                    )}
                                                                 />
-                                                            )}
+                                                            </Box>
+                                                            <Box>{item.ordem + ' - ' + item.nome}</Box>
+                                                        </Grid>
 
-                                                            {/* Data */}
-                                                            {item.alternativas.length == 0 &&
-                                                                item.alternativa == 'Data' && (
-                                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                                        <DatePicker
-                                                                            label='Selecione uma data'
-                                                                            locale={dayjs.locale('pt-br')}
-                                                                            format='DD/MM/YYYY'
+                                                        {/* Alternativas de respostas */}
+                                                        <Grid item xs={12} md={3}>
+                                                            {/* Tipo de alternativa  */}
+                                                            <input
+                                                                type='hidden'
+                                                                name={`blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`}
+                                                                defaultValue={item.alternativa}
+                                                                {...register(
+                                                                    `blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`
+                                                                )}
+                                                            />
+
+                                                            <FormControl fullWidth>
+                                                                {/* +1 opção pra selecionar (Select) */}
+                                                                {item &&
+                                                                    item.alternativas &&
+                                                                    item.alternativas.length > 1 && (
+                                                                        <Autocomplete
+                                                                            options={item.alternativas}
+                                                                            getOptionLabel={option => option.nome}
+                                                                            // Se pelo menus uma opção ser selecionada, pintar a borda do autocomplete de ver
                                                                             defaultValue={
                                                                                 item.resposta
-                                                                                    ? dayjs(new Date(item.resposta))
-                                                                                    : ''
+                                                                                    ? { nome: item?.resposta }
+                                                                                    : { nome: '' }
                                                                             }
-                                                                            onChange={newValue => {
+                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                            {...register(
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].respostaID`
+                                                                                // { required: true }
+                                                                            )}
+                                                                            onChange={(event, newValue) => {
+                                                                                setValue(
+                                                                                    `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
+                                                                                    newValue
+                                                                                        ? newValue.alternativaID
+                                                                                        : ''
+                                                                                )
                                                                                 setValue(
                                                                                     `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                    newValue ? newValue : ''
+                                                                                    newValue ? newValue.nome : ''
                                                                                 )
                                                                             }}
                                                                             renderInput={params => (
                                                                                 <TextField
                                                                                     {...params}
-                                                                                    variant='outlined'
-                                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                                    {...register(
-                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                        { required: !!item.obrigatorio }
-                                                                                    )}
+                                                                                    label='Selecione uma resposta'
+                                                                                    placeholder='Selecione uma resposta'
+                                                                                    // Se uma opções for selecionada, pintar a borda do autocomplete de verde
                                                                                 />
                                                                             )}
                                                                         />
-                                                                    </LocalizationProvider>
-                                                                )}
-
-                                                            {/* Dissertativa */}
-                                                            {item.alternativas.length == 0 &&
-                                                                item.alternativa == 'Dissertativa' && (
-                                                                    <TextField
-                                                                        multiline
-                                                                        label='Descreva a resposta'
-                                                                        placeholder='Descreva a resposta'
-                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                        defaultValue={item.resposta ?? ''}
-                                                                        {...register(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                            { required: !!item.obrigatorio }
-                                                                        )}
-                                                                    />
-                                                                )}
-                                                        </FormControl>
-                                                    </Grid>
-
-                                                    {/* Obs */}
-                                                    {item && item.obs == 1 && (
-                                                        <Grid item xs={12} md={3}>
-                                                            <FormControl fullWidth>
-                                                                <TextField
-                                                                    label='Observação'
-                                                                    placeholder='Observação'
-                                                                    name={`blocos[${indexBloco}].itens[${indexItem}].observacao`}
-                                                                    defaultValue={item.observacao ?? ''}
-                                                                    {...register(
-                                                                        `blocos[${indexBloco}].itens[${indexItem}].observacao`
                                                                     )}
-                                                                />
+
+                                                                {/* Data */}
+                                                                {item.alternativas.length == 0 &&
+                                                                    item.alternativa == 'Data' && (
+                                                                        <LocalizationProvider
+                                                                            dateAdapter={AdapterDayjs}
+                                                                        >
+                                                                            <DatePicker
+                                                                                label='Selecione uma data'
+                                                                                locale={dayjs.locale('pt-br')}
+                                                                                format='DD/MM/YYYY'
+                                                                                defaultValue={
+                                                                                    item.resposta
+                                                                                        ? dayjs(new Date(item.resposta))
+                                                                                        : ''
+                                                                                }
+                                                                                onChange={newValue => {
+                                                                                    setValue(
+                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                        newValue ? newValue : ''
+                                                                                    )
+                                                                                }}
+                                                                                renderInput={params => (
+                                                                                    <TextField
+                                                                                        {...params}
+                                                                                        variant='outlined'
+                                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                                        {...register(
+                                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                            {
+                                                                                                required:
+                                                                                                    !!item.obrigatorio
+                                                                                            }
+                                                                                        )}
+                                                                                    />
+                                                                                )}
+                                                                            />
+                                                                        </LocalizationProvider>
+                                                                    )}
+
+                                                                {/* Dissertativa */}
+                                                                {item.alternativas.length == 0 &&
+                                                                    item.alternativa == 'Dissertativa' && (
+                                                                        <TextField
+                                                                            multiline
+                                                                            label='Descreva a resposta'
+                                                                            placeholder='Descreva a resposta'
+                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                            defaultValue={item.resposta ?? ''}
+                                                                            {...register(
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                { required: !!item.obrigatorio }
+                                                                            )}
+                                                                        />
+                                                                    )}
                                                             </FormControl>
                                                         </Grid>
-                                                    )}
-                                                </Grid>
-                                            </>
-                                        ))}
+
+                                                        {/* Obs */}
+                                                        {item && item.obs == 1 && (
+                                                            <Grid item xs={12} md={3}>
+                                                                <FormControl fullWidth>
+                                                                    <TextField
+                                                                        label='Observação'
+                                                                        placeholder='Observação'
+                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].observacao`}
+                                                                        defaultValue={item.observacao ?? ''}
+                                                                        {...register(
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].observacao`
+                                                                        )}
+                                                                    />
+                                                                </FormControl>
+                                                            </Grid>
+                                                        )}
+                                                    </Grid>
+                                                </>
+                                            ))}
+                                    </Grid>
+                                </CardContent>
+                            </Card>
+                        ))}
+
+                    {/* Observação do formulário */}
+                    <Card sx={{ mt: 4 }}>
+                        <CardContent>
+                            <Grid container spacing={4}>
+                                <Grid item xs={12} md={12}>
+                                    <FormControl fullWidth>
+                                        <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
+                                            Observações (campo de uso exclusivo da validadora)
+                                        </Typography>
+                                        <TextField
+                                            multiline
+                                            rows={4}
+                                            label='Observação (opcional)'
+                                            placeholder='Observação (opcional)'
+                                            name='obs'
+                                            defaultValue={info.obs ?? ''}
+                                            {...register('obs')}
+                                        />
+                                    </FormControl>
                                 </Grid>
-                            </CardContent>
-                        </Card>
-                    ))}
-
-                {/* Observação do formulário */}
-                <Card sx={{ mt: 4 }}>
-                    <CardContent>
-                        <Grid container spacing={4}>
-                            <Grid item xs={12} md={12}>
-                                <FormControl fullWidth>
-                                    <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
-                                        Observações (campo de uso exclusivo da validadora)
-                                    </Typography>
-                                    <TextField
-                                        multiline
-                                        rows={4}
-                                        label='Observação (opcional)'
-                                        placeholder='Observação (opcional)'
-                                        name='obs'
-                                        defaultValue={info.obs ?? ''}
-                                        {...register('obs')}
-                                    />
-                                </FormControl>
                             </Grid>
-                        </Grid>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
 
-                {/* Resultado do formulário */}
-                <Card sx={{ mt: 4 }}>
-                    <CardContent>
-                        <Grid container spacing={4}>
-                            <Grid item xs={12} md={12}>
-                                <FormControl fullWidth>
-                                    <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
-                                        Resultado
-                                    </Typography>
-                                    {info && (
-                                        <Box display='flex' gap={8}>
-                                            <RadioGroup
-                                                row
-                                                aria-label='colored'
-                                                name='colored'
-                                                value={info.status}
-                                                onChange={handleChangeFormStatus}
-                                            >
-                                                <FormControlLabel
-                                                    value={70}
-                                                    // disabled={hasFormPending}
-                                                    name={`status`}
-                                                    {...register(`status`)}
-                                                    control={<Radio color='success' />}
-                                                    label='Aprovado'
-                                                />
-                                                <FormControlLabel
-                                                    value={60}
-                                                    // disabled={hasFormPending}
-                                                    name={`status`}
-                                                    {...register(`status`)}
-                                                    label='Aprovado parcial'
-                                                    control={<Radio color='warning' />}
-                                                />
-                                                <FormControlLabel
-                                                    value={50}
-                                                    // disabled={hasFormPending}
-                                                    name={`status`}
-                                                    {...register(`status`)}
-                                                    label='Reprovado'
-                                                    control={<Radio color='error' />}
-                                                />
-                                            </RadioGroup>
-                                        </Box>
-                                    )}
-                                </FormControl>
+                    {/* Resultado do formulário */}
+                    <Card sx={{ mt: 4 }}>
+                        <CardContent>
+                            <Grid container spacing={4}>
+                                <Grid item xs={12} md={12}>
+                                    <FormControl fullWidth>
+                                        <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
+                                            Resultado
+                                        </Typography>
+                                        {info && (
+                                            <Box display='flex' gap={8}>
+                                                <RadioGroup
+                                                    row
+                                                    aria-label='colored'
+                                                    name='colored'
+                                                    value={info.status}
+                                                    onChange={handleChangeFormStatus}
+                                                >
+                                                    <FormControlLabel
+                                                        value={70}
+                                                        // disabled={hasFormPending}
+                                                        name={`status`}
+                                                        {...register(`status`)}
+                                                        control={<Radio color='success' />}
+                                                        label='Aprovado'
+                                                    />
+                                                    <FormControlLabel
+                                                        value={60}
+                                                        // disabled={hasFormPending}
+                                                        name={`status`}
+                                                        {...register(`status`)}
+                                                        label='Aprovado parcial'
+                                                        control={<Radio color='warning' />}
+                                                    />
+                                                    <FormControlLabel
+                                                        value={50}
+                                                        // disabled={hasFormPending}
+                                                        name={`status`}
+                                                        {...register(`status`)}
+                                                        label='Reprovado'
+                                                        control={<Radio color='error' />}
+                                                    />
+                                                </RadioGroup>
+                                            </Box>
+                                        )}
+                                    </FormControl>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </CardContent>
-                </Card>
-            </form>
+                        </CardContent>
+                    </Card>
+                </form>
+            )}
         </>
     )
 }
