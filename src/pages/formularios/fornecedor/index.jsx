@@ -81,7 +81,7 @@ const Fornecedor = () => {
     const getList = async () => {
         console.log('getList> ', currentLink)
         await api
-            .post(`${currentLink}/getList`, {
+            .post(`${currentLink}/getList/${loggedUnity.unidadeID}`, {
                 unidadeID: loggedUnity.unidadeID,
                 papelID: user.papelID,
                 cnpj: user.cnpj ? user.cnpj : null
