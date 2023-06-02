@@ -97,7 +97,7 @@ const FormFornecedor = () => {
                     nome: data[field.tabela]?.nome
                 }
             } else {
-                // Input
+                // todo Input
                 const loggedUnityItem = loggedUnity[field.nomeColuna]
 
                 defaultValues[field.nomeColuna] = data[field.nomeColuna]
@@ -575,13 +575,14 @@ const FormFornecedor = () => {
                                                     //     />
                                                     // </LocalizationProvider>
                                                     <TextField
-                                                        style={{ cursor: 'pointer' }}
                                                         type='date'
                                                         label='Selecione uma data'
                                                         defaultValue={
-                                                            new Date(defaultValues?.[field.nomeColuna])
-                                                                .toISOString()
-                                                                .split('T')[0]
+                                                            defaultValues?.[field.nomeColuna]
+                                                                ? new Date(defaultValues?.[field.nomeColuna])
+                                                                      .toISOString()
+                                                                      .split('T')[0]
+                                                                : ''
                                                         }
                                                         name={`header.${field.nomeColuna}`}
                                                         {...register(`header.${field.nomeColuna}`, {
