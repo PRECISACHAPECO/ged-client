@@ -29,7 +29,6 @@ const CrmAward = () => {
 
 
     async function baixarPdf() {
-
         const componenteHTML = ReactDOMServer.renderToString(<Fornecedor />);
 
         fetch('http://localhost:3333/api/pdf', {
@@ -50,14 +49,12 @@ const CrmAward = () => {
             .catch(error => {
                 console.error(error);
             });
-
     }
-
 
     const gerarPdf = () => {
         const generateReport = async () => {
             try {
-                const response = await fetch('http://localhost:3333/api/pdf/gerar', {
+                const response = await fetch('https://demo.gedagro.com.br/api/pdf/gerar', {
                     method: 'POST',
                 });
 

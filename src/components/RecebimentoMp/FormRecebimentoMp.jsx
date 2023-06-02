@@ -65,30 +65,32 @@ const FormRecebimentoMp = () => {
     const { settings } = useContext(SettingsContext)
     const mode = settings.mode
 
-    const defaultValues =
-        data &&
-        fields.reduce((defaultValues, field) => {
-            if (field.tabela) {
-                // Select (objeto com id e nome)
-                defaultValues[field.tabela] = {
-                    id: data[field.tabela]?.id,
-                    nome: data[field.tabela]?.nome
-                }
-            } else {
-                // Input
-                defaultValues[field.nomeColuna] = data[field.nomeColuna]
-            }
+    // const defaultValues =
+    //     data &&
+    //     fields.reduce((defaultValues, field) => {
+    //         if (field.tabela) {
+    //             // Select (objeto com id e nome)
+    //             defaultValues[field.tabela] = {
+    //                 id: data[field.tabela]?.id,
+    //                 nome: data[field.tabela]?.nome
+    //             }
+    //         } else {
+    //             // Input
+    //             defaultValues[field.nomeColuna] = data[field.nomeColuna]
+    //         }
 
-            return defaultValues
-        }, {})
+    //         return defaultValues
+    //     }, {})
 
     const {
         watch,
+        trigger,
         reset,
         register,
         control,
         setValue,
         handleSubmit,
+        remove,
         formState: { errors }
     } = useForm()
 
@@ -99,11 +101,11 @@ const FormRecebimentoMp = () => {
         console.log('🚀 ~ initializeValues values:', values)
 
         // Seta fields do cabeçalho
-        values.fields.map((field, index) => {
-            if (defaultValues?.[field.tabela]) {
-                setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
-            }
-        })
+        // values.fields.map((field, index) => {
+        //     if (defaultValues?.[field.tabela]) {
+        //         setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
+        //     }
+        // })
 
         // Seta autocomplete com o valor do banco em um objeto com id e nome
         values.dataProducts.map((data, indexData) => {
@@ -131,39 +133,21 @@ const FormRecebimentoMp = () => {
         setValue('status', values?.info?.status)
     }
 
-    // const removeProduct = (data, indexData) => {
-    //     let newDataProducts = [...dataProducts]
-    //     newDataProducts.splice(indexData, 1)
-    //     setDataProducts(newDataProducts)
+    const removeProduct = (data, index) => {
+        // Remova o item do array dataProducts
+        const updatedDataProducts = [...dataProducts]
+        updatedDataProducts.splice(index, 1)
+        setDataProducts(updatedDataProducts)
 
-    //     setValue(`produtos[${indexData}].removed`, true)
-    //     document.getElementById('productLine-' + indexData).style.display = 'none'
-    //     toast.success('Produto pré removido, salve para concluir!')
-    // }
-    const removeProduct = (product, indexData) => {
-        console.log('🚀 ~ product:', product)
-
-        // Insere no array de produtos removidos (se houver recebimentompProdutoID)
-        if (product?.recebimentompProdutoID > 0) {
-            setRemovedProducts([...removedProducts, product.recebimentompProdutoID])
-            setValue(`removedProducts[${indexData}]`, product.recebimentompProdutoID)
+        // Insere ID no array de produtos removidos
+        if (data?.recebimentompProdutoID > 0) {
+            const newRemovedProducts = [...removedProducts, { recebimentompProdutoID: data.recebimentompProdutoID }] // Atribui o valor atual a uma nova variável
+            console.log('🚀 ~ newRemovedProducts:', newRemovedProducts)
+            setRemovedProducts(newRemovedProducts) // Atualiza a variável de estado
         }
 
-        // Remove do array dataProducts
-        let newDataProducts = [...dataProducts]
-        newDataProducts.splice(indexData, 1)
-        setDataProducts(newDataProducts)
-
-        // Remove do array de produtos
-        // let newFieldsProducts = [...fieldProducts]
-        // newFieldsProducts.splice(indexData, 1)
-        // setFieldsProducts(newFieldsProducts)
-
-        // Remove do formulário
-        setValue(`produtos[${indexData}]`, '') // Define o valor como vazio
-        reset({ produtos: newDataProducts }) // Limpa o campo do formulário
-
-        // setValue(`produtos[${indexData}]`, '')
+        reset({ produtos: updatedDataProducts })
+        trigger()
     }
 
     //* Altera status do formulário (aprovado, aprovado parcial, reprovado)
@@ -181,29 +165,38 @@ const FormRecebimentoMp = () => {
     const onSubmit = async data => {
         console.log('onSubmit: ', data)
 
-        // try {
-        //     setSavingForm(true)
-        //     if (type == 'edit') {
-        //         await api.put(`${staticUrl}/${id}`, data).then(response => {
-        //             toast.success(toastMessage.successUpdate)
-        //             setSavingForm(false)
-        //         })
-        //     } else if (type == 'new') {
-        //         await api
-        //             .post(`${staticUrl}/insertData`, { data: data, unidadeID: loggedUnity.unidadeID })
-        //             .then(response => {
-        //                 const newId = response.data
-        //                 router.push(`${staticUrl}/${newId}`)
-        //                 toast.success(toastMessage.successNew)
-        //                 setSavingForm(false)
-        //             })
-        //     } else {
-        //         toast.error(toastMessage.error)
-        //         setSavingForm(false)
-        //     }
-        // } catch (error) {
-        //     console.log(error)
-        // }
+        try {
+            setSavingForm(true)
+            if (type == 'edit') {
+                await api
+                    .put(`${staticUrl}/${id}`, {
+                        data: data,
+                        removedProducts: removedProducts,
+                        unidadeID: loggedUnity.unidadeID
+                    })
+                    .then(response => {
+                        toast.success(toastMessage.successUpdate)
+                        setSavingForm(false)
+                    })
+            } else if (type == 'new') {
+                await api
+                    .post(`${staticUrl}/insertData`, {
+                        data: data,
+                        unidadeID: loggedUnity.unidadeID
+                    })
+                    .then(response => {
+                        const newId = response.data
+                        router.push(`${staticUrl}/${newId}`)
+                        toast.success(toastMessage.successNew)
+                        setSavingForm(false)
+                    })
+            } else {
+                toast.error(toastMessage.error)
+                setSavingForm(false)
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const getAddressByCep = cepString => {
@@ -278,7 +271,7 @@ const FormRecebimentoMp = () => {
 
             setLoading(false)
 
-            initializeValues(response.data)
+            // initializeValues(response.data)
         })
     }
 
@@ -293,10 +286,32 @@ const FormRecebimentoMp = () => {
         if (data) {
             console.log('useEffect 2')
             fields.map((field, index) => {
-                setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
+                setValue(`header.${field.tabela}`, data?.[field.tabela])
             })
+
+            // Seta autocomplete com o valor do banco em um objeto com id e nome
+            dataProducts.map((data, indexData) => {
+                fieldProducts.map((field, indexFields) => {
+                    if (data?.[field.tabela]?.id) {
+                        setValue(`produtos[${indexData}].${field.tabela}`, data?.[field.tabela])
+                    }
+                })
+            })
+
+            // Seta bloco com o valor do banco em um objeto com id e nome
+            blocos.map((block, indexBlock) => {
+                block.itens.map((item, indexItem) => {
+                    if (item?.resposta) {
+                        setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
+                    }
+                })
+            })
+
+            // Seta infos
+            setValue('obs', info?.obs)
+            setValue('status', info?.status)
         }
-    }, [data])
+    }, [data, savingForm])
 
     return (
         <>
@@ -331,10 +346,13 @@ const FormRecebimentoMp = () => {
                                                             getOptionSelected={(option, value) =>
                                                                 option.id === value.id
                                                             }
+                                                            // defaultValue={
+                                                            //     defaultValues?.[field.tabela]?.id
+                                                            //         ? defaultValues?.[field.tabela]
+                                                            //         : null
+                                                            // }
                                                             defaultValue={
-                                                                defaultValues?.[field.tabela]?.id
-                                                                    ? defaultValues?.[field.tabela]
-                                                                    : null
+                                                                data?.[field.tabela]?.id ? data?.[field.tabela] : null
                                                             }
                                                             getOptionLabel={option => option.nome}
                                                             name={`header.${field.tabela}`}
@@ -386,7 +404,7 @@ const FormRecebimentoMp = () => {
                                                     {/* Textfield */}
                                                     {field && field.tipo == 'string' && (
                                                         <TextField
-                                                            defaultValue={defaultValues[field.nomeColuna] ?? ''}
+                                                            defaultValue={data?.[field.nomeColuna] ?? ''}
                                                             label={field.nomeCampo}
                                                             placeholder={field.nomeCampo}
                                                             name={`header.${field.nomeColuna}`}
@@ -468,7 +486,7 @@ const FormRecebimentoMp = () => {
                                                             getOptionLabel={option => option.nome}
                                                             name={`produtos[${indexData}].${field.tabela}`}
                                                             {...register(`produtos[${indexData}].${field.tabela}`, {
-                                                                required: true
+                                                                required: field?.obrigatorio == 1 ? true : false
                                                             })}
                                                             onChange={(event, newValue) => {
                                                                 setValue(
@@ -482,7 +500,9 @@ const FormRecebimentoMp = () => {
                                                                     label={field.nomeCampo}
                                                                     placeholder={field.nomeCampo}
                                                                     error={
-                                                                        errors?.produtos?.[field.tabela] ? true : false
+                                                                        errors?.produtos?.[indexData]?.[field.tabela]
+                                                                            ? true
+                                                                            : false
                                                                     }
                                                                 />
                                                             )}
@@ -502,14 +522,17 @@ const FormRecebimentoMp = () => {
                                                                     name={`produtos[${indexData}].${field.nomeColuna}`}
                                                                     aria-describedby='validation-schema-nome'
                                                                     error={
-                                                                        errors?.produtos?.[field.nomeColuna]
+                                                                        errors?.produtos?.[indexData]?.[
+                                                                            field.nomeColuna
+                                                                        ]
                                                                             ? true
                                                                             : false
                                                                     }
                                                                     {...register(
                                                                         `produtos[${indexData}].${field.nomeColuna}`,
                                                                         {
-                                                                            required: !!field.obrigatorio
+                                                                            required:
+                                                                                field?.obrigatorio == 1 ? true : false
                                                                         }
                                                                     )}
                                                                     // Validações
@@ -679,24 +702,29 @@ const FormRecebimentoMp = () => {
                                                                             // Se pelo menus uma opção ser selecionada, pintar a borda do autocomplete de ver
                                                                             defaultValue={
                                                                                 item.resposta
-                                                                                    ? { nome: item?.resposta }
+                                                                                    ? item.resposta
                                                                                     : { nome: '' }
                                                                             }
                                                                             name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                             {...register(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].respostaID`
-                                                                                // { required: true }
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                {
+                                                                                    required:
+                                                                                        item?.obrigatorio == 1
+                                                                                            ? true
+                                                                                            : false
+                                                                                }
                                                                             )}
                                                                             onChange={(event, newValue) => {
-                                                                                setValue(
-                                                                                    `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
-                                                                                    newValue
-                                                                                        ? newValue.alternativaID
-                                                                                        : ''
-                                                                                )
+                                                                                console.log('🚀 ~ newValue:', newValue)
                                                                                 setValue(
                                                                                     `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                    newValue ? newValue.nome : ''
+                                                                                    newValue
+                                                                                        ? {
+                                                                                              id: newValue.alternativaID,
+                                                                                              nome: newValue.nome
+                                                                                          }
+                                                                                        : ''
                                                                                 )
                                                                             }}
                                                                             renderInput={params => (
@@ -705,6 +733,12 @@ const FormRecebimentoMp = () => {
                                                                                     label='Selecione uma resposta'
                                                                                     placeholder='Selecione uma resposta'
                                                                                     // Se uma opções for selecionada, pintar a borda do autocomplete de verde
+                                                                                    error={
+                                                                                        errors?.blocos?.[indexBloco]
+                                                                                            ?.itens[indexItem]?.resposta
+                                                                                            ? true
+                                                                                            : false
+                                                                                    }
                                                                                 />
                                                                             )}
                                                                         />
@@ -760,8 +794,20 @@ const FormRecebimentoMp = () => {
                                                                             defaultValue={item.resposta ?? ''}
                                                                             {...register(
                                                                                 `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                { required: !!item.obrigatorio }
+                                                                                {
+                                                                                    required:
+                                                                                        item?.obrigatorio == 1
+                                                                                            ? true
+                                                                                            : false
+                                                                                }
                                                                             )}
+                                                                            error={
+                                                                                errors?.blocos?.[indexBloco]?.itens[
+                                                                                    indexItem
+                                                                                ]?.resposta
+                                                                                    ? true
+                                                                                    : false
+                                                                            }
                                                                         />
                                                                     )}
                                                             </FormControl>
@@ -792,79 +838,83 @@ const FormRecebimentoMp = () => {
                         ))}
 
                     {/* Observação do formulário */}
-                    <Card sx={{ mt: 4 }}>
-                        <CardContent>
-                            <Grid container spacing={4}>
-                                <Grid item xs={12} md={12}>
-                                    <FormControl fullWidth>
-                                        <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
-                                            Observações (campo de uso exclusivo da validadora)
-                                        </Typography>
-                                        <TextField
-                                            multiline
-                                            rows={4}
-                                            label='Observação (opcional)'
-                                            placeholder='Observação (opcional)'
-                                            name='obs'
-                                            defaultValue={info.obs ?? ''}
-                                            {...register('obs')}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
-                        </CardContent>
-                    </Card>
+                    {info && (
+                        <>
+                            <Card sx={{ mt: 4 }}>
+                                <CardContent>
+                                    <Grid container spacing={4}>
+                                        <Grid item xs={12} md={12}>
+                                            <FormControl fullWidth>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
+                                                    Observações (campo de uso exclusivo da validadora)
+                                                </Typography>
+                                                <TextField
+                                                    multiline
+                                                    rows={4}
+                                                    label='Observação (opcional)'
+                                                    placeholder='Observação (opcional)'
+                                                    defaultValue={info.obs ?? ''}
+                                                    name='obs'
+                                                    {...register('obs')}
+                                                />
+                                            </FormControl>
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
+                            </Card>
 
-                    {/* Resultado do formulário */}
-                    <Card sx={{ mt: 4 }}>
-                        <CardContent>
-                            <Grid container spacing={4}>
-                                <Grid item xs={12} md={12}>
-                                    <FormControl fullWidth>
-                                        <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
-                                            Resultado
-                                        </Typography>
-                                        {info && (
-                                            <Box display='flex' gap={8}>
-                                                <RadioGroup
-                                                    row
-                                                    aria-label='colored'
-                                                    name='colored'
-                                                    value={info.status}
-                                                    onChange={handleChangeFormStatus}
-                                                >
-                                                    <FormControlLabel
-                                                        value={70}
-                                                        // disabled={hasFormPending}
-                                                        name={`status`}
-                                                        {...register(`status`)}
-                                                        control={<Radio color='success' />}
-                                                        label='Aprovado'
-                                                    />
-                                                    <FormControlLabel
-                                                        value={60}
-                                                        // disabled={hasFormPending}
-                                                        name={`status`}
-                                                        {...register(`status`)}
-                                                        label='Aprovado parcial'
-                                                        control={<Radio color='warning' />}
-                                                    />
-                                                    <FormControlLabel
-                                                        value={50}
-                                                        // disabled={hasFormPending}
-                                                        name={`status`}
-                                                        {...register(`status`)}
-                                                        label='Reprovado'
-                                                        control={<Radio color='error' />}
-                                                    />
-                                                </RadioGroup>
-                                            </Box>
-                                        )}
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
-                        </CardContent>
-                    </Card>
+                            {/* Resultado do formulário */}
+                            <Card sx={{ mt: 4 }}>
+                                <CardContent>
+                                    <Grid container spacing={4}>
+                                        <Grid item xs={12} md={12}>
+                                            <FormControl fullWidth>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
+                                                    Resultado
+                                                </Typography>
+                                                {info && (
+                                                    <Box display='flex' gap={8}>
+                                                        <RadioGroup
+                                                            row
+                                                            aria-label='colored'
+                                                            name='colored'
+                                                            value={info.status}
+                                                            onChange={handleChangeFormStatus}
+                                                        >
+                                                            <FormControlLabel
+                                                                value={70}
+                                                                // disabled={hasFormPending}
+                                                                name={`status`}
+                                                                {...register(`status`)}
+                                                                control={<Radio color='success' />}
+                                                                label='Aprovado'
+                                                            />
+                                                            <FormControlLabel
+                                                                value={60}
+                                                                // disabled={hasFormPending}
+                                                                name={`status`}
+                                                                {...register(`status`)}
+                                                                label='Aprovado parcial'
+                                                                control={<Radio color='warning' />}
+                                                            />
+                                                            <FormControlLabel
+                                                                value={50}
+                                                                // disabled={hasFormPending}
+                                                                name={`status`}
+                                                                {...register(`status`)}
+                                                                label='Reprovado'
+                                                                control={<Radio color='error' />}
+                                                            />
+                                                        </RadioGroup>
+                                                    </Box>
+                                                )}
+                                            </FormControl>
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
+                            </Card>
+                        </>
+                    )}
                 </form>
             )}
         </>
