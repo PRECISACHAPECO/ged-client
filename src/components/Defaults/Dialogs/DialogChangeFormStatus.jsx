@@ -140,7 +140,6 @@ const DialogChangeFormStatus = ({
                                                 sx={{
                                                     mb: 2,
                                                     display: 'flex',
-                                                    flexWrap: 'wrap',
                                                     alignItems: 'center',
                                                     justifyContent: 'space-between'
                                                 }}
@@ -166,12 +165,27 @@ const DialogChangeFormStatus = ({
                                                 </Typography>
                                                 <Typography variant='caption'>{mov.usuario}</Typography>
                                             </Box>
-                                            <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                                                <span>{statusDefault[mov.statusAnterior].title}</span>
-                                                <Icon icon='mdi:arrow-right' fontSize={20} />
-                                                <span>{statusDefault[mov.statusAtual].title}</span>
-                                            </Typography>
-                                            <Typography variant='caption'>{mov.unidade}</Typography>
+
+                                            <Box
+                                                sx={{
+                                                    mb: 2,
+                                                    display: 'flex',
+                                                    flexWrap: 'wrap',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between'
+                                                }}
+                                            >
+                                                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                                                    <span>{statusDefault[mov.statusAnterior].title}</span>
+                                                    <Icon
+                                                        icon='mdi:arrow-right'
+                                                        fontSize={20}
+                                                        style={{ display: 'inline-block' }}
+                                                    />
+                                                    <span>{statusDefault[mov.statusAtual].title}</span>
+                                                </Typography>
+                                                <Typography variant='caption'>{mov.unidade}</Typography>
+                                            </Box>
                                         </TimelineContent>
                                     </TimelineItem>
                                 ))}

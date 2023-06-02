@@ -127,8 +127,8 @@ const FormFornecedor = () => {
                 setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
             } else {
                 if (field.tipo == 'date') {
-                    console.log('seta padrao na dataaaa: ', formatDate(defaultValues?.[field.nomeColuna], 'DD/MM/YYYY'))
-                    setValue(`header.${field.nomeColuna}`, formatDate(defaultValues?.[field.nomeColuna], 'DD/MM/YYYY'))
+                    // console.log('seta padrao na dataaaa: ', formatDate(defaultValues?.[field.nomeColuna], 'DD/MM/YYYY'))
+                    // setValue(`header.${field.nomeColuna}`, formatDate(defaultValues?.[field.nomeColuna], 'DD/MM/YYYY'))
                 } else {
                     setValue(`header.${field.nomeColuna}`, defaultValues?.[field.nomeColuna])
                 }
@@ -553,27 +553,46 @@ const FormFornecedor = () => {
 
                                                 {/* Date */}
                                                 {field && field.tipo == 'date' && (
-                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                        <DatePicker
-                                                            label='Selecione uma data'
-                                                            disabled={!canEdit.status}
-                                                            format='DD/MM/YYYY'
-                                                            defaultValue={dayjs(
-                                                                formatDate(
-                                                                    defaultValues?.[field.nomeColuna],
-                                                                    'DD-MM-YYYY'
-                                                                )
-                                                            )}
-                                                            name={`header.${field.nomeColuna}`}
-                                                            {...register(`header.${field.nomeColuna}`, {
-                                                                required: field.obrigatorio && canEdit.status
-                                                            })}
-                                                            required={true}
-                                                            renderInput={params => (
-                                                                <TextField {...params} variant='outlined' />
-                                                            )}
-                                                        />
-                                                    </LocalizationProvider>
+                                                    // <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                    //     <DatePicker
+                                                    //         label='Selecione uma data'
+                                                    //         disabled={!canEdit.status}
+                                                    //         format='DD/MM/YYYY'
+                                                    //         defaultValue={dayjs(
+                                                    //             formatDate(
+                                                    //                 defaultValues?.[field.nomeColuna],
+                                                    //                 'DD-MM-YYYY'
+                                                    //             )
+                                                    //         )}
+                                                    //         name={`header.${field.nomeColuna}`}
+                                                    //         {...register(`header.${field.nomeColuna}`, {
+                                                    //             required: field.obrigatorio && canEdit.status
+                                                    //         })}
+                                                    //         required={true}
+                                                    //         renderInput={params => (
+                                                    //             <TextField {...params} variant='outlined' />
+                                                    //         )}
+                                                    //     />
+                                                    // </LocalizationProvider>
+                                                    <TextField
+                                                        style={{ cursor: 'pointer' }}
+                                                        type='date'
+                                                        label='Selecione uma data'
+                                                        defaultValue={
+                                                            new Date(defaultValues?.[field.nomeColuna])
+                                                                .toISOString()
+                                                                .split('T')[0]
+                                                        }
+                                                        name={`header.${field.nomeColuna}`}
+                                                        {...register(`header.${field.nomeColuna}`, {
+                                                            required: field.obrigatorio && canEdit.status
+                                                        })}
+                                                        variant='outlined'
+                                                        fullWidth
+                                                        InputLabelProps={{
+                                                            shrink: true
+                                                        }}
+                                                    />
                                                 )}
                                                 {/* Textfield */}
                                                 {/* Nº Registro, só mostra se registro do estabelecimento for MAPA ou ANVISA */}
