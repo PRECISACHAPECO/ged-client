@@ -78,28 +78,19 @@ const Fornecedor = () => {
     }
 
     //* Controles da listagem
-    // const getList = async () => {
-    //     console.log('getList> ', currentLink)
-    //     //
-    //     await api
-    //         .post(`${currentLink}/getList`, {
-    //             unidadeID: loggedUnity.unidadeID,
-    //             papelID: user.papelID,
-    //             cnpj: user.cnpj ? user.cnpj : null
-    //         })
-    //         .then(response => {
-    //             setResult(response.data)
-    //             setTitle('Fornecedor')
-    //         })
-    // }
-
     const getList = async () => {
         console.log('getList> ', currentLink)
         //
-        await api.get(`${currentLink}/getList`).then(response => {
-            setResult(response.data)
-            setTitle('Fornecedor')
-        })
+        await api
+            .post(`${currentLink}/getList`, {
+                unidadeID: loggedUnity.unidadeID,
+                papelID: user.papelID,
+                cnpj: user.cnpj ? user.cnpj : null
+            })
+            .then(response => {
+                setResult(response.data)
+                setTitle('Fornecedor')
+            })
     }
 
     useEffect(() => {
