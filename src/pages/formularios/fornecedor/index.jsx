@@ -80,15 +80,17 @@ const Fornecedor = () => {
     //* Controles da listagem
     const getList = async () => {
         console.log('getList> ', currentLink)
-        // {
-        //     unidadeID: loggedUnity.unidadeID,
-        //     papelID: user.papelID,
-        //     cnpj: user.cnpj ? user.cnpj : null
-        // }
-        await api.get(`${currentLink}/getList/${loggedUnity.unidadeID}`).then(response => {
-            setResult(response.data)
-            setTitle('Fornecedor')
-        })
+        //
+        await api
+            .post(`${currentLink}/getList`, {
+                unidadeID: loggedUnity.unidadeID,
+                papelID: user.papelID,
+                cnpj: user.cnpj ? user.cnpj : null
+            })
+            .then(response => {
+                setResult(response.data)
+                setTitle('Fornecedor')
+            })
     }
 
     useEffect(() => {
