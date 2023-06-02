@@ -48,6 +48,7 @@ const FormRecebimentoMp = () => {
     const { setTitle } = useContext(ParametersContext)
     const [isLoading, setLoading] = useState(false)
     const [savingForm, setSavingForm] = useState(false)
+    const [validateForm, setValidateForm] = useState(false) //? Se true, valida campos obrigatórios
 
     const [fields, setFields] = useState([])
     const [data, setData] = useState(null)
@@ -147,7 +148,7 @@ const FormRecebimentoMp = () => {
         }
 
         reset({ produtos: updatedDataProducts })
-        trigger()
+        // trigger()
     }
 
     //* Altera status do formulário (aprovado, aprovado parcial, reprovado)
@@ -356,9 +357,7 @@ const FormRecebimentoMp = () => {
                                                             }
                                                             getOptionLabel={option => option.nome}
                                                             name={`header.${field.tabela}`}
-                                                            {...register(`header.${field.tabela}`, {
-                                                                required: !!field.obrigatorio
-                                                            })}
+                                                            {...register(`header.${field.tabela}`)}
                                                             onChange={(event, newValue) => {
                                                                 console.log('🚀 ~ newValue:', newValue)
                                                                 setValue(
@@ -392,9 +391,7 @@ const FormRecebimentoMp = () => {
                                                                         {...params}
                                                                         variant='outlined'
                                                                         name={`header.${field.nomeColuna}`}
-                                                                        {...register(`header.${field.nomeColuna}`, {
-                                                                            required: field.obrigatorio ? true : false
-                                                                        })}
+                                                                        {...register(`header.${field.nomeColuna}`)}
                                                                     />
                                                                 )}
                                                             />
@@ -410,9 +407,7 @@ const FormRecebimentoMp = () => {
                                                             name={`header.${field.nomeColuna}`}
                                                             aria-describedby='validation-schema-nome'
                                                             error={errors?.header?.[field.nomeColuna] ? true : false}
-                                                            {...register(`header.${field.nomeColuna}`, {
-                                                                required: !!field.obrigatorio
-                                                            })}
+                                                            {...register(`header.${field.nomeColuna}`)}
                                                             // Validações
                                                             onChange={e => {
                                                                 field.nomeColuna == 'cnpj'
@@ -485,9 +480,7 @@ const FormRecebimentoMp = () => {
                                                             }
                                                             getOptionLabel={option => option.nome}
                                                             name={`produtos[${indexData}].${field.tabela}`}
-                                                            {...register(`produtos[${indexData}].${field.tabela}`, {
-                                                                required: field?.obrigatorio == 1 ? true : false
-                                                            })}
+                                                            {...register(`produtos[${indexData}].${field.tabela}`)}
                                                             onChange={(event, newValue) => {
                                                                 setValue(
                                                                     `produtos[${indexData}].${field.tabela}`,
@@ -529,11 +522,7 @@ const FormRecebimentoMp = () => {
                                                                             : false
                                                                     }
                                                                     {...register(
-                                                                        `produtos[${indexData}].${field.nomeColuna}`,
-                                                                        {
-                                                                            required:
-                                                                                field?.obrigatorio == 1 ? true : false
-                                                                        }
+                                                                        `produtos[${indexData}].${field.nomeColuna}`
                                                                     )}
                                                                     // Validações
                                                                     onChange={e => {
@@ -707,13 +696,7 @@ const FormRecebimentoMp = () => {
                                                                             }
                                                                             name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                             {...register(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                {
-                                                                                    required:
-                                                                                        item?.obrigatorio == 1
-                                                                                            ? true
-                                                                                            : false
-                                                                                }
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
                                                                             )}
                                                                             onChange={(event, newValue) => {
                                                                                 console.log('🚀 ~ newValue:', newValue)
@@ -771,11 +754,7 @@ const FormRecebimentoMp = () => {
                                                                                         variant='outlined'
                                                                                         name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                                         {...register(
-                                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                            {
-                                                                                                required:
-                                                                                                    !!item.obrigatorio
-                                                                                            }
+                                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`
                                                                                         )}
                                                                                     />
                                                                                 )}
@@ -793,13 +772,7 @@ const FormRecebimentoMp = () => {
                                                                             name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                             defaultValue={item.resposta ?? ''}
                                                                             {...register(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                {
-                                                                                    required:
-                                                                                        item?.obrigatorio == 1
-                                                                                            ? true
-                                                                                            : false
-                                                                                }
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
                                                                             )}
                                                                             error={
                                                                                 errors?.blocos?.[indexBloco]?.itens[
