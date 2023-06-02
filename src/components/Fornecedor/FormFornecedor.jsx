@@ -29,6 +29,7 @@ import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
 import Loading from 'src/components/Loading'
 import { toastMessage, formType, statusDefault } from 'src/configs/defaultConfigs'
+import { formatDate } from 'src/configs/conversions'
 import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
@@ -40,7 +41,8 @@ import CustomChip from 'src/@core/components/mui/chip'
 // Date
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+// import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { DatePicker } from '@mui/lab'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br' // import locale
 import DialogForm from '../Defaults/Dialogs/Dialog'
@@ -98,7 +100,6 @@ const FormFornecedor = () => {
             } else {
                 // Input
                 const loggedUnityItem = loggedUnity[field.nomeColuna]
-                console.log('🚀 ~ loggedUnityItem:', field.nomeColuna, loggedUnityItem)
 
                 defaultValues[field.nomeColuna] = data[field.nomeColuna]
                     ? data[field.nomeColuna]
@@ -120,23 +121,29 @@ const FormFornecedor = () => {
     } = useForm()
 
     const initializeValues = (fields, blocks) => {
-        console.log('🚀 ~ initializeValues:', initializeValues)
-
         // Seta header no formulário
         fields.map((field, index) => {
-            setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
+            if (field.tabela) {
+                // Objeto (seleciona resposta)
+                setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
+            } else {
+                if (field.tipo == 'date') {
+                    // console.log('seta padrao na dataaaa: ', formatDate(defaultValues?.[field.nomeColuna], 'DD/MM/YYYY'))
+                    // setValue(`header.${field.nomeColuna}`, formatDate(defaultValues?.[field.nomeColuna], 'DD/MM/YYYY'))
+                    // setValue(`header.${field.nomeColuna}`, formatDate(defaultValues?.[field.nomeColuna], 'YYYY/MM/DD'))
+                } else {
+                    setValue(`header.${field.nomeColuna}`, defaultValues?.[field.nomeColuna])
+                }
+            }
         })
         // Seta itens no formulário
         blocks.map((block, indexBlock) => {
             block.itens.map((item, indexItem) => {
-                console.log('varrendo setValue')
                 setValue(`blocos[${indexBlock}].itens[${indexItem}].respostaID`, item?.respostaID)
                 setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
             })
         })
     }
-
-    console.log('errors: ', errors)
 
     //* Controle dos ícones de respondido (verde ou cinza)
     // const handleAnswerChange = (blockIndex, questionIndex, value) => {
@@ -164,7 +171,6 @@ const FormFornecedor = () => {
 
     //* Reabre o formulário pro fornecedor alterar novamente se ainda nao estiver vinculado com recebimento
     const reOpenFormStatus = async status => {
-        console.log('reOpenFormStatus: ', status)
         const data = {
             status: status,
             auth: {
@@ -400,9 +406,14 @@ const FormFornecedor = () => {
     }
 
     const submitData = async values => {
-        console.log('submitData')
         const data = {
-            forms: values,
+            forms: {
+                ...values,
+                header: {
+                    ...values.header
+                    // dataAvaliacao: formatDate(values.dataAvaliacao, 'YYYY-MM-DD')
+                }
+            },
             auth: {
                 usuarioID: user.usuarioID,
                 papelID: user.papelID,
@@ -410,7 +421,7 @@ const FormFornecedor = () => {
             }
         }
 
-        console.log('submit data: ', data)
+        console.log('submit data: ', data.forms.header)
         try {
             setLoadingSave(true)
             await api.put(`${staticUrl}/${id}`, data).then(response => {
@@ -429,7 +440,11 @@ const FormFornecedor = () => {
         verifyFormPending()
     }, [isLoadingSave])
 
-    const istrue = true
+    const formatDate2 = date => {
+        const [day, month, year] = date?.split('/')
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+    }
+
     return (
         <>
             {isLoading && <Loading />}
@@ -545,30 +560,69 @@ const FormFornecedor = () => {
 
                                                 {/* Date */}
                                                 {field && field.tipo == 'date' && (
-                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                        <DatePicker
-                                                            label='Selecione uma data'
-                                                            disabled={!canEdit.status}
-                                                            // locale={dayjs.locale('pt-br')}
-                                                            // format='DD/MM/YYYY'
-                                                            defaultValue={null}
-                                                            name={`header.${field.nomeColuna}`}
-                                                            {...register(`header.${field.nomeColuna}`, {
-                                                                required: true // !!field.obrigatorio && canEdit.status
-                                                            })}
-                                                            onChange={value => {
-                                                                console.log('setando data pra ', value)
-                                                                setValue(
-                                                                    `header.${field.nomeColuna}`,
-                                                                    value ? value : null
-                                                                )
-                                                            }}
-                                                            renderInput={params => (
-                                                                <TextField {...params} variant='outlined' />
-                                                            )}
-                                                            required={true}
-                                                        />
-                                                    </LocalizationProvider>
+                                                    // <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                    //     <DatePicker
+                                                    //         label='Selecione uma data'
+                                                    //         disabled={!canEdit.status}
+                                                    //         format='DD/MM/YYYY'
+                                                    //         defaultValue={dayjs(
+                                                    //             defaultValues?.[field.nomeColuna],
+                                                    //             'DD/MM/YYYY'
+                                                    //         ).format('YYYY-MM-DD')}
+                                                    //         name={`header.${field.nomeColuna}`}
+                                                    //         {...register(`header.${field.nomeColuna}`, {
+                                                    //             required: field.obrigatorio && canEdit.status
+                                                    //         })}
+                                                    //         required={true}
+                                                    //         renderInput={params => (
+                                                    //             <TextField {...params} variant='outlined' />
+                                                    //         )}
+                                                    //         InputLabelProps={{
+                                                    //             shrink: true
+                                                    //         }}
+                                                    //     />
+                                                    // </LocalizationProvider>
+
+                                                    <TextField
+                                                        style={{ cursor: 'pointer' }}
+                                                        type='date'
+                                                        label='Selecione uma data'
+                                                        defaultValue={
+                                                            new Date(defaultValues?.[field.nomeColuna])
+                                                                .toISOString()
+                                                                .split('T')[0]
+                                                        }
+                                                        name={`header.${field.nomeColuna}`}
+                                                        {...register(`header.${field.nomeColuna}`, {
+                                                            required: field.obrigatorio && canEdit.status
+                                                        })}
+                                                        variant='outlined'
+                                                        fullWidth
+                                                        InputLabelProps={{
+                                                            shrink: true
+                                                        }}
+                                                    />
+
+                                                    // <DatePicker
+                                                    //     label='Selecione uma data'
+                                                    //     inputFormat='dd/MM/yyyy'
+                                                    //     value={defaultValues?.[field.nomeColuna] || null}
+                                                    //     onChange={date => {
+                                                    //         setValue(`header.${field.nomeColuna}`, date, {
+                                                    //             shouldValidate: true
+                                                    //         })
+                                                    //     }}
+                                                    //     renderInput={params => (
+                                                    //         <TextField
+                                                    //             {...params}
+                                                    //             variant='outlined'
+                                                    //             fullWidth
+                                                    //             InputProps={{
+                                                    //                 style: { cursor: 'pointer' }
+                                                    //             }}
+                                                    //         />
+                                                    //     )}
+                                                    // />
                                                 )}
                                                 {/* Textfield */}
                                                 {/* Nº Registro, só mostra se registro do estabelecimento for MAPA ou ANVISA */}
@@ -857,7 +911,10 @@ const FormFornecedor = () => {
                                                                                 {...register(
                                                                                     `blocos[${indexBloco}].itens[${indexItem}].resposta`,
                                                                                     {
-                                                                                        required: true
+                                                                                        required:
+                                                                                            item.obrigatorio == 1
+                                                                                                ? true
+                                                                                                : false
                                                                                     }
                                                                                 )}
                                                                                 error={
