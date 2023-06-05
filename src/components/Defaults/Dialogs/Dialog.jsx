@@ -20,7 +20,9 @@ const DialogForm = ({
     btnCancel,
     btnConfirm,
     btnCancelColor,
-    btnConfirmColor
+    btnConfirmColor,
+    closeAfterSave,
+    listErrors
 }) => {
     const [email, setEmail] = useState(null)
     const [errorEmail, setErrorEmail] = useState(false)
@@ -29,10 +31,33 @@ const DialogForm = ({
 
     return (
         <>
-            <Dialog open={openModal} onClose={handleClose} aria-labelledby='form-dialog-title'>
+            <Dialog
+                open={openModal}
+                aria-labelledby='form-dialog-title'
+                disableEscapeKeyDown
+                onClose={(event, reason) => {
+                    if (reason !== 'backdropClick') {
+                        handleClose()
+                    }
+                }}
+            >
                 <DialogTitle id='form-dialog-title'>{title}</DialogTitle>
                 <DialogContent>
-                    <DialogContentText sx={{ mb: 3 }}>{text}</DialogContentText>
+                    <DialogContentText sx={{ mb: 3 }}>
+                        {text}
+                        {listErrors && listErrors.status && (
+                            <Alert variant='outlined' severity='error' sx={{ mt: 2 }}>
+                                Por favor, verifique os campos abaixo:
+                                <Typography variant='subtitle1' color='error' sx={{ mt: 2 }}>
+                                    {listErrors.errors.map((error, index) => (
+                                        <Typography variant='body2' color='error' key={index}>
+                                            - {error}
+                                        </Typography>
+                                    ))}
+                                </Typography>
+                            </Alert>
+                        )}
+                    </DialogContentText>
 
                     {/* Input pra preencher email */}
                     {inputEmail && (
@@ -88,17 +113,17 @@ const DialogForm = ({
                                     ? () => {
                                           handleSubmit(cnpj, email)
                                           setEmail(null)
-                                          handleClose()
+                                          closeAfterSave ? handleClose() : null
                                       }
                                     : inputEmail && !cnpj
                                     ? () => {
                                           handleSubmit(email)
                                           setEmail(null)
-                                          handleClose()
+                                          closeAfterSave ? handleClose() : null
                                       }
                                     : () => {
                                           handleSubmit()
-                                          handleClose()
+                                          closeAfterSave ? handleClose() : null
                                       }
                             }
                         >

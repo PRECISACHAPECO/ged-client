@@ -227,7 +227,7 @@ const FormHeader = ({
                     )}
 
                     {/* Fornecedor concluir formulário e envia pra fábrica avaliar */}
-                    {btnSend && user.papelID == 2 && (
+                    {btnSend && (
                         <Button
                             onClick={handleSend}
                             type='button'

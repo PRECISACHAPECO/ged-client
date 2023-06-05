@@ -34,6 +34,7 @@ import { formType, toastMessage } from 'src/configs/defaultConfigs'
 import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
+import DialogForm from '../Defaults/Dialogs/Dialog'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 
 // Date
@@ -57,6 +58,8 @@ const FormRecebimentoMp = () => {
     const [removedProducts, setRemovedProducts] = useState([])
     const [blocos, setBlocos] = useState([])
     const [info, setInfo] = useState('')
+    const [openModal, setOpenModal] = useState(false)
+    const [listErrors, setListErrors] = useState({ status: false, errors: [] })
 
     const router = Router
     const { id } = router.query
@@ -72,11 +75,13 @@ const FormRecebimentoMp = () => {
         getValues,
         setValue,
         handleSubmit,
+        clearErrors,
+        setError,
         formState: { errors }
     } = useForm()
 
     console.log('errors: ', errors)
-    console.log('isLoading: ', isLoading)
+    console.log('listErrors: ', listErrors)
 
     //* Altera status do formulário (aprovado, aprovado parcial, reprovado)
     const handleChangeFormStatus = event => {
@@ -88,43 +93,6 @@ const FormRecebimentoMp = () => {
         }
         setInfo(newInfo)
         setValue('header.status', newValue)
-    }
-
-    const onSubmit = async data => {
-        console.log('onSubmit: ', data)
-
-        // try {
-        //     setSavingForm(true)
-        //     if (type == 'edit') {
-        //         await api
-        //             .put(`${staticUrl}/${id}`, {
-        //                 data: data,
-        //                 removedProducts: removedProducts,
-        //                 unidadeID: loggedUnity.unidadeID
-        //             })
-        //             .then(response => {
-        //                 toast.success(toastMessage.successUpdate)
-        //                 setSavingForm(false)
-        //             })
-        //     } else if (type == 'new') {
-        //         await api
-        //             .post(`${staticUrl}/insertData`, {
-        //                 data: data,
-        //                 unidadeID: loggedUnity.unidadeID
-        //             })
-        //             .then(response => {
-        //                 const newId = response.data
-        //                 router.push(`${staticUrl}/${newId}`)
-        //                 toast.success(toastMessage.successNew)
-        //                 setSavingForm(false)
-        //             })
-        //     } else {
-        //         toast.error(toastMessage.error)
-        //         setSavingForm(false)
-        //     }
-        // } catch (error) {
-        //     console.log(error)
-        // }
     }
 
     const getAddressByCep = cepString => {
@@ -201,6 +169,11 @@ const FormRecebimentoMp = () => {
     }
 
     const removeProduct = (value, index) => {
+        if (dataProducts.length == 1) {
+            toast.error('Você deve ter ao menos um produto!')
+            return
+        }
+
         // Remove o item do array dataProducts
         const updatedDataProducts = [...dataProducts]
         updatedDataProducts.splice(index, 1)
@@ -218,6 +191,8 @@ const FormRecebimentoMp = () => {
             produtos: updatedDataProducts // Atualiza apenas o campo "produtos"
         })
         trigger()
+
+        toast.success('Produto pré-removido. Salve para concluir!')
     }
 
     const initializeValues = () => {
@@ -253,16 +228,99 @@ const FormRecebimentoMp = () => {
         setValue('status', info?.status)
     }
 
+    const checkErrors = () => {
+        clearErrors()
+        let hasErrors = false
+        let arrErrors = []
+
+        fields.forEach((field, index) => {
+            const fieldName = field.tabela ? `header.${field.tabela}` : `header.${field.nomeColuna}`
+            const fieldValue = getValues(fieldName)
+
+            if (field.obrigatorio === 1 && !fieldValue) {
+                setError(fieldName, {
+                    type: 'manual',
+                    message: 'Campo obrigatório'
+                })
+                arrErrors.push(field?.nomeCampo)
+                hasErrors = true
+            }
+        })
+        console.log('🚀 ~ arrErrors:', arrErrors)
+
+        setListErrors({
+            status: hasErrors,
+            errors: arrErrors
+        })
+    }
+
+    const handleSendForm = () => {
+        checkErrors()
+        setOpenModal(true)
+        setValidateForm(true)
+    }
+
+    const conclusionAndSendForm = async () => {
+        console.log('🚀 ~ conclusionAndSendForm')
+        await handleSubmit(onSubmit)()
+    }
+
+    const onSubmit = async data => {
+        console.log('onSubmit: ', data)
+
+        // try {
+        //     setSavingForm(true)
+        //     if (type == 'edit') {
+        //         await api
+        //             .put(`${staticUrl}/${id}`, {
+        //                 data: data,
+        //                 removedProducts: removedProducts,
+        //                 unidadeID: loggedUnity.unidadeID
+        //             })
+        //             .then(response => {
+        //                 toast.success(toastMessage.successUpdate)
+        //                 setSavingForm(false)
+        //             })
+        //     } else if (type == 'new') {
+        //         await api
+        //             .post(`${staticUrl}/insertData`, {
+        //                 data: data,
+        //                 unidadeID: loggedUnity.unidadeID
+        //             })
+        //             .then(response => {
+        //                 const newId = response.data
+        //                 router.push(`${staticUrl}/${newId}`)
+        //                 toast.success(toastMessage.successNew)
+        //                 setSavingForm(false)
+        //             })
+        //     } else {
+        //         toast.error(toastMessage.error)
+        //         setSavingForm(false)
+        //     }
+        // } catch (error) {
+        //     console.log(error)
+        // }
+
+        return errors
+    }
+
     useEffect(() => {
         console.log('useEffect 1')
+
         setTitle('Recebimento de MP')
         getData()
     }, [savingForm])
 
     // preencher campos defauylts com os dados do banco
     useEffect(() => {
+        console.log('useEffect 2')
         initializeValues()
     }, [data, savingForm])
+
+    useEffect(() => {
+        console.log('useEffect errors')
+        checkErrors()
+    }, [])
 
     return (
         <>
@@ -275,10 +333,12 @@ const FormRecebimentoMp = () => {
                         <FormHeader
                             btnCancel
                             btnSave
+                            btnSend
                             btnPrint
                             generateReport={generateReport}
                             dataReports={dataReports}
                             handleSubmit={() => handleSubmit(onSubmit)}
+                            handleSend={handleSendForm}
                             title='Fornecedor'
                         />
 
@@ -355,6 +415,8 @@ const FormRecebimentoMp = () => {
                                                             {...register(`header.${field.nomeColuna}`)}
                                                             // Validações
                                                             onChange={e => {
+                                                                // setValue(`header.${field.nomeColuna}`, '')
+
                                                                 field.nomeColuna == 'cnpj'
                                                                     ? (e.target.value = cnpjMask(e.target.value))
                                                                     : field.nomeColuna == 'cep'
@@ -398,13 +460,7 @@ const FormRecebimentoMp = () => {
                             {fieldProducts &&
                                 dataProducts &&
                                 dataProducts.map((data, indexData) => (
-                                    <Grid
-                                        id={`productLine-${indexData}`}
-                                        container
-                                        spacing={4}
-                                        key={indexData}
-                                        sx={{ mb: 3 }}
-                                    >
+                                    <Grid container spacing={4} key={indexData} sx={{ mb: 3 }}>
                                         {fieldProducts.map((field, indexField) => (
                                             <Grid item xs={12} md={12 / fieldProducts.length} key={indexField}>
                                                 {/* Enviar hidden de recebimentompProdutoID */}
@@ -419,10 +475,9 @@ const FormRecebimentoMp = () => {
                                                 {field && field.tipo === 'int' && field.tabela && (
                                                     <FormControl fullWidth>
                                                         <Autocomplete
+                                                            key={indexData} // Adicione a prop key com uma combinação única
                                                             options={field.options}
-                                                            defaultValue={
-                                                                data?.[field.tabela]?.id ? data?.[field.tabela] : null
-                                                            }
+                                                            value={data?.[field.tabela]}
                                                             getOptionLabel={option => option.nome}
                                                             name={`produtos[${indexData}].${field.tabela}`}
                                                             {...register(`produtos[${indexData}].${field.tabela}`)}
@@ -833,6 +888,21 @@ const FormRecebimentoMp = () => {
                             </Card>
                         </>
                     )}
+
+                    {/* Dialog de confirmação de envio */}
+                    <DialogForm
+                        openModal={openModal}
+                        handleClose={() => {
+                            setOpenModal(false), setValidateForm(false)
+                        }}
+                        title='Concluir e Enviar Formulário'
+                        text={`Deseja realmente concluir e enviar este formulário?`}
+                        btnCancel
+                        btnConfirm
+                        btnConfirmColor='primary'
+                        handleSubmit={conclusionAndSendForm}
+                        listErrors={listErrors}
+                    />
                 </form>
             )}
         </>
