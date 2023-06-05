@@ -28,7 +28,7 @@ import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
 import Loading from 'src/components/Loading'
-import { toastMessage, formType, statusDefault } from 'src/configs/defaultConfigs'
+import { toastMessage, formType, statusDefault, dateConfig } from 'src/configs/defaultConfigs'
 import { formatDate } from 'src/configs/conversions'
 import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
@@ -72,10 +72,11 @@ const FormFornecedor = () => {
     const [watchRegistroEstabelecimento, setWatchRegistroEstabelecimento] = useState(null)
     const [countViewBlocks, setCountViewBlocks] = useState(0)
     const [answers, setAnswers] = useState([])
+    const [dateStatus, setDateStatus] = useState({})
 
     const [canEdit, setCanEdit] = useState({
         status: false,
-        message: 'Voce nao tem permissoes mais garoto...',
+        message: 'Você não tem permissões',
         messageType: 'info'
     })
 
@@ -97,7 +98,6 @@ const FormFornecedor = () => {
                     nome: data[field.tabela]?.nome
                 }
             } else {
-                // todo Input
                 const loggedUnityItem = loggedUnity[field.nomeColuna]
 
                 defaultValues[field.nomeColuna] = data[field.nomeColuna]
@@ -420,16 +420,23 @@ const FormFornecedor = () => {
         }
 
         console.log('submit data: ', data.forms.header)
-        try {
-            setLoadingSave(true)
-            await api.put(`${staticUrl}/${id}`, data).then(response => {
-                toast.success(toastMessage.successUpdate)
-                setLoadingSave(false)
-            })
-        } catch (error) {
-            console.log(error)
+        console.log(dateConfig('atual', '2023-06-05')) // A data digitada não é a atual.
+        if (dateStatus.status == false) {
+            console.log('errrado')
+        } else {
+            console.log('certo')
         }
+        // try {
+        //     setLoadingSave(true)
+        //     await api.put(`${staticUrl}/${id}`, data).then(response => {
+        //         toast.success(toastMessage.successUpdate)
+        //         setLoadingSave(false)
+        //     })
+        // } catch (error) {
+        //     console.log(error)
+        // }
     }
+    console.log('erros', errors)
 
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
@@ -437,6 +444,8 @@ const FormFornecedor = () => {
         type == 'edit' ? getData() : noPermissions()
         verifyFormPending()
     }, [isLoadingSave])
+
+    console.log('formatação datas', dateStatus)
 
     return (
         <>
@@ -553,30 +562,10 @@ const FormFornecedor = () => {
 
                                                 {/* Date */}
                                                 {field && field.tipo == 'date' && (
-                                                    // <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                    //     <DatePicker
-                                                    //         label='Selecione uma data'
-                                                    //         disabled={!canEdit.status}
-                                                    //         format='DD/MM/YYYY'
-                                                    //         defaultValue={dayjs(
-                                                    //             formatDate(
-                                                    //                 defaultValues?.[field.nomeColuna],
-                                                    //                 'DD-MM-YYYY'
-                                                    //             )
-                                                    //         )}
-                                                    //         name={`header.${field.nomeColuna}`}
-                                                    //         {...register(`header.${field.nomeColuna}`, {
-                                                    //             required: field.obrigatorio && canEdit.status
-                                                    //         })}
-                                                    //         required={true}
-                                                    //         renderInput={params => (
-                                                    //             <TextField {...params} variant='outlined' />
-                                                    //         )}
-                                                    //     />
-                                                    // </LocalizationProvider>
                                                     <TextField
                                                         type='date'
                                                         label='Selecione uma data'
+                                                        disabled={!canEdit.status}
                                                         defaultValue={
                                                             defaultValues?.[field.nomeColuna]
                                                                 ? new Date(defaultValues?.[field.nomeColuna])
@@ -585,16 +574,44 @@ const FormFornecedor = () => {
                                                                 : ''
                                                         }
                                                         name={`header.${field.nomeColuna}`}
+                                                        aria-describedby='validation-schema-nome'
+                                                        error={
+                                                            errors?.header?.[field.nomeColuna]
+                                                                ? true
+                                                                : !dateStatus[field.nomeColuna]?.status
+                                                                ? true
+                                                                : false
+                                                        }
                                                         {...register(`header.${field.nomeColuna}`, {
                                                             required: field.obrigatorio && canEdit.status
                                                         })}
+                                                        onChange={e => {
+                                                            const newDate = new Date(e.target.value)
+                                                            const status = dateConfig('atual', newDate)
+                                                            console.log('field', field.nomeColuna)
+                                                            setDateStatus(prevState => ({
+                                                                ...prevState,
+                                                                [field.nomeColuna]: status
+                                                            }))
+                                                            console.log('status', dateStatus)
+                                                        }}
                                                         variant='outlined'
                                                         fullWidth
                                                         InputLabelProps={{
                                                             shrink: true
                                                         }}
+                                                        inputProps={{
+                                                            min: dateStatus[field.nomeColuna]?.dataIni,
+                                                            max: dateStatus[field.nomeColuna]?.dataFim
+                                                        }}
                                                     />
                                                 )}
+                                                {!dateStatus?.status && field && field.tipo == 'date' && (
+                                                    <Typography component='span' variant='caption' color='error'>
+                                                        {dateStatus?.[field.nomeColuna]?.message}
+                                                    </Typography>
+                                                )}
+
                                                 {/* Textfield */}
                                                 {/* Nº Registro, só mostra se registro do estabelecimento for MAPA ou ANVISA */}
                                                 {field &&

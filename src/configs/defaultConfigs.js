@@ -1,6 +1,7 @@
 
 // ** Material UI
 import { Typography } from '@mui/material'
+import { formatDate } from './conversions'
 
 
 // ** Next
@@ -119,7 +120,141 @@ const generateReport = props => {
             console.error('Erro ao gerar relatório', error)
         })
 }
+function dateConfig(type, date) {
+    let currentDate = new Date();
+    currentDate.setUTCHours(0, 0, 0, 0);
+    let inputDate = new Date(date);
+
+    switch (type) {
+        case 'atual':
+            inputDate = new Date(date);
+            inputDate.setUTCHours(0, 0, 0, 0);
+
+            if (inputDate.toISOString().substr(0, 10) === currentDate.toISOString().substr(0, 10)) {
+                return {
+                    status: true,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                };
+            } else {
+                return {
+                    status: false,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                    message: 'A data deve ser a data atual'
+                };
+            }
+
+        case 'hoje_menor':
+            inputDate = new Date(date);
+            inputDate.setUTCHours(0, 0, 0, 0);
+
+            if (inputDate.getTime() <= currentDate.getTime()) {
+                return {
+                    status: true,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                };
+            } else {
+                return {
+                    status: false,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                    message: 'A data deve ser inferior ou igual a atual'
+                };
+            }
+
+        case 'hoje_maior':
+            inputDate = new Date(date);
+            inputDate.setUTCHours(0, 0, 0, 0);
+
+            if (inputDate.getTime() >= currentDate.getTime()) {
+                return {
+                    status: true,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                };
+            } else {
+                return {
+                    status: false,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                    message: 'A data deve ser superior ou igual a atual'
+                };
+            }
+
+        case 'hoje_menor_ate_1':
+            inputDate = new Date(date);
+            inputDate.setUTCHours(0, 0, 0, 0);
+
+            let oneYearLater = new Date();
+            oneYearLater.setUTCHours(0, 0, 0, 0);
+            oneYearLater.setFullYear(currentDate.getFullYear() + 1);
+
+            if (inputDate.getTime() <= currentDate.getTime() && inputDate.getTime() <= oneYearLater.getTime()) {
+                return {
+                    status: true,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                };
+            } else {
+                return {
+                    status: false,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                    message: 'A data deve ser igual ou supeior até 1 ano a partir da data atual'
+                };
+            }
+
+        case 'hoje_menor_ate_10':
+            inputDate = new Date(date);
+            inputDate.setUTCHours(0, 0, 0, 0);
+
+            let tenYearsLater = new Date();
+            tenYearsLater.setUTCHours(0, 0, 0, 0);
+            tenYearsLater.setFullYear(currentDate.getFullYear() + 10);
+
+            if (inputDate.getTime() <= currentDate.getTime() && inputDate.getTime() <= tenYearsLater.getTime()) {
+                return {
+                    status: true,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                };
+            } else {
+                return {
+                    status: false,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                    message: 'A data deve ser igual ou supeior até 10 anos a partir da data atual'
+                };
+            }
+
+        case 'hoje_menor_ate_100':
+            inputDate = new Date(date);
+            inputDate.setUTCHours(0, 0, 0, 0);
+
+            let hundredYearsLater = new Date();
+            hundredYearsLater.setUTCHours(0, 0, 0, 0);
+            hundredYearsLater.setFullYear(currentDate.getFullYear() + 100);
+
+            if (inputDate.getTime() <= currentDate.getTime() && inputDate.getTime() <= hundredYearsLater.getTime()) {
+                return {
+                    status: true,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                };
+            } else {
+                return {
+                    status: false,
+                    dataIni: currentDate.toISOString().substr(0, 10),
+                    dataFim: currentDate.toISOString().substr(0, 10),
+                    message: 'A data deve ser igual ou supeior até 100 anos a partir da data atual'
+                };
+            }
+        default:
+            return "A data digitada é inválida.";
+    }
+}
 
 
-
-export { configColumns, formType, backRoute, statusDefault, toastMessage, generateReport }
+export { configColumns, formType, backRoute, statusDefault, toastMessage, generateReport, dateConfig }
