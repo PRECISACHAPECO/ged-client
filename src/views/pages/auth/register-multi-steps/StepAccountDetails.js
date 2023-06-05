@@ -194,7 +194,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
         if (unidadeIDRouter && cnpjRouter) {
             setAcessLink(unidadeIDRouter, cnpjRouter)
             setTimeout(() => {
-                inputRef.current.focus()
+                inputRef?.current?.focus()
             }, 500)
         }
 
