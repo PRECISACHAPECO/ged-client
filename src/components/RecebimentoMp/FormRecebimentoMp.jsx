@@ -64,92 +64,19 @@ const FormRecebimentoMp = () => {
     const type = formType(router.pathname) // Verifica se é novo ou edição
 
     const { settings } = useContext(SettingsContext)
-    const mode = settings.mode
-
-    // const defaultValues =
-    //     data &&
-    //     fields.reduce((defaultValues, field) => {
-    //         if (field.tabela) {
-    //             // Select (objeto com id e nome)
-    //             defaultValues[field.tabela] = {
-    //                 id: data[field.tabela]?.id,
-    //                 nome: data[field.tabela]?.nome
-    //             }
-    //         } else {
-    //             // Input
-    //             defaultValues[field.nomeColuna] = data[field.nomeColuna]
-    //         }
-
-    //         return defaultValues
-    //     }, {})
 
     const {
-        watch,
         trigger,
         reset,
         register,
-        control,
+        getValues,
         setValue,
         handleSubmit,
-        remove,
         formState: { errors }
     } = useForm()
 
     console.log('errors: ', errors)
     console.log('isLoading: ', isLoading)
-
-    const initializeValues = values => {
-        console.log('🚀 ~ initializeValues values:', values)
-
-        // Seta fields do cabeçalho
-        // values.fields.map((field, index) => {
-        //     if (defaultValues?.[field.tabela]) {
-        //         setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
-        //     }
-        // })
-
-        // Seta autocomplete com o valor do banco em um objeto com id e nome
-        values.dataProducts.map((data, indexData) => {
-            values.fieldsProducts.map((field, indexFields) => {
-                if (data?.[field.tabela]?.id) {
-                    setValue(`produtos[${indexData}].${field.tabela}`, data?.[field.tabela])
-                }
-            })
-        })
-
-        // Seta bloco com o valor do banco em um objeto com id e nome
-        values.blocos.map((block, indexBlock) => {
-            block.itens.map((item, indexItem) => {
-                if (item?.respostaID) {
-                    setValue(`blocos[${indexBlock}].itens[${indexItem}].respostaID`, item?.respostaID)
-                }
-                if (item?.resposta) {
-                    setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
-                }
-            })
-        })
-
-        // Seta infos
-        setValue('obs', values?.info?.obs)
-        setValue('status', values?.info?.status)
-    }
-
-    const removeProduct = (data, index) => {
-        // Remova o item do array dataProducts
-        const updatedDataProducts = [...dataProducts]
-        updatedDataProducts.splice(index, 1)
-        setDataProducts(updatedDataProducts)
-
-        // Insere ID no array de produtos removidos
-        if (data?.recebimentompProdutoID > 0) {
-            const newRemovedProducts = [...removedProducts, { recebimentompProdutoID: data.recebimentompProdutoID }] // Atribui o valor atual a uma nova variável
-            console.log('🚀 ~ newRemovedProducts:', newRemovedProducts)
-            setRemovedProducts(newRemovedProducts) // Atualiza a variável de estado
-        }
-
-        reset({ produtos: updatedDataProducts })
-        // trigger()
-    }
 
     //* Altera status do formulário (aprovado, aprovado parcial, reprovado)
     const handleChangeFormStatus = event => {
@@ -166,38 +93,38 @@ const FormRecebimentoMp = () => {
     const onSubmit = async data => {
         console.log('onSubmit: ', data)
 
-        try {
-            setSavingForm(true)
-            if (type == 'edit') {
-                await api
-                    .put(`${staticUrl}/${id}`, {
-                        data: data,
-                        removedProducts: removedProducts,
-                        unidadeID: loggedUnity.unidadeID
-                    })
-                    .then(response => {
-                        toast.success(toastMessage.successUpdate)
-                        setSavingForm(false)
-                    })
-            } else if (type == 'new') {
-                await api
-                    .post(`${staticUrl}/insertData`, {
-                        data: data,
-                        unidadeID: loggedUnity.unidadeID
-                    })
-                    .then(response => {
-                        const newId = response.data
-                        router.push(`${staticUrl}/${newId}`)
-                        toast.success(toastMessage.successNew)
-                        setSavingForm(false)
-                    })
-            } else {
-                toast.error(toastMessage.error)
-                setSavingForm(false)
-            }
-        } catch (error) {
-            console.log(error)
-        }
+        // try {
+        //     setSavingForm(true)
+        //     if (type == 'edit') {
+        //         await api
+        //             .put(`${staticUrl}/${id}`, {
+        //                 data: data,
+        //                 removedProducts: removedProducts,
+        //                 unidadeID: loggedUnity.unidadeID
+        //             })
+        //             .then(response => {
+        //                 toast.success(toastMessage.successUpdate)
+        //                 setSavingForm(false)
+        //             })
+        //     } else if (type == 'new') {
+        //         await api
+        //             .post(`${staticUrl}/insertData`, {
+        //                 data: data,
+        //                 unidadeID: loggedUnity.unidadeID
+        //             })
+        //             .then(response => {
+        //                 const newId = response.data
+        //                 router.push(`${staticUrl}/${newId}`)
+        //                 toast.success(toastMessage.successNew)
+        //                 setSavingForm(false)
+        //             })
+        //     } else {
+        //         toast.error(toastMessage.error)
+        //         setSavingForm(false)
+        //     }
+        // } catch (error) {
+        //     console.log(error)
+        // }
     }
 
     const getAddressByCep = cepString => {
@@ -269,11 +196,61 @@ const FormRecebimentoMp = () => {
             setDataProducts(response.data.dataProducts)
             setBlocos(response.data.blocos)
             setInfo(response.data.info)
-
             setLoading(false)
-
-            // initializeValues(response.data)
         })
+    }
+
+    const removeProduct = (value, index) => {
+        // Remove o item do array dataProducts
+        const updatedDataProducts = [...dataProducts]
+        updatedDataProducts.splice(index, 1)
+        setDataProducts(updatedDataProducts)
+
+        // Insere ID no array de produtos removidos
+        if (value?.recebimentompProdutoID > 0) {
+            const newRemovedProducts = [...removedProducts, { recebimentompProdutoID: value.recebimentompProdutoID }] // Atribui o valor atual a uma nova variável
+            console.log('🚀 ~ newRemovedProducts:', newRemovedProducts)
+            setRemovedProducts(newRemovedProducts) // Atualiza a variável de estado
+        }
+
+        reset({
+            ...getValues(), // Obtém os valores atuais de todos os campos
+            produtos: updatedDataProducts // Atualiza apenas o campo "produtos"
+        })
+        trigger()
+    }
+
+    const initializeValues = () => {
+        console.log('useEffect 2', data)
+        fields.map((field, index) => {
+            if (data?.[field.tabela]) {
+                setValue(`header.${field.tabela}`, data?.[field.tabela])
+            } else {
+                setValue(`header.${field.nomeColuna}`, data?.[field.nomeColuna])
+            }
+        })
+
+        // Seta autocomplete com o valor do banco em um objeto com id e nome
+        dataProducts.map((data, indexData) => {
+            fieldProducts.map((field, indexFields) => {
+                if (data?.[field.tabela]?.id) {
+                    setValue(`produtos[${indexData}].${field.tabela}`, data?.[field.tabela])
+                }
+            })
+        })
+
+        // Seta bloco com o valor do banco em um objeto com id e nome
+        blocos.map((block, indexBlock) => {
+            block.itens.map((item, indexItem) => {
+                if (item?.resposta) {
+                    setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
+                }
+            })
+        })
+
+        // Seta infos
+        setValue('obs', info?.obs)
+        setValue('status', info?.status)
     }
 
     useEffect(() => {
@@ -284,34 +261,7 @@ const FormRecebimentoMp = () => {
 
     // preencher campos defauylts com os dados do banco
     useEffect(() => {
-        if (data) {
-            console.log('useEffect 2')
-            fields.map((field, index) => {
-                setValue(`header.${field.tabela}`, data?.[field.tabela])
-            })
-
-            // Seta autocomplete com o valor do banco em um objeto com id e nome
-            dataProducts.map((data, indexData) => {
-                fieldProducts.map((field, indexFields) => {
-                    if (data?.[field.tabela]?.id) {
-                        setValue(`produtos[${indexData}].${field.tabela}`, data?.[field.tabela])
-                    }
-                })
-            })
-
-            // Seta bloco com o valor do banco em um objeto com id e nome
-            blocos.map((block, indexBlock) => {
-                block.itens.map((item, indexItem) => {
-                    if (item?.resposta) {
-                        setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
-                    }
-                })
-            })
-
-            // Seta infos
-            setValue('obs', info?.obs)
-            setValue('status', info?.status)
-        }
+        initializeValues()
     }, [data, savingForm])
 
     return (
@@ -347,11 +297,6 @@ const FormRecebimentoMp = () => {
                                                             getOptionSelected={(option, value) =>
                                                                 option.id === value.id
                                                             }
-                                                            // defaultValue={
-                                                            //     defaultValues?.[field.tabela]?.id
-                                                            //         ? defaultValues?.[field.tabela]
-                                                            //         : null
-                                                            // }
                                                             defaultValue={
                                                                 data?.[field.tabela]?.id ? data?.[field.tabela] : null
                                                             }
