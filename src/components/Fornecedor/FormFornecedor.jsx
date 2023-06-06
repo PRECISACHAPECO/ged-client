@@ -419,12 +419,12 @@ const FormFornecedor = () => {
             }
         }
 
-        console.log('submit data: ', data.forms.header)
-        console.log(dateConfig('atual', '2023-06-05')) // A data digitada não é a atual.
-        if (dateStatus.status == false) {
-            console.log('errrado')
+        if (!dateStatus?.dataAvaliacao?.status) {
+            return console.log('errrado')
         } else {
             console.log('certo')
+            console.log('submit data: ', data.forms.header)
+            console.log(dateConfig('atual', '2023-06-05')) // A data digitada não é a atual.
         }
         // try {
         //     setLoadingSave(true)
@@ -444,8 +444,6 @@ const FormFornecedor = () => {
         type == 'edit' ? getData() : noPermissions()
         verifyFormPending()
     }, [isLoadingSave])
-
-    console.log('formatação datas', dateStatus)
 
     return (
         <>
@@ -588,7 +586,6 @@ const FormFornecedor = () => {
                                                         onChange={e => {
                                                             const newDate = new Date(e.target.value)
                                                             const status = dateConfig('atual', newDate)
-                                                            console.log('field', field.nomeColuna)
                                                             setDateStatus(prevState => ({
                                                                 ...prevState,
                                                                 [field.nomeColuna]: status
