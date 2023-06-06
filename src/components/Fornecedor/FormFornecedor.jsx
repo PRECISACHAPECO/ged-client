@@ -122,6 +122,7 @@ const FormFornecedor = () => {
     const setDateFormat = (type, name, value, numDays) => {
         const newDate = new Date(value)
         const status = dateConfig(type, newDate, numDays)
+        console.log('status', status)
         setDateStatus(prevState => ({
             ...prevState,
             [name]: status

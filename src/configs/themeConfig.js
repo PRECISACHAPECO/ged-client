@@ -6,7 +6,7 @@
  */
 const themeConfig = {
     // ** Layout Configs
-    templateName: 'GED' /* App Name */,
+    templateName: 'GEDagro' /* App Name */,
     layout: 'vertical' /* vertical | horizontal */,
     mode: 'semi-dark' /* light | dark | semi-dark /*! Note: semi-dark value will only work for Vertical Layout */,
     direction: 'ltr' /* ltr | rtl */,

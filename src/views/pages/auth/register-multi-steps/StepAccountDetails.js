@@ -31,7 +31,11 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
     const router = Router
     const rota = router.pathname
     const [existsTableFactory, setExistsTableFactory] = useState(null)
+    const [lenghtPassword, setLenghtPassword] = useState(null)
     const inputRef = useRef(null)
+
+    console.log("exist", existsTableFactory)
+    console.log("dataglobal", dataGlobal)
 
     const [values, setValues] = useState({
         showPassword: false,
@@ -200,6 +204,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
 
     }, [unidadeIDRouter, cnpjRouter])
 
+
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -308,6 +313,10 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                             {...register('confirmaSenha')}
                                             id='input-confirm-password'
                                             type={values.showConfirmPassword ? 'text' : 'password'} // altere o tipo para 'password'
+                                            onChange={e => {
+                                                setLenghtPassword(e.target.value)
+                                            }
+                                            }
                                             endAdornment={
                                                 <InputAdornment position='end'>
                                                     <IconButton

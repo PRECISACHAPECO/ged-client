@@ -174,7 +174,15 @@ const dateOptions = (type, date, numDays) => {
         newDataIni = currentDate.toISOString().substr(0, 10);
         newDataFim = currentDate.toISOString().substr(0, 10);
     }
-
+    let messageError = ''
+    const errorMessageAlert = () => {
+        console.log("type", signal)
+        messageError =
+            signal == '==' ? 'A data deve ser a atual' :
+                signal == '<=' ? `Insira uma data entre hoje e ${formatDate(newDataIni, 'DD/MM/YYYY')}.` :
+                    signal == '>=' ? `Insira uma data entre hoje e ${formatDate(newDataFim, 'DD/MM/YYYY')}.` : '';
+        return messageError;
+    }
 
     if (!isNaN(inputDate.getTime())) {
         const inputTime = inputDate.getTime();
@@ -184,20 +192,28 @@ const dateOptions = (type, date, numDays) => {
         const isWithinRange = inputTime >= dataIniTime && inputTime <= dataFimTime;
         const newStatus = isWithinRange ? true : false;
 
+        if (!isWithinRange && !newStatus) {
+            console.log("é diferente do periodo")
+            errorMessageAlert()
+        }
+
         return {
             status: newStatus,
             dataIni: newDataIni,
-            dataFim: newDataFim
+            dataFim: newDataFim,
+            message: !isWithinRange && !newStatus && messageError
         };
     } else {
+        errorMessageAlert()
         return {
             status: false,
             dataIni: newDataIni,
-            dataFim: newDataFim
+            dataFim: newDataFim,
+            message: messageError
         };
     }
 };
 
 
 
-export { configColumns, formType, backRoute, statusDefault, toastMessage, generateReport, dateConfig }
+export { configColumns, formType, backRoute, statusDefault, toastMessage, generateReport, dateConfig, }
