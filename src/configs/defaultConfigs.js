@@ -16,6 +16,7 @@ import { AuthContext } from 'src/context/AuthContext'
 // ** API
 import { api } from 'src/configs/api'
 import axios from 'axios'
+import { tr } from 'date-fns/locale'
 
 // Status Default
 const statusDefault = {
@@ -120,141 +121,83 @@ const generateReport = props => {
             console.error('Erro ao gerar relatório', error)
         })
 }
-function dateConfig(type, date) {
+function dateConfig(type, date, numDays) {
+    let inputDate = new Date(date);
+    if (inputDate) {
+        return dateOptions(type, date, numDays)
+    }
+}
+
+function calculateDays(signal, numDays) {
+    const currentDate = new Date(); // Data atual
+    const targetDate = new Date(currentDate); // Data de destino (inicializada com a data atual)
+
+    // Adiciona ou subtrai o número de dias com base no sinal fornecido
+    if (signal === '==') {
+        targetDate.setDate(targetDate.getDate() + numDays);
+    } else if (signal === '>=') {
+        targetDate.setDate(targetDate.getDate() + numDays);
+    } else if (signal === '<=') {
+        targetDate.setDate(targetDate.getDate() - numDays);
+    }
+
+    // Formata a data no formato "YYYY-mm-dd"
+    const year = targetDate.getFullYear();
+    const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const day = String(targetDate.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}-${month}-${day}`;
+    return formattedDate;
+}
+
+const dateOptions = (type, date, numDays) => {
+    console.log("🚀 ~ numDays:", numDays);
     let currentDate = new Date();
     currentDate.setUTCHours(0, 0, 0, 0);
     let inputDate = new Date(date);
+    inputDate.setUTCHours(0, 0, 0, 0);
 
-    switch (type) {
-        case 'atual':
-            inputDate = new Date(date);
-            inputDate.setUTCHours(0, 0, 0, 0);
+    const signal =
+        type == 'dataAtual' ? '==' : type == 'dataPassado' ? '<=' : type == 'dataFutura' ? '>=' : '==';
 
-            if (inputDate.toISOString().substr(0, 10) === currentDate.toISOString().substr(0, 10)) {
-                return {
-                    status: true,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                };
-            } else {
-                return {
-                    status: false,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                    message: 'A data deve ser a data atual'
-                };
-            }
+    if (!signal) return;
 
-        case 'hoje_menor':
-            inputDate = new Date(date);
-            inputDate.setUTCHours(0, 0, 0, 0);
-
-            if (inputDate.getTime() <= currentDate.getTime()) {
-                return {
-                    status: true,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                };
-            } else {
-                return {
-                    status: false,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                    message: 'A data deve ser inferior ou igual a atual'
-                };
-            }
-
-        case 'hoje_maior':
-            inputDate = new Date(date);
-            inputDate.setUTCHours(0, 0, 0, 0);
-
-            if (inputDate.getTime() >= currentDate.getTime()) {
-                return {
-                    status: true,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                };
-            } else {
-                return {
-                    status: false,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                    message: 'A data deve ser superior ou igual a atual'
-                };
-            }
-
-        case 'hoje_menor_ate_1':
-            inputDate = new Date(date);
-            inputDate.setUTCHours(0, 0, 0, 0);
-
-            let oneYearLater = new Date();
-            oneYearLater.setUTCHours(0, 0, 0, 0);
-            oneYearLater.setFullYear(currentDate.getFullYear() + 1);
-
-            if (inputDate.getTime() <= currentDate.getTime() && inputDate.getTime() <= oneYearLater.getTime()) {
-                return {
-                    status: true,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                };
-            } else {
-                return {
-                    status: false,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                    message: 'A data deve ser igual ou supeior até 1 ano a partir da data atual'
-                };
-            }
-
-        case 'hoje_menor_ate_10':
-            inputDate = new Date(date);
-            inputDate.setUTCHours(0, 0, 0, 0);
-
-            let tenYearsLater = new Date();
-            tenYearsLater.setUTCHours(0, 0, 0, 0);
-            tenYearsLater.setFullYear(currentDate.getFullYear() + 10);
-
-            if (inputDate.getTime() <= currentDate.getTime() && inputDate.getTime() <= tenYearsLater.getTime()) {
-                return {
-                    status: true,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                };
-            } else {
-                return {
-                    status: false,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                    message: 'A data deve ser igual ou supeior até 10 anos a partir da data atual'
-                };
-            }
-
-        case 'hoje_menor_ate_100':
-            inputDate = new Date(date);
-            inputDate.setUTCHours(0, 0, 0, 0);
-
-            let hundredYearsLater = new Date();
-            hundredYearsLater.setUTCHours(0, 0, 0, 0);
-            hundredYearsLater.setFullYear(currentDate.getFullYear() + 100);
-
-            if (inputDate.getTime() <= currentDate.getTime() && inputDate.getTime() <= hundredYearsLater.getTime()) {
-                return {
-                    status: true,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                };
-            } else {
-                return {
-                    status: false,
-                    dataIni: currentDate.toISOString().substr(0, 10),
-                    dataFim: currentDate.toISOString().substr(0, 10),
-                    message: 'A data deve ser igual ou supeior até 100 anos a partir da data atual'
-                };
-            }
-        default:
-            return "A data digitada é inválida.";
+    let newDataFim = '';
+    let newDataIni = '';
+    if (signal == '<=') {
+        newDataIni = calculateDays(signal, numDays);
+        newDataFim = currentDate.toISOString().substr(0, 10);
+    } else if (signal == '>=') {
+        newDataIni = currentDate.toISOString().substr(0, 10);
+        newDataFim = calculateDays(signal, numDays);
+    } else {
+        newDataIni = currentDate.toISOString().substr(0, 10);
+        newDataFim = currentDate.toISOString().substr(0, 10);
     }
-}
+
+
+    if (!isNaN(inputDate.getTime())) {
+        const inputTime = inputDate.getTime();
+        const dataIniTime = new Date(newDataIni).getTime();
+        const dataFimTime = new Date(newDataFim).getTime();
+
+        const isWithinRange = inputTime >= dataIniTime && inputTime <= dataFimTime;
+        const newStatus = isWithinRange ? true : false;
+
+        return {
+            status: newStatus,
+            dataIni: newDataIni,
+            dataFim: newDataFim
+        };
+    } else {
+        return {
+            status: false,
+            dataIni: newDataIni,
+            dataFim: newDataFim
+        };
+    }
+};
+
 
 
 export { configColumns, formType, backRoute, statusDefault, toastMessage, generateReport, dateConfig }

@@ -119,7 +119,16 @@ const FormFornecedor = () => {
         formState: { errors }
     } = useForm()
 
-    const initializeValues = (fields, blocks) => {
+    const setDateFormat = (type, name, value, numDays) => {
+        const newDate = new Date(value)
+        const status = dateConfig(type, newDate, numDays)
+        setDateStatus(prevState => ({
+            ...prevState,
+            [name]: status
+        }))
+    }
+
+    const initializeValues = (fields, data, blocks) => {
         // Seta header no formulário
         fields.map((field, index) => {
             if (field.tabela) {
@@ -127,8 +136,7 @@ const FormFornecedor = () => {
                 setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
             } else {
                 if (field.tipo == 'date') {
-                    // console.log('seta padrao na dataaaa: ', formatDate(defaultValues?.[field.nomeColuna], 'DD/MM/YYYY'))
-                    // setValue(`header.${field.nomeColuna}`, formatDate(defaultValues?.[field.nomeColuna], 'DD/MM/YYYY'))
+                    setDateFormat('dataPassado', field.nomeColuna, data[field.nomeColuna], 365)
                 } else {
                     setValue(`header.${field.nomeColuna}`, defaultValues?.[field.nomeColuna])
                 }
@@ -360,7 +368,7 @@ const FormFornecedor = () => {
                 setInfo(response.data.info)
                 setUnidade(response.data.unidade)
 
-                initializeValues(response.data.fields, response.data.blocos)
+                initializeValues(response.data.fields, response.data.data, response.data.blocos)
 
                 let objStatus = statusDefault[response.data.info.status]
                 setStatus(objStatus)
@@ -424,7 +432,6 @@ const FormFornecedor = () => {
         } else {
             console.log('certo')
             console.log('submit data: ', data.forms.header)
-            console.log(dateConfig('atual', '2023-06-05')) // A data digitada não é a atual.
         }
         // try {
         //     setLoadingSave(true)
@@ -562,7 +569,7 @@ const FormFornecedor = () => {
                                                 {field && field.tipo == 'date' && (
                                                     <TextField
                                                         type='date'
-                                                        label='Selecione uma data'
+                                                        label='Data da Avaliação'
                                                         disabled={!canEdit.status}
                                                         defaultValue={
                                                             defaultValues?.[field.nomeColuna]
@@ -584,13 +591,13 @@ const FormFornecedor = () => {
                                                             required: field.obrigatorio && canEdit.status
                                                         })}
                                                         onChange={e => {
-                                                            const newDate = new Date(e.target.value)
-                                                            const status = dateConfig('atual', newDate)
-                                                            setDateStatus(prevState => ({
-                                                                ...prevState,
-                                                                [field.nomeColuna]: status
-                                                            }))
-                                                            console.log('status', dateStatus)
+                                                            setDateFormat(
+                                                                'dataPassado',
+                                                                field.nomeColuna,
+                                                                e.target.value,
+                                                                365
+                                                            )
+                                                            console.log('data onchange', dateStatus)
                                                         }}
                                                         variant='outlined'
                                                         fullWidth
