@@ -34,7 +34,7 @@ import { formType, toastMessage } from 'src/configs/defaultConfigs'
 import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
-import DialogForm from '../Defaults/Dialogs/Dialog'
+import DialogFormConclusion from '../Defaults/Dialogs/DialogFormConclusion'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 
 // Date
@@ -164,6 +164,9 @@ const FormRecebimentoMp = () => {
             setDataProducts(response.data.dataProducts)
             setBlocos(response.data.blocos)
             setInfo(response.data.info)
+
+            initializeValues(response.data)
+
             setLoading(false)
         })
     }
@@ -195,27 +198,31 @@ const FormRecebimentoMp = () => {
         toast.success('Produto pré-removido. Salve para concluir!')
     }
 
-    const initializeValues = () => {
-        console.log('useEffect 2', data)
-        fields.map((field, index) => {
-            if (data?.[field.tabela]) {
-                setValue(`header.${field.tabela}`, data?.[field.tabela])
+    const initializeValues = values => {
+        values.fields.map(field => {
+            if (field.tipo == 'int') {
+                setValue(`header.${field.tabela}`, values.data?.[field.tabela] ? values.data?.[field.tabela] : null)
             } else {
-                setValue(`header.${field.nomeColuna}`, data?.[field.nomeColuna])
+                setValue(`header.${field.nomeColuna}`, values.data?.[field.nomeColuna])
             }
         })
 
         // Seta autocomplete com o valor do banco em um objeto com id e nome
-        dataProducts.map((data, indexData) => {
-            fieldProducts.map((field, indexFields) => {
-                if (data?.[field.tabela]?.id) {
-                    setValue(`produtos[${indexData}].${field.tabela}`, data?.[field.tabela])
+        values.dataProducts.map((data, indexData) => {
+            values.fieldsProducts.map((field, indexFields) => {
+                if (field.tipo == 'int') {
+                    setValue(
+                        `produtos[${indexData}].${field.tabela}`,
+                        data?.[field.tabela] ? data?.[field.tabela] : null
+                    )
+                } else {
+                    setValue(`produtos[${indexData}].${field.nomeColuna}`, data?.[field.nomeColuna])
                 }
             })
         })
 
         // Seta bloco com o valor do banco em um objeto com id e nome
-        blocos.map((block, indexBlock) => {
+        values.blocos.map((block, indexBlock) => {
             block.itens.map((item, indexItem) => {
                 if (item?.resposta) {
                     setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
@@ -224,8 +231,8 @@ const FormRecebimentoMp = () => {
         })
 
         // Seta infos
-        setValue('obs', info?.obs)
-        setValue('status', info?.status)
+        setValue('obs', values.info?.obs)
+        setValue('status', values.info?.status)
     }
 
     const checkErrors = () => {
@@ -233,10 +240,10 @@ const FormRecebimentoMp = () => {
         let hasErrors = false
         let arrErrors = []
 
+        //? Header
         fields.forEach((field, index) => {
             const fieldName = field.tabela ? `header.${field.tabela}` : `header.${field.nomeColuna}`
             const fieldValue = getValues(fieldName)
-
             if (field.obrigatorio === 1 && !fieldValue) {
                 setError(fieldName, {
                     type: 'manual',
@@ -246,6 +253,50 @@ const FormRecebimentoMp = () => {
                 hasErrors = true
             }
         })
+
+        //? Produtos
+        dataProducts.forEach((data, index) => {
+            fieldProducts.forEach((field, index) => {
+                const fieldName = `produtos[${index}].${field.tabela}`
+                const fieldValue = getValues(fieldName)
+
+                if (field.obrigatorio === 1 && !fieldValue) {
+                    setError(fieldName, {
+                        type: 'manual',
+                        message: 'Campo obrigatário'
+                    })
+                    arrErrors.push(field?.nomeCampo)
+                    hasErrors = true
+                }
+            })
+        })
+
+        //? Blocos
+        blocos.forEach((block, indexBlock) => {
+            block.itens.forEach((item, indexItem) => {
+                const fieldValue = getValues(`blocos[${indexBlock}].itens[${indexItem}].resposta`)
+                if (item?.obrigatorio === 1 && !fieldValue) {
+                    setError(`blocos[${indexBlock}].itens[${indexItem}].resposta`, {
+                        type: 'manual',
+                        message: 'Campo obrigatário'
+                    })
+                    arrErrors.push(item?.nome)
+                    hasErrors = true
+                }
+            })
+        })
+
+        //? Status (resultado)
+        // const fieldValue = getValues(`status`)
+        // if (!fieldValue || fieldValue == 10) {
+        //     setError(`status`, {
+        //         type: 'manual',
+        //         message: 'Campo obrigatário'
+        //     })
+        //     arrErrors.push('Resultado Final')
+        //     hasErrors = true
+        // }
+
         console.log('🚀 ~ arrErrors:', arrErrors)
 
         setListErrors({
@@ -260,65 +311,65 @@ const FormRecebimentoMp = () => {
         setValidateForm(true)
     }
 
-    const conclusionAndSendForm = async () => {
-        console.log('🚀 ~ conclusionAndSendForm')
-        await handleSubmit(onSubmit)()
+    const conclusionForm = async values => {
+        console.log('🚀 ~ conclusionForm: ', values)
+
+        await handleSubmit(onSubmit)({
+            conclusion: true,
+            status: values.status,
+            obsConclusao: values.obsConclusao
+        })
     }
 
-    const onSubmit = async data => {
+    const onSubmit = async (data, param = false) => {
+        if (param.conclusion === true && param.status > 10) {
+            console.log('🚀 ~ param.status:', param.status)
+            data['status'] = param.status
+            data['obsConclusao'] = param.obsConclusao
+        }
+
         console.log('onSubmit: ', data)
-
-        // try {
-        //     setSavingForm(true)
-        //     if (type == 'edit') {
-        //         await api
-        //             .put(`${staticUrl}/${id}`, {
-        //                 data: data,
-        //                 removedProducts: removedProducts,
-        //                 unidadeID: loggedUnity.unidadeID
-        //             })
-        //             .then(response => {
-        //                 toast.success(toastMessage.successUpdate)
-        //                 setSavingForm(false)
-        //             })
-        //     } else if (type == 'new') {
-        //         await api
-        //             .post(`${staticUrl}/insertData`, {
-        //                 data: data,
-        //                 unidadeID: loggedUnity.unidadeID
-        //             })
-        //             .then(response => {
-        //                 const newId = response.data
-        //                 router.push(`${staticUrl}/${newId}`)
-        //                 toast.success(toastMessage.successNew)
-        //                 setSavingForm(false)
-        //             })
-        //     } else {
-        //         toast.error(toastMessage.error)
-        //         setSavingForm(false)
-        //     }
-        // } catch (error) {
-        //     console.log(error)
-        // }
-
-        return errors
+        try {
+            setSavingForm(true)
+            if (type == 'edit') {
+                await api
+                    .put(`${staticUrl}/${id}`, {
+                        data: data,
+                        removedProducts: removedProducts,
+                        unidadeID: loggedUnity.unidadeID
+                    })
+                    .then(response => {
+                        toast.success(toastMessage.successUpdate)
+                        setSavingForm(false)
+                    })
+            } else if (type == 'new') {
+                await api
+                    .post(`${staticUrl}/insertData`, {
+                        data: data,
+                        unidadeID: loggedUnity.unidadeID
+                    })
+                    .then(response => {
+                        const newId = response.data
+                        router.push(`${staticUrl}/${newId}`)
+                        toast.success(toastMessage.successNew)
+                        setSavingForm(false)
+                    })
+            } else {
+                toast.error(toastMessage.error)
+                setSavingForm(false)
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     useEffect(() => {
         console.log('useEffect 1')
-
         setTitle('Recebimento de MP')
         getData()
     }, [savingForm])
 
-    // preencher campos defauylts com os dados do banco
     useEffect(() => {
-        console.log('useEffect 2')
-        initializeValues()
-    }, [data, savingForm])
-
-    useEffect(() => {
-        console.log('useEffect errors')
         checkErrors()
     }, [])
 
@@ -707,7 +758,7 @@ const FormRecebimentoMp = () => {
                                                                                               id: newValue.alternativaID,
                                                                                               nome: newValue.nome
                                                                                           }
-                                                                                        : ''
+                                                                                        : null
                                                                                 )
                                                                             }}
                                                                             renderInput={params => (
@@ -835,72 +886,22 @@ const FormRecebimentoMp = () => {
                                     </Grid>
                                 </CardContent>
                             </Card>
-
-                            {/* Resultado do formulário */}
-                            <Card sx={{ mt: 4 }}>
-                                <CardContent>
-                                    <Grid container spacing={4}>
-                                        <Grid item xs={12} md={12}>
-                                            <FormControl fullWidth>
-                                                <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
-                                                    Resultado
-                                                </Typography>
-                                                {info && (
-                                                    <Box display='flex' gap={8}>
-                                                        <RadioGroup
-                                                            row
-                                                            aria-label='colored'
-                                                            name='colored'
-                                                            value={info.status}
-                                                            onChange={handleChangeFormStatus}
-                                                        >
-                                                            <FormControlLabel
-                                                                value={70}
-                                                                // disabled={hasFormPending}
-                                                                name={`status`}
-                                                                {...register(`status`)}
-                                                                control={<Radio color='success' />}
-                                                                label='Aprovado'
-                                                            />
-                                                            <FormControlLabel
-                                                                value={60}
-                                                                // disabled={hasFormPending}
-                                                                name={`status`}
-                                                                {...register(`status`)}
-                                                                label='Aprovado parcial'
-                                                                control={<Radio color='warning' />}
-                                                            />
-                                                            <FormControlLabel
-                                                                value={50}
-                                                                // disabled={hasFormPending}
-                                                                name={`status`}
-                                                                {...register(`status`)}
-                                                                label='Reprovado'
-                                                                control={<Radio color='error' />}
-                                                            />
-                                                        </RadioGroup>
-                                                    </Box>
-                                                )}
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid>
-                                </CardContent>
-                            </Card>
                         </>
                     )}
 
                     {/* Dialog de confirmação de envio */}
-                    <DialogForm
+                    <DialogFormConclusion
                         openModal={openModal}
                         handleClose={() => {
                             setOpenModal(false), setValidateForm(false)
                         }}
-                        title='Concluir e Enviar Formulário'
-                        text={`Deseja realmente concluir e enviar este formulário?`}
+                        title='Concluir Formulário'
+                        text={`Deseja realmente concluir este formulário?`}
+                        info={info}
                         btnCancel
                         btnConfirm
                         btnConfirmColor='primary'
-                        handleSubmit={conclusionAndSendForm}
+                        conclusionForm={conclusionForm}
                         listErrors={listErrors}
                     />
                 </form>

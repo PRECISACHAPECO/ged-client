@@ -106,7 +106,9 @@ const DialogForm = ({
                     {btnConfirm && (
                         <Button
                             variant='contained'
-                            disabled={inputEmail && email?.length > 0 && errorEmail}
+                            disabled={
+                                (inputEmail && email?.length > 0 && errorEmail) || (listErrors && listErrors.status)
+                            }
                             color={btnConfirmColor ? btnConfirmColor : 'error'}
                             onClick={
                                 inputEmail && cnpj

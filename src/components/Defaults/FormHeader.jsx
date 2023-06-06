@@ -238,7 +238,7 @@ const FormHeader = ({
                             sx={{ ml: 2 }}
                             startIcon={<Icon icon='carbon:send-filled' />}
                         >
-                            Enviar Formulário
+                            Concluir Formulário
                         </Button>
                     )}
 
