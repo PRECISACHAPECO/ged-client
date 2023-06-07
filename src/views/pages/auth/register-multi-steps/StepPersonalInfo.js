@@ -6,16 +6,16 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { cellPhoneMask, cepMask, ufMask } from '../../../../configs/masks'
 
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { api } from 'src/configs/api'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import { FormControl } from '@mui/material'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal }) => {
-
+    const [dataCep, setDataCep] = useState(null)
     const {
         register,
         handleSubmit,
@@ -34,19 +34,28 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                 }
             }
         })
+        console.log("values", value)
         handleNext()
     }
 
     const getCep = async (cep) => {
         if (cep.length === 9) {
             api.get(`https://viacep.com.br/ws/${cep}/json/`).then((response) => {
-                setValue('logradouro', response.data.logradouro)
-                setValue('bairro', response?.data?.bairro)
-                setValue('cidade', response.data.localidade)
-                setValue('uf', response.data.uf)
+                setDataCep(response.data)
             })
+        } else {
+            setDataCep(null)
         }
     }
+
+
+    useEffect(() => {
+        setValue('logradouro', dataCep?.logradouro)
+        setValue('bairro', dataCep?.bairro)
+        setValue('cidade', dataCep?.localidade)
+        setValue('uf', dataCep?.uf)
+    }, [dataCep, getCep])
+
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -96,7 +105,7 @@ const StepPersonalDetails = ({ handleNext, handlePrev, setDataGlobal, dataGlobal
                     <TextField
                         label='Rua'
                         placeholder='Rua'
-                        defaultValue={dataGlobal?.usuario?.fields?.logradouro}
+                        defaultValue={dataCep || dataGlobal?.usuario?.fields?.logradouro}
                         name='logradouro'
                         {...register('logradouro')}
                         fullWidth

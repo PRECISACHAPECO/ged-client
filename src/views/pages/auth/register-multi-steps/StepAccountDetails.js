@@ -315,8 +315,8 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                             type={values.showConfirmPassword ? 'text' : 'password'} // altere o tipo para 'password'
                                             onChange={e => {
                                                 setLenghtPassword(e.target.value)
-                                            }
-                                            }
+                                                console.log("dentro do onchange", e.target.value)
+                                            }}
                                             endAdornment={
                                                 <InputAdornment position='end'>
                                                     <IconButton
@@ -379,6 +379,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                     </Box>
                                 </Box>
 
+                                {/* Empresa já cadastrada mas sem usuario, é necessario criar uma senha */}
                                 {
                                     dataGlobal?.usuario?.fields?.existsFornecedor === 0 && existsTableFactory && (
                                         <>
@@ -415,6 +416,10 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                                         {...register('confirmaSenha')}
                                                         id='input-confirm-password'
                                                         type={values.showConfirmPassword ? 'text' : 'password'} // altere o tipo para 'password'
+                                                        onChange={e => {
+                                                            setLenghtPassword(e.target.value)
+                                                            console.log("dentro do onchange", e.target.value)
+                                                        }}
                                                         endAdornment={
                                                             <InputAdornment position='end'>
                                                                 <IconButton
@@ -449,7 +454,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 Anterior
                             </Button>
                             <Button
-                                disabled={!existsTableFactory || (dataGlobal?.usuario?.exists === true && dataGlobal?.usuario?.fields?.existsFornecedor > 0 ? true : false)}
+                                disabled={!existsTableFactory || (dataGlobal?.usuario?.exists === true && dataGlobal?.usuario?.fields?.existsFornecedor > 0 ? true : false) || (lenghtPassword <= 0 || lenghtPassword == null || lenghtPassword == undefined)}
                                 type='submit'
                                 variant='contained'
                                 onClick={handleSubmit}
