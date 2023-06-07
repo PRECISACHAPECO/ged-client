@@ -88,28 +88,6 @@ const FormFornecedor = () => {
     const { settings } = useContext(SettingsContext)
     const mode = settings.mode
 
-    const defaultValues =
-        data &&
-        fields.reduce((defaultValues, field) => {
-            if (field.tabela) {
-                // Select (objeto com id e nome)
-                defaultValues[field.tabela] = {
-                    id: data[field.tabela]?.id,
-                    nome: data[field.tabela]?.nome
-                }
-            } else {
-                const loggedUnityItem = loggedUnity[field.nomeColuna]
-
-                defaultValues[field.nomeColuna] = data[field.nomeColuna]
-                    ? data[field.nomeColuna]
-                    : loggedUnityItem
-                    ? loggedUnityItem
-                    : null
-            }
-
-            return defaultValues
-        }, {})
-
     const {
         watch,
         register,
@@ -129,37 +107,33 @@ const FormFornecedor = () => {
         }))
     }
 
-    const initializeValues = (fields, data, blocks) => {
+    const initializeValues = values => {
         // Seta header no formulário
-        fields.map((field, index) => {
-            if (field.tabela) {
-                // Objeto (seleciona resposta)
-                setValue(`header.${field.tabela}`, defaultValues?.[field.tabela])
+        values.fields.map((field, index) => {
+            if (field.tipo == 'int') {
+                setValue(`header.${field.tabela}`, values.data?.[field.tabela] ? values.data?.[field.tabela] : null)
             } else {
-                if (field.tipo == 'date') {
-                    setDateFormat('dataPassado', field.nomeColuna, data[field.nomeColuna], 365)
+                if (field.tipo == 'date' && field.nomeColuna == 'dataAvaliacao') {
+                    setDateFormat('dataPassado', field.nomeColuna, values.data[field.nomeColuna], 365)
                 } else {
-                    setValue(`header.${field.nomeColuna}`, defaultValues?.[field.nomeColuna])
+                    setValue(`header.${field.nomeColuna}`, values.data?.[field.nomeColuna])
                 }
             }
         })
+
         // Seta itens no formulário
-        blocks.map((block, indexBlock) => {
+        values.blocos.map((block, indexBlock) => {
             block.itens.map((item, indexItem) => {
-                setValue(`blocos[${indexBlock}].itens[${indexItem}].respostaID`, item?.respostaID)
-                setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
+                console.log('🚀 ~ item:', item)
+                if (item?.resposta) {
+                    setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
+                }
+                // setValue(`blocos[${indexBlock}].itens[${indexItem}].respostaID`, item?.respostaID)
+                // setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
             })
         })
     }
 
-    //* Controle dos ícones de respondido (verde ou cinza)
-    // const handleAnswerChange = (blockIndex, questionIndex, value) => {
-    //     const newAnswers = [...answers]
-    //     newAnswers[blockIndex] = newAnswers[blockIndex] || []
-    //     newAnswers[blockIndex][questionIndex] = value
-    //     console.log('newAnswers: ')
-    //     setAnswers(newAnswers)
-    // }
     const isAnswered = (blockIndex, questionIndex) => {
         return false
         // return answers[blockIndex] && !!answers[blockIndex][questionIndex]
@@ -369,7 +343,7 @@ const FormFornecedor = () => {
                 setInfo(response.data.info)
                 setUnidade(response.data.unidade)
 
-                initializeValues(response.data.fields, response.data.data, response.data.blocos)
+                initializeValues(response.data)
 
                 let objStatus = statusDefault[response.data.info.status]
                 setStatus(objStatus)
@@ -418,7 +392,6 @@ const FormFornecedor = () => {
                 ...values,
                 header: {
                     ...values.header
-                    // dataAvaliacao: formatDate(values.dataAvaliacao, 'YYYY-MM-DD')
                 }
             },
             auth: {
@@ -428,21 +401,17 @@ const FormFornecedor = () => {
             }
         }
 
-        if (!dateStatus?.dataAvaliacao?.status) {
-            return console.log('errrado')
-        } else {
-            console.log('certo')
-            console.log('submit data: ', data.forms.header)
+        console.log('submit data: ', data)
+
+        try {
+            setLoadingSave(true)
+            await api.put(`${staticUrl}/${id}`, data).then(response => {
+                toast.success(toastMessage.successUpdate)
+                setLoadingSave(false)
+            })
+        } catch (error) {
+            console.log(error)
         }
-        // try {
-        //     setLoadingSave(true)
-        //     await api.put(`${staticUrl}/${id}`, data).then(response => {
-        //         toast.success(toastMessage.successUpdate)
-        //         setLoadingSave(false)
-        //     })
-        // } catch (error) {
-        //     console.log(error)
-        // }
     }
     console.log('erros', errors)
 
@@ -455,8 +424,9 @@ const FormFornecedor = () => {
 
     return (
         <>
-            {isLoading && <Loading />}
-            {data && (
+            {isLoading ? (
+                <Loading />
+            ) : data ? (
                 <form
                     onSubmit={handleSubmit(data => {
                         canEdit.status ? onSubmit(data, false) : updateFormStatus()
@@ -538,9 +508,7 @@ const FormFornecedor = () => {
                                                         options={field.options}
                                                         getOptionSelected={(option, value) => option.id === value.id}
                                                         defaultValue={
-                                                            defaultValues?.[field.tabela]?.id
-                                                                ? defaultValues[field.tabela]
-                                                                : null
+                                                            data?.[field.tabela]?.id ? data[field.tabela] : null
                                                         }
                                                         getOptionLabel={option => option.nome}
                                                         name={`header.${field.tabela}`}
@@ -573,8 +541,8 @@ const FormFornecedor = () => {
                                                         label='Data da Avaliação'
                                                         disabled={!canEdit.status}
                                                         defaultValue={
-                                                            defaultValues?.[field.nomeColuna]
-                                                                ? new Date(defaultValues?.[field.nomeColuna])
+                                                            data?.[field.nomeColuna]
+                                                                ? new Date(data?.[field.nomeColuna])
                                                                       .toISOString()
                                                                       .split('T')[0]
                                                                 : ''
@@ -624,9 +592,7 @@ const FormFornecedor = () => {
                                                     (field.nomeColuna != 'numeroRegistro' ||
                                                         watchRegistroEstabelecimento?.id > 1) && (
                                                         <TextField
-                                                            defaultValue={
-                                                                defaultValues ? defaultValues[field.nomeColuna] : ''
-                                                            }
+                                                            defaultValue={data ? data[field.nomeColuna] : ''}
                                                             label={field.nomeCampo}
                                                             disabled={!canEdit.status}
                                                             placeholder={field.nomeCampo}
@@ -876,40 +842,32 @@ const FormFornecedor = () => {
                                                                 {item.alternativas && item.alternativas.length > 1 && (
                                                                     <Autocomplete
                                                                         options={item.alternativas}
-                                                                        defaultValue={
-                                                                            item.resposta
-                                                                                ? { nome: item?.resposta }
-                                                                                : { nome: '' }
-                                                                        }
-                                                                        id='autocomplete-outlined'
                                                                         getOptionLabel={option => option.nome}
-                                                                        disabled={!canEdit.status}
-                                                                        onChange={(event, value) => {
+                                                                        defaultValue={
+                                                                            item.resposta ? item.resposta : { nome: '' }
+                                                                        }
+                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                        {...register(
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                        )}
+                                                                        onChange={(event, newValue) => {
+                                                                            console.log('🚀 ~ newValue:', newValue)
                                                                             setValue(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
-                                                                                value?.alternativaID
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                newValue
+                                                                                    ? {
+                                                                                          id: newValue.alternativaID,
+                                                                                          nome: newValue.nome
+                                                                                      }
+                                                                                    : null
                                                                             )
-                                                                            // handleAnswerChange(
-                                                                            //     indexBloco,
-                                                                            //     indexItem,
-                                                                            //     value?.alternativaID
-                                                                            // )
                                                                         }}
                                                                         renderInput={params => (
                                                                             <TextField
                                                                                 {...params}
-                                                                                name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                                 label='Selecione uma resposta'
                                                                                 placeholder='Selecione uma resposta'
-                                                                                {...register(
-                                                                                    `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                    {
-                                                                                        required:
-                                                                                            item.obrigatorio == 1
-                                                                                                ? true
-                                                                                                : false
-                                                                                    }
-                                                                                )}
+                                                                                // Se uma opções for selecionada, pintar a borda do autocomplete de verde
                                                                                 error={
                                                                                     errors?.blocos?.[indexBloco]?.itens[
                                                                                         indexItem
@@ -945,11 +903,6 @@ const FormFornecedor = () => {
                                                                                     }
                                                                                 )}
                                                                                 onChange={value => {
-                                                                                    // handleAnswerChange(
-                                                                                    //     indexBloco,
-                                                                                    //     indexItem,
-                                                                                    //     value
-                                                                                    // )
                                                                                     setValue(
                                                                                         `blocos[${indexBloco}].itens[${indexItem}].resposta`,
                                                                                         value ? value : null
@@ -978,19 +931,13 @@ const FormFornecedor = () => {
                                                                     item.alternativa == 'Dissertativa' && (
                                                                         <TextField
                                                                             multiline
-                                                                            defaultValue={item.resposta ?? ''}
                                                                             label='Descreva a resposta'
                                                                             disabled={!canEdit.status}
                                                                             placeholder='Descreva a resposta'
                                                                             name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                            defaultValue={item.resposta ?? ''}
                                                                             {...register(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                {
-                                                                                    required:
-                                                                                        item.obrigatorio == 1
-                                                                                            ? true
-                                                                                            : false
-                                                                                }
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
                                                                             )}
                                                                             error={
                                                                                 errors?.blocos?.[indexBloco]?.itens[
@@ -1109,7 +1056,7 @@ const FormFornecedor = () => {
                         </Card>
                     )}
                 </form>
-            )}
+            ) : null}
 
             {/* Dialog de confirmação de envio */}
             <DialogForm

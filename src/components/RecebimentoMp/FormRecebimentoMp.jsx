@@ -83,18 +83,6 @@ const FormRecebimentoMp = () => {
     console.log('errors: ', errors)
     console.log('listErrors: ', listErrors)
 
-    //* Altera status do formulário (aprovado, aprovado parcial, reprovado)
-    const handleChangeFormStatus = event => {
-        const newValue = event.target.value
-
-        const newInfo = {
-            ...info,
-            status: newValue
-        }
-        setInfo(newInfo)
-        setValue('header.status', newValue)
-    }
-
     const getAddressByCep = cepString => {
         if (cepString.length == 9) {
             const cep = cepString.replace(/[^0-9]/g, '')
@@ -285,17 +273,6 @@ const FormRecebimentoMp = () => {
                 }
             })
         })
-
-        //? Status (resultado)
-        // const fieldValue = getValues(`status`)
-        // if (!fieldValue || fieldValue == 10) {
-        //     setError(`status`, {
-        //         type: 'manual',
-        //         message: 'Campo obrigatário'
-        //     })
-        //     arrErrors.push('Resultado Final')
-        //     hasErrors = true
-        // }
 
         console.log('🚀 ~ arrErrors:', arrErrors)
 
@@ -739,7 +716,6 @@ const FormRecebimentoMp = () => {
                                                                         <Autocomplete
                                                                             options={item.alternativas}
                                                                             getOptionLabel={option => option.nome}
-                                                                            // Se pelo menus uma opção ser selecionada, pintar a borda do autocomplete de ver
                                                                             defaultValue={
                                                                                 item.resposta
                                                                                     ? item.resposta
