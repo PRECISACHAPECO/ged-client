@@ -248,7 +248,7 @@ const AuthProvider = ({ children }) => {
                 });
         }
         getLatestVersion();
-    }, [user, handleLoginFornecedor, handleLogin])
+    }, [handleLoginFornecedor, handleLogin])
 
     // //*? faz um get ao github a cada 10 segundos para saber se existe uma nova versão do sistema
     useEffect(() => {
