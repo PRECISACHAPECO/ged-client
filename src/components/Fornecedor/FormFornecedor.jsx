@@ -107,6 +107,8 @@ const FormFornecedor = () => {
         }))
     }
 
+    console.log('blocos ativos: ', blocks)
+
     const initializeValues = values => {
         // Seta header no formulário
         values.fields.map((field, index) => {
@@ -932,7 +934,6 @@ const FormFornecedor = () => {
                                                                         <TextField
                                                                             multiline
                                                                             label='Descreva a resposta'
-                                                                            disabled={!canEdit.status}
                                                                             placeholder='Descreva a resposta'
                                                                             name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
                                                                             defaultValue={item.resposta ?? ''}
