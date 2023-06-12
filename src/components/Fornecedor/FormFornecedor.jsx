@@ -4,6 +4,11 @@ import { useForm, Controller } from 'react-hook-form'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
+//* Default Form Components
+import Fields from 'src/components/Defaults/Formularios/Fields'
+import CheckList from 'src/components/Defaults/Formularios/CheckList'
+import Block from 'src/components/Defaults/Formularios/Block'
+
 import {
     Alert,
     Autocomplete,
@@ -34,6 +39,7 @@ import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
+import DialogFormConclusion from '../Defaults/Dialogs/DialogFormConclusion'
 
 // ** Custom Components
 import CustomChip from 'src/@core/components/mui/chip'
@@ -45,15 +51,16 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br' // import locale
 import DialogForm from '../Defaults/Dialogs/Dialog'
-import DialogChangeFormStatus from '../Defaults/Dialogs/DialogChangeFormStatus'
+import DialogFormStatus from '../Defaults/Dialogs/DialogFormStatus'
 
 const FormFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
     const { setTitle } = useContext(ParametersContext)
     const [isLoading, setLoading] = useState(false) //? loading de carregamento da página
     const [isLoadingSave, setLoadingSave] = useState(false) //? dependencia do useEffect pra atualizar a página após salvar
+    const [validateForm, setValidateForm] = useState(false) //? Se true, valida campos obrigatórios
 
-    const [fields, setFields] = useState([])
+    const [fieldsState, setFields] = useState([])
     const [data, setData] = useState(null)
     const [categorias, setCategorias] = useState([])
     const [atividades, setAtividades] = useState([])
@@ -69,10 +76,10 @@ const FormFornecedor = () => {
     const [statusEdit, setStatusEdit] = useState(false)
     const [openModalStatus, setOpenModalStatus] = useState(false)
     const [hasFormPending, setHasFormPending] = useState(true) //? Tem pendencia no formulário (já vinculado em formulário de recebimento, não altera mais o status)
-    const [watchRegistroEstabelecimento, setWatchRegistroEstabelecimento] = useState(null)
     const [countViewBlocks, setCountViewBlocks] = useState(0)
     const [answers, setAnswers] = useState([])
     const [dateStatus, setDateStatus] = useState({})
+    const [listErrors, setListErrors] = useState({ status: false, errors: [] })
 
     const [canEdit, setCanEdit] = useState({
         status: false,
@@ -92,35 +99,17 @@ const FormFornecedor = () => {
         watch,
         register,
         control,
+        getValues,
+        clearErrors,
         setValue,
+        setError,
         handleSubmit,
         formState: { errors }
     } = useForm()
 
-    const setDateFormat = (type, name, value, numDays) => {
-        const newDate = new Date(value)
-        const status = dateConfig(type, newDate, numDays)
-        console.log('status', status)
-        setDateStatus(prevState => ({
-            ...prevState,
-            [name]: status
-        }))
-    }
+    console.log('blocos ativos: ', blocks)
 
     const initializeValues = values => {
-        // Seta header no formulário
-        values.fields.map((field, index) => {
-            if (field.tipo == 'int') {
-                setValue(`header.${field.tabela}`, values.data?.[field.tabela] ? values.data?.[field.tabela] : null)
-            } else {
-                if (field.tipo == 'date' && field.nomeColuna == 'dataAvaliacao') {
-                    setDateFormat('dataPassado', field.nomeColuna, values.data[field.nomeColuna], 365)
-                } else {
-                    setValue(`header.${field.nomeColuna}`, values.data?.[field.nomeColuna])
-                }
-            }
-        })
-
         // Seta itens no formulário
         values.blocos.map((block, indexBlock) => {
             block.itens.map((item, indexItem) => {
@@ -128,15 +117,8 @@ const FormFornecedor = () => {
                 if (item?.resposta) {
                     setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
                 }
-                // setValue(`blocos[${indexBlock}].itens[${indexItem}].respostaID`, item?.respostaID)
-                // setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
             })
         })
-    }
-
-    const isAnswered = (blockIndex, questionIndex) => {
-        return false
-        // return answers[blockIndex] && !!answers[blockIndex][questionIndex]
     }
 
     const verifyFormPending = async () => {
@@ -151,7 +133,7 @@ const FormFornecedor = () => {
     }
 
     //* Reabre o formulário pro fornecedor alterar novamente se ainda nao estiver vinculado com recebimento
-    const reOpenFormStatus = async status => {
+    const changeFormStatus = async status => {
         const data = {
             status: status,
             auth: {
@@ -163,7 +145,7 @@ const FormFornecedor = () => {
 
         try {
             setLoadingSave(true)
-            await api.post(`${staticUrl}/reOpenFormStatus/${id}`, data).then(response => {
+            await api.post(`${staticUrl}/changeFormStatus/${id}`, data).then(response => {
                 toast.success(toastMessage.successUpdate)
                 setLoadingSave(false)
             })
@@ -213,31 +195,32 @@ const FormFornecedor = () => {
     }
 
     //* Formulário já foi enviado e atualizado, função apenas altera o status e envia o email
-    const conclusionAndSendForm = async () => {
-        const data = {
-            usuarioID: user.usuarioID,
-            unidadeID: loggedUnity.unidadeID,
-            papelID: user.papelID
-        }
-        try {
-            setLoadingSave(true)
-            await api.post(`${staticUrl}/conclusionAndSendForm/${id}`, data).then(response => {
-                if (response.status === 201) {
-                    toast.error(`Erro ao concluir o formulário!`)
-                } else if (response.status === 202) {
-                    toast.error(`Erro ao realizar o envio de email para ${user.email}`)
-                    toast.success(`Formulário concluído com sucesso!`)
-                    getData()
-                } else {
-                    toast.success(`Formulário concluído com sucesso!`)
-                }
-                setOpenModal(false)
-                setLoadingSave(false)
-            })
-        } catch (error) {
-            console.log(error)
-        }
-    }
+
+    // const conclusionAndSendForm = async () => {
+    //     const data = {
+    //         usuarioID: user.usuarioID,
+    //         unidadeID: loggedUnity.unidadeID,
+    //         papelID: user.papelID
+    //     }
+    //     try {
+    //         setLoadingSave(true)
+    //         await api.post(`${staticUrl}/conclusionAndSendForm/${id}`, data).then(response => {
+    //             if (response.status === 201) {
+    //                 toast.error(`Erro ao concluir o formulário!`)
+    //             } else if (response.status === 202) {
+    //                 toast.error(`Erro ao realizar o envio de email para ${user.email}`)
+    //                 toast.success(`Formulário concluído com sucesso!`)
+    //                 getData()
+    //             } else {
+    //                 toast.success(`Formulário concluído com sucesso!`)
+    //             }
+    //             setOpenModal(false)
+    //             setLoadingSave(false)
+    //         })
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
 
     const getAddressByCep = cepString => {
         if (cepString.length == 9) {
@@ -291,23 +274,25 @@ const FormFornecedor = () => {
     }
 
     const changeCategory = (id, checked) => {
-        const arrNewCategories = categorias.map(categoria => {
-            if (categoria.categoriaID === id) {
+        console.log('🚀 ~ changeCategory:', id, checked)
+        const arrNewCategory = categorias.map(value => {
+            if (value.id === id) {
                 return {
-                    ...categoria,
+                    ...value,
                     checked: checked
                 }
             }
-            return categoria
+            return value
         })
-        setCategorias(arrNewCategories)
-        setVisibleBlocks(allBlocks, arrNewCategories)
+        console.log('🚀 ~ arrNewCategory:', arrNewCategory)
+        setCategorias(arrNewCategory)
+        setVisibleBlocks(allBlocks, arrNewCategory)
     }
 
     //! Controla visualização do bloco baseado na categoria e atividade
     const canViewBlock = (arrCategoriasBloco, categorias) => {
         const categoriasBloco = arrCategoriasBloco.map(objeto => objeto.categoriaID)
-        const categoriasFornecedor = categorias.filter(objeto => objeto.checked).map(objeto => objeto.categoriaID)
+        const categoriasFornecedor = categorias.filter(objeto => objeto.checked).map(objeto => objeto.id)
 
         if (categoriasBloco.length !== categoriasFornecedor.length) {
             return false // Se os arrays tiverem comprimentos diferentes, não contêm os mesmos valores
@@ -357,8 +342,6 @@ const FormFornecedor = () => {
                     messageType: user.papelID == 2 ? 'warning' : 'info'
                 })
 
-                setWatchRegistroEstabelecimento(response.data.data?.registroestabelecimento)
-
                 setLoading(false)
             })
         } catch (error) {
@@ -371,22 +354,30 @@ const FormFornecedor = () => {
         toast.error('Você não tem permissões para acessar esta página!')
     }
 
-    const handleSendForm = async () => {
-        console.log('handleSendForm.....')
-        handleSubmit(onSubmit)(true)
+    // const handleSendForm = async () => {
+    //     console.log('handleSendForm.....')
+    //     handleSubmit(onSubmit)(true)
+    // }
+
+    const handleSendForm = () => {
+        checkErrors()
+        setOpenModal(true)
+        setValidateForm(true)
     }
 
-    const onSubmit = async (data, canOpenModal) => {
-        if (canOpenModal) {
-            submitData(data)
-            setOpenModal(true) // abre modal
-        } else {
-            submitData(data)
-            setOpenModal(false)
+    const conclusionForm = async values => {
+        values['conclusion'] = true
+        console.log('🚀 ~ conclusionForm: ', values)
+
+        await handleSubmit(onSubmit)(values)
+    }
+
+    const onSubmit = async (values, param = false) => {
+        if (param.conclusion === true) {
+            values['status'] = user && user.papelID == 1 ? param.status : 40 //? Seta o status somente se for fábrica
+            values['obsConclusao'] = param.obsConclusao
         }
-    }
 
-    const submitData = async values => {
         const data = {
             forms: {
                 ...values,
@@ -401,7 +392,7 @@ const FormFornecedor = () => {
             }
         }
 
-        console.log('submit data: ', data)
+        console.log('onSubmit: ', data)
 
         try {
             setLoadingSave(true)
@@ -413,6 +404,49 @@ const FormFornecedor = () => {
             console.log(error)
         }
     }
+
+    const checkErrors = () => {
+        clearErrors()
+        let hasErrors = false
+        let arrErrors = []
+
+        //? Header
+        fieldsState.forEach((field, index) => {
+            const fieldName = field.tabela ? `header.${field.tabela}` : `header.${field.nomeColuna}`
+            const fieldValue = getValues(fieldName)
+            if (field.obrigatorio === 1 && !fieldValue) {
+                setError(fieldName, {
+                    type: 'manual',
+                    message: 'Campo obrigatório'
+                })
+                arrErrors.push(field?.nomeCampo)
+                hasErrors = true
+            }
+        })
+
+        //? Blocos
+        blocks.forEach((block, indexBlock) => {
+            block.itens.forEach((item, indexItem) => {
+                const fieldValue = getValues(`blocos[${indexBlock}].itens[${indexItem}].resposta`)
+                if (item?.obrigatorio === 1 && !fieldValue) {
+                    setError(`blocos[${indexBlock}].itens[${indexItem}].resposta`, {
+                        type: 'manual',
+                        message: 'Campo obrigatário'
+                    })
+                    arrErrors.push(item?.nome)
+                    hasErrors = true
+                }
+            })
+        })
+
+        console.log('🚀 ~ arrErrors:', arrErrors)
+
+        setListErrors({
+            status: hasErrors,
+            errors: arrErrors
+        })
+    }
+
     console.log('erros', errors)
 
     useEffect(() => {
@@ -421,6 +455,10 @@ const FormFornecedor = () => {
         type == 'edit' ? getData() : noPermissions()
         verifyFormPending()
     }, [isLoadingSave])
+
+    useEffect(() => {
+        checkErrors()
+    }, [])
 
     return (
         <>
@@ -448,7 +486,20 @@ const FormFornecedor = () => {
                     <Card>
                         <FormHeader
                             btnCancel
-                            btnChangeStatus
+                            btnSave
+                            btnSend
+                            btnPrint
+                            generateReport={generateReport}
+                            dataReports={dataReports}
+                            handleSubmit={() => handleSubmit(onSubmit)}
+                            handleSend={handleSendForm}
+                            title='Fornecedor'
+                            btnStatus
+                            handleBtnStatus={() => setOpenModalStatus(true)}
+                        />
+
+                        {/* <FormHeader
+                            btnCancel
                             btnSave={canEdit.status || (user.papelID == 1 && info.status >= 40)}
                             btnSend={user.papelID == 2 && info.status < 40 ? true : false}
                             btnPrint
@@ -457,12 +508,12 @@ const FormFornecedor = () => {
                             disabledSubmit={blocks.length === 0 ? true : false}
                             disabledSend={blocks.length === 0 ? true : false}
                             handleSend={handleSendForm}
-                            handleChangeStatus={() => setOpenModalStatus(true)}
                             title='Fornecedor'
-                        />
+                        /> */}
+
                         <CardContent>
                             {unidade && (
-                                <>
+                                <Box sx={{ mb: 4 }}>
                                     <input
                                         type='hidden'
                                         value={unidade.unidadeID}
@@ -492,268 +543,50 @@ const FormFornecedor = () => {
                                             )}
                                         </Grid>
                                     </Grid>
-                                </>
+                                </Box>
                             )}
 
                             {/* Header */}
-                            <Grid container spacing={4} sx={{ mt: 4 }}>
-                                {fields &&
-                                    fields.map((field, index) => (
-                                        <Grid key={index} item xs={12} md={3}>
-                                            <FormControl fullWidth>
-                                                {/* int (select) */}
-                                                {field && field.tipo === 'int' && field.tabela && (
-                                                    <Autocomplete
-                                                        disabled={!canEdit.status}
-                                                        options={field.options}
-                                                        getOptionSelected={(option, value) => option.id === value.id}
-                                                        defaultValue={
-                                                            data?.[field.tabela]?.id ? data[field.tabela] : null
-                                                        }
-                                                        getOptionLabel={option => option.nome}
-                                                        name={`header.${field.tabela}`}
-                                                        {...register(`header.${field.tabela}`, {
-                                                            required: !!field.obrigatorio
-                                                        })}
-                                                        onChange={(event, newValue) => {
-                                                            setValue(`header.${field.tabela}`, newValue ? newValue : '')
-                                                            field.tabela == 'registroestabelecimento'
-                                                                ? setWatchRegistroEstabelecimento(
-                                                                      watch('header.registroestabelecimento')
-                                                                  )
-                                                                : null
-                                                        }}
-                                                        renderInput={params => (
-                                                            <TextField
-                                                                {...params}
-                                                                label={field.nomeCampo}
-                                                                placeholder={field.nomeCampo}
-                                                                error={errors?.header?.[field.tabela] ? true : false}
-                                                            />
-                                                        )}
-                                                    />
-                                                )}
-
-                                                {/* Date */}
-                                                {field && field.tipo == 'date' && (
-                                                    <TextField
-                                                        type='date'
-                                                        label='Data da Avaliação'
-                                                        disabled={!canEdit.status}
-                                                        defaultValue={
-                                                            data?.[field.nomeColuna]
-                                                                ? new Date(data?.[field.nomeColuna])
-                                                                      .toISOString()
-                                                                      .split('T')[0]
-                                                                : ''
-                                                        }
-                                                        name={`header.${field.nomeColuna}`}
-                                                        aria-describedby='validation-schema-nome'
-                                                        error={
-                                                            errors?.header?.[field.nomeColuna]
-                                                                ? true
-                                                                : !dateStatus[field.nomeColuna]?.status
-                                                                ? true
-                                                                : false
-                                                        }
-                                                        {...register(`header.${field.nomeColuna}`, {
-                                                            required: field.obrigatorio && canEdit.status
-                                                        })}
-                                                        onChange={e => {
-                                                            setDateFormat(
-                                                                'dataPassado',
-                                                                field.nomeColuna,
-                                                                e.target.value,
-                                                                365
-                                                            )
-                                                            console.log('data onchange', dateStatus)
-                                                        }}
-                                                        variant='outlined'
-                                                        fullWidth
-                                                        InputLabelProps={{
-                                                            shrink: true
-                                                        }}
-                                                        inputProps={{
-                                                            min: dateStatus[field.nomeColuna]?.dataIni,
-                                                            max: dateStatus[field.nomeColuna]?.dataFim
-                                                        }}
-                                                    />
-                                                )}
-                                                {!dateStatus?.status && field && field.tipo == 'date' && (
-                                                    <Typography component='span' variant='caption' color='error'>
-                                                        {dateStatus?.[field.nomeColuna]?.message}
-                                                    </Typography>
-                                                )}
-
-                                                {/* Textfield */}
-                                                {/* Nº Registro, só mostra se registro do estabelecimento for MAPA ou ANVISA */}
-                                                {field &&
-                                                    field.tipo == 'string' &&
-                                                    (field.nomeColuna != 'numeroRegistro' ||
-                                                        watchRegistroEstabelecimento?.id > 1) && (
-                                                        <TextField
-                                                            defaultValue={data ? data[field.nomeColuna] : ''}
-                                                            label={field.nomeCampo}
-                                                            disabled={!canEdit.status}
-                                                            placeholder={field.nomeCampo}
-                                                            name={`header.${field.nomeColuna}`}
-                                                            aria-describedby='validation-schema-nome'
-                                                            error={errors?.header?.[field.nomeColuna] ? true : false}
-                                                            {...register(`header.${field.nomeColuna}`, {
-                                                                required: !!field.obrigatorio && canEdit.status
-                                                            })}
-                                                            // Validações
-                                                            onChange={e => {
-                                                                field.nomeColuna == 'cnpj'
-                                                                    ? (e.target.value = cnpjMask(e.target.value))
-                                                                    : field.nomeColuna == 'cep'
-                                                                    ? ((e.target.value = cepMask(e.target.value)),
-                                                                      getAddressByCep(e.target.value))
-                                                                    : field.nomeColuna == 'telefone'
-                                                                    ? (e.target.value = cellPhoneMask(e.target.value))
-                                                                    : field.nomeColuna == 'estado'
-                                                                    ? (e.target.value = ufMask(e.target.value))
-                                                                    : (e.target.value = e.target.value)
-                                                            }}
-                                                            // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
-                                                            inputProps={
-                                                                // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
-                                                                field.nomeColuna == 'cnpj'
-                                                                    ? { maxLength: 18 }
-                                                                    : field.nomeColuna == 'cep'
-                                                                    ? { maxLength: 9 }
-                                                                    : field.nomeColuna == 'telefone'
-                                                                    ? { maxLength: 15 }
-                                                                    : field.nomeColuna == 'estado'
-                                                                    ? { maxLength: 2 }
-                                                                    : {}
-                                                            }
-                                                        />
-                                                    )}
-                                            </FormControl>
-                                        </Grid>
-                                    ))}
-                            </Grid>
+                            <Fields
+                                register={register}
+                                errors={errors}
+                                setValue={setValue}
+                                watch={watch}
+                                fields={fieldsState}
+                                values={data}
+                            />
 
                             {/* Categorias, Atividades e Sistemas de Qualidade */}
                             <Grid container spacing={4}>
                                 {/* Categorias */}
                                 <Grid item xs={12} md={4}>
-                                    <ListItem disablePadding>
-                                        <ListItemButton>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Categorias
-                                            </Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                    {categorias &&
-                                        categorias.map((categoria, indexCategoria) => (
-                                            <ListItem key={indexCategoria} disablePadding>
-                                                <ListItemButton>
-                                                    <input
-                                                        type='hidden'
-                                                        name={`categorias.[${indexCategoria}].categoriaID`}
-                                                        defaultValue={categoria.categoriaID}
-                                                        {...register(`categorias.[${indexCategoria}].categoriaID`)}
-                                                    />
-
-                                                    <FormControlLabel
-                                                        control={
-                                                            <Checkbox
-                                                                name={`categorias[${indexCategoria}].checked`}
-                                                                disabled={!canEdit.status}
-                                                                {...register(`categorias[${indexCategoria}].checked`)}
-                                                                defaultChecked={categoria.checked == 1 ? true : false}
-                                                                onClick={event =>
-                                                                    changeCategory(
-                                                                        categoria.categoriaID,
-                                                                        event.target.checked
-                                                                    )
-                                                                }
-                                                            />
-                                                        }
-                                                        label={categoria.nome}
-                                                    />
-                                                </ListItemButton>
-                                            </ListItem>
-                                        ))}
+                                    <CheckList
+                                        title='Categorias'
+                                        values={categorias}
+                                        name='categorias'
+                                        changeCategory={changeCategory}
+                                        register={register}
+                                    />
                                 </Grid>
 
                                 {/* Atividades */}
                                 <Grid item xs={12} md={4}>
-                                    <ListItem disablePadding>
-                                        <ListItemButton>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Atividades
-                                            </Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                    {atividades &&
-                                        atividades.map((atividade, indexAtividade) => (
-                                            <ListItem key={indexAtividade} disablePadding>
-                                                <ListItemButton>
-                                                    <input
-                                                        type='hidden'
-                                                        name={`atividades.[${indexAtividade}].atividadeID`}
-                                                        defaultValue={atividade.atividadeID}
-                                                        {...register(`atividades.[${indexAtividade}].atividadeID`)}
-                                                    />
-
-                                                    <FormControlLabel
-                                                        control={
-                                                            <Checkbox
-                                                                name={`atividades[${indexAtividade}].checked`}
-                                                                disabled={!canEdit.status}
-                                                                {...register(`atividades[${indexAtividade}].checked`)}
-                                                                defaultChecked={atividade.checked == 1 ? true : false}
-                                                            />
-                                                        }
-                                                        label={atividade.nome}
-                                                    />
-                                                </ListItemButton>
-                                            </ListItem>
-                                        ))}
+                                    <CheckList
+                                        title='Atividades'
+                                        values={atividades}
+                                        name='atividades'
+                                        register={register}
+                                    />
                                 </Grid>
 
                                 {/* Sistemas de Qualidade */}
                                 <Grid item xs={12} md={4}>
-                                    <ListItem disablePadding>
-                                        <ListItemButton>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Sistemas de Qualidade
-                                            </Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                    {sistemasQualidade &&
-                                        sistemasQualidade.map((sistemaQualidade, indexSistemaQualidade) => (
-                                            <ListItem key={indexSistemaQualidade} disablePadding>
-                                                <ListItemButton>
-                                                    <input
-                                                        type='hidden'
-                                                        name={`sistemasQualidade.[${indexSistemaQualidade}].sistemaQualidadeID`}
-                                                        defaultValue={sistemaQualidade.sistemaQualidadeID}
-                                                        {...register(
-                                                            `sistemasQualidade.[${indexSistemaQualidade}].sistemaQualidadeID`
-                                                        )}
-                                                    />
-                                                    <FormControlLabel
-                                                        control={
-                                                            <Checkbox
-                                                                name={`sistemasQualidade[${indexSistemaQualidade}].checked`}
-                                                                disabled={!canEdit.status}
-                                                                {...register(
-                                                                    `sistemasQualidade[${indexSistemaQualidade}].checked`
-                                                                )}
-                                                                defaultChecked={
-                                                                    sistemaQualidade.checked == 1 ? true : false
-                                                                }
-                                                            />
-                                                        }
-                                                        label={sistemaQualidade.nome}
-                                                    />
-                                                </ListItemButton>
-                                            </ListItem>
-                                        ))}
+                                    <CheckList
+                                        title='Sistema de Qualidade'
+                                        values={sistemasQualidade}
+                                        name='sistemasQualidade'
+                                        register={register}
+                                    />
                                 </Grid>
                             </Grid>
                         </CardContent>
@@ -762,218 +595,15 @@ const FormFornecedor = () => {
                     {/* Blocos */}
                     {blocks &&
                         blocks.map((bloco, indexBloco) => (
-                            <Card key={indexBloco} sx={{ mt: 4 }}>
-                                <CardContent>
-                                    <Grid container>
-                                        {/* Hidden do parFornecedorBlocoID */}
-                                        <input
-                                            type='hidden'
-                                            name={`blocos[${indexBloco}].parFornecedorBlocoID`}
-                                            defaultValue={bloco.parFornecedorBlocoID}
-                                            {...register(`blocos[${indexBloco}].parFornecedorBlocoID`)}
-                                        />
-
-                                        <Grid item xs={12} md={12}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                {bloco.nome}
-                                            </Typography>
-                                        </Grid>
-
-                                        {/* Itens */}
-                                        {bloco.itens &&
-                                            bloco.itens.map((item, indexItem) => (
-                                                <>
-                                                    <Grid key={indexItem} container spacing={4} sx={{ mb: 4 }}>
-                                                        {/* Hidden do itemID */}
-                                                        <input
-                                                            type='hidden'
-                                                            name={`blocos[${indexBloco}].itens[${indexItem}].itemID`}
-                                                            defaultValue={item.itemID}
-                                                            {...register(
-                                                                `blocos[${indexBloco}].itens[${indexItem}].itemID`
-                                                            )}
-                                                        />
-
-                                                        {/* Descrição do item */}
-                                                        <Grid
-                                                            item
-                                                            xs={12}
-                                                            md={6}
-                                                            sx={{
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                gap: '10px'
-                                                            }}
-                                                        >
-                                                            {/* Icone do item preenchido */}
-                                                            <Box>
-                                                                <Icon
-                                                                    icon={
-                                                                        isAnswered(indexBloco, indexItem)
-                                                                            ? 'line-md:confirm-circle-twotone'
-                                                                            : 'line-md:confirm-circle'
-                                                                    }
-                                                                    style={{
-                                                                        color: isAnswered(indexBloco, indexItem)
-                                                                            ? 'green'
-                                                                            : 'gray',
-                                                                        marginTop: '8px'
-                                                                    }}
-                                                                />
-                                                            </Box>
-
-                                                            <Box>{item.ordem + ' - ' + item.nome}</Box>
-                                                        </Grid>
-
-                                                        {/* Alternativas de respostas */}
-                                                        <Grid item xs={12} md={3}>
-                                                            {/* Tipo de alternativa  */}
-                                                            <input
-                                                                type='hidden'
-                                                                name={`blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`}
-                                                                defaultValue={item.alternativa}
-                                                                {...register(
-                                                                    `blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`
-                                                                )}
-                                                            />
-
-                                                            <FormControl fullWidth>
-                                                                {/* +1 que umaopção pra selecionar (Select) */}
-                                                                {item.alternativas && item.alternativas.length > 1 && (
-                                                                    <Autocomplete
-                                                                        options={item.alternativas}
-                                                                        getOptionLabel={option => option.nome}
-                                                                        defaultValue={
-                                                                            item.resposta ? item.resposta : { nome: '' }
-                                                                        }
-                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                        {...register(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`
-                                                                        )}
-                                                                        onChange={(event, newValue) => {
-                                                                            console.log('🚀 ~ newValue:', newValue)
-                                                                            setValue(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                newValue
-                                                                                    ? {
-                                                                                          id: newValue.alternativaID,
-                                                                                          nome: newValue.nome
-                                                                                      }
-                                                                                    : null
-                                                                            )
-                                                                        }}
-                                                                        renderInput={params => (
-                                                                            <TextField
-                                                                                {...params}
-                                                                                label='Selecione uma resposta'
-                                                                                placeholder='Selecione uma resposta'
-                                                                                // Se uma opções for selecionada, pintar a borda do autocomplete de verde
-                                                                                error={
-                                                                                    errors?.blocos?.[indexBloco]?.itens[
-                                                                                        indexItem
-                                                                                    ]?.resposta
-                                                                                        ? true
-                                                                                        : false
-                                                                                }
-                                                                            />
-                                                                        )}
-                                                                    />
-                                                                )}
-
-                                                                {/* Data */}
-                                                                {item.alternativas.length == 0 &&
-                                                                    item.alternativa == 'Data' && (
-                                                                        <LocalizationProvider
-                                                                            dateAdapter={AdapterDayjs}
-                                                                        >
-                                                                            <DatePicker
-                                                                                label='Selecione uma data'
-                                                                                disabled={!canEdit.status}
-                                                                                locale={dayjs.locale('pt-br')}
-                                                                                format='DD/MM/YYYY'
-                                                                                defaultValue={dayjs(new Date())}
-                                                                                name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                                {...register(
-                                                                                    `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                    {
-                                                                                        required:
-                                                                                            item.obrigatorio == 1
-                                                                                                ? true
-                                                                                                : false
-                                                                                    }
-                                                                                )}
-                                                                                onChange={value => {
-                                                                                    setValue(
-                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                        value ? value : null
-                                                                                    )
-                                                                                }}
-                                                                                renderInput={params => (
-                                                                                    <TextField
-                                                                                        {...params}
-                                                                                        variant='outlined'
-                                                                                        error={
-                                                                                            errors?.blocos?.[indexBloco]
-                                                                                                ?.itens[indexItem]
-                                                                                                ?.resposta
-                                                                                                ? true
-                                                                                                : false
-                                                                                        }
-                                                                                    />
-                                                                                )}
-                                                                                required={true}
-                                                                            />
-                                                                        </LocalizationProvider>
-                                                                    )}
-
-                                                                {/* Dissertativa */}
-                                                                {item.alternativas.length == 0 &&
-                                                                    item.alternativa == 'Dissertativa' && (
-                                                                        <TextField
-                                                                            multiline
-                                                                            label='Descreva a resposta'
-                                                                            disabled={!canEdit.status}
-                                                                            placeholder='Descreva a resposta'
-                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                            defaultValue={item.resposta ?? ''}
-                                                                            {...register(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
-                                                                            )}
-                                                                            error={
-                                                                                errors?.blocos?.[indexBloco]?.itens[
-                                                                                    indexItem
-                                                                                ]?.resposta
-                                                                                    ? true
-                                                                                    : false
-                                                                            }
-                                                                        />
-                                                                    )}
-                                                            </FormControl>
-                                                        </Grid>
-
-                                                        {/* Obs */}
-                                                        {item && item.obs == 1 && (
-                                                            <Grid item xs={12} md={3}>
-                                                                <FormControl fullWidth>
-                                                                    <TextField
-                                                                        label='Observação'
-                                                                        placeholder='Observação'
-                                                                        disabled={!canEdit.status}
-                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].observacao`}
-                                                                        defaultValue={item.observacao ?? ''}
-                                                                        {...register(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].observacao`
-                                                                        )}
-                                                                    />
-                                                                </FormControl>
-                                                            </Grid>
-                                                        )}
-                                                    </Grid>
-                                                </>
-                                            ))}
-                                    </Grid>
-                                </CardContent>
-                            </Card>
+                            <Block
+                                key={indexBloco}
+                                index={indexBloco}
+                                blockKey={`parFornecedorBlocoID`}
+                                values={bloco}
+                                register={register}
+                                setValue={setValue}
+                                errors={errors}
+                            />
                         ))}
 
                     {/* Observação do formulário */}
@@ -1000,66 +630,26 @@ const FormFornecedor = () => {
                             </Grid>
                         </CardContent>
                     </Card>
-
-                    {/* Status que a fábrica irá setar (aprovado, aprovado parcial ou reprovado) */}
-                    {user && user.papelID == 1 && info.status >= 40 && (
-                        <Card sx={{ mt: 4 }}>
-                            <CardContent>
-                                <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
-                                    Status do Formulário
-                                </Typography>
-                                {/* Mensagem que não pode mais alterar pq já foi usado */}
-                                {hasFormPending && (
-                                    <Alert severity='warning' sx={{ mb: 4 }}>
-                                        O Status não pode mais ser alterado pois já está sendo utilizado em outro
-                                        formulário!
-                                    </Alert>
-                                )}
-                                <Box display='flex' gap={8}>
-                                    <RadioGroup
-                                        row
-                                        aria-label='colored'
-                                        name='colored'
-                                        value={info.status}
-                                        onChange={handleChangeFormStatus}
-                                    >
-                                        <FormControlLabel
-                                            value={70}
-                                            disabled={hasFormPending}
-                                            name={`status`}
-                                            {...register(`status`)}
-                                            onChange={() => setStatusEdit(true)}
-                                            control={<Radio color='success' />}
-                                            label='Aprovado'
-                                        />
-                                        <FormControlLabel
-                                            value={60}
-                                            disabled={hasFormPending}
-                                            name={`status`}
-                                            {...register(`status`)}
-                                            onChange={() => setStatusEdit(true)}
-                                            label='Aprovado parcial'
-                                            control={<Radio color='warning' />}
-                                        />
-                                        <FormControlLabel
-                                            value={50}
-                                            disabled={hasFormPending}
-                                            name={`status`}
-                                            {...register(`status`)}
-                                            onChange={() => setStatusEdit(true)}
-                                            label='Reprovado'
-                                            control={<Radio color='error' />}
-                                        />
-                                    </RadioGroup>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    )}
                 </form>
             ) : null}
 
             {/* Dialog de confirmação de envio */}
-            <DialogForm
+            {/* Dialog de confirmação de envio */}
+            <DialogFormConclusion
+                openModal={openModal}
+                handleClose={() => {
+                    setOpenModal(false), setValidateForm(false)
+                }}
+                title='Concluir Formulário'
+                text={`Deseja realmente concluir este formulário?`}
+                info={info}
+                btnCancel
+                btnConfirm
+                btnConfirmColor='primary'
+                conclusionForm={conclusionForm}
+                listErrors={listErrors}
+            />
+            {/* <DialogForm
                 openModal={openModal}
                 handleClose={() => setOpenModal(false)}
                 title='Concluir e Enviar Formulário'
@@ -1068,22 +658,23 @@ const FormFornecedor = () => {
                 btnConfirm
                 btnConfirmColor='primary'
                 handleSubmit={conclusionAndSendForm}
-            />
+            /> */}
 
             {/* Dialog pra alterar status do formulário (se formulário estiver concluído e fábrica queira reabrir pro preenchimento do fornecedor) */}
             {openModalStatus && (
-                <DialogChangeFormStatus
+                <DialogFormStatus
                     id={id}
                     parFormularioID={1} // Fornecedor
                     formStatus={info.status}
                     hasFormPending={hasFormPending}
+                    canChangeStatus={user.papelID == 1 && !hasFormPending && info.status > 30}
                     openModal={openModalStatus}
                     handleClose={() => setOpenModalStatus(false)}
                     title='Histórico do Formulário'
                     text={`Listagem do histórico das movimentações do formulário ${id} do Fornecedor.`}
                     btnCancel
                     btnConfirm
-                    handleSubmit={reOpenFormStatus}
+                    handleSubmit={changeFormStatus}
                 />
             )}
         </>

@@ -14,12 +14,12 @@ const FormHeader = ({
     btnCancel,
     btnSave,
     btnSend,
-    btnChangeStatus,
+    btnStatus,
     handleSubmit,
     disabledSubmit,
     handleSend,
     disabledSend,
-    handleChangeStatus,
+    handleBtnStatus,
     btnDelete,
     onclickDelete,
     btnPrint,
@@ -150,10 +150,10 @@ const FormHeader = ({
                         </Button>
                     )}
 
-                    {btnChangeStatus && (
+                    {btnStatus && (
                         <Button
                             type='button'
-                            onClick={handleChangeStatus}
+                            onClick={handleBtnStatus}
                             variant='outlined'
                             color='primary'
                             size='medium'
