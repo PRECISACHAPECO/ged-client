@@ -6,6 +6,8 @@ import Icon from 'src/@core/components/icon'
 
 //* Default Form Components
 import Fields from 'src/components/Defaults/Formularios/Fields'
+import Block from 'src/components/Defaults/Formularios/Block'
+import DialogFormStatus from '../Defaults/Dialogs/DialogFormStatus'
 
 import {
     Autocomplete,
@@ -54,6 +56,7 @@ const FormRecebimentoMp = () => {
     const [savingForm, setSavingForm] = useState(false)
     const [validateForm, setValidateForm] = useState(false) //? Se true, valida campos obrigatórios
 
+    const [openModalStatus, setOpenModalStatus] = useState(false)
     const [fieldsState, setFields] = useState([])
     const [data, setData] = useState(null)
     const [fieldProducts, setFieldsProducts] = useState([])
@@ -100,6 +103,28 @@ const FormRecebimentoMp = () => {
                     toast.error('Endereço não encontrado!')
                 }
             })
+        }
+    }
+
+    //* Reabre o formulário pro fornecedor alterar novamente se ainda nao estiver vinculado com recebimento
+    const changeFormStatus = async status => {
+        const data = {
+            status: status,
+            auth: {
+                usuarioID: user.usuarioID,
+                papelID: user.papelID,
+                unidadeID: loggedUnity.unidadeID
+            }
+        }
+
+        try {
+            setSavingForm(true)
+            await api.post(`${staticUrl}/changeFormStatus/${id}`, data).then(response => {
+                toast.success(toastMessage.successUpdate)
+                setSavingForm(false)
+            })
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -292,13 +317,10 @@ const FormRecebimentoMp = () => {
     }
 
     const conclusionForm = async values => {
+        values['conclusion'] = true
         console.log('🚀 ~ conclusionForm: ', values)
 
-        await handleSubmit(onSubmit)({
-            conclusion: true,
-            status: values.status,
-            obsConclusao: values.obsConclusao
-        })
+        // await handleSubmit(onSubmit)(values)
     }
 
     const onSubmit = async (data, param = false) => {
@@ -370,19 +392,27 @@ const FormRecebimentoMp = () => {
                             dataReports={dataReports}
                             handleSubmit={() => handleSubmit(onSubmit)}
                             handleSend={handleSendForm}
-                            title='Fornecedor'
+                            title='Recebimento MP'
+                            btnStatus
+                            handleBtnStatus={() => setOpenModalStatus(true)}
                         />
 
                         {/* Header */}
                         <CardContent>
-                            <Fields fields={fieldsState} values={data} />
+                            <Fields
+                                register={register}
+                                errors={errors}
+                                setValue={setValue}
+                                fields={fieldsState}
+                                values={data}
+                            />
                         </CardContent>
                     </Card>
 
                     {/* Produtos */}
                     <Card sx={{ mt: 4 }}>
                         <CardContent>
-                            <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 5 }}>
+                            <Typography color='primary' variant='subtitle1' sx={{ fontWeight: 700, mb: 5 }}>
                                 PRODUTOS
                             </Typography>
                             {fieldProducts &&
@@ -540,201 +570,16 @@ const FormRecebimentoMp = () => {
 
                     {/* Blocos */}
                     {blocos &&
-                        blocos.map((bloco, indexBloco) => (
-                            <Card key={indexBloco} sx={{ mt: 4 }}>
-                                <CardContent>
-                                    <Grid container>
-                                        {/* Hidden do parRecebimentompBlocoID */}
-                                        <input
-                                            type='hidden'
-                                            name={`blocos[${indexBloco}].parRecebimentompBlocoID`}
-                                            defaultValue={bloco.parRecebimentompBlocoID}
-                                            {...register(`blocos[${indexBloco}].parRecebimentompBlocoID`)}
-                                        />
-
-                                        <Grid item xs={12} md={12}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                {bloco.nome}
-                                            </Typography>
-                                        </Grid>
-
-                                        {/* Itens */}
-                                        {bloco.itens &&
-                                            bloco.itens.map((item, indexItem) => (
-                                                <>
-                                                    <Grid key={indexItem} container spacing={4} sx={{ mb: 4 }}>
-                                                        {/* Hidden do itemID */}
-                                                        <input
-                                                            type='hidden'
-                                                            name={`blocos[${indexBloco}].itens[${indexItem}].itemID`}
-                                                            defaultValue={item.itemID}
-                                                            {...register(
-                                                                `blocos[${indexBloco}].itens[${indexItem}].itemID`
-                                                            )}
-                                                        />
-
-                                                        {/* Descrição do item */}
-                                                        <Grid
-                                                            item
-                                                            xs={12}
-                                                            md={6}
-                                                            sx={{
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                gap: '10px'
-                                                            }}
-                                                        >
-                                                            <Box>
-                                                                <Icon
-                                                                    icon={'line-md:circle-to-confirm-circle-transition'}
-                                                                    style={{
-                                                                        color: item.resposta ? 'green' : 'grey',
-                                                                        fontSize: '20px'
-                                                                    }}
-                                                                />
-                                                            </Box>
-                                                            <Box>{item.ordem + ' - ' + item.nome}</Box>
-                                                        </Grid>
-
-                                                        {/* Alternativas de respostas */}
-                                                        <Grid item xs={12} md={3}>
-                                                            {/* Tipo de alternativa  */}
-                                                            <input
-                                                                type='hidden'
-                                                                name={`blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`}
-                                                                defaultValue={item.alternativa}
-                                                                {...register(
-                                                                    `blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`
-                                                                )}
-                                                            />
-
-                                                            <FormControl fullWidth>
-                                                                {/* +1 opção pra selecionar (Select) */}
-                                                                {item &&
-                                                                    item.alternativas &&
-                                                                    item.alternativas.length > 1 && (
-                                                                        <Autocomplete
-                                                                            options={item.alternativas}
-                                                                            getOptionLabel={option => option.nome}
-                                                                            defaultValue={
-                                                                                item.resposta
-                                                                                    ? item.resposta
-                                                                                    : { nome: '' }
-                                                                            }
-                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                            {...register(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
-                                                                            )}
-                                                                            onChange={(event, newValue) => {
-                                                                                console.log('🚀 ~ newValue:', newValue)
-                                                                                setValue(
-                                                                                    `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                    newValue
-                                                                                        ? {
-                                                                                              id: newValue.alternativaID,
-                                                                                              nome: newValue.nome
-                                                                                          }
-                                                                                        : null
-                                                                                )
-                                                                            }}
-                                                                            renderInput={params => (
-                                                                                <TextField
-                                                                                    {...params}
-                                                                                    label='Selecione uma resposta'
-                                                                                    placeholder='Selecione uma resposta'
-                                                                                    // Se uma opções for selecionada, pintar a borda do autocomplete de verde
-                                                                                    error={
-                                                                                        errors?.blocos?.[indexBloco]
-                                                                                            ?.itens[indexItem]?.resposta
-                                                                                            ? true
-                                                                                            : false
-                                                                                    }
-                                                                                />
-                                                                            )}
-                                                                        />
-                                                                    )}
-
-                                                                {/* Data */}
-                                                                {item.alternativas.length == 0 &&
-                                                                    item.alternativa == 'Data' && (
-                                                                        <LocalizationProvider
-                                                                            dateAdapter={AdapterDayjs}
-                                                                        >
-                                                                            <DatePicker
-                                                                                label='Selecione uma data'
-                                                                                locale={dayjs.locale('pt-br')}
-                                                                                format='DD/MM/YYYY'
-                                                                                defaultValue={
-                                                                                    item.resposta
-                                                                                        ? dayjs(new Date(item.resposta))
-                                                                                        : ''
-                                                                                }
-                                                                                onChange={newValue => {
-                                                                                    setValue(
-                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`,
-                                                                                        newValue ? newValue : ''
-                                                                                    )
-                                                                                }}
-                                                                                renderInput={params => (
-                                                                                    <TextField
-                                                                                        {...params}
-                                                                                        variant='outlined'
-                                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                                        {...register(
-                                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`
-                                                                                        )}
-                                                                                    />
-                                                                                )}
-                                                                            />
-                                                                        </LocalizationProvider>
-                                                                    )}
-
-                                                                {/* Dissertativa */}
-                                                                {item.alternativas.length == 0 &&
-                                                                    item.alternativa == 'Dissertativa' && (
-                                                                        <TextField
-                                                                            multiline
-                                                                            label='Descreva a resposta'
-                                                                            placeholder='Descreva a resposta'
-                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
-                                                                            defaultValue={item.resposta ?? ''}
-                                                                            {...register(
-                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
-                                                                            )}
-                                                                            error={
-                                                                                errors?.blocos?.[indexBloco]?.itens[
-                                                                                    indexItem
-                                                                                ]?.resposta
-                                                                                    ? true
-                                                                                    : false
-                                                                            }
-                                                                        />
-                                                                    )}
-                                                            </FormControl>
-                                                        </Grid>
-
-                                                        {/* Obs */}
-                                                        {item && item.obs == 1 && (
-                                                            <Grid item xs={12} md={3}>
-                                                                <FormControl fullWidth>
-                                                                    <TextField
-                                                                        label='Observação'
-                                                                        placeholder='Observação'
-                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].observacao`}
-                                                                        defaultValue={item.observacao ?? ''}
-                                                                        {...register(
-                                                                            `blocos[${indexBloco}].itens[${indexItem}].observacao`
-                                                                        )}
-                                                                    />
-                                                                </FormControl>
-                                                            </Grid>
-                                                        )}
-                                                    </Grid>
-                                                </>
-                                            ))}
-                                    </Grid>
-                                </CardContent>
-                            </Card>
+                        blocos.map((bloco, index) => (
+                            <Block
+                                key={index}
+                                index={index}
+                                blockKey={`parRecebimentompBlocoID`}
+                                values={bloco}
+                                register={register}
+                                setValue={setValue}
+                                errors={errors}
+                            />
                         ))}
 
                     {/* Observação do formulário */}
@@ -763,6 +608,24 @@ const FormRecebimentoMp = () => {
                                 </CardContent>
                             </Card>
                         </>
+                    )}
+
+                    {/* Dialog pra alterar status do formulário (se formulário estiver concluído e fábrica queira reabrir pro preenchimento do fornecedor) */}
+                    {openModalStatus && (
+                        <DialogFormStatus
+                            id={id}
+                            parFormularioID={1} // Fornecedor
+                            formStatus={info.status}
+                            hasFormPending={false} // hasFormPending
+                            canChangeStatus={info.status > 30}
+                            openModal={openModalStatus}
+                            handleClose={() => setOpenModalStatus(false)}
+                            title='Histórico do Formulário'
+                            text={`Listagem do histórico das movimentações do formulário ${id} do Fornecedor.`}
+                            btnCancel
+                            btnConfirm
+                            handleSubmit={changeFormStatus}
+                        />
                     )}
 
                     {/* Dialog de confirmação de envio */}

@@ -38,7 +38,7 @@ const Timeline = styled(MuiTimeline)({
     }
 })
 
-const DialogChangeFormStatus = ({
+const DialogFormStatus = ({
     id,
     parFormularioID,
     formStatus,
@@ -50,6 +50,7 @@ const DialogChangeFormStatus = ({
     handleSubmit,
     btnCancel,
     btnConfirm,
+    canChangeStatus,
     btnConfirmColor
 }) => {
     const [historic, setHistoric] = useState(false)
@@ -72,7 +73,7 @@ const DialogChangeFormStatus = ({
 
     let arrStatus = []
     for (let key in statusDefault) {
-        if (parseInt(key) >= 10 && parseInt(key) <= 30 && parseInt(key) != formStatus) {
+        if (parseInt(key) == 30 && parseInt(key) != formStatus) {
             arrStatus.push({
                 id: parseInt(key),
                 nome: statusDefault[key].title
@@ -93,7 +94,7 @@ const DialogChangeFormStatus = ({
                     <DialogContentText sx={{ mb: 3 }}>{text}</DialogContentText>
 
                     {/* Altera status do formulário */}
-                    {user && user.papelID == 1 && !hasFormPending && formStatus > 30 && (
+                    {canChangeStatus && (
                         <Box>
                             <FormControl fullWidth>
                                 <Autocomplete
@@ -116,6 +117,7 @@ const DialogChangeFormStatus = ({
                             </FormControl>
                         </Box>
                     )}
+
                     {/* Mensagem que não pode mais alterar pq já foi usado */}
                     {user && user.papelID == 1 && hasFormPending && (
                         <Alert severity='warning' sx={{ mb: 4 }}>
@@ -125,7 +127,6 @@ const DialogChangeFormStatus = ({
 
                     {/* Lista timeline do histórico de movimentações do formulário */}
                     <Box>
-                        {/* {JSON.stringify(historic)} */}
                         <Timeline>
                             {historic &&
                                 historic.length > 0 &&
@@ -198,7 +199,7 @@ const DialogChangeFormStatus = ({
                             Fechar
                         </Button>
                     )}
-                    {btnConfirm && user && user.papelID == 1 && !hasFormPending && (
+                    {btnConfirm && user && user.papelID == 1 && !hasFormPending && canChangeStatus && (
                         <Button
                             variant='contained'
                             color='primary'
@@ -228,4 +229,4 @@ const DialogChangeFormStatus = ({
     )
 }
 
-export default DialogChangeFormStatus
+export default DialogFormStatus

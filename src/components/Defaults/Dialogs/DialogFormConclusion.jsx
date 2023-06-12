@@ -4,6 +4,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
+import { AuthContext } from 'src/context/AuthContext'
 import Icon from 'src/@core/components/icon'
 import {
     Alert,
@@ -19,8 +20,11 @@ import {
     TextField,
     Typography
 } from '@mui/material'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { validationEmail } from '../../../configs/validations'
+
+//* Default Form Components
+import Result from 'src/components/Defaults/Formularios/Result'
 
 const DialogFormConclusion = ({
     title,
@@ -28,15 +32,15 @@ const DialogFormConclusion = ({
     handleClose,
     openModal,
     conclusionForm,
-
     info,
     btnCancel,
     btnConfirm,
     listErrors
 }) => {
-    const [status, setStatus] = useState(null)
-    const [obsConclusao, setObsConclusao] = useState('')
+    const { user, loggedUnity } = useContext(AuthContext)
+    const [result, setResult] = useState({})
 
+    console.log('🚀 ~ papelID:', user.papelID)
     console.log('🚀 ~ openModal:', openModal)
     return (
         <>
@@ -51,6 +55,7 @@ const DialogFormConclusion = ({
                 }}
             >
                 <DialogTitle id='form-dialog-title'>{title}</DialogTitle>
+
                 <DialogContent>
                     <DialogContentText sx={{ mb: 3 }}>
                         {text}
@@ -73,82 +78,30 @@ const DialogFormConclusion = ({
                             </Alert>
                         )}
 
-                        <Card sx={{ mt: 2 }}>
-                            <CardContent>
-                                <Grid container spacing={2}>
-                                    {/* Resultado */}
-                                    <Grid item xs={12} md={12}>
-                                        <FormControl fullWidth>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
-                                                Resultado do Processo
-                                            </Typography>
-
-                                            <Box display='flex' gap={8}>
-                                                <RadioGroup
-                                                    row
-                                                    aria-label='colored'
-                                                    name='colored'
-                                                    value={status}
-                                                    onChange={(e, value) => {
-                                                        setStatus(value)
-                                                    }}
-                                                >
-                                                    <FormControlLabel
-                                                        value={70}
-                                                        name={`status`}
-                                                        control={<Radio color='success' />}
-                                                        label='Aprovado'
-                                                    />
-                                                    <FormControlLabel
-                                                        value={60}
-                                                        name={`status`}
-                                                        label='Aprovado parcial'
-                                                        control={<Radio color='warning' />}
-                                                    />
-                                                    <FormControlLabel
-                                                        value={50}
-                                                        name={`status`}
-                                                        label='Reprovado'
-                                                        control={<Radio color='error' />}
-                                                    />
-                                                </RadioGroup>
-                                            </Box>
-                                        </FormControl>
-                                    </Grid>
-
-                                    {/* Gerar não conformidade */}
-                                    {status && (status == 50 || status == 60) && (
-                                        <Grid item xs={12} md={12}>
-                                            <FormControlLabel
-                                                label='Gerar não conformidade'
-                                                control={
-                                                    <Checkbox
-                                                        checked={status == 50 ? true : false}
-                                                        name='basic-checked'
-                                                    />
-                                                }
-                                            />
-                                        </Grid>
-                                    )}
-
-                                    {/* Obs de conclusão */}
-                                    <Grid item xs={12} md={12} sx={{ mt: 2 }}>
-                                        <FormControl fullWidth>
-                                            <TextField
-                                                label='Observação de conclusão (opcional)'
-                                                placeholder='Observação de conclusão (opcional)'
-                                                defaultValue={obsConclusao}
-                                                multiline
-                                                rows={4}
-                                                onChange={(e, value) => {
-                                                    setObsConclusao(e.target.value)
-                                                }}
-                                            />
-                                        </FormControl>
-                                    </Grid>
-                                </Grid>
-                            </CardContent>
-                        </Card>
+                        <Result
+                            title={user.papelID == 1 ? 'Resultado do Processo' : 'Observação'}
+                            name={'status'}
+                            value={result}
+                            setResult={setResult}
+                            papelID={user.papelID}
+                            options={[
+                                {
+                                    value: 70,
+                                    color: 'success',
+                                    label: 'Aprovado'
+                                },
+                                {
+                                    value: 60,
+                                    color: 'warning',
+                                    label: 'Aprovado Parcial'
+                                },
+                                {
+                                    value: 50,
+                                    color: 'error',
+                                    label: 'Reprovado'
+                                }
+                            ]}
+                        />
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions className='dialog-actions-dense'>
@@ -160,14 +113,10 @@ const DialogFormConclusion = ({
                     {btnConfirm && (
                         <Button
                             variant='contained'
-                            disabled={(listErrors && listErrors.status) || !status}
+                            disabled={(listErrors && listErrors.status) || (user.papelID == 1 && !result.status)}
                             color='primary'
                             onClick={() => {
-                                handleClose(),
-                                    conclusionForm({
-                                        status,
-                                        obsConclusao
-                                    })
+                                handleClose(), conclusionForm(result)
                             }}
                         >
                             Concluir Formulário
