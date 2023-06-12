@@ -12,6 +12,9 @@ const ListHeader = ({ btnNew, btnPrint, openModal }) => {
     const router = Router
     const { routes } = useContext(AuthContext)
 
+    console.log('rota banco', routes[10])
+    console.log('rota navbegador', router.pathname)
+
     return (
         <>
             <CardContent sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center', p: '0', m: '0' }}>
