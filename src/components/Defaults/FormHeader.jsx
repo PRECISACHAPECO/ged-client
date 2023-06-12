@@ -185,7 +185,7 @@ const FormHeader = ({
                     )}
                     {/* Imprimir com +1 opção (dropdown) */}
                     {btnPrint && dataReports.length > 1 && (
-                        <>
+                        <Box>
                             <Button
                                 id='fade-button'
                                 aria-controls={open ? 'fade-menu' : undefined}
@@ -197,6 +197,7 @@ const FormHeader = ({
                                 variant='outlined'
                                 size='medium'
                                 type='button'
+                                sx={{ mr: 0 }}
                                 startIcon={<Icon icon='material-symbols:print' />}
                             >
                                 Imprimir
@@ -209,7 +210,7 @@ const FormHeader = ({
                                 open={open}
                                 anchorEl={anchorEl}
                             />
-                        </>
+                        </Box>
                     )}
 
                     {btnSave && routes.find(route => route.rota === dynamicRoute && route.editar) && (
@@ -235,7 +236,6 @@ const FormHeader = ({
                             size='medium'
                             color='primary'
                             disabled={disabled || disabledSend}
-                            sx={{ ml: 2 }}
                             startIcon={<Icon icon='carbon:send-filled' />}
                         >
                             Concluir Formulário

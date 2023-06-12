@@ -1,6 +1,6 @@
 import { Autocomplete, Card, CardContent, FormControl, Grid, TextField, Typography } from '@mui/material'
 
-const Item = ({ blockIndex, index, values, register, errors, setValue }) => {
+const Item = ({ blockIndex, index, values, register, errors, setValue, isDisabled }) => {
     return (
         <Grid index={index} container spacing={4} sx={{ mb: 4 }}>
             {/* Hidden do itemID */}
@@ -33,6 +33,7 @@ const Item = ({ blockIndex, index, values, register, errors, setValue }) => {
                             options={values.alternativas}
                             getOptionLabel={option => option.nome}
                             defaultValue={values.resposta ? values.resposta : { nome: '' }}
+                            disabled={isDisabled ? true : false}
                             name={`blocos[${blockIndex}].itens[${index}].resposta`}
                             {...register(`blocos[${blockIndex}].itens[${index}].resposta`)}
                             onChange={(event, newValue) => {
@@ -61,41 +62,42 @@ const Item = ({ blockIndex, index, values, register, errors, setValue }) => {
 
                     {/* Data */}
                     {/* {item.alternativas.length == 0 && item.alternativa == 'Data' && (
-                                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                                <DatePicker
-                                                                    label='Selecione uma data'
-                                                                    locale={dayjs.locale('pt-br')}
-                                                                    format='DD/MM/YYYY'
-                                                                    defaultValue={
-                                                                        item.resposta
-                                                                            ? dayjs(new Date(item.resposta))
-                                                                            : ''
-                                                                    }
-                                                                    onChange={newValue => {
-                                                                        setValue(
-                                                                            `blocos[${blockIndex}].itens[${index}].resposta`,
-                                                                            newValue ? newValue : ''
-                                                                        )
-                                                                    }}
-                                                                    renderInput={params => (
-                                                                        <TextField
-                                                                            {...params}
-                                                                            variant='outlined'
-                                                                            name={`blocos[${blockIndex}].itens[${index}].resposta`}
-                                                                            {...register(
-                                                                                `blocos[${blockIndex}].itens[${index}].resposta`
-                                                                            )}
-                                                                        />
-                                                                    )}
-                                                                />
-                                                            </LocalizationProvider>
-                                                        )} */}
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                                label='Selecione uma data'
+                                locale={dayjs.locale('pt-br')}
+                                format='DD/MM/YYYY'
+                                defaultValue={
+                                    item.resposta
+                                        ? dayjs(new Date(item.resposta))
+                                        : ''
+                                }
+                                onChange={newValue => {
+                                    setValue(
+                                        `blocos[${blockIndex}].itens[${index}].resposta`,
+                                        newValue ? newValue : ''
+                                    )
+                                }}
+                                renderInput={params => (
+                                    <TextField
+                                        {...params}
+                                        variant='outlined'
+                                        name={`blocos[${blockIndex}].itens[${index}].resposta`}
+                                        {...register(
+                                            `blocos[${blockIndex}].itens[${index}].resposta`
+                                        )}
+                                    />
+                                )}
+                            />
+                        </LocalizationProvider>
+                    )} */}
 
                     {/* Dissertativa */}
                     {values.alternativas.length == 0 && values.alternativa == 'Dissertativa' && (
                         <TextField
                             multiline
                             label='Descreva a resposta'
+                            disabled={isDisabled ? true : false}
                             placeholder='Descreva a resposta'
                             name={`blocos[${blockIndex}].itens[${index}].resposta`}
                             defaultValue={values.resposta ?? ''}
@@ -112,6 +114,7 @@ const Item = ({ blockIndex, index, values, register, errors, setValue }) => {
                     <FormControl fullWidth>
                         <TextField
                             label='Observação'
+                            disabled={isDisabled ? true : false}
                             placeholder='Observação'
                             name={`blocos[${blockIndex}].itens[${index}].observacao`}
                             defaultValue={values.observacao ?? ''}

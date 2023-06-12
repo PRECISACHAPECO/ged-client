@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { dateConfig } from 'src/configs/defaultConfigs'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 
-const Fields = ({ register, errors, setValue, fields, values }) => {
+const Fields = ({ register, errors, setValue, fields, values, isDisabled }) => {
     const [dateStatus, setDateStatus] = useState({})
     const [watchRegistroEstabelecimento, setWatchRegistroEstabelecimento] = useState(null)
 
@@ -52,6 +52,7 @@ const Fields = ({ register, errors, setValue, fields, values }) => {
                                         getOptionSelected={(option, value) => option.id === value.id}
                                         defaultValue={values?.[field.tabela]?.id ? values?.[field.tabela] : null}
                                         getOptionLabel={option => option.nome}
+                                        disabled={isDisabled ? true : false}
                                         name={`header.${field.tabela}`}
                                         {...register(`header.${field.tabela}`)}
                                         onChange={(event, newValue) => {
@@ -77,7 +78,7 @@ const Fields = ({ register, errors, setValue, fields, values }) => {
                                         <TextField
                                             type='date'
                                             label='Data da Avaliação'
-                                            // disabled={!canEdit.status}
+                                            disabled={isDisabled ? true : false}
                                             defaultValue={
                                                 values?.[field.nomeColuna]
                                                     ? new Date(values?.[field.nomeColuna]).toISOString().split('T')[0]
@@ -125,6 +126,7 @@ const Fields = ({ register, errors, setValue, fields, values }) => {
                                             defaultValue={values?.[field.nomeColuna] ?? ''}
                                             label={field.nomeCampo}
                                             placeholder={field.nomeCampo}
+                                            disabled={isDisabled ? true : false}
                                             name={`header.${field.nomeColuna}`}
                                             aria-describedby='validation-schema-nome'
                                             error={errors?.header?.[field.nomeColuna] ? true : false}

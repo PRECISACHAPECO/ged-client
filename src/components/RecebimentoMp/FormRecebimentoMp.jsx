@@ -6,10 +6,15 @@ import Icon from 'src/@core/components/icon'
 
 //* Default Form Components
 import Fields from 'src/components/Defaults/Formularios/Fields'
+import Product from 'src/components/Defaults/Formularios/Product'
 import Block from 'src/components/Defaults/Formularios/Block'
 import DialogFormStatus from '../Defaults/Dialogs/DialogFormStatus'
 
+// ** Custom Components
+import CustomChip from 'src/@core/components/mui/chip'
+
 import {
+    Alert,
     Autocomplete,
     Box,
     Button,
@@ -28,14 +33,13 @@ import {
     Typography
 } from '@mui/material'
 import Router from 'next/router'
-import { backRoute } from 'src/configs/defaultConfigs'
+import { backRoute, toastMessage, formType, statusDefault, dateConfig } from 'src/configs/defaultConfigs'
 import { generateReport } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
 import Loading from 'src/components/Loading'
-import { formType, toastMessage } from 'src/configs/defaultConfigs'
 import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
@@ -55,6 +59,8 @@ const FormRecebimentoMp = () => {
     const [isLoading, setLoading] = useState(false)
     const [savingForm, setSavingForm] = useState(false)
     const [validateForm, setValidateForm] = useState(false) //? Se true, valida campos obrigatórios
+    const [hasFormPending, setHasFormPending] = useState(true) //? Tem pendencia no formulário (já vinculado em formulário de recebimento, não altera mais o status)
+    const [status, setStatus] = useState(null)
 
     const [openModalStatus, setOpenModalStatus] = useState(false)
     const [fieldsState, setFields] = useState([])
@@ -66,6 +72,12 @@ const FormRecebimentoMp = () => {
     const [info, setInfo] = useState('')
     const [openModal, setOpenModal] = useState(false)
     const [listErrors, setListErrors] = useState({ status: false, errors: [] })
+
+    const [canEdit, setCanEdit] = useState({
+        status: false,
+        message: 'Você não tem permissões',
+        messageType: 'info'
+    })
 
     const router = Router
     const { id } = router.query
@@ -169,6 +181,17 @@ const FormRecebimentoMp = () => {
         }
     ]
 
+    const verifyFormPending = async () => {
+        try {
+            const parFormularioID = 2
+            await api.post(`${staticUrl}/verifyFormPending/${id}`, { parFormularioID }).then(response => {
+                setHasFormPending(response.data) //! true/false
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const getData = () => {
         setLoading(true)
         api.post(`${staticUrl}/getData/${id}`, { type: type, unidadeID: loggedUnity.unidadeID }).then(response => {
@@ -180,9 +203,19 @@ const FormRecebimentoMp = () => {
             setDataProducts(response.data.dataProducts)
             setBlocos(response.data.blocos)
             setInfo(response.data.info)
-
             initializeValues(response.data)
 
+            let objStatus = statusDefault[response.data.info.status]
+            setStatus(objStatus)
+
+            setCanEdit({
+                status: response.data.info.status < 40 ? true : false,
+                message:
+                    'Esse formulário já foi concluído! Para alterá-lo é necessário atualizar seu Status para "Em preenchimento" através do botão "Status"!',
+                messageType: 'info'
+            })
+
+            verifyFormPending()
             setLoading(false)
         })
     }
@@ -320,42 +353,46 @@ const FormRecebimentoMp = () => {
         values['conclusion'] = true
         console.log('🚀 ~ conclusionForm: ', values)
 
-        // await handleSubmit(onSubmit)(values)
+        await handleSubmit(onSubmit)(values)
     }
 
-    const onSubmit = async (data, param = false) => {
+    const onSubmit = async (values, param = false) => {
         if (param.conclusion === true && param.status > 10) {
-            console.log('🚀 ~ param.status:', param.status)
-            data['status'] = param.status
-            data['obsConclusao'] = param.obsConclusao
+            values['status'] = param.status
+            values['obsConclusao'] = param.obsConclusao
+        }
+
+        const data = {
+            forms: {
+                ...values,
+                header: {
+                    ...values.header
+                },
+                produtos: [...values.produtos],
+                removedProducts: removedProducts
+            },
+            auth: {
+                usuarioID: user.usuarioID,
+                papelID: user.papelID,
+                unidadeID: loggedUnity.unidadeID
+            }
         }
 
         console.log('onSubmit: ', data)
         try {
             setSavingForm(true)
             if (type == 'edit') {
-                await api
-                    .put(`${staticUrl}/${id}`, {
-                        data: data,
-                        removedProducts: removedProducts,
-                        unidadeID: loggedUnity.unidadeID
-                    })
-                    .then(response => {
-                        toast.success(toastMessage.successUpdate)
-                        setSavingForm(false)
-                    })
+                await api.put(`${staticUrl}/${id}`, data).then(response => {
+                    toast.success(toastMessage.successUpdate)
+                    setSavingForm(false)
+                })
             } else if (type == 'new') {
-                await api
-                    .post(`${staticUrl}/insertData`, {
-                        data: data,
-                        unidadeID: loggedUnity.unidadeID
-                    })
-                    .then(response => {
-                        const newId = response.data
-                        router.push(`${staticUrl}/${newId}`)
-                        toast.success(toastMessage.successNew)
-                        setSavingForm(false)
-                    })
+                await api.post(`${staticUrl}/insertData`, data).then(response => {
+                    const newId = response.data
+                    router.push(`${staticUrl}/${newId}`)
+                    toast.success(toastMessage.successNew)
+                    setSavingForm(false)
+                })
             } else {
                 toast.error(toastMessage.error)
                 setSavingForm(false)
@@ -381,11 +418,18 @@ const FormRecebimentoMp = () => {
                 <Loading />
             ) : (
                 <form onSubmit={handleSubmit(onSubmit)}>
+                    {/* Mensagem */}
+                    {!canEdit.status && (
+                        <Alert severity={canEdit.messageType} sx={{ mb: 2 }}>
+                            {canEdit.message}
+                        </Alert>
+                    )}
+
                     {/* Card Header */}
                     <Card>
                         <FormHeader
                             btnCancel
-                            btnSave
+                            btnSave={info.status < 40}
                             btnSend
                             btnPrint
                             generateReport={generateReport}
@@ -399,12 +443,26 @@ const FormRecebimentoMp = () => {
 
                         {/* Header */}
                         <CardContent>
+                            {/* Status */}
+                            <Box sx={{ mb: 4 }}>
+                                <Box display='flex' alignItems='center' justifyContent='flex-end'>
+                                    <CustomChip
+                                        size='small'
+                                        skin='light'
+                                        color={status?.color}
+                                        label={status?.title}
+                                        sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
+                                    />
+                                </Box>
+                            </Box>
+
                             <Fields
                                 register={register}
                                 errors={errors}
                                 setValue={setValue}
                                 fields={fieldsState}
                                 values={data}
+                                isDisabled={!canEdit.status}
                             />
                         </CardContent>
                     </Card>
@@ -420,135 +478,19 @@ const FormRecebimentoMp = () => {
                                 dataProducts.map((data, indexData) => (
                                     <Grid container spacing={4} key={indexData} sx={{ mb: 3 }}>
                                         {fieldProducts.map((field, indexField) => (
-                                            <Grid item xs={12} md={12 / fieldProducts.length} key={indexField}>
-                                                {/* Enviar hidden de recebimentompProdutoID */}
-                                                <input
-                                                    type='hidden'
-                                                    name={`produtos[${indexData}].recebimentompProdutoID`}
-                                                    defaultValue={data?.recebimentompProdutoID}
-                                                    {...register(`produtos[${indexData}].recebimentompProdutoID`)}
+                                            <>
+                                                <Product
+                                                    field={field}
+                                                    data={data}
+                                                    indexData={indexData}
+                                                    indexField={indexField}
+                                                    numFields={fieldProducts.length}
+                                                    removeProduct={removeProduct}
+                                                    register={register}
+                                                    setValue={setValue}
+                                                    errors={errors}
                                                 />
-
-                                                {/* int (select) */}
-                                                {field && field.tipo === 'int' && field.tabela && (
-                                                    <FormControl fullWidth>
-                                                        <Autocomplete
-                                                            key={indexData} // Adicione a prop key com uma combinação única
-                                                            options={field.options}
-                                                            value={data?.[field.tabela]}
-                                                            getOptionLabel={option => option.nome}
-                                                            name={`produtos[${indexData}].${field.tabela}`}
-                                                            {...register(`produtos[${indexData}].${field.tabela}`)}
-                                                            onChange={(event, newValue) => {
-                                                                setValue(
-                                                                    `produtos[${indexData}].${field.tabela}`,
-                                                                    newValue ? newValue : null
-                                                                )
-                                                            }}
-                                                            renderInput={params => (
-                                                                <TextField
-                                                                    {...params}
-                                                                    label={field.nomeCampo}
-                                                                    placeholder={field.nomeCampo}
-                                                                    error={
-                                                                        errors?.produtos?.[indexData]?.[field.tabela]
-                                                                            ? true
-                                                                            : false
-                                                                    }
-                                                                />
-                                                            )}
-                                                        />
-                                                    </FormControl>
-                                                )}
-
-                                                {/* Textfield */}
-                                                {field && field.tipo === 'string' && (
-                                                    <Box display='flex'>
-                                                        <Box flexBasis='80%'>
-                                                            <FormControl fullWidth>
-                                                                <TextField
-                                                                    defaultValue={data?.[field.nomeColuna]}
-                                                                    label={field.nomeCampo}
-                                                                    placeholder={field.nomeCampo}
-                                                                    name={`produtos[${indexData}].${field.nomeColuna}`}
-                                                                    aria-describedby='validation-schema-nome'
-                                                                    error={
-                                                                        errors?.produtos?.[indexData]?.[
-                                                                            field.nomeColuna
-                                                                        ]
-                                                                            ? true
-                                                                            : false
-                                                                    }
-                                                                    {...register(
-                                                                        `produtos[${indexData}].${field.nomeColuna}`
-                                                                    )}
-                                                                    // Validações
-                                                                    onChange={e => {
-                                                                        field.nomeColuna === 'cnpj'
-                                                                            ? (e.target.value = cnpjMask(
-                                                                                  e.target.value
-                                                                              ))
-                                                                            : field.nomeColuna === 'cep'
-                                                                            ? ((e.target.value = cepMask(
-                                                                                  e.target.value
-                                                                              )),
-                                                                              getAddressByCep(e.target.value))
-                                                                            : field.nomeColuna === 'telefone'
-                                                                            ? (e.target.value = cellPhoneMask(
-                                                                                  e.target.value
-                                                                              ))
-                                                                            : field.nomeColuna === 'estado'
-                                                                            ? (e.target.value = ufMask(e.target.value))
-                                                                            : (e.target.value = e.target.value)
-                                                                    }}
-                                                                    // inputProps com maxLength 18 se field.nomeColuna === 'cnpj'
-                                                                    inputProps={
-                                                                        // inputProps validando maxLength para cnpj, cep e telefone baseado no field.nomeColuna
-                                                                        field.nomeColuna === 'cnpj'
-                                                                            ? { maxLength: 18 }
-                                                                            : field.nomeColuna === 'cep'
-                                                                            ? { maxLength: 9 }
-                                                                            : field.nomeColuna === 'telefone'
-                                                                            ? { maxLength: 15 }
-                                                                            : field.nomeColuna === 'estado'
-                                                                            ? { maxLength: 2 }
-                                                                            : {}
-                                                                    }
-                                                                />
-                                                            </FormControl>
-                                                        </Box>
-
-                                                        {/* Botão Delete (insere botão na última coluna da linha) */}
-                                                        {indexField == fieldProducts.length - 1 && (
-                                                            <Box flexBasis='20%' textAlign='center'>
-                                                                <Tooltip
-                                                                    title={
-                                                                        2 == 1
-                                                                            ? `Este item não pode mais ser removido pois já foi respondido em um formulário`
-                                                                            : `Remover este item`
-                                                                    }
-                                                                >
-                                                                    <IconButton
-                                                                        color='error'
-                                                                        onClick={() => {
-                                                                            2 === 1
-                                                                                ? null
-                                                                                : removeProduct(data, indexData)
-                                                                        }}
-                                                                        sx={{
-                                                                            marginTop: 2,
-                                                                            opacity: 2 === 1 ? 0.5 : 1,
-                                                                            cursor: 2 === 1 ? 'default' : 'pointer'
-                                                                        }}
-                                                                    >
-                                                                        <Icon icon='tabler:trash-filled' />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            </Box>
-                                                        )}
-                                                    </Box>
-                                                )}
-                                            </Grid>
+                                            </>
                                         ))}
                                     </Grid>
                                 ))}
@@ -579,6 +521,7 @@ const FormRecebimentoMp = () => {
                                 register={register}
                                 setValue={setValue}
                                 errors={errors}
+                                isDisabled={!canEdit.status}
                             />
                         ))}
 
@@ -597,6 +540,7 @@ const FormRecebimentoMp = () => {
                                                     multiline
                                                     rows={4}
                                                     label='Observação (opcional)'
+                                                    disabled={!canEdit.status}
                                                     placeholder='Observação (opcional)'
                                                     defaultValue={info.obs ?? ''}
                                                     name='obs'
@@ -614,14 +558,14 @@ const FormRecebimentoMp = () => {
                     {openModalStatus && (
                         <DialogFormStatus
                             id={id}
-                            parFormularioID={1} // Fornecedor
+                            parFormularioID={2} // Recebimento MP
                             formStatus={info.status}
-                            hasFormPending={false} // hasFormPending
-                            canChangeStatus={info.status > 30}
+                            hasFormPending={hasFormPending}
+                            canChangeStatus={info.status > 30 && !hasFormPending}
                             openModal={openModalStatus}
                             handleClose={() => setOpenModalStatus(false)}
                             title='Histórico do Formulário'
-                            text={`Listagem do histórico das movimentações do formulário ${id} do Fornecedor.`}
+                            text={`Listagem do histórico das movimentações do formulário ${id} de Recebimento de MP.`}
                             btnCancel
                             btnConfirm
                             handleSubmit={changeFormStatus}

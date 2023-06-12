@@ -1,7 +1,7 @@
 import { Autocomplete, Card, CardContent, FormControl, Grid, TextField, Typography } from '@mui/material'
 import Item from 'src/components/Defaults/Formularios/Item'
 
-const Block = ({ index, values, blockKey, register, setValue, errors }) => {
+const Block = ({ index, values, blockKey, register, setValue, errors, isDisabled }) => {
     return (
         <>
             <Card key={index} sx={{ mt: 4 }}>
@@ -31,6 +31,7 @@ const Block = ({ index, values, blockKey, register, setValue, errors }) => {
                                     register={register}
                                     setValue={setValue}
                                     errors={errors}
+                                    isDisabled={isDisabled}
                                 />
                             ))}
                     </Grid>
