@@ -203,7 +203,9 @@ const DialogFormStatus = ({
                         <Button
                             variant='contained'
                             color='primary'
-                            onClick={() => setOpenModalConfirm(true)}
+                            onClick={() =>
+                                parFormularioID == 1 ? setOpenModalConfirm(true) : handleSubmit(selectedStatus)
+                            }
                             disabled={!selectedStatus}
                         >
                             Confirmar

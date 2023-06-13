@@ -107,7 +107,7 @@ const FormFornecedor = () => {
         formState: { errors }
     } = useForm()
 
-    console.log('blocos ativos: ', blocks)
+    console.log('canEdit: ', canEdit)
 
     const initializeValues = values => {
         // Seta itens no formulário
@@ -486,8 +486,12 @@ const FormFornecedor = () => {
                     <Card>
                         <FormHeader
                             btnCancel
-                            btnSave
-                            btnSend
+                            btnSave={user.papelID == 2 && info.status < 40}
+                            btnSend={
+                                (user.papelID == 1 && info.status >= 40) || (user.papelID == 2 && info.status < 40)
+                            }
+                            disabledSend={blocks.length === 0 ? true : false}
+                            disabledSubmit={blocks.length === 0 ? true : false}
                             btnPrint
                             generateReport={generateReport}
                             dataReports={dataReports}
@@ -497,19 +501,6 @@ const FormFornecedor = () => {
                             btnStatus
                             handleBtnStatus={() => setOpenModalStatus(true)}
                         />
-
-                        {/* <FormHeader
-                            btnCancel
-                            btnSave={canEdit.status || (user.papelID == 1 && info.status >= 40)}
-                            btnSend={user.papelID == 2 && info.status < 40 ? true : false}
-                            btnPrint
-                            dataReports={dataReports}
-                            handleSubmit={e => handleSubmit(onSubmit)}
-                            disabledSubmit={blocks.length === 0 ? true : false}
-                            disabledSend={blocks.length === 0 ? true : false}
-                            handleSend={handleSendForm}
-                            title='Fornecedor'
-                        /> */}
 
                         <CardContent>
                             {unidade && (
@@ -554,6 +545,7 @@ const FormFornecedor = () => {
                                 watch={watch}
                                 fields={fieldsState}
                                 values={data}
+                                isDisabled={!canEdit.status}
                             />
 
                             {/* Categorias, Atividades e Sistemas de Qualidade */}
@@ -566,6 +558,7 @@ const FormFornecedor = () => {
                                         name='categorias'
                                         changeCategory={changeCategory}
                                         register={register}
+                                        isDisabled={!canEdit.status}
                                     />
                                 </Grid>
 
@@ -576,6 +569,7 @@ const FormFornecedor = () => {
                                         values={atividades}
                                         name='atividades'
                                         register={register}
+                                        isDisabled={!canEdit.status}
                                     />
                                 </Grid>
 
@@ -586,6 +580,7 @@ const FormFornecedor = () => {
                                         values={sistemasQualidade}
                                         name='sistemasQualidade'
                                         register={register}
+                                        isDisabled={!canEdit.status}
                                     />
                                 </Grid>
                             </Grid>
@@ -603,6 +598,7 @@ const FormFornecedor = () => {
                                 register={register}
                                 setValue={setValue}
                                 errors={errors}
+                                isDisabled={!canEdit.status}
                             />
                         ))}
 
@@ -633,7 +629,6 @@ const FormFornecedor = () => {
                 </form>
             ) : null}
 
-            {/* Dialog de confirmação de envio */}
             {/* Dialog de confirmação de envio */}
             <DialogFormConclusion
                 openModal={openModal}
