@@ -1,6 +1,34 @@
+import { useEffect, useState } from 'react'
 import { Autocomplete, Card, CardContent, FormControl, Grid, TextField, Typography } from '@mui/material'
+import { dateConfig } from 'src/configs/defaultConfigs'
+
+//* Custom inputs
+import Input from 'src/components/Form/Input'
+import Select from 'src/components/Form/Select'
+import DateField from 'src/components/Form/DateField'
 
 const Item = ({ blockIndex, index, values, register, errors, setValue, isDisabled }) => {
+    console.log('🚀 ~ values:', values)
+    const [dateStatus, setDateStatus] = useState({})
+
+    const setDateFormat = (type, name, value, numDays) => {
+        console.log('🚀 ~ type, name, value, numDays:', type, name, value, numDays)
+        const newDate = new Date(value)
+        const status = dateConfig(type, newDate, numDays)
+        console.log('status', status)
+        setDateStatus(prevState => ({
+            ...prevState,
+            [name]: status
+        }))
+    }
+
+    //? Se for tipo Data, inicializa os campos já com as validações de data, bloqueando datas anteriores ou posteriores
+    useEffect(() => {
+        if (values.alternativa === 'Data') {
+            setDateFormat('dataPassado', null, values.resposta, 365)
+        }
+    }, [])
+
     return (
         <Grid index={index} container spacing={4} sx={{ mb: 4 }}>
             {/* Hidden do itemID */}
@@ -29,80 +57,46 @@ const Item = ({ blockIndex, index, values, register, errors, setValue, isDisable
                 <FormControl fullWidth>
                     {/* +1 opção pra selecionar (Select) */}
                     {values && values.alternativas && values.alternativas.length > 1 && (
-                        <Autocomplete
+                        <Select
+                            title='Selecione uma resposta'
                             options={values.alternativas}
-                            getOptionLabel={option => option.nome}
-                            defaultValue={values.resposta ? values.resposta : { nome: '' }}
-                            disabled={isDisabled ? true : false}
                             name={`blocos[${blockIndex}].itens[${index}].resposta`}
-                            {...register(`blocos[${blockIndex}].itens[${index}].resposta`)}
-                            onChange={(event, newValue) => {
-                                console.log('🚀 ~ newValue:', newValue)
-                                setValue(
-                                    `blocos[${blockIndex}].itens[${index}].resposta`,
-                                    newValue
-                                        ? {
-                                              id: newValue.alternativaID,
-                                              nome: newValue.nome
-                                          }
-                                        : null
-                                )
-                            }}
-                            renderInput={params => (
-                                <TextField
-                                    {...params}
-                                    label='Selecione uma resposta'
-                                    placeholder='Selecione uma resposta'
-                                    // Se uma opções for selecionada, pintar a borda do autocomplete de verde
-                                    error={errors?.blocos?.[blockIndex]?.itens[index]?.resposta ? true : false}
-                                />
-                            )}
+                            idName={'alternativaID'}
+                            value={values.resposta}
+                            isDisabled={isDisabled}
+                            register={register}
+                            setValue={setValue}
+                            errors={errors?.blocos?.[blockIndex]?.itens[index]?.resposta}
                         />
                     )}
 
                     {/* Data */}
-                    {/* {item.alternativas.length == 0 && item.alternativa == 'Data' && (
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                                label='Selecione uma data'
-                                locale={dayjs.locale('pt-br')}
-                                format='DD/MM/YYYY'
-                                defaultValue={
-                                    item.resposta
-                                        ? dayjs(new Date(item.resposta))
-                                        : ''
-                                }
-                                onChange={newValue => {
-                                    setValue(
-                                        `blocos[${blockIndex}].itens[${index}].resposta`,
-                                        newValue ? newValue : ''
-                                    )
-                                }}
-                                renderInput={params => (
-                                    <TextField
-                                        {...params}
-                                        variant='outlined'
-                                        name={`blocos[${blockIndex}].itens[${index}].resposta`}
-                                        {...register(
-                                            `blocos[${blockIndex}].itens[${index}].resposta`
-                                        )}
-                                    />
-                                )}
-                            />
-                        </LocalizationProvider>
-                    )} */}
+                    {values.alternativas.length == 0 && values.alternativa == 'Data' && (
+                        <DateField
+                            title='Data da avaliação'
+                            isDisabled={isDisabled}
+                            value={values.resposta}
+                            type={null}
+                            name={`blocos[${blockIndex}].itens[${index}].resposta`}
+                            errors={errors?.blocos?.[blockIndex]?.itens[index]?.resposta}
+                            setDateFormat={setDateFormat}
+                            typeValidation='dataPassado'
+                            daysValidation={365}
+                            dateStatus={dateStatus}
+                            register={register}
+                        />
+                    )}
 
                     {/* Dissertativa */}
                     {values.alternativas.length == 0 && values.alternativa == 'Dissertativa' && (
-                        <TextField
-                            multiline
-                            label='Descreva a resposta'
-                            disabled={isDisabled ? true : false}
-                            placeholder='Descreva a resposta'
+                        <Input
+                            title='Descreva a resposta'
                             name={`blocos[${blockIndex}].itens[${index}].resposta`}
-                            defaultValue={values.resposta ?? ''}
-                            {...register(`blocos[${blockIndex}].itens[${index}].resposta`)}
-                            error={errors?.blocos?.[blockIndex]?.itens[index]?.resposta ? true : false}
+                            value={values.resposta}
+                            multiline
+                            isDisabled={isDisabled}
+                            register={register}
+                            errors={errors?.blocos?.[blockIndex]?.itens[index]?.resposta}
                         />
                     )}
                 </FormControl>
@@ -112,13 +106,13 @@ const Item = ({ blockIndex, index, values, register, errors, setValue, isDisable
             {values && values.obs == 1 && (
                 <Grid item xs={12} md={3}>
                     <FormControl fullWidth>
-                        <TextField
-                            label='Observação'
-                            disabled={isDisabled ? true : false}
-                            placeholder='Observação'
+                        <Input
+                            title='Observação'
                             name={`blocos[${blockIndex}].itens[${index}].observacao`}
-                            defaultValue={values.observacao ?? ''}
-                            {...register(`blocos[${blockIndex}].itens[${index}].observacao`)}
+                            value={values.observacao}
+                            multiline
+                            isDisabled={isDisabled}
+                            register={register}
                         />
                     </FormControl>
                 </Grid>

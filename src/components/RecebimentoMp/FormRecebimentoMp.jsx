@@ -260,6 +260,7 @@ const FormRecebimentoMp = () => {
         values.dataProducts.map((data, indexData) => {
             values.fieldsProducts.map((field, indexFields) => {
                 if (field.tipo == 'int') {
+                    console.log('🚀 ~ data?.[field.tabela]:', data?.[field.tabela])
                     setValue(
                         `produtos[${indexData}].${field.tabela}`,
                         data?.[field.tabela] ? data?.[field.tabela] : null
@@ -304,9 +305,11 @@ const FormRecebimentoMp = () => {
         })
 
         //? Produtos
-        dataProducts.forEach((data, index) => {
-            fieldProducts.forEach((field, index) => {
-                const fieldName = `produtos[${index}].${field.tabela}`
+        dataProducts.forEach((data, indexData) => {
+            fieldProducts.forEach((field, indexField) => {
+                const fieldName = field.tabela
+                    ? `produtos[${indexData}].${field.tabela}`
+                    : `produtos[${indexData}].${field.nomeColuna}`
                 const fieldValue = getValues(fieldName)
 
                 if (field.obrigatorio === 1 && !fieldValue) {
@@ -476,29 +479,60 @@ const FormRecebimentoMp = () => {
                             {fieldProducts &&
                                 dataProducts &&
                                 dataProducts.map((data, indexData) => (
-                                    <Grid container spacing={4} key={indexData} sx={{ mb: 3 }}>
+                                    <Box
+                                        display='flex'
+                                        justifyContent='space-between'
+                                        gap={4}
+                                        key={indexData}
+                                        sx={{ mb: 4 }}
+                                    >
+                                        {/* Monta as colunas dinâmicas dos produtos */}
                                         {fieldProducts.map((field, indexField) => (
-                                            <>
+                                            <Box flex={1} key={indexField}>
                                                 <Product
                                                     field={field}
                                                     data={data}
                                                     indexData={indexData}
-                                                    indexField={indexField}
-                                                    numFields={fieldProducts.length}
-                                                    removeProduct={removeProduct}
+                                                    isDisabled={!canEdit.status}
                                                     register={register}
                                                     setValue={setValue}
                                                     errors={errors}
                                                 />
-                                            </>
+                                            </Box>
                                         ))}
-                                    </Grid>
+                                        {/* Delete */}
+                                        <Box>
+                                            <Tooltip
+                                                title={
+                                                    2 == 1
+                                                        ? `Este item não pode mais ser removido pois já foi respondido em um formulário`
+                                                        : `Remover este item`
+                                                }
+                                            >
+                                                <IconButton
+                                                    color='error'
+                                                    disabled={!canEdit.status}
+                                                    onClick={() => {
+                                                        2 === 1 ? null : removeProduct(data, indexData)
+                                                    }}
+                                                    sx={{
+                                                        marginTop: 2,
+                                                        opacity: 2 === 1 ? 0.5 : 1,
+                                                        cursor: 2 === 1 ? 'default' : 'pointer'
+                                                    }}
+                                                >
+                                                    <Icon icon='tabler:trash-filled' />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Box>
+                                    </Box>
                                 ))}
 
                             {/* Botão de adicionar produto */}
                             <Button
                                 variant='outlined'
                                 color='primary'
+                                disabled={!canEdit.status}
                                 sx={{ mt: 1 }}
                                 startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
                                 onClick={() => {

@@ -3,6 +3,11 @@ import { useEffect, useState } from 'react'
 import { dateConfig } from 'src/configs/defaultConfigs'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 
+//* Custom inputs
+import Input from 'src/components/Form/Input'
+import Select from 'src/components/Form/Select'
+import DateField from 'src/components/Form/DateField'
+
 const Fields = ({ register, errors, setValue, fields, values, isDisabled }) => {
     const [dateStatus, setDateStatus] = useState({})
     const [watchRegistroEstabelecimento, setWatchRegistroEstabelecimento] = useState(null)
@@ -13,7 +18,7 @@ const Fields = ({ register, errors, setValue, fields, values, isDisabled }) => {
             if (field.tipo == 'int') {
                 setValue(`header.${field.tabela}`, values?.[field.tabela] ? values?.[field.tabela] : null)
             } else {
-                if (field.tipo == 'date' && field.nomeColuna == 'dataAvaliacao') {
+                if (field.tipo == 'date' /*&& field.nomeColuna == 'dataAvaliacao'*/) {
                     setDateFormat('dataPassado', field.nomeColuna, values[field.nomeColuna], 365)
                 } else {
                     setValue(`header.${field.nomeColuna}`, values?.[field.nomeColuna])
@@ -47,116 +52,50 @@ const Fields = ({ register, errors, setValue, fields, values, isDisabled }) => {
                             <FormControl fullWidth>
                                 {/* Autocomplete (int) */}
                                 {field && field.tipo === 'int' && field.tabela && (
-                                    <Autocomplete
+                                    <Select
+                                        title={field.nomeCampo}
                                         options={field.options}
-                                        getOptionSelected={(option, value) => option.id === value.id}
-                                        defaultValue={values?.[field.tabela]?.id ? values?.[field.tabela] : null}
-                                        getOptionLabel={option => option.nome}
-                                        disabled={isDisabled ? true : false}
                                         name={`header.${field.tabela}`}
-                                        {...register(`header.${field.tabela}`)}
-                                        onChange={(event, newValue) => {
-                                            setValue(`header.${field.tabela}`, newValue ? newValue : null)
-                                            field.tabela == 'registroestabelecimento'
-                                                ? setWatchRegistroEstabelecimento(newValue ? newValue.id : null)
-                                                : null
-                                        }}
-                                        renderInput={params => (
-                                            <TextField
-                                                {...params}
-                                                label={field.nomeCampo}
-                                                placeholder={field.nomeCampo}
-                                                error={errors?.header?.[field.tabela] ? true : false}
-                                            />
-                                        )}
+                                        value={values?.[field.tabela]}
+                                        type={field.tabela}
+                                        isDisabled={isDisabled}
+                                        register={register}
+                                        setValue={setValue}
+                                        errors={errors?.header?.[field.tabela]}
+                                        handleRegistroEstabelecimento={setWatchRegistroEstabelecimento}
                                     />
                                 )}
 
                                 {/* Date */}
                                 {field && field.tipo == 'date' && (
-                                    <>
-                                        <TextField
-                                            type='date'
-                                            label='Data da Avaliação'
-                                            disabled={isDisabled ? true : false}
-                                            defaultValue={
-                                                values?.[field.nomeColuna]
-                                                    ? new Date(values?.[field.nomeColuna]).toISOString().split('T')[0]
-                                                    : ''
-                                            }
-                                            name={`header.${field.nomeColuna}`}
-                                            aria-describedby='validation-schema-nome'
-                                            error={
-                                                errors?.header?.[field.nomeColuna]
-                                                    ? true
-                                                    : !dateStatus[field.nomeColuna]?.status
-                                                    ? true
-                                                    : false
-                                            }
-                                            {...register(`header.${field.nomeColuna}`, {
-                                                required: field.obrigatorio && canEdit.status
-                                            })}
-                                            onChange={e => {
-                                                setDateFormat('dataPassado', field.nomeColuna, e.target.value, 365)
-                                                console.log('data onchange', dateStatus)
-                                            }}
-                                            variant='outlined'
-                                            fullWidth
-                                            InputLabelProps={{
-                                                shrink: true
-                                            }}
-                                            inputProps={{
-                                                min: dateStatus[field.nomeColuna]?.dataIni,
-                                                max: dateStatus[field.nomeColuna]?.dataFim
-                                            }}
-                                        />
-                                        {!dateStatus?.status && field && field.tipo == 'date' && (
-                                            <Typography component='span' variant='caption' color='error'>
-                                                {dateStatus?.[field.nomeColuna]?.message}
-                                            </Typography>
-                                        )}
-                                    </>
+                                    <DateField
+                                        title='Data da avaliação'
+                                        isDisabled={isDisabled}
+                                        value={values?.[field.nomeColuna]}
+                                        type={field.nomeColuna}
+                                        name={`header.${field.nomeColuna}`}
+                                        isRequired={field.obrigatorio ? true : false}
+                                        errors={errors?.header?.[field.nomeColuna]}
+                                        setDateFormat={setDateFormat}
+                                        typeValidation='dataPassado'
+                                        daysValidation={365}
+                                        dateStatus={dateStatus}
+                                        register={register}
+                                    />
                                 )}
 
                                 {/* Textfield */}
                                 {field &&
                                     field.tipo == 'string' &&
                                     (field.nomeColuna != 'numeroRegistro' || watchRegistroEstabelecimento > 1) && (
-                                        <TextField
-                                            defaultValue={values?.[field.nomeColuna] ?? ''}
-                                            label={field.nomeCampo}
-                                            placeholder={field.nomeCampo}
-                                            disabled={isDisabled ? true : false}
+                                        <Input
+                                            title={field.nomeCampo}
                                             name={`header.${field.nomeColuna}`}
-                                            aria-describedby='validation-schema-nome'
-                                            error={errors?.header?.[field.nomeColuna] ? true : false}
-                                            {...register(`header.${field.nomeColuna}`)}
-                                            // Validações
-                                            onChange={e => {
-                                                field.nomeColuna == 'cnpj'
-                                                    ? (e.target.value = cnpjMask(e.target.value))
-                                                    : field.nomeColuna == 'cep'
-                                                    ? ((e.target.value = cepMask(e.target.value)),
-                                                      getAddressByCep(e.target.value))
-                                                    : field.nomeColuna == 'telefone'
-                                                    ? (e.target.value = cellPhoneMask(e.target.value))
-                                                    : field.nomeColuna == 'estado'
-                                                    ? (e.target.value = ufMask(e.target.value))
-                                                    : (e.target.value = e.target.value)
-                                            }}
-                                            // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
-                                            inputProps={
-                                                // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
-                                                field.nomeColuna == 'cnpj'
-                                                    ? { maxLength: 18 }
-                                                    : field.nomeColuna == 'cep'
-                                                    ? { maxLength: 9 }
-                                                    : field.nomeColuna == 'telefone'
-                                                    ? { maxLength: 15 }
-                                                    : field.nomeColuna == 'estado'
-                                                    ? { maxLength: 2 }
-                                                    : {}
-                                            }
+                                            value={values?.[field.nomeColuna]}
+                                            type={field.nomeColuna}
+                                            isDisabled={isDisabled}
+                                            register={register}
+                                            errors={errors?.header?.[field.nomeColuna]}
                                         />
                                     )}
                             </FormControl>
