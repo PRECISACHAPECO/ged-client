@@ -192,6 +192,20 @@ const FormRecebimentoMp = () => {
         }
     }
 
+    const getNewData = () => {
+        console.log('🚀 ~ getNewData')
+        try {
+            setLoading(true)
+            api.post(`${staticUrl}/getNewData`, { unidadeID: loggedUnity.unidadeID }).then(response => {
+                console.log('🚀 ~ response new data:', response.data)
+
+                setLoading(false)
+            })
+        } catch (error) {
+            console.log('🚀 ~ error:', error)
+        }
+    }
+
     const getData = () => {
         setLoading(true)
         api.post(`${staticUrl}/getData/${id}`, { type: type, unidadeID: loggedUnity.unidadeID }).then(response => {
@@ -382,33 +396,33 @@ const FormRecebimentoMp = () => {
         }
 
         console.log('onSubmit: ', data)
-        try {
-            setSavingForm(true)
-            if (type == 'edit') {
-                await api.put(`${staticUrl}/${id}`, data).then(response => {
-                    toast.success(toastMessage.successUpdate)
-                    setSavingForm(false)
-                })
-            } else if (type == 'new') {
-                await api.post(`${staticUrl}/insertData`, data).then(response => {
-                    const newId = response.data
-                    router.push(`${staticUrl}/${newId}`)
-                    toast.success(toastMessage.successNew)
-                    setSavingForm(false)
-                })
-            } else {
-                toast.error(toastMessage.error)
-                setSavingForm(false)
-            }
-        } catch (error) {
-            console.log(error)
-        }
+        // try {
+        //     setSavingForm(true)
+        //     if (type == 'edit') {
+        //         await api.put(`${staticUrl}/${id}`, data).then(response => {
+        //             toast.success(toastMessage.successUpdate)
+        //             setSavingForm(false)
+        //         })
+        //     } else if (type == 'new') {
+        //         await api.post(`${staticUrl}/insertData`, data).then(response => {
+        //             const newId = response.data
+        //             router.push(`${staticUrl}/${newId}`)
+        //             toast.success(toastMessage.successNew)
+        //             setSavingForm(false)
+        //         })
+        //     } else {
+        //         toast.error(toastMessage.error)
+        //         setSavingForm(false)
+        //     }
+        // } catch (error) {
+        //     console.log(error)
+        // }
     }
 
     useEffect(() => {
         console.log('useEffect 1')
         setTitle('Recebimento de MP')
-        getData()
+        type == 'new' ? getNewData() : getData()
     }, [savingForm])
 
     useEffect(() => {
