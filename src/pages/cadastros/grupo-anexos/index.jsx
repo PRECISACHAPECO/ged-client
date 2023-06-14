@@ -49,12 +49,6 @@ const GrupoAnexos = () => {
             size: 0.6
         },
         {
-            headerName: 'Formulário',
-            field: 'formulario',
-            size: 0.2
-        },
-
-        {
             headerName: 'Status',
             field: 'status',
             size: 0.1

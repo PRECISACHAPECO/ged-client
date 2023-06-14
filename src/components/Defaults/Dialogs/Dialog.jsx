@@ -27,8 +27,6 @@ const DialogForm = ({
     const [email, setEmail] = useState(null)
     const [errorEmail, setErrorEmail] = useState(false)
 
-    console.log('dialog email: ', email)
-
     return (
         <>
             <Dialog

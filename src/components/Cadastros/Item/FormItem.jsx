@@ -37,12 +37,18 @@ const FormItem = () => {
 
     const {
         control,
+        setValue,
         handleSubmit,
         formState: { errors },
         register
     } = useForm({})
 
-    console.log(errors)
+    //! Seta os valores iniciais dos campos
+    const initializeValues = values => {
+        setValue(`nome`, values?.value?.nome)
+        setValue(`formulario`, values?.tipoFormulario?.nome)
+        setValue(`status`, values?.value?.status)
+    }
 
     // Função que atualiza os dados ou cria novo dependendo do tipo da rota
     const onSubmit = async data => {
@@ -86,7 +92,9 @@ const FormItem = () => {
         api.get(`${staticUrl}/${id}`, {
             headers: { 'function-name': 'getData' }
         }).then(response => {
+            initializeValues(response.data)
             setData(response.data)
+            console.log('data', response.data)
         })
     }
 
