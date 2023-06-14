@@ -1,6 +1,7 @@
 import Router from 'next/router'
 import { useEffect, useState, useRef, useContext } from 'react'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { AuthContext } from 'src/context/AuthContext'
 import { api } from 'src/configs/api'
 import {
     Card,
@@ -9,7 +10,6 @@ import {
     FormControl,
     TextField,
     FormControlLabel,
-    Autocomplete,
     Checkbox,
     Typography,
     CardHeader,
@@ -37,6 +37,8 @@ const FormGrupoAnexos = () => {
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const inputRef = useRef(null)
     const { title } = useContext(ParametersContext)
+    const { loggedUnity } = useContext(AuthContext)
+    console.log('🚀 ~ loggedUnity:', loggedUnity)
 
     const {
         trigger,
@@ -52,7 +54,8 @@ const FormGrupoAnexos = () => {
     const onSubmit = async data => {
         const newData = {
             ...data,
-            removedItems
+            removedItems,
+            unidade: loggedUnity.unidadeID
         }
 
         try {
@@ -90,10 +93,9 @@ const FormGrupoAnexos = () => {
 
     //! Seta os valores iniciais dos campos
     const initializeValues = values => {
+        setValue(`status`, values.status == 1 ? true : false)
         setValue(`nome`, values.nome)
         setValue(`descricao`, values.descricao)
-        setValue(`formulario`, values.formulario)
-        setValue(`status`, values.status == 1 ? true : false)
         values.requisitos.map((item, index) => {
             setValue(`requisitos[${index}].nome`, item.nome)
             setValue(`requisitos[${index}].descricao`, item.descricao)
@@ -104,8 +106,9 @@ const FormGrupoAnexos = () => {
 
     //! Requisição ao banco de dados, para dados já existentes
     const getData = async () => {
-        api.get(`${staticUrl}/novo/getData/${id}`).then(response => {
+        api.get(`${staticUrl}/getData/${id}`).then(response => {
             initializeValues(response.data)
+            setData(response.data)
         })
     }
 
@@ -169,6 +172,8 @@ const FormGrupoAnexos = () => {
         trigger()
     }
 
+    console.log('dataaa', data)
+
     return (
         <>
             <Card>
@@ -183,7 +188,7 @@ const FormGrupoAnexos = () => {
                     />
                     <CardContent>
                         <Grid container spacing={3}>
-                            <Grid item xs={12} md={8}>
+                            <Grid item xs={12} md={11}>
                                 <FormControl fullWidth>
                                     <TextField
                                         label='Nome'
@@ -197,46 +202,27 @@ const FormGrupoAnexos = () => {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={12} md={3}>
-                                <FormControl fullWidth>
-                                    <Autocomplete
-                                        options={data?.formulario?.options}
-                                        getOptionSelected={(option, value) => option.id === value.id}
-                                        defaultValue={data?.formulario?.id ? data?.formulario : null}
-                                        getOptionLabel={option => option.nome}
-                                        name='formulario'
-                                        {...register('formulario')}
-                                        onChange={(event, newValue) => {
-                                            console.log('🚀 ~ newValue:', { newValue })
-                                            setValue(`formulario`, newValue ? newValue : null)
-                                        }}
-                                        renderInput={params => (
-                                            <TextField
-                                                {...params}
-                                                label='Formulário'
-                                                placeholder='Formulário'
-                                                error={errors?.formulario ? true : false}
-                                            />
-                                        )}
-                                    />
-                                </FormControl>
-                            </Grid>
 
-                            <Grid item xs={12} md={1}>
-                                <>
-                                    <Typography>Ativo</Typography>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                sx={{ ml: 4 }}
-                                                // defaultChecked={data?.status == 1 ? true : false}
-                                                name='status'
-                                                {...register('status')}
-                                            />
-                                        }
-                                    />
-                                </>
-                            </Grid>
+                            {data && (
+                                <Grid item xs={12} md={1}>
+                                    <>
+                                        <Typography>Ativo</Typography>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    sx={{ ml: 4 }}
+                                                    name='status'
+                                                    {...register('status')}
+                                                    defaultChecked={
+                                                        data?.status == 1 ? true : false | (type == 'new' && true)
+                                                    }
+                                                />
+                                            }
+                                        />
+                                    </>
+                                </Grid>
+                            )}
+
                             <Grid item xs={12} md={12}>
                                 <FormControl fullWidth>
                                     <TextField
@@ -245,9 +231,9 @@ const FormGrupoAnexos = () => {
                                         name='descricao'
                                         multiline
                                         rows={4}
-                                        {...register('descricao', { required: true })}
+                                        {...register('descricao')}
                                         defaultValue={data?.descricao ?? ''}
-                                        error={Boolean(errors.descricao)}
+                                        error={Boolean(errors.data?.descricao)}
                                         aria-describedby='validation-schema-descricao'
                                     />
                                 </FormControl>
@@ -257,16 +243,16 @@ const FormGrupoAnexos = () => {
                 </form>
             </Card>
             <Card sx={{ mt: 4 }}>
-                <CardHeader title='Requisitos de Anexo' />
+                <CardHeader title='Itens do Anexo' />
                 <CardContent>
                     <Grid container spacing={3}>
                         {data?.requisitos?.map((item, index) => (
                             <>
                                 <input
                                     type='hidden'
-                                    defaultValue={item?.grupoanexoitemID ?? ''}
                                     name={`requisitos[${index}].grupoanexoitemID`}
                                     {...register(`requisitos[${index}].grupoanexoitemID`)}
+                                    defaultValue={item?.grupoanexoitemID ?? ''}
                                 />
 
                                 <Grid item xs={12} md={3}>
@@ -276,7 +262,7 @@ const FormGrupoAnexos = () => {
                                             placeholder='Nome'
                                             // defaultValue={item?.nome ?? ''}
                                             name={`requisitos[${index}].nome`}
-                                            {...register(`requisitos[${index}].nome`, { required: true })}
+                                            {...register(`requisitos[${index}].nome`)}
                                             error={errors?.requisitos?.[index]?.nome ? true : false}
                                             aria-describedby='validation-schema-nome'
                                         />
@@ -298,7 +284,7 @@ const FormGrupoAnexos = () => {
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={12} md={1}>
-                                    <Typography>{index === 0 ? 'Obrigatório' : ` `}</Typography>
+                                    <Typography variant='caption'>{index === 0 ? 'Obrigatório' : ` `}</Typography>
 
                                     <FormControlLabel
                                         control={
@@ -312,7 +298,7 @@ const FormGrupoAnexos = () => {
                                     />
                                 </Grid>
                                 <Grid item xs={12} md={1}>
-                                    {index === 0 && <Typography>Status</Typography>}
+                                    {index === 0 && <Typography variant='caption'>Status</Typography>}
                                     <FormControlLabel
                                         control={
                                             <Checkbox
@@ -326,7 +312,7 @@ const FormGrupoAnexos = () => {
                                 </Grid>
                                 <Grid item xs={12} md={1}>
                                     <Box flexBasis='20%' textAlign='center'>
-                                        {index === 0 && <Typography>Remover</Typography>}
+                                        {index === 0 && <Typography variant='caption'>Remover</Typography>}
                                         <Tooltip
                                             title={
                                                 2 == 1
@@ -359,7 +345,7 @@ const FormGrupoAnexos = () => {
                             addRequisito()
                         }}
                     >
-                        Inserir requisito
+                        Inserir item
                     </Button>
                 </CardContent>
             </Card>
