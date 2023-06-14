@@ -107,8 +107,6 @@ const FormFornecedor = () => {
         formState: { errors }
     } = useForm()
 
-    console.log('canEdit: ', canEdit)
-
     const initializeValues = values => {
         // Seta itens no formulário
         values.blocos.map((block, indexBlock) => {
@@ -119,6 +117,7 @@ const FormFornecedor = () => {
                 }
             })
         })
+        setValue()
     }
 
     const verifyFormPending = async () => {
@@ -168,7 +167,6 @@ const FormFornecedor = () => {
         }
 
         if (statusEdit) {
-            console.log('updateFormStatus: ', data)
             try {
                 setLoadingSave(true)
                 await api.post(`${staticUrl}/updateFormStatus/${id}`, data).then(response => {
@@ -274,7 +272,6 @@ const FormFornecedor = () => {
     }
 
     const changeCategory = (id, checked) => {
-        console.log('🚀 ~ changeCategory:', id, checked)
         const arrNewCategory = categorias.map(value => {
             if (value.id === id) {
                 return {
@@ -284,7 +281,6 @@ const FormFornecedor = () => {
             }
             return value
         })
-        console.log('🚀 ~ arrNewCategory:', arrNewCategory)
         setCategorias(arrNewCategory)
         setVisibleBlocks(allBlocks, arrNewCategory)
     }
@@ -314,7 +310,7 @@ const FormFornecedor = () => {
         try {
             setLoading(true)
             api.get(`${staticUrl}/${id}`).then(response => {
-                console.log('getData: ', response.data)
+                // console.log('getData: ', response.data)
 
                 setFields(response.data.fields)
                 setCategorias(response.data.categorias)
@@ -392,8 +388,6 @@ const FormFornecedor = () => {
             }
         }
 
-        console.log('onSubmit: ', data)
-
         try {
             setLoadingSave(true)
             await api.put(`${staticUrl}/${id}`, data).then(response => {
@@ -439,15 +433,11 @@ const FormFornecedor = () => {
             })
         })
 
-        console.log('🚀 ~ arrErrors:', arrErrors)
-
         setListErrors({
             status: hasErrors,
             errors: arrErrors
         })
     }
-
-    console.log('erros', errors)
 
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
