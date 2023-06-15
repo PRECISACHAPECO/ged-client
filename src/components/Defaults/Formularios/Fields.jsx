@@ -19,7 +19,7 @@ const Fields = ({ register, errors, setValue, fields, values, isDisabled }) => {
                 setValue(`header.${field.tabela}`, values?.[field.tabela] ? values?.[field.tabela] : null)
             } else {
                 if (field.tipo == 'date' /*&& field.nomeColuna == 'dataAvaliacao'*/) {
-                    setDateFormat('dataPassado', field.nomeColuna, values[field.nomeColuna], 365)
+                    setDateFormat('dataPassado', field.nomeColuna, values?.[field.nomeColuna], 365)
                 } else {
                     setValue(`header.${field.nomeColuna}`, values?.[field.nomeColuna])
                 }
