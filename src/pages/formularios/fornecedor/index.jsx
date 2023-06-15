@@ -105,32 +105,37 @@ const Fornecedor = () => {
                   {
                       headerName: 'ID',
                       field: 'id',
-                      size: 0.1
+                      size: 1
                   },
                   {
                       headerName: 'Data da Avaliação',
-                      field: 'dataAvaliacao',
-                      size: 0.2
+                      field: 'data',
+                      size: 1
                   },
                   {
-                      headerName: 'Nome Fantasia',
-                      field: 'fantasia',
-                      size: 0.4
+                      headerName: 'Fornecedor',
+                      field: 'fornecedor',
+                      size: 1
                   },
                   {
                       headerName: 'CNPJ',
                       field: 'cnpj',
-                      size: 0.1
+                      size: 1
                   },
                   {
                       headerName: 'Cidade',
                       field: 'cidade',
-                      size: 0.2
+                      size: 1
+                  },
+                  {
+                      headerName: 'Responsável',
+                      field: 'responsavel',
+                      size: 1
                   },
                   {
                       headerName: 'Status',
                       field: 'status',
-                      size: 0.2
+                      size: 1
                   }
               ]
             : user.papelID == 2
@@ -138,32 +143,37 @@ const Fornecedor = () => {
                   {
                       headerName: 'ID',
                       field: 'id',
-                      size: 0.1
+                      size: 1
                   },
                   {
                       headerName: 'Data da Avaliação',
-                      field: 'dataAvaliacao',
-                      size: 0.2
+                      field: 'data',
+                      size: 1
                   },
                   {
                       headerName: 'Fábrica',
                       field: 'fabrica',
-                      size: 0.4
+                      size: 1
                   },
                   {
                       headerName: 'CNPJ',
-                      field: 'cnpjFabrica',
-                      size: 0.2
+                      field: 'cnpj',
+                      size: 1
                   },
                   {
                       headerName: 'Cidade',
                       field: 'cidade',
-                      size: 0.2
+                      size: 1
+                  },
+                  {
+                      headerName: 'Responsável',
+                      field: 'responsavel',
+                      size: 1
                   },
                   {
                       headerName: 'Status',
                       field: 'status',
-                      size: 0.2
+                      size: 1
                   }
               ]
             : []

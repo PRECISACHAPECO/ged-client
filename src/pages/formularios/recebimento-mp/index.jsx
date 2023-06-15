@@ -36,27 +36,32 @@ const RecebimentoMp = () => {
 
     const arrColumns = [
         {
-            title: 'ID',
+            headerName: 'ID',
             field: 'id',
             size: 0.1
         },
         {
-            title: 'Data',
+            headerName: 'Data',
             field: 'data',
+            size: 0.1
+        },
+        {
+            headerName: 'Fornecedor',
+            field: 'fornecedor',
             size: 0.2
         },
         {
-            title: 'Transportador',
-            field: 'transportador',
+            headerName: 'CNPJ Fornecedor',
+            field: 'cnpj',
             size: 0.3
         },
         {
-            title: 'Operação',
-            field: 'tipoOperacao',
+            headerName: 'Total de Produtos',
+            field: 'totalProdutos',
             size: 0.2
         },
         {
-            title: 'Status',
+            headerName: 'Status',
             field: 'status',
             size: 0.2
         }

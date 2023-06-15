@@ -198,6 +198,18 @@ const FormRecebimentoMp = () => {
             setLoading(true)
             api.post(`${staticUrl}/getNewData`, { unidadeID: loggedUnity.unidadeID }).then(response => {
                 console.log('🚀 ~ response new data:', response.data)
+                setFields(response.data.fields)
+                setFieldsProducts(response.data.fieldsProducts)
+                setDataProducts(response.data.dataProducts)
+                setBlocos(response.data.blocos)
+                setInfo(response.data.info)
+
+                setCanEdit({
+                    status: true,
+                    message:
+                        'Esse formulário já foi concluído! Para alterá-lo é necessário atualizar seu Status para "Em preenchimento" através do botão "Status"!',
+                    messageType: 'info'
+                })
 
                 setLoading(false)
             })
@@ -396,27 +408,25 @@ const FormRecebimentoMp = () => {
         }
 
         console.log('onSubmit: ', data)
-        // try {
-        //     setSavingForm(true)
-        //     if (type == 'edit') {
-        //         await api.put(`${staticUrl}/${id}`, data).then(response => {
-        //             toast.success(toastMessage.successUpdate)
-        //             setSavingForm(false)
-        //         })
-        //     } else if (type == 'new') {
-        //         await api.post(`${staticUrl}/insertData`, data).then(response => {
-        //             const newId = response.data
-        //             router.push(`${staticUrl}/${newId}`)
-        //             toast.success(toastMessage.successNew)
-        //             setSavingForm(false)
-        //         })
-        //     } else {
-        //         toast.error(toastMessage.error)
-        //         setSavingForm(false)
-        //     }
-        // } catch (error) {
-        //     console.log(error)
-        // }
+        try {
+            if (type == 'edit') {
+                setSavingForm(true)
+                await api.put(`${staticUrl}/${id}`, data).then(response => {
+                    toast.success(toastMessage.successUpdate)
+                    setSavingForm(false)
+                })
+            } else if (type == 'new') {
+                await api.post(`${staticUrl}/insertData`, data).then(response => {
+                    const newId = response.data
+                    router.push(`${staticUrl}/${newId}`)
+                    toast.success(toastMessage.successNew)
+                })
+            } else {
+                toast.error(toastMessage.error)
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     useEffect(() => {
@@ -446,15 +456,15 @@ const FormRecebimentoMp = () => {
                     <Card>
                         <FormHeader
                             btnCancel
-                            btnSave={info.status < 40}
-                            btnSend
+                            btnSave={info.status < 40 || type == 'new'}
+                            btnSend={type == 'edit' ? true : false}
                             btnPrint
                             generateReport={generateReport}
                             dataReports={dataReports}
                             handleSubmit={() => handleSubmit(onSubmit)}
                             handleSend={handleSendForm}
                             title='Recebimento MP'
-                            btnStatus
+                            btnStatus={type == 'edit' ? true : false}
                             handleBtnStatus={() => setOpenModalStatus(true)}
                         />
 
@@ -466,8 +476,8 @@ const FormRecebimentoMp = () => {
                                     <CustomChip
                                         size='small'
                                         skin='light'
-                                        color={status?.color}
-                                        label={status?.title}
+                                        color={status?.color ?? 'primary'}
+                                        label={status?.title ?? 'Novo preenchimento'}
                                         sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
                                     />
                                 </Box>
