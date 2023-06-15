@@ -1,7 +1,10 @@
 import { Autocomplete, CardContent, FormControl, Grid, TextField, Typography } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { dateConfig } from 'src/configs/defaultConfigs'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
+import { AuthContext } from 'src/context/AuthContext'
+import { backRoute } from 'src/configs/defaultConfigs'
+import Router from 'next/router'
 
 //* Custom inputs
 import Input from 'src/components/Form/Input'
@@ -11,6 +14,12 @@ import DateField from 'src/components/Form/DateField'
 const Fields = ({ register, errors, setValue, fields, values, isDisabled }) => {
     const [dateStatus, setDateStatus] = useState({})
     const [watchRegistroEstabelecimento, setWatchRegistroEstabelecimento] = useState(null)
+    const [copiedDataContext, setCopiedDataContext] = useState(false)
+    const { loggedUnity, user } = useContext(AuthContext)
+    const router = Router
+    const staticUrl = backRoute(router.pathname)
+
+    console.log('🚀 ~ copiedDataContext:', copiedDataContext)
 
     const itializeValues = () => {
         //? Inicializa os valores do formulário
@@ -21,7 +30,18 @@ const Fields = ({ register, errors, setValue, fields, values, isDisabled }) => {
                 if (field.tipo == 'date' /*&& field.nomeColuna == 'dataAvaliacao'*/) {
                     setDateFormat('dataPassado', field.nomeColuna, values?.[field.nomeColuna], 365)
                 } else {
-                    setValue(`header.${field.nomeColuna}`, values?.[field.nomeColuna])
+                    if (staticUrl == '/formularios/fornecedor') {
+                        const result =
+                            values?.[field.nomeColuna] === null &&
+                            loggedUnity?.[field.nomeColuna] &&
+                            user.papelID == 2 &&
+                            values?.[field.nomeColuna] !== loggedUnity?.[field.nomeColuna]
+                                ? (setCopiedDataContext(true), loggedUnity?.[field.nomeColuna])
+                                : values?.[field.nomeColuna]
+                        setValue(`header.${field.nomeColuna}`, result)
+                    } else {
+                        setValue(`header.${field.nomeColuna}`, values?.[field.nomeColuna])
+                    }
                 }
             }
         })
