@@ -18,7 +18,7 @@ import { formatDate } from 'src/configs/conversions'
 import { AuthContext } from 'src/context/AuthContext'
 
 const FormUnidade = ({ paramFornecedorUnidadeID }) => {
-    const { user } = useContext(AuthContext)
+    const { user, setLoggedUnity, loggedUnity } = useContext(AuthContext)
 
     const [open, setOpen] = useState(false)
     const [data, setData] = useState('')
@@ -104,6 +104,15 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
             ...datas,
             dataCadastro: formatDate(datas.dataCadastro, 'YYYY-MM-DD')
         }
+        // Atualiza os dados do usuário logado no contexto
+        for (const key in loggedUnity) {
+            if (key in data) {
+                loggedUnity[key] = data[key]
+            }
+        }
+
+        // Atualiza os dados do usuário logado no localStorage
+        localStorage.setItem('loggedUnity', JSON.stringify(loggedUnity))
 
         try {
             if (type === 'new') {
@@ -158,8 +167,6 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
             inputRef.current.focus()
         }
     }, [])
-
-    console.log('unidade')
 
     return (
         <>

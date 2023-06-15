@@ -80,6 +80,7 @@ const FormFornecedor = () => {
     const [answers, setAnswers] = useState([])
     const [dateStatus, setDateStatus] = useState({})
     const [listErrors, setListErrors] = useState({ status: false, errors: [] })
+    const [copiedDataContext, setCopiedDataContext] = useState(false)
 
     const [canEdit, setCanEdit] = useState({
         status: false,
@@ -321,6 +322,7 @@ const FormFornecedor = () => {
                 setVisibleBlocks(response.data.blocos, response.data.categorias)
 
                 setData(response.data.data)
+
                 setInfo(response.data.info)
                 setUnidade(response.data.unidade)
 
@@ -450,6 +452,13 @@ const FormFornecedor = () => {
         checkErrors()
     }, [])
 
+    // Mostra toast se o formulário foi copiado de "MEUS DADOS"
+    useEffect(() => {
+        if (copiedDataContext) {
+            toast.success('Dados copiados com sucesso!')
+        }
+    }, [copiedDataContext])
+
     return (
         <>
             {isLoading ? (
@@ -536,6 +545,7 @@ const FormFornecedor = () => {
                                 fields={fieldsState}
                                 values={data}
                                 isDisabled={!canEdit.status}
+                                setCopiedDataContext={setCopiedDataContext}
                             />
 
                             {/* Categorias, Atividades e Sistemas de Qualidade */}

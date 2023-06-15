@@ -55,9 +55,6 @@ const DialogNewFornecedor = ({ handleClose, openModal, makeFornecedor, loadingSa
         register
     } = useForm({})
 
-    console.log('🚀 ~ errors:', errors)
-    console.log('🚀 ~ email:', email)
-
     const copyLink = () => {
         //? Mantém o "copiado" por 5 segundos
         setMessageCopied(true)
@@ -300,10 +297,13 @@ const DialogNewFornecedor = ({ handleClose, openModal, makeFornecedor, loadingSa
             <DialogForm
                 title='Confirmar novo fornecedor'
                 text={`Tem certeza que deseja tornar o CNPJ ${cnpj} um fornecedor ativo na ${loggedUnity.nomeFantasia} ? Se sim, o mesmo poderá preencher formulários de Fornecedor para a sua empresa.`}
-                handleClose={() => setOpenConfirmMakeFornecedor(false)}
+                handleClose={() => {
+                    setOpenConfirmMakeFornecedor(false)
+                }}
                 openModal={openConfirmMakeFornecedor}
                 handleSubmit={makeFornecedor}
                 inputEmail
+                closeAfterSave={true}
                 cnpj={cnpj}
                 btnCancel
                 btnConfirm
