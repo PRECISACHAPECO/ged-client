@@ -1,7 +1,7 @@
-// import { SettingsContext } from 'src/@core/context/settingsContext'
-// const { settings } = useContext(SettingsContext)
-// const mode = settings.mode
-// Chamada: sx={getZebradoStyle(indexItem)}
+import { SettingsContext } from 'src/@core/context/settingsContext'
+const { settings } = useContext(SettingsContext)
+const mode = settings.mode
+Chamada: sx = { getZebradoStyle(indexItem) }
 
 const getZebradoStyle = (index, mode) => ({
     backgroundColor:

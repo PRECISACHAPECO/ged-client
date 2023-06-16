@@ -35,7 +35,7 @@ const AppBarContent = props => {
     // ** Props
     const { hidden, settings, saveSettings, toggleNavVisibility } = props
     const { title } = useContext(ParametersContext)
-    const { user, setLoggedUnity, loggedUnity, unitsUser, getRoutes, getMenu, newVersionAvailable, setNewVersionAvailable, setOpenModalUpdate, openModalUpdate } = useContext(AuthContext)
+    const { user, setLoggedUnity, loggedUnity, unitsUser, getRoutes, getMenu } = useContext(AuthContext)
 
     // ** Hooks
     const router = useRouter()

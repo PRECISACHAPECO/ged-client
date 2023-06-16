@@ -40,8 +40,8 @@ const AuthProvider = ({ children }) => {
     // Menu 
     const [menu, setMenu] = useState([])
     const [routeBackend, setRouteBackend] = useState()
-    const [latestVersion, setLatestVersion] = useState()
     const [openModalUpdate, setOpenModalUpdate] = useState(false)
+    const [latestVersionState, setLatestVersionState] = useState()
     const [newVersionAvailable, setNewVersionAvailable] = useState({
         status: false,
         version: null,
@@ -236,27 +236,28 @@ const AuthProvider = ({ children }) => {
     }, [currentRoute])
 
 
+    //! Quando carregar o sistema, faz uma requisicao ao github para saber a versão atual do sistema
+    async function getLatestVersion() {
+        await axios.get("https://api.github.com/repos/PRECISACHAPECO/ged-frontend/releases")
+            .then((response) => {
+                localStorage.setItem('latestVersion', response.data[0].tag_name)
+                setLatestVersionState(response.data[0].tag_name)
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
     // //*? faz um get ao github para saber a versão atual do sistema
     useEffect(() => {
-        function getLatestVersion() {
-            axios.get("https://api.github.com/repos/PRECISACHAPECO/ged-frontend/releases")
-                .then((response) => {
-                    localStorage.setItem('latestVersion', response.data[0].tag_name)
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        }
         getLatestVersion();
-    }, [handleLoginFornecedor, handleLogin])
+    }, [])
 
-    // //*? faz um get ao github a cada 10 segundos para saber se existe uma nova versão do sistema
+    //! Verifica se a versão atual é diferente da versão do localStorage, se for, abre o modal de atualização
     useEffect(() => {
         function getLatestTag() {
             axios.get("https://api.github.com/repos/PRECISACHAPECO/ged-frontend/releases")
                 .then((response) => {
-                    // console.log("req", response.data[0].tag_name)
-                    // console.log("local", localStorage.getItem('latestVersion'))
                     if (response.data[0].tag_name !== localStorage.getItem('latestVersion')) {
                         setNewVersionAvailable({
                             status: true,
@@ -277,7 +278,7 @@ const AuthProvider = ({ children }) => {
         };
     }, []);
 
-    // //? se rota atual for igual a /fornecedor, limpar o localstorage e dar reload na pagina, faça o reaload apenas uma vez
+    //! se rota atual for igual a /fornecedor, limpar o localstorage e dar reload na pagina, faça o reaload apenas uma vez
     useEffect(() => {
         const hasReloaded = localStorage.getItem('hasReloaded');
         if (!hasReloaded && (router.pathname === '/fornecedor' || router.pathname === '/registro')) {
@@ -306,7 +307,8 @@ const AuthProvider = ({ children }) => {
         loginFornecedor: handleLoginFornecedor,
         logout: handleLogout,
         register: handleRegister,
-        latestVersion,
+        latestVersionState,
+        setLatestVersionState,
         newVersionAvailable,
         setNewVersionAvailable,
         setOpenModalUpdate,
