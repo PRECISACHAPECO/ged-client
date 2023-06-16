@@ -36,7 +36,6 @@ const StyledBoxForShadow = styled(Box)(({ theme }) => ({
 }))
 
 const Navigation = props => {
-    const { latestVersion } = useContext(AuthContext)
     // ** Props
     const { hidden, settings, afterNavMenuContent, beforeNavMenuContent, navMenuContent: userNavMenuContent } = props
 
@@ -151,17 +150,6 @@ const Navigation = props => {
                     </ScrollWrapper>
                 </Box>
                 {afterNavMenuContent && afterVerticalNavMenuContentPosition === 'fixed' ? afterNavMenuContent(props) : null}
-                {
-                    latestVersion && (
-                        <Typography
-                            component={'span'}
-                            variant={'caption'}
-                            color={'textSecondary'}
-                            style={{ position: "absolute", bottom: "14px", left: "10%" }}>
-                            v {latestVersion}
-                        </Typography>
-                    )
-                }
             </Drawer>
         </>
     )
