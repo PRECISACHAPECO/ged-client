@@ -229,7 +229,7 @@ const ResetPassword = () => {
                     </form>
                 </CardContent>
             </Card>
-            <FooterIllustrationsV1 image={`/images/pages/auth-v1-reset-password-mask-${theme.palette.mode}.png`} />
+            <FooterIllustrationsV1 />
         </Box>
     )
 }

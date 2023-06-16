@@ -23,13 +23,8 @@ const Fields = ({ register, errors, setValue, fields, values, isDisabled, setCop
             if (field.tipo == 'int') {
                 setValue(`header.${field.tabela}`, values?.[field.tabela] ? values?.[field.tabela] : null)
             } else {
-<<<<<<< HEAD
                 if (field.tipo == 'date') {
                     setDateFormat('dataPassado', field.nomeColuna, values[field.nomeColuna], 365)
-=======
-                if (field.tipo == 'date' /*&& field.nomeColuna == 'dataAvaliacao'*/) {
-                    setDateFormat('dataPassado', field.nomeColuna, values?.[field.nomeColuna], 365)
->>>>>>> b604cdabdefb20d593779a37be85c2555dd3c201
                 } else {
                     if (staticUrl == '/formularios/fornecedor' && user.papelID == 2) {
                         const result =
@@ -94,7 +89,6 @@ const Fields = ({ register, errors, setValue, fields, values, isDisabled, setCop
                                         value={values?.[field.nomeColuna]}
                                         type={field.nomeColuna}
                                         name={`header.${field.nomeColuna}`}
-                                        isRequired={field.obrigatorio ? true : false}
                                         errors={errors?.header?.[field.nomeColuna]}
                                         setDateFormat={setDateFormat}
                                         typeValidation='dataPassado'

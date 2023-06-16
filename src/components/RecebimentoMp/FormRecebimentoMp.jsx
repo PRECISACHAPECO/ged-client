@@ -3,6 +3,7 @@ import { useState, useEffect, useContext } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+import formatDate from 'src/configs/conversions'
 
 //* Default Form Components
 import Fields from 'src/components/Defaults/Formularios/Fields'
@@ -45,6 +46,8 @@ import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
 import DialogFormConclusion from '../Defaults/Dialogs/DialogFormConclusion'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
+// como importar moment
+import moment from 'moment'
 
 // Date
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -97,9 +100,6 @@ const FormRecebimentoMp = () => {
         setError,
         formState: { errors }
     } = useForm()
-
-    console.log('errors: ', errors)
-    console.log('listErrors: ', listErrors)
 
     const getAddressByCep = cepString => {
         if (cepString.length == 9) {
@@ -193,11 +193,9 @@ const FormRecebimentoMp = () => {
     }
 
     const getNewData = () => {
-        console.log('🚀 ~ getNewData')
         try {
             setLoading(true)
             api.post(`${staticUrl}/getNewData`, { unidadeID: loggedUnity.unidadeID }).then(response => {
-                console.log('🚀 ~ response new data:', response.data)
                 setFields(response.data.fields)
                 setFieldsProducts(response.data.fieldsProducts)
                 setDataProducts(response.data.dataProducts)
@@ -221,8 +219,6 @@ const FormRecebimentoMp = () => {
     const getData = () => {
         setLoading(true)
         api.post(`${staticUrl}/getData/${id}`, { type: type, unidadeID: loggedUnity.unidadeID }).then(response => {
-            console.log('getData: ', response.data)
-
             setFields(response.data.fields)
             setData(response.data.data)
             setFieldsProducts(response.data.fieldsProducts)
@@ -260,7 +256,6 @@ const FormRecebimentoMp = () => {
         // Insere ID no array de produtos removidos
         if (value?.recebimentompProdutoID > 0) {
             const newRemovedProducts = [...removedProducts, { recebimentompProdutoID: value.recebimentompProdutoID }] // Atribui o valor atual a uma nova variável
-            console.log('🚀 ~ newRemovedProducts:', newRemovedProducts)
             setRemovedProducts(newRemovedProducts) // Atualiza a variável de estado
         }
 
@@ -274,9 +269,14 @@ const FormRecebimentoMp = () => {
     }
 
     const initializeValues = values => {
-        values.fields.map(field => {
+        values?.fields?.map(field => {
             if (field.tipo == 'int') {
                 setValue(`header.${field.tabela}`, values.data?.[field.tabela] ? values.data?.[field.tabela] : null)
+            } else if (field.tipo == 'date') {
+                setValue(
+                    `header.${field.nomeColuna}`,
+                    new Date(values.data?.[field.nomeColuna]).toISOString().split('T')[0]
+                )
             } else {
                 setValue(`header.${field.nomeColuna}`, values.data?.[field.nomeColuna])
             }
@@ -317,7 +317,7 @@ const FormRecebimentoMp = () => {
         let arrErrors = []
 
         //? Header
-        fieldsState.forEach((field, index) => {
+        fieldsState?.forEach((field, index) => {
             const fieldName = field.tabela ? `header.${field.tabela}` : `header.${field.nomeColuna}`
             const fieldValue = getValues(fieldName)
             if (field.obrigatorio === 1 && !fieldValue) {
@@ -364,8 +364,6 @@ const FormRecebimentoMp = () => {
             })
         })
 
-        console.log('🚀 ~ arrErrors:', arrErrors)
-
         setListErrors({
             status: hasErrors,
             errors: arrErrors
@@ -380,7 +378,6 @@ const FormRecebimentoMp = () => {
 
     const conclusionForm = async values => {
         values['conclusion'] = true
-        console.log('🚀 ~ conclusionForm: ', values)
 
         await handleSubmit(onSubmit)(values)
     }
@@ -406,8 +403,6 @@ const FormRecebimentoMp = () => {
                 unidadeID: loggedUnity.unidadeID
             }
         }
-
-        console.log('onSubmit: ', data)
         try {
             if (type == 'edit') {
                 setSavingForm(true)
@@ -430,7 +425,6 @@ const FormRecebimentoMp = () => {
     }
 
     useEffect(() => {
-        console.log('useEffect 1')
         setTitle('Recebimento de MP')
         type == 'new' ? getNewData() : getData()
     }, [savingForm])
