@@ -71,7 +71,6 @@ const FormParametrosRecebimentoMp = () => {
         console.log('onSubmit: ', data)
 
         try {
-            // setSavingForm(true)
             await api.put(`${staticUrl}/recebimentoMp/updateData`, data).then(response => {
                 toast.success(toastMessage.successUpdate)
                 setSavingForm(!savingForm)

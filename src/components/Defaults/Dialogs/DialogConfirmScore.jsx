@@ -9,7 +9,7 @@ import { Grid, TextField, FormControl, Checkbox, Box, Switch, FormGroup, FormCon
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 
-const DialogConfirmScore = ({ openModal, setOpenModalConfirmScore, itemScore, setItemScore, getBlocks }) => {
+const DialogConfirmScore = ({ openModal, setOpenModalConfirmScore, itemScore, setItemScore }) => {
     const handleClose = () => {
         setOpenModalConfirmScore(false)
     }
@@ -28,7 +28,7 @@ const DialogConfirmScore = ({ openModal, setOpenModalConfirmScore, itemScore, se
         }
         api.post(`/formularios/fornecedor/saveItemScore`, { data }).then(response => {
             setOpenModalConfirmScore(false)
-            getBlocks()
+            // getBlocks()
             toast.success('Pontuação salva com sucesso!')
         })
     }
