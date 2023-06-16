@@ -97,3 +97,37 @@ code[class*='language-'] {
 
     }
 }
+
+/*!Scroll costumizado */
+::-webkit-scrollbar {
+    width: 0.5rem;
+    heigth: 1rem;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #35553b;
+    border-radius: 1rem;
+}
+
+::-webkit-scroll-track {
+    background-color: transparent;
+}
+
+
+
+/* Google Chrome */
+input:-webkit-autofill {
+    background-color: red;
+    fill: red;
+}
+
+/* Mozilla Firefox */
+input:-moz-autofill {
+    background-color: #F0F8FF;
+}
+
+/* Microsoft Edge */
+input:-ms-input-placeholder,
+input::-ms-reveal {
+    background-color: #F0F8FF;
+}

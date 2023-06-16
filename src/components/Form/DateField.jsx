@@ -14,19 +14,18 @@ const DateField = ({
     errors,
     register
 }) => {
+    console.log('🚀 ~ value:', value)
     return (
         <>
             <TextField
                 type='date'
                 label={title}
                 disabled={isDisabled ? true : false}
-                defaultValue={value ? new Date(value).toISOString().split('T')[0] : ''}
+                defaultValue={value ? new Date(value).toISOString().split('T')[0] : null}
                 name={name}
                 aria-describedby='validation-schema-nome'
-                error={errors ? true : !dateStatus?.[type]?.status ? true : false}
-                {...register(name, {
-                    required: isRequired ? true : false
-                })}
+                // error={errors ? true : !dateStatus?.[type]?.status ? true : false}
+                {...register(name)}
                 onChange={e => {
                     setDateFormat(typeValidation, type, e.target.value, daysValidation)
                 }}
@@ -40,11 +39,11 @@ const DateField = ({
                     max: dateStatus[type]?.dataFim
                 }}
             />
-            {!dateStatus?.status && (
+            {/* {!dateStatus?.status && (
                 <Typography component='span' variant='caption' color='error'>
                     {dateStatus?.[type]?.message}
                 </Typography>
-            )}
+            )} */}
         </>
     )
 }

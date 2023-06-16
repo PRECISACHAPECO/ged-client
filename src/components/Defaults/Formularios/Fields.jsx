@@ -89,7 +89,6 @@ const Fields = ({ register, errors, setValue, fields, values, isDisabled, setCop
                                         value={values?.[field.nomeColuna]}
                                         type={field.nomeColuna}
                                         name={`header.${field.nomeColuna}`}
-                                        isRequired={field.obrigatorio ? true : false}
                                         errors={errors?.header?.[field.nomeColuna]}
                                         setDateFormat={setDateFormat}
                                         typeValidation='dataPassado'
