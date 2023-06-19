@@ -278,41 +278,47 @@ const FormUsuario = () => {
                                                         position: 'absolute',
                                                         top: '30px',
                                                         right: '9px',
-                                                        opacity: '0.2',
+                                                        // opacity: '0.2',
                                                         zIndex: '20',
                                                         color: 'white',
-                                                        backgroundColor: 'red'
+                                                        opacity: '0.8',
+                                                        backgroundColor: '#FF4D49',
+                                                        '&:hover': {
+                                                            backgroundColor: '#FF4D49',
+                                                            opacity: '1'
+                                                        }
                                                     }}
                                                     onClick={handleDeleteImage}
                                                 >
-                                                    <Icon icon='ion:trash' />
+                                                    <Icon icon='material-symbols:delete-outline' />
                                                 </IconButton>
                                             </Tooltip>
                                         )}
-
-                                        <FormControl
-                                            sx={{
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                height: '95%',
-                                                width: '95%'
-                                            }}
-                                        >
-                                            <input
-                                                type='file'
-                                                ref={fileInputRef}
-                                                style={{ display: 'none' }}
-                                                onChange={handleFileSelect}
-                                            />
-                                            <Avatar
-                                                variant='rounded'
-                                                alt='Victor Anderson'
-                                                sx={{ width: '100%', height: '100%', cursor: 'pointer' }}
-                                                src={photoProfile}
-                                                onClick={handleAvatarClick}
-                                            />
-                                        </FormControl>
+                                        <Tooltip title={photoProfile ? 'Alterar foto' : 'Inserir foto'} placement='top'>
+                                            <FormControl
+                                                sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    height: '95%',
+                                                    width: '95%'
+                                                }}
+                                            >
+                                                <input
+                                                    type='file'
+                                                    ref={fileInputRef}
+                                                    style={{ display: 'none' }}
+                                                    onChange={handleFileSelect}
+                                                />
+                                                <Avatar
+                                                    variant='rounded'
+                                                    alt='Victor Anderson'
+                                                    sx={{ width: '100%', height: '100%', cursor: 'pointer' }}
+                                                    src={photoProfile}
+                                                    onClick={handleAvatarClick}
+                                                />
+                                            </FormControl>
+                                        </Tooltip>
                                     </Grid>
                                 </Grid>
 
