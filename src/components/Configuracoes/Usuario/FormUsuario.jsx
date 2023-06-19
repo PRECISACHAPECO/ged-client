@@ -58,6 +58,10 @@ const FormUsuario = () => {
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const { user, loggedUnity } = useContext(AuthContext)
+    // Acorddion das permissões
+    // ** State
+    const [expanded, setExpanded] = useState(false)
+    const [expandedItem, setExpandedItem] = useState(false)
     const [photoProfile, setPhotoProfile] = useState(null)
 
     const {
@@ -145,17 +149,38 @@ const FormUsuario = () => {
         setData({ ...data, units: newUnity })
     }
 
-    // Acorddion das permissões
-    // ** State
-    const [expanded, setExpanded] = useState(false)
-    const [expandedItem, setExpandedItem] = useState(false)
-
     const handleChange = panel => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false)
     }
 
     const handleChangeItem = item => (event, isExpanded) => {
         setExpandedItem(isExpanded ? item : false)
+    }
+
+    // Quando clicar no botão de foto, o input de foto é clicado abrindo o seletor de arquivos
+    const fileInputRef = useRef(null)
+
+    const handleAvatarClick = () => {
+        fileInputRef.current.click()
+    }
+
+    // Ao selecionar a foto, ela é enviada para o servidor e salva no banco de dados, como resposta atualiza a foto atual
+    const handleFileSelect = async event => {
+        const selectedFile = event.target.files[0]
+        if (selectedFile) {
+            const formData = new FormData()
+            formData.append('photoProfile', selectedFile)
+            await api
+                .post(`${staticUrl}/photo-profile/${id}`, formData)
+                .then(response => {
+                    setPhotoProfile(response.data)
+                    toast.success('Foto de perfil atualizada com sucesso!')
+                })
+                .catch(error => {
+                    console.log(error)
+                    toast.error('Erro ao atualizar foto de perfil, tente novamente!')
+                })
+        }
     }
 
     // Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
@@ -174,31 +199,6 @@ const FormUsuario = () => {
         }
         if (type === 'edit') getData()
     }, [])
-
-    const fileInputRef = useRef(null)
-
-    const handleAvatarClick = () => {
-        fileInputRef.current.click()
-    }
-
-    //! Ao selecionar a foto, ela é enviada para o servidor e salva no banco de dados
-    const handleFileSelect = async event => {
-        const selectedFile = event.target.files[0]
-        if (selectedFile) {
-            const formData = new FormData()
-            formData.append('photoProfile', selectedFile)
-            await api
-                .post(`${staticUrl}/photo-profile/${id}`, formData)
-                .then(response => {
-                    setPhotoProfile(response.data)
-                    toast.success('Foto de perfil atualizada com sucesso!')
-                })
-                .catch(error => {
-                    console.log(error)
-                    toast.error(toastMessage.errorUpdate)
-                })
-        }
-    }
 
     return (
         <>
@@ -232,7 +232,7 @@ const FormUsuario = () => {
 
                             <Grid container spacing={5} sx={{ mt: 2 }}>
                                 {/* Foto */}
-                                <Grid xs={12} md={2} container spacing={5}>
+                                <Grid xs={12} sm={4} md={2} container spacing={5}>
                                     {/* Foto do usuário e upload */}
                                     <Grid
                                         item
@@ -276,7 +276,7 @@ const FormUsuario = () => {
                                 </Grid>
 
                                 {/* Campos a direita */}
-                                <Grid xs={12} md={10} container spacing={5}>
+                                <Grid xs={12} sm={8} md={10} container spacing={5}>
                                     <Grid item xs={12} md={4}>
                                         <FormControl fullWidth>
                                             <TextField
