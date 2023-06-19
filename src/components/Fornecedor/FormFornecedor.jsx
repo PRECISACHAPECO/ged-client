@@ -110,8 +110,8 @@ const FormFornecedor = () => {
 
     const initializeValues = values => {
         // Seta itens no formulário
-        values.blocos.map((block, indexBlock) => {
-            block.itens.map((item, indexItem) => {
+        values?.blocos?.map((block, indexBlock) => {
+            block?.itens?.map((item, indexItem) => {
                 console.log('🚀 ~ item:', item)
                 if (item?.resposta) {
                     setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
@@ -262,7 +262,7 @@ const FormFornecedor = () => {
     const setVisibleBlocks = (blocks, categorias) => {
         let arrVisibleBlocks = []
 
-        blocks.map((block, index) => {
+        blocks?.map((block, index) => {
             if (canViewBlock(block.categorias, categorias)) {
                 //? Fornecedor pode ver o bloco
                 arrVisibleBlocks.push(block)
@@ -310,38 +310,40 @@ const FormFornecedor = () => {
     const getData = () => {
         try {
             setLoading(true)
-            api.get(`${staticUrl}/${id}`).then(response => {
-                // console.log('getData: ', response.data)
+            if (id) {
+                api.get(`${staticUrl}/${id}`).then(response => {
+                    // console.log('getData: ', response.data)
 
-                setFields(response.data.fields)
-                setCategorias(response.data.categorias)
-                setAtividades(response.data.atividades)
-                setSistemasQualidade(response.data.sistemasQualidade)
+                    setFields(response.data.fields)
+                    setCategorias(response.data.categorias)
+                    setAtividades(response.data.atividades)
+                    setSistemasQualidade(response.data.sistemasQualidade)
 
-                setAllBlocks(response.data.blocos)
-                setVisibleBlocks(response.data.blocos, response.data.categorias)
+                    setAllBlocks(response.data.blocos)
+                    setVisibleBlocks(response.data.blocos, response.data.categorias)
 
-                setData(response.data.data)
+                    setData(response.data.data)
 
-                setInfo(response.data.info)
-                setUnidade(response.data.unidade)
+                    setInfo(response.data.info)
+                    setUnidade(response.data.unidade)
 
-                initializeValues(response.data)
+                    initializeValues(response.data)
 
-                let objStatus = statusDefault[response.data.info.status]
-                setStatus(objStatus)
+                    let objStatus = statusDefault[response.data.info.status]
+                    setStatus(objStatus)
 
-                setCanEdit({
-                    status: user.papelID == 2 && response.data.info.status < 40 ? true : false,
-                    message:
-                        user.papelID == 2
-                            ? 'Esse formulário já foi concluído e enviado pra fábrica, não é mais possível alterar as informações!'
-                            : 'Somente o fornecedor pode alterar as informações deste formulário!',
-                    messageType: user.papelID == 2 ? 'warning' : 'info'
+                    setCanEdit({
+                        status: user.papelID == 2 && response.data.info.status < 40 ? true : false,
+                        message:
+                            user.papelID == 2
+                                ? 'Esse formulário já foi concluído e enviado pra fábrica, não é mais possível alterar as informações!'
+                                : 'Somente o fornecedor pode alterar as informações deste formulário!',
+                        messageType: user.papelID == 2 ? 'warning' : 'info'
+                    })
+
+                    setLoading(false)
                 })
-
-                setLoading(false)
-            })
+            }
         } catch (error) {
             console.log(error)
         }
@@ -463,7 +465,7 @@ const FormFornecedor = () => {
         <>
             {isLoading ? (
                 <Loading />
-            ) : data ? (
+            ) : fieldsState ? (
                 <form
                     onSubmit={handleSubmit(data => {
                         canEdit.status ? onSubmit(data, false) : updateFormStatus()

@@ -19,7 +19,6 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 import { AuthContext } from 'src/context/AuthContext'
 import { useContext } from 'react'
 import { Alert, Button, Snackbar, Typography } from '@mui/material'
-import { SettingsContext } from 'src/@core/context/settingsContext'
 
 const UserLayout = ({ children, contentHeightFixed }) => {
 

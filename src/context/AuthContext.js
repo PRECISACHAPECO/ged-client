@@ -11,6 +11,7 @@ import axios from 'axios'
 // ** Config
 import authConfig from 'src/configs/auth'
 import { toast } from 'react-hot-toast'
+import { backRoute } from 'src/configs/defaultConfigs'
 
 // ** Defaults
 const defaultProvider = {
@@ -47,8 +48,8 @@ const AuthProvider = ({ children }) => {
         version: null,
     })
 
-
     const router = useRouter();
+    const staticUrl = backRoute(router.pathname) // Url sem ID
 
     // ** Hooks
     useEffect(() => {
@@ -59,6 +60,11 @@ const AuthProvider = ({ children }) => {
 
                 setLoading(true)
                 const data = JSON.parse(window.localStorage.getItem('userData'))
+
+                // if (window.location.pathname.match(/\/\d+\/$/)) {
+                //     console.log("voltar rota anterior")
+                //     router.push(staticUrl)
+                // }
 
                 setUnitsUser(JSON.parse(window.localStorage.getItem('userUnits')))
                 setLoggedUnity(JSON.parse(window.localStorage.getItem('loggedUnity')))
@@ -287,6 +293,7 @@ const AuthProvider = ({ children }) => {
             window.location.reload();
         }
     }, []);
+
 
     const values = {
         user,

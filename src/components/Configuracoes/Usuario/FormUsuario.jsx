@@ -1,5 +1,5 @@
 import Router from 'next/router'
-import { useEffect, useState, useContext } from 'react'
+import { useEffect, useState, useContext, useRef } from 'react'
 import { api } from 'src/configs/api'
 import Icon from 'src/@core/components/icon'
 
@@ -58,6 +58,7 @@ const FormUsuario = () => {
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const { user, loggedUnity } = useContext(AuthContext)
+    const [photoProfile, setPhotoProfile] = useState(null)
 
     const {
         control,
@@ -104,6 +105,7 @@ const FormUsuario = () => {
             } else if (type === 'edit') {
                 await api.put(`${staticUrl}/${id}`, values)
                 toast.success(toastMessage.successUpdate)
+                console.log('🚀 ~ values:', values)
             }
         } catch (error) {
             if (error.response && error.response.status === 409) {
@@ -164,6 +166,7 @@ const FormUsuario = () => {
                     `${staticUrl}/${id}?unidadeID=${loggedUnity.unidadeID}&papelID=${loggedUnity.papelID}&admin=${user.admin}`
                 )
                 setData(response.data)
+                setPhotoProfile(response.data.imagem)
                 console.log('🚀 ~ getData: ', response.data)
             } catch (error) {
                 console.log(error)
@@ -171,6 +174,31 @@ const FormUsuario = () => {
         }
         if (type === 'edit') getData()
     }, [])
+
+    const fileInputRef = useRef(null)
+
+    const handleAvatarClick = () => {
+        fileInputRef.current.click()
+    }
+
+    //! Ao selecionar a foto, ela é enviada para o servidor e salva no banco de dados
+    const handleFileSelect = async event => {
+        const selectedFile = event.target.files[0]
+        if (selectedFile) {
+            const formData = new FormData()
+            formData.append('photoProfile', selectedFile)
+            await api
+                .post(`${staticUrl}/photo-profile/${id}`, formData)
+                .then(response => {
+                    setPhotoProfile(response.data)
+                    toast.success('Foto de perfil atualizada com sucesso!')
+                })
+                .catch(error => {
+                    console.log(error)
+                    toast.error(toastMessage.errorUpdate)
+                })
+        }
+    }
 
     return (
         <>
@@ -202,297 +230,330 @@ const FormUsuario = () => {
                             />
                             <input type='hidden' value={loggedUnity?.papelID} name='papelID' {...register(`papelID`)} />
 
-                            <Grid container spacing={5}>
-                                <Grid item xs={12} md={4}>
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            defaultValue={data?.nome}
-                                            label='Nome'
-                                            placeholder='Nome'
-                                            aria-describedby='validation-schema-nome'
-                                            name='nome'
-                                            {...register(`nome`, { required: true })}
-                                            error={errors.nome}
-                                        />
-                                    </FormControl>
-                                </Grid>
-
-                                <Grid item xs={12} md={4}>
-                                    <FormControl fullWidth>
-                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                            <DatePicker
-                                                label='Data de Nascimento'
-                                                locale={dayjs.locale('pt-br')}
-                                                format='DD/MM/YYYY'
-                                                defaultValue={dayjs(new Date(data?.dataNascimento))}
-                                                name={`dataNascimento`}
-                                                onChange={value => setValue('dataNascimento', value)}
-                                                renderInput={params => (
-                                                    <TextField
-                                                        {...params}
-                                                        variant='outlined'
-                                                        error={errors?.dataNascimento}
-                                                    />
-                                                )}
-                                            />
-                                        </LocalizationProvider>
-                                    </FormControl>
-                                </Grid>
-
-                                <Grid item xs={12} md={4}>
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            defaultValue={data?.email}
-                                            label='E-mail'
-                                            placeholder='E-mail'
-                                            aria-describedby='validation-schema-nome'
-                                            name='email'
-                                            {...register(`email`, { required: true })}
-                                            error={errors.email}
-                                        />
-                                    </FormControl>
-                                </Grid>
-
-                                <Grid item xs={12} md={4}>
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            defaultValue={data?.cpf}
-                                            label='CPF'
-                                            placeholder='CPF'
-                                            aria-describedby='validation-schema-nome'
-                                            name='cpf'
-                                            {...register(`cpf`, {
-                                                required: true,
-                                                validate: value => validationCPF(value) || 'CPF inválido'
-                                            })}
-                                            error={errors.cpf}
-                                            helperText={errors.cpf?.message}
-                                            inputProps={{
-                                                maxLength: 14,
-                                                onChange: e => {
-                                                    setValue('cpf', cpfMask(e.target.value))
-                                                }
+                            <Grid container spacing={5} sx={{ mt: 2 }}>
+                                {/* Foto */}
+                                <Grid xs={12} md={2} container spacing={5}>
+                                    {/* Foto do usuário e upload */}
+                                    <Grid
+                                        item
+                                        xs={12}
+                                        md={12}
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            mx: '17px',
+                                            height: '250px',
+                                            width: '250px',
+                                            mb: '10px',
+                                            md: { height: 'auto', width: 'auto' }
+                                        }}
+                                    >
+                                        <FormControl
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                height: '95%',
+                                                width: '95%'
                                             }}
-                                        />
-                                    </FormControl>
-                                </Grid>
-
-                                <Grid item xs={12} md={4}>
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            defaultValue={data?.rg}
-                                            label='RG'
-                                            placeholder='RG'
-                                            aria-describedby='validation-schema-nome'
-                                            name='rg'
-                                            {...register(`rg`, { required: false })}
-                                            error={errors.rg}
-                                        />
-                                    </FormControl>
-                                </Grid>
-
-                                <Grid item xs={12} md={4}>
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            defaultValue={data?.registroConselhoClasse}
-                                            label='Registro Conselho Classe'
-                                            placeholder='Registro Conselho Classe'
-                                            aria-describedby='validation-schema-nome'
-                                            name='registroConselhoClasse'
-                                            {...register(`registroConselhoClasse`, { required: false })}
-                                            error={errors.registroConselhoClasse}
-                                        />
-                                    </FormControl>
-                                </Grid>
-
-                                {/* Foto do usuário e upload */}
-                                {/* <Grid item xs={12} md={2}>
-                                    <FormControl fullWidth>
-                                        <Avatar
-                                            alt='Victor Anderson'
-                                            sx={{ width: 56, height: 56 }}
-                                            src='/materialize-nextjs-admin-template/demo-3/images/avatars/3.png'
-                                        />
-                                    </FormControl>
-                                </Grid> */}
-
-                                {data && user.admin == 0 && (
-                                    <>
-                                        {/* Profissão */}
-                                        <Grid item xs={12} md={4}>
-                                            <FormControl fullWidth>
-                                                <Autocomplete
-                                                    options={data.profissaoOptions}
-                                                    getOptionLabel={option => option.nome || ''}
-                                                    defaultValue={data.profissao ?? ''}
-                                                    name={`profissao`}
-                                                    {...register(`profissao`, {
-                                                        required: false
-                                                    })}
-                                                    onChange={(index, value) => {
-                                                        const newDataProfission = value
-                                                            ? {
-                                                                  id: value?.profissaoID,
-                                                                  nome: value?.nome,
-                                                                  edit: true
-                                                              }
-                                                            : null
-                                                        setValue(`profissao`, newDataProfission)
-                                                    }}
-                                                    renderInput={params => (
-                                                        <TextField
-                                                            {...params}
-                                                            label='Selecione a profissão'
-                                                            placeholder='Selecione a profissão'
-                                                            aria-describedby='formulario-error'
-                                                            error={errors?.profissao}
-                                                        />
-                                                    )}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-
-                                        {/* Cargos */}
-                                        <Grid item xs={12} md={4}>
-                                            <FormControl fullWidth>
-                                                <Autocomplete
-                                                    multiple
-                                                    limitTags={2}
-                                                    options={data.cargosOptions}
-                                                    getOptionLabel={option => option.nome || ''}
-                                                    defaultValue={data?.cargo ?? []}
-                                                    name={`cargo[]`}
-                                                    {...register(`cargo`, {
-                                                        required: false
-                                                    })}
-                                                    onChange={(index, value) => {
-                                                        const newDataCargos = value
-                                                            ? value.map(item => {
-                                                                  return {
-                                                                      id: item?.id,
-                                                                      nome: item?.nome,
-                                                                      edit: true
-                                                                  }
-                                                              })
-                                                            : []
-                                                        setValue(`cargo`, newDataCargos)
-                                                    }}
-                                                    renderInput={params => (
-                                                        <TextField
-                                                            {...params}
-                                                            label='Cargos'
-                                                            placeholder='Cargos'
-                                                            error={errors?.cargo}
-                                                        />
-                                                    )}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                    </>
-                                )}
-
-                                {/* Botão alterar senha */}
-                                {data && type == 'edit' && (
-                                    <Grid item xs={12} md={4}>
-                                        <FormControl fullWidth>
-                                            <Button
-                                                variant='outlined'
-                                                startIcon={<Icon icon='mdi:lock-reset' />}
-                                                onClick={() => {
-                                                    // alterar estado do botão e limpar senha do register se estado for false
-                                                    setChangePasswords(!changePasswords)
-                                                    if (changePasswords) {
-                                                        setValue('senha', null)
-                                                        setValue('confirmarSenha', null)
-                                                    }
-                                                }}
-                                                // altura do botao igual aos demais campos texfield
-                                                sx={{ height: '56px' }}
-                                            >
-                                                Alterar Senha
-                                            </Button>
+                                        >
+                                            <input
+                                                type='file'
+                                                ref={fileInputRef}
+                                                style={{ display: 'none' }}
+                                                onChange={handleFileSelect}
+                                            />
+                                            <Avatar
+                                                variant='rounded'
+                                                alt='Victor Anderson'
+                                                sx={{ width: '100%', height: '100%', cursor: 'pointer' }}
+                                                src={photoProfile}
+                                                onClick={handleAvatarClick}
+                                            />
                                         </FormControl>
                                     </Grid>
-                                )}
+                                </Grid>
 
-                                {(type == 'new' || changePasswords) && (
-                                    <>
-                                        {/* Senha */}
-                                        <Grid item xs={12} md={4}>
-                                            <FormControl fullWidth>
-                                                <InputLabel htmlFor='input-confirm-password'>Senha</InputLabel>
-                                                <OutlinedInput
-                                                    label='Senha'
-                                                    id='input-password'
-                                                    type={statePassword.showPassword ? 'text' : 'password'}
-                                                    name={`senha`}
-                                                    {...register(`senha`, {
-                                                        required: type == 'new' ? true : false
-                                                    })}
-                                                    endAdornment={
-                                                        <InputAdornment position='end'>
-                                                            <IconButton edge='end' onClick={handleClickShowPassword}>
-                                                                <Icon
-                                                                    icon={
-                                                                        statePassword.showPassword
-                                                                            ? 'mdi:eye-outline'
-                                                                            : 'mdi:eye-off-outline'
-                                                                    }
-                                                                />
-                                                            </IconButton>
-                                                        </InputAdornment>
-                                                    }
+                                {/* Campos a direita */}
+                                <Grid xs={12} md={10} container spacing={5}>
+                                    <Grid item xs={12} md={4}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                defaultValue={data?.nome}
+                                                label='Nome'
+                                                placeholder='Nome'
+                                                aria-describedby='validation-schema-nome'
+                                                name='nome'
+                                                {...register(`nome`, { required: true })}
+                                                error={errors.nome}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <FormControl fullWidth>
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DatePicker
+                                                    label='Data de Nascimento'
+                                                    locale={dayjs.locale('pt-br')}
+                                                    format='DD/MM/YYYY'
+                                                    defaultValue={dayjs(new Date(data?.dataNascimento))}
+                                                    name={`dataNascimento`}
+                                                    onChange={value => setValue('dataNascimento', value)}
+                                                    renderInput={params => (
+                                                        <TextField
+                                                            {...params}
+                                                            variant='outlined'
+                                                            error={errors?.dataNascimento}
+                                                        />
+                                                    )}
                                                 />
-                                            </FormControl>
-                                        </Grid>
+                                            </LocalizationProvider>
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                defaultValue={data?.email}
+                                                label='E-mail'
+                                                placeholder='E-mail'
+                                                aria-describedby='validation-schema-nome'
+                                                name='email'
+                                                {...register(`email`, { required: true })}
+                                                error={errors.email}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                defaultValue={data?.cpf}
+                                                label='CPF'
+                                                placeholder='CPF'
+                                                aria-describedby='validation-schema-nome'
+                                                name='cpf'
+                                                {...register(`cpf`, {
+                                                    required: true,
+                                                    validate: value => validationCPF(value) || 'CPF inválido'
+                                                })}
+                                                error={errors.cpf}
+                                                helperText={errors.cpf?.message}
+                                                inputProps={{
+                                                    maxLength: 14,
+                                                    onChange: e => {
+                                                        setValue('cpf', cpfMask(e.target.value))
+                                                    }
+                                                }}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                defaultValue={data?.rg}
+                                                label='RG'
+                                                placeholder='RG'
+                                                aria-describedby='validation-schema-nome'
+                                                name='rg'
+                                                {...register(`rg`, { required: false })}
+                                                error={errors.rg}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                defaultValue={data?.registroConselhoClasse}
+                                                label='Registro Conselho Classe'
+                                                placeholder='Registro Conselho Classe'
+                                                aria-describedby='validation-schema-nome'
+                                                name='registroConselhoClasse'
+                                                {...register(`registroConselhoClasse`, { required: false })}
+                                                error={errors.registroConselhoClasse}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    {data && user.admin == 0 && (
+                                        <>
+                                            {/* Profissão */}
+                                            <Grid item xs={12} md={4}>
+                                                <FormControl fullWidth>
+                                                    <Autocomplete
+                                                        options={data.profissaoOptions}
+                                                        getOptionLabel={option => option.nome || ''}
+                                                        defaultValue={data.profissao ?? ''}
+                                                        name={`profissao`}
+                                                        {...register(`profissao`, {
+                                                            required: false
+                                                        })}
+                                                        onChange={(index, value) => {
+                                                            const newDataProfission = value
+                                                                ? {
+                                                                      id: value?.profissaoID,
+                                                                      nome: value?.nome,
+                                                                      edit: true
+                                                                  }
+                                                                : null
+                                                            setValue(`profissao`, newDataProfission)
+                                                        }}
+                                                        renderInput={params => (
+                                                            <TextField
+                                                                {...params}
+                                                                label='Selecione a profissão'
+                                                                placeholder='Selecione a profissão'
+                                                                aria-describedby='formulario-error'
+                                                                error={errors?.profissao}
+                                                            />
+                                                        )}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
 
-                                        {/* Confirma senha */}
+                                            {/* Cargos */}
+                                            <Grid item xs={12} md={4}>
+                                                <FormControl fullWidth>
+                                                    <Autocomplete
+                                                        multiple
+                                                        limitTags={2}
+                                                        options={data.cargosOptions}
+                                                        getOptionLabel={option => option.nome || ''}
+                                                        defaultValue={data?.cargo ?? []}
+                                                        name={`cargo[]`}
+                                                        {...register(`cargo`, {
+                                                            required: false
+                                                        })}
+                                                        onChange={(index, value) => {
+                                                            const newDataCargos = value
+                                                                ? value.map(item => {
+                                                                      return {
+                                                                          id: item?.id,
+                                                                          nome: item?.nome,
+                                                                          edit: true
+                                                                      }
+                                                                  })
+                                                                : []
+                                                            setValue(`cargo`, newDataCargos)
+                                                        }}
+                                                        renderInput={params => (
+                                                            <TextField
+                                                                {...params}
+                                                                label='Cargos'
+                                                                placeholder='Cargos'
+                                                                error={errors?.cargo}
+                                                            />
+                                                        )}
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                        </>
+                                    )}
+
+                                    {/* Botão alterar senha */}
+                                    {data && type == 'edit' && (
                                         <Grid item xs={12} md={4}>
                                             <FormControl fullWidth>
-                                                <InputLabel
-                                                    htmlFor='input-confirm-password'
-                                                    color={errors.confirmarSenha?.message ? 'error' : ''}
+                                                <Button
+                                                    variant='outlined'
+                                                    startIcon={<Icon icon='mdi:lock-reset' />}
+                                                    onClick={() => {
+                                                        // alterar estado do botão e limpar senha do register se estado for false
+                                                        setChangePasswords(!changePasswords)
+                                                        if (changePasswords) {
+                                                            setValue('senha', null)
+                                                            setValue('confirmarSenha', null)
+                                                        }
+                                                    }}
+                                                    // altura do botao igual aos demais campos texfield
+                                                    sx={{ height: '56px' }}
                                                 >
-                                                    Confirmar Senha
-                                                </InputLabel>
-                                                <OutlinedInput
-                                                    label='Confirmar Senha'
-                                                    id='input-password'
-                                                    type={statePassword.showConfirmPassword ? 'text' : 'password'}
-                                                    name={`confirmarSenha`}
-                                                    {...register(`confirmarSenha`, {
-                                                        required: type == 'new' ? true : false,
-                                                        // validar senha e confirmação de senha somente se houver valor em senha
-                                                        validate: value =>
-                                                            value === watch('senha') || 'As senhas não conferem.'
-                                                    })}
-                                                    error={errors.confirmarSenha}
-                                                    endAdornment={
-                                                        <InputAdornment position='end'>
-                                                            <IconButton
-                                                                edge='end'
-                                                                onClick={handleClickShowConfirmPassword}
-                                                            >
-                                                                <Icon
-                                                                    icon={
-                                                                        statePassword.showConfirmPassword
-                                                                            ? 'mdi:eye-outline'
-                                                                            : 'mdi:eye-off-outline'
-                                                                    }
-                                                                />
-                                                            </IconButton>
-                                                        </InputAdornment>
-                                                    }
-                                                />
-                                                {errors.confirmarSenha?.message && (
-                                                    <Typography variant='body2' color='error'>
-                                                        {errors.confirmarSenha?.message}
-                                                    </Typography>
-                                                )}
+                                                    Alterar Senha
+                                                </Button>
                                             </FormControl>
                                         </Grid>
-                                    </>
-                                )}
+                                    )}
+
+                                    {(type == 'new' || changePasswords) && (
+                                        <>
+                                            {/* Senha */}
+                                            <Grid item xs={12} md={4}>
+                                                <FormControl fullWidth>
+                                                    <InputLabel htmlFor='input-confirm-password'>Senha</InputLabel>
+                                                    <OutlinedInput
+                                                        label='Senha'
+                                                        id='input-password'
+                                                        type={statePassword.showPassword ? 'text' : 'password'}
+                                                        name={`senha`}
+                                                        {...register(`senha`, {
+                                                            required: type == 'new' ? true : false
+                                                        })}
+                                                        endAdornment={
+                                                            <InputAdornment position='end'>
+                                                                <IconButton
+                                                                    edge='end'
+                                                                    onClick={handleClickShowPassword}
+                                                                >
+                                                                    <Icon
+                                                                        icon={
+                                                                            statePassword.showPassword
+                                                                                ? 'mdi:eye-outline'
+                                                                                : 'mdi:eye-off-outline'
+                                                                        }
+                                                                    />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        }
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+
+                                            {/* Confirma senha */}
+                                            <Grid item xs={12} md={4}>
+                                                <FormControl fullWidth>
+                                                    <InputLabel
+                                                        htmlFor='input-confirm-password'
+                                                        color={errors.confirmarSenha?.message ? 'error' : ''}
+                                                    >
+                                                        Confirmar Senha
+                                                    </InputLabel>
+                                                    <OutlinedInput
+                                                        label='Confirmar Senha'
+                                                        id='input-password'
+                                                        type={statePassword.showConfirmPassword ? 'text' : 'password'}
+                                                        name={`confirmarSenha`}
+                                                        {...register(`confirmarSenha`, {
+                                                            required: type == 'new' ? true : false,
+                                                            // validar senha e confirmação de senha somente se houver valor em senha
+                                                            validate: value =>
+                                                                value === watch('senha') || 'As senhas não conferem.'
+                                                        })}
+                                                        error={errors.confirmarSenha}
+                                                        endAdornment={
+                                                            <InputAdornment position='end'>
+                                                                <IconButton
+                                                                    edge='end'
+                                                                    onClick={handleClickShowConfirmPassword}
+                                                                >
+                                                                    <Icon
+                                                                        icon={
+                                                                            statePassword.showConfirmPassword
+                                                                                ? 'mdi:eye-outline'
+                                                                                : 'mdi:eye-off-outline'
+                                                                        }
+                                                                    />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        }
+                                                    />
+                                                    {errors.confirmarSenha?.message && (
+                                                        <Typography variant='body2' color='error'>
+                                                            {errors.confirmarSenha?.message}
+                                                        </Typography>
+                                                    )}
+                                                </FormControl>
+                                            </Grid>
+                                        </>
+                                    )}
+                                </Grid>
                             </Grid>
                         </CardContent>
                     </Card>

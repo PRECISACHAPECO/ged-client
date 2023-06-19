@@ -19,7 +19,7 @@ const Fields = ({ register, errors, setValue, fields, values, isDisabled, setCop
 
     const itializeValues = () => {
         //? Inicializa os valores do formulário
-        fields.map((field, index) => {
+        fields?.map((field, index) => {
             if (field.tipo == 'int') {
                 setValue(`header.${field.tabela}`, values?.[field.tabela] ? values?.[field.tabela] : null)
             } else {

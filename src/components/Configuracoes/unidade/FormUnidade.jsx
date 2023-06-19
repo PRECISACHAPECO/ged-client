@@ -25,6 +25,7 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
 
     //* Componente é chamado na tela da unidade e Meus dados do fornecedor
     const id = paramFornecedorUnidadeID ? paramFornecedorUnidadeID : Router.query.id //? id vem por parametro se for home do fornecedor
+    // const id = 26
 
     const router = Router
     const type = formType(router.pathname) // Verifica se é novo ou edição
@@ -97,6 +98,9 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
             })
         }
     }
+    useEffect(() => {
+        onSubmit()
+    }, [onSubmit()])
 
     // Função que atualiza os dados ou cria novo dependendo do tipo da rota
     const onSubmit = async datas => {

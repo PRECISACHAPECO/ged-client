@@ -91,18 +91,20 @@ const FormSistemaQualidade = () => {
 
     // Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
     useEffect(() => {
-        if (type === 'new') {
-            inputRef.current.focus()
-        } else {
-            const getData = async () => {
-                try {
-                    const response = await api.get(`${staticUrl}/${id}`)
-                    reset(response.data)
-                } catch (error) {
-                    console.log(error)
+        if (id) {
+            if (type === 'new') {
+                inputRef.current.focus()
+            } else {
+                const getData = async () => {
+                    try {
+                        const response = await api.get(`${staticUrl}/${id}`)
+                        reset(response.data)
+                    } catch (error) {
+                        console.log(error)
+                    }
                 }
+                getData()
             }
-            getData()
         }
     }, [])
 

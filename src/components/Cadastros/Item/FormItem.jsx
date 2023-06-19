@@ -89,13 +89,15 @@ const FormItem = () => {
     }
 
     const getData = async () => {
-        api.get(`${staticUrl}/${id}`, {
-            headers: { 'function-name': 'getData' }
-        }).then(response => {
-            initializeValues(response.data)
-            setData(response.data)
-            console.log('data', response.data)
-        })
+        if (id) {
+            api.get(`${staticUrl}/${id}`, {
+                headers: { 'function-name': 'getData' }
+            }).then(response => {
+                initializeValues(response.data)
+                setData(response.data)
+                console.log('data', response.data)
+            })
+        }
     }
 
     const getNovo = async () => {

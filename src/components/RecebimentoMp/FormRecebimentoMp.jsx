@@ -75,6 +75,7 @@ const FormRecebimentoMp = () => {
     const [info, setInfo] = useState('')
     const [openModal, setOpenModal] = useState(false)
     const [listErrors, setListErrors] = useState({ status: false, errors: [] })
+    const { settings } = useContext(SettingsContext)
 
     const [canEdit, setCanEdit] = useState({
         status: false,
@@ -83,11 +84,34 @@ const FormRecebimentoMp = () => {
     })
 
     const router = Router
-    const { id } = router.query
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const type = formType(router.pathname) // Verifica se é novo ou edição
+    let id = router.query.id
+    const dynamicId = localStorage.getItem('dynamicId')
 
-    const { settings } = useContext(SettingsContext)
+    //! TODO - Verificar para deixar funções em arquivo separado
+    const setDynamicId = () => {
+        const { id } = router.query
+        if (id) {
+            localStorage.setItem('dynamicId', id)
+        }
+    }
+
+    const getDynamicId = () => {
+        if (!id) {
+            id = dynamicId
+        }
+        return id
+    }
+
+    useEffect(() => {
+        const { id } = router.query
+        getDynamicId(id)
+    }, [])
+
+    useEffect(() => {
+        setDynamicId()
+    }, [])
 
     const {
         trigger,
@@ -218,28 +242,30 @@ const FormRecebimentoMp = () => {
 
     const getData = () => {
         setLoading(true)
-        api.post(`${staticUrl}/getData/${id}`, { type: type, unidadeID: loggedUnity.unidadeID }).then(response => {
-            setFields(response.data.fields)
-            setData(response.data.data)
-            setFieldsProducts(response.data.fieldsProducts)
-            setDataProducts(response.data.dataProducts)
-            setBlocos(response.data.blocos)
-            setInfo(response.data.info)
-            initializeValues(response.data)
+        if (id) {
+            api.post(`${staticUrl}/getData/${id}`, { type: type, unidadeID: loggedUnity.unidadeID }).then(response => {
+                setFields(response.data.fields)
+                setData(response.data.data)
+                setFieldsProducts(response.data.fieldsProducts)
+                setDataProducts(response.data.dataProducts)
+                setBlocos(response.data.blocos)
+                setInfo(response.data.info)
+                initializeValues(response.data)
 
-            let objStatus = statusDefault[response.data.info.status]
-            setStatus(objStatus)
+                let objStatus = statusDefault[response?.data?.info?.status]
+                setStatus(objStatus)
 
-            setCanEdit({
-                status: response.data.info.status < 40 ? true : false,
-                message:
-                    'Esse formulário já foi concluído! Para alterá-lo é necessário atualizar seu Status para "Em preenchimento" através do botão "Status"!',
-                messageType: 'info'
+                setCanEdit({
+                    status: response?.data?.info?.status < 40 ? true : false,
+                    message:
+                        'Esse formulário já foi concluído! Para alterá-lo é necessário atualizar seu Status para "Em preenchimento" através do botão "Status"!',
+                    messageType: 'info'
+                })
+
+                verifyFormPending()
+                setLoading(false)
             })
-
-            verifyFormPending()
-            setLoading(false)
-        })
+        }
     }
 
     const removeProduct = (value, index) => {
@@ -283,8 +309,8 @@ const FormRecebimentoMp = () => {
         })
 
         // Seta autocomplete com o valor do banco em um objeto com id e nome
-        values.dataProducts.map((data, indexData) => {
-            values.fieldsProducts.map((field, indexFields) => {
+        values?.dataProducts?.map((data, indexData) => {
+            values?.fieldsProducts?.map((field, indexFields) => {
                 if (field.tipo == 'int') {
                     console.log('🚀 ~ data?.[field.tabela]:', data?.[field.tabela])
                     setValue(
@@ -298,8 +324,8 @@ const FormRecebimentoMp = () => {
         })
 
         // Seta bloco com o valor do banco em um objeto com id e nome
-        values.blocos.map((block, indexBlock) => {
-            block.itens.map((item, indexItem) => {
+        values?.blocos?.map((block, indexBlock) => {
+            block?.itens?.map((item, indexItem) => {
                 if (item?.resposta) {
                     setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
                 }
@@ -450,7 +476,7 @@ const FormRecebimentoMp = () => {
                     <Card>
                         <FormHeader
                             btnCancel
-                            btnSave={info.status < 40 || type == 'new'}
+                            btnSave={info?.status < 40 || type == 'new'}
                             btnSend={type == 'edit' ? true : false}
                             btnPrint
                             generateReport={generateReport}
