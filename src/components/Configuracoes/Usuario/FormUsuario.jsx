@@ -28,7 +28,8 @@ import {
     InputAdornment,
     IconButton,
     InputLabel,
-    Avatar
+    Avatar,
+    Tooltip
 } from '@mui/material'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
@@ -57,7 +58,7 @@ const FormUsuario = () => {
     const router = Router
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
-    const { user, loggedUnity } = useContext(AuthContext)
+    const { user, setUser, loggedUnity } = useContext(AuthContext)
     // Acorddion das permissões
     // ** State
     const [expanded, setExpanded] = useState(false)
@@ -174,12 +175,31 @@ const FormUsuario = () => {
                 .post(`${staticUrl}/photo-profile/${id}`, formData)
                 .then(response => {
                     setPhotoProfile(response.data)
+                    console.log('id', id)
+                    console.log('user.usuarioID', user.usuarioID)
+                    if (user.usuarioID == id) {
+                        setUser({ ...user, imagem: response.data })
+                    }
                     toast.success('Foto de perfil atualizada com sucesso!')
                 })
                 .catch(error => {
                     console.log(error)
                     toast.error('Erro ao atualizar foto de perfil, tente novamente!')
                 })
+        }
+    }
+
+    const handleDeleteImage = async () => {
+        try {
+            await api.delete(`${staticUrl}/photo-profile/${id}`)
+            setPhotoProfile(null)
+            if (user.usuarioID == id) {
+                setUser({ ...user, imagem: null })
+            }
+            toast.success('Foto de perfil removida com sucesso!')
+        } catch (error) {
+            console.log(error)
+            toast.error('Erro ao remover foto de perfil, tente novamente!')
         }
     }
 
@@ -245,10 +265,31 @@ const FormUsuario = () => {
                                             mx: '17px',
                                             height: '250px',
                                             width: '250px',
+                                            position: 'relative',
                                             mb: '10px',
                                             md: { height: 'auto', width: 'auto' }
                                         }}
                                     >
+                                        {photoProfile && (
+                                            <Tooltip title='Apagar foto do perfil' placement='top'>
+                                                <IconButton
+                                                    size='small'
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        top: '30px',
+                                                        right: '9px',
+                                                        opacity: '0.2',
+                                                        zIndex: '20',
+                                                        color: 'white',
+                                                        backgroundColor: 'red'
+                                                    }}
+                                                    onClick={handleDeleteImage}
+                                                >
+                                                    <Icon icon='ion:trash' />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
+
                                         <FormControl
                                             sx={{
                                                 display: 'flex',

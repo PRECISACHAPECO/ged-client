@@ -20,7 +20,7 @@ import { AuthContext } from 'src/context/AuthContext'
 import Icon from 'src/@core/components/icon'
 
 // ** Context
-import { useAuth } from 'src/hooks/useAuth'
+import { useAuth, user } from 'src/hooks/useAuth'
 
 // ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({
@@ -96,7 +96,7 @@ const UserDropdown = props => {
                     alt={user.nome}
                     onClick={handleDropdownOpen}
                     sx={{ width: 40, height: 40 }}
-                    src='https://github.com/PRECISACHAPECO.png'
+                    src={user.imagem}
                 />
             </Badge>
             <Menu
@@ -119,7 +119,7 @@ const UserDropdown = props => {
                         >
                             <Avatar
                                 alt='John Doe'
-                                src='https://github.com/PRECISACHAPECO.png'
+                                src={user.imagem}
                                 sx={{ width: '2.5rem', height: '2.5rem' }}
                             />
                         </Badge>
