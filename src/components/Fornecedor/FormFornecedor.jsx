@@ -3,6 +3,7 @@ import { useState, useEffect, useContext, useRef } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+import axios from 'axios'
 
 //* Default Form Components
 import Fields from 'src/components/Defaults/Formularios/Fields'
@@ -83,6 +84,8 @@ const FormFornecedor = () => {
     const [dateStatus, setDateStatus] = useState({})
     const [listErrors, setListErrors] = useState({ status: false, errors: [] })
     const [copiedDataContext, setCopiedDataContext] = useState(false)
+    const [itemAnexoAux, setItemAnexoAux] = useState(null)
+    const [arrAnexo, setArrAnexo] = useState([])
 
     const [canEdit, setCanEdit] = useState({
         status: false,
@@ -491,8 +494,47 @@ const FormFornecedor = () => {
     // Quando clicar no botão de foto, o input de foto é clicado abrindo o seletor de arquivos
     const fileInputRef = useRef(null)
 
-    const handleAvatarClick = () => {
+    const handleAvatarClick = item => {
         fileInputRef.current.click()
+        setItemAnexoAux(item)
+    }
+
+    const handleFileSelect = async event => {
+        const selectedFile = event.target.files[0]
+        setArrAnexo([
+            ...arrAnexo,
+            {
+                titulo: itemAnexoAux.nome,
+                grupoAnexoItemID: itemAnexoAux.grupoanexoitemID,
+                arquivo: selectedFile,
+                usuarioID: user.usuarioID,
+                recebimentoMpID: '',
+                naoConformidadeID: ''
+            }
+        ])
+    }
+
+    const enviarPDFsParaBackend = async () => {
+        const formData = new FormData()
+
+        arrAnexo.forEach((file, index) => {
+            formData.append(`pdfFiles`, file.arquivo)
+            formData.append(`titulo`, file.titulo)
+            formData.append(`grupoAnexoItemID`, file.grupoAnexoItemID)
+            formData.append(`usuarioID`, file.usuarioID)
+            formData.append(`recebimentoMpID`, file.recebimentoMpID)
+            formData.append(`naoConformidadeID`, file.naoConformidadeID)
+        })
+
+        await api
+            .post(`/formularios/fornecedor/saveAnexo/${id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+            .then(response => {
+                console.log(response)
+            })
     }
 
     return (
@@ -658,15 +700,15 @@ const FormFornecedor = () => {
                                                         <Button
                                                             variant='outlined'
                                                             startIcon={<Icon icon='material-symbols:upload' />}
-                                                            onClick={handleAvatarClick}
-                                                            onChange={e => handleFileChange(e, item)}
+                                                            onClick={() => handleAvatarClick(item)}
                                                         >
                                                             <input
                                                                 type='file'
                                                                 ref={fileInputRef}
                                                                 style={{ display: 'none' }}
+                                                                onChange={handleFileSelect}
                                                             />
-                                                            Selecione Anexo
+                                                            Selecione Anexo {item.grupoanexoitemID}
                                                         </Button>
                                                     </Box>
                                                     <Box>
@@ -691,6 +733,9 @@ const FormFornecedor = () => {
                                         </CardContent>
                                     </Card>
                                 ))}
+                                <Button variant='contained' onClick={enviarPDFsParaBackend}>
+                                    Enviar Anexos
+                                </Button>
                             </Grid>
                         </Grid>
                     )}
