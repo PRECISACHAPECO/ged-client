@@ -1,5 +1,5 @@
 // import * as React from 'react'
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useRef } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -16,6 +16,7 @@ import {
     Button,
     Card,
     CardContent,
+    CardHeader,
     FormControl,
     FormControlLabel,
     Grid,
@@ -65,6 +66,7 @@ const FormFornecedor = () => {
     const [categorias, setCategorias] = useState([])
     const [atividades, setAtividades] = useState([])
     const [sistemasQualidade, setSistemasQualidade] = useState([])
+    const [grupoAnexo, setGrupoAnexo] = useState([])
 
     const [allBlocks, setAllBlocks] = useState([])
     const [blocks, setBlocks] = useState([])
@@ -87,9 +89,8 @@ const FormFornecedor = () => {
         message: 'Você não tem permissões',
         messageType: 'info'
     })
-
     const router = Router
-    const { id } = router.query
+    let { id } = router.query
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const type = formType(router.pathname) // Verifica se é novo ou edição
 
@@ -107,6 +108,31 @@ const FormFornecedor = () => {
         handleSubmit,
         formState: { errors }
     } = useForm()
+
+    const dynamicId = localStorage.getItem('dynamicId')
+    //! TODO - Verificar para deixar funções em arquivo separado
+    const setDynamicId = () => {
+        const { id } = router.query
+        if (id) {
+            localStorage.setItem('dynamicId', id)
+        }
+    }
+
+    const getDynamicId = () => {
+        if (!id) {
+            id = dynamicId
+        }
+        return id
+    }
+
+    useEffect(() => {
+        const { id } = router.query
+        getDynamicId(id)
+    }, [])
+
+    useEffect(() => {
+        setDynamicId()
+    }, [])
 
     const initializeValues = values => {
         // Seta itens no formulário
@@ -312,7 +338,7 @@ const FormFornecedor = () => {
             setLoading(true)
             if (id) {
                 api.get(`${staticUrl}/${id}`).then(response => {
-                    // console.log('getData: ', response.data)
+                    console.log('getData: ', response.data)
 
                     setFields(response.data.fields)
                     setCategorias(response.data.categorias)
@@ -323,6 +349,7 @@ const FormFornecedor = () => {
                     setVisibleBlocks(response.data.blocos, response.data.categorias)
 
                     setData(response.data.data)
+                    setGrupoAnexo(response.data.grupoAnexo)
 
                     setInfo(response.data.info)
                     setUnidade(response.data.unidade)
@@ -460,6 +487,13 @@ const FormFornecedor = () => {
             toast.success('Dados copiados com sucesso!')
         }
     }, [copiedDataContext])
+
+    // Quando clicar no botão de foto, o input de foto é clicado abrindo o seletor de arquivos
+    const fileInputRef = useRef(null)
+
+    const handleAvatarClick = () => {
+        fileInputRef.current.click()
+    }
 
     return (
         <>
@@ -603,6 +637,63 @@ const FormFornecedor = () => {
                                 isDisabled={!canEdit.status}
                             />
                         ))}
+
+                    {/* Grupo de anexos */}
+                    {grupoAnexo && (
+                        <Grid container spacing={4}>
+                            <Grid item xs={12} md={12}>
+                                {grupoAnexo.map((grupo, indexGrupo) => (
+                                    <Card key={indexGrupo} sx={{ mt: 4 }}>
+                                        <CardContent>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
+                                                {grupo.nome}
+                                            </Typography>
+                                            <Typography variant='body2' sx={{ mb: 2 }}>
+                                                {grupo.descricao}
+                                            </Typography>
+
+                                            {grupo.itens.map((item, indexItem) => (
+                                                <Box display='flex' alignItems='center' sx={{ gap: 2, my: 2 }}>
+                                                    <Box>
+                                                        <Button
+                                                            variant='outlined'
+                                                            startIcon={<Icon icon='material-symbols:upload' />}
+                                                            onClick={handleAvatarClick}
+                                                            onChange={e => handleFileChange(e, item)}
+                                                        >
+                                                            <input
+                                                                type='file'
+                                                                ref={fileInputRef}
+                                                                style={{ display: 'none' }}
+                                                            />
+                                                            Selecione Anexo
+                                                        </Button>
+                                                    </Box>
+                                                    <Box>
+                                                        <Box>
+                                                            <Typography key={indexItem} variant='body1'>
+                                                                {item.nome}{' '}
+                                                                {item.obrigatorio ? (
+                                                                    <span className='text-red-500'>*</span>
+                                                                ) : (
+                                                                    ''
+                                                                )}
+                                                            </Typography>
+                                                        </Box>
+                                                        <Box>
+                                                            <Typography variant='caption' sx={{ mb: 2 }}>
+                                                                {item.descricao}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Box>
+                                                </Box>
+                                            ))}
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </Grid>
+                        </Grid>
+                    )}
 
                     {/* Observação do formulário */}
                     <Card sx={{ mt: 4 }}>

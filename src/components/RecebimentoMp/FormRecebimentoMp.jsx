@@ -87,8 +87,8 @@ const FormRecebimentoMp = () => {
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const type = formType(router.pathname) // Verifica se é novo ou edição
     let id = router.query.id
-    const dynamicId = localStorage.getItem('dynamicId')
 
+    const dynamicId = localStorage.getItem('dynamicId')
     //! TODO - Verificar para deixar funções em arquivo separado
     const setDynamicId = () => {
         const { id } = router.query

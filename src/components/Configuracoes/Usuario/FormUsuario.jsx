@@ -168,6 +168,7 @@ const FormUsuario = () => {
     // Ao selecionar a foto, ela é enviada para o servidor e salva no banco de dados, como resposta atualiza a foto atual
     const handleFileSelect = async event => {
         const selectedFile = event.target.files[0]
+        console.log('🚀 ~ selectedFile:', selectedFile)
         if (selectedFile) {
             const formData = new FormData()
             formData.append('photoProfile', selectedFile)
