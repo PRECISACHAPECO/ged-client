@@ -4,6 +4,7 @@ import { useForm, Controller } from 'react-hook-form'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import axios from 'axios'
+import upload from 'src/icon/Upload'
 
 //* Default Form Components
 import Fields from 'src/components/Defaults/Formularios/Fields'
@@ -54,6 +55,7 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br' // import locale
 import DialogForm from '../Defaults/Dialogs/Dialog'
 import DialogFormStatus from '../Defaults/Dialogs/DialogFormStatus'
+import Upload from 'src/icon/Upload'
 
 const FormFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
@@ -99,6 +101,7 @@ const FormFornecedor = () => {
 
     const { settings } = useContext(SettingsContext)
     const mode = settings.mode
+    console.log('🚀 ~ mode:', mode)
 
     const {
         watch,
@@ -531,9 +534,9 @@ const FormFornecedor = () => {
                 naoConformidadeID: '',
                 file: {
                     status: true,
-                    name: selectedFile.name,
-                    size: selectedFile.size,
-                    type: selectedFile.type
+                    name: selectedFile?.name,
+                    size: selectedFile?.size,
+                    type: selectedFile?.type
                 }
             }
 
@@ -713,89 +716,92 @@ const FormFornecedor = () => {
 
                     {/* Grupo de anexos */}
                     {grupoAnexo && (
-                        <Grid container spacing={4}>
-                            <Grid item xs={12} md={12}>
-                                {grupoAnexo.map((grupo, indexGrupo) => (
-                                    <Card key={indexGrupo} sx={{ mt: 4 }}>
-                                        <CardContent>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
-                                                {grupo.nome}
-                                            </Typography>
-                                            <Typography variant='body2' sx={{ mb: 2 }}>
-                                                {grupo.descricao}
-                                            </Typography>
+                        <>
+                            {grupoAnexo.map((grupo, indexGrupo) => (
+                                <Card key={indexGrupo} sx={{ mt: 4 }}>
+                                    <CardContent>
+                                        {/* {JSON.stringify(arrAnexo)} */}
+                                        <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
+                                            {grupo.nome}
+                                        </Typography>
+                                        <Typography variant='body2' sx={{ mb: 2 }}>
+                                            {grupo.descricao}
+                                        </Typography>
 
-                                            {/* {JSON.stringify(arrAnexo)} */}
-
+                                        <Grid container spacing={4}>
                                             {grupo.itens.map((item, indexItem) => (
-                                                <Box display='flex' alignItems='center' sx={{ gap: 2, my: 7 }}>
-                                                    <Box>
-                                                        <Button
-                                                            sx={{ display: 'relative' }}
-                                                            variant='outlined'
-                                                            startIcon={<Icon icon='material-symbols:upload' />}
-                                                            onClick={() => handleAvatarClick(item)}
-                                                        >
-                                                            Selecione Anexo
-                                                            <input
-                                                                type='file'
-                                                                ref={fileInputRef}
-                                                                style={{ display: 'none' }}
-                                                                onChange={handleFileSelect}
-                                                            />
-                                                            {(() => {
-                                                                const foundAnexo = arrAnexo.find(
-                                                                    anexo =>
-                                                                        item.grupoanexoitemID === anexo.grupoAnexoItemID
+                                                <Grid item xs={12} md={4} key={indexItem}>
+                                                    <Box
+                                                        onClick={() => handleAvatarClick(item)}
+                                                        style={{
+                                                            border: `${
+                                                                mode == 'dark'
+                                                                    ? '1px solid rgba(234, 234, 255, 0.10)'
+                                                                    : '1px solid rgba(76, 78, 100, 0.12)'
+                                                            }`,
+                                                            borderRadius: '12px',
+                                                            padding: '25px',
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            gap: '6px'
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src='/images/storyset/a.svg'
+                                                            alt=''
+                                                            style={{ width: '30%' }}
+                                                        />
+                                                        <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
+                                                            {item.nome}
+                                                        </Typography>
+                                                        <Typography variant='body2' sx={{ mb: 2 }}>
+                                                            {item.descricao}
+                                                        </Typography>
+
+                                                        {(() => {
+                                                            const foundAnexo = arrAnexo.find(
+                                                                anexo =>
+                                                                    item.grupoanexoitemID === anexo.grupoAnexoItemID
+                                                            )
+                                                            if (foundAnexo) {
+                                                                return (
+                                                                    <div className='flex items-center gap-2'>
+                                                                        <img
+                                                                            width={28}
+                                                                            height={28}
+                                                                            alt='invoice.pdf'
+                                                                            src='/images/icons/file-icons/pdf.png'
+                                                                        />
+                                                                        <Typography variant='body2'>{`${
+                                                                            foundAnexo.file.name
+                                                                        } (${(
+                                                                            foundAnexo.file.size /
+                                                                            1024 /
+                                                                            1024
+                                                                        ).toFixed(2)}mb)`}</Typography>
+                                                                    </div>
                                                                 )
-                                                                if (foundAnexo) {
-                                                                    return (
-                                                                        <div className='flex absolute -bottom-5 left-0 w-[10000px] gap-1 items-center transform lowercase'>
-                                                                            <Icon
-                                                                                className='text-sm'
-                                                                                icon='akar-icons:check'
-                                                                            />
-                                                                            <Typography variant='body2'>{`${
-                                                                                foundAnexo.file.name
-                                                                            } (${(
-                                                                                foundAnexo.file.size /
-                                                                                1024 /
-                                                                                1024
-                                                                            ).toFixed(2)}mb)`}</Typography>
-                                                                        </div>
-                                                                    )
-                                                                }
-                                                                return null
-                                                            })()}
-                                                        </Button>
+                                                            }
+                                                            return null
+                                                        })()}
+                                                        <input
+                                                            type='file'
+                                                            ref={fileInputRef}
+                                                            style={{ display: 'none' }}
+                                                            onChange={handleFileSelect}
+                                                        />
                                                     </Box>
-                                                    <Box>
-                                                        <Box>
-                                                            <Typography key={indexItem} variant='body1'>
-                                                                {item.nome}{' '}
-                                                                {item.obrigatorio ? (
-                                                                    <span className='text-red-500'>*</span>
-                                                                ) : (
-                                                                    ''
-                                                                )}
-                                                            </Typography>
-                                                        </Box>
-                                                        <Box>
-                                                            <Typography variant='caption' sx={{ mb: 2 }}>
-                                                                {item.descricao}
-                                                            </Typography>
-                                                        </Box>
-                                                    </Box>
-                                                </Box>
+                                                </Grid>
                                             ))}
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                                <Button variant='contained' onClick={enviarPDFsParaBackend}>
-                                    Enviar Anexos
-                                </Button>
-                            </Grid>
-                        </Grid>
+                                        </Grid>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                            <Button variant='contained' onClick={enviarPDFsParaBackend}>
+                                Enviar Anexos
+                            </Button>
+                        </>
                     )}
 
                     {/* Observação do formulário */}
