@@ -501,17 +501,44 @@ const FormFornecedor = () => {
 
     const handleFileSelect = async event => {
         const selectedFile = event.target.files[0]
-        setArrAnexo([
-            ...arrAnexo,
-            {
+        const existingAnexo = arrAnexo.find(anexo => anexo.grupoAnexoItemID === itemAnexoAux.grupoanexoitemID)
+
+        if (existingAnexo) {
+            const updatedAnexo = {
+                ...existingAnexo,
+                titulo: itemAnexoAux.nome,
+                arquivo: selectedFile,
+                file: {
+                    status: true,
+                    name: selectedFile.name,
+                    size: selectedFile.size,
+                    type: selectedFile.type
+                }
+            }
+
+            const updatedArrAnexo = arrAnexo.map(anexo =>
+                anexo.grupoAnexoItemID === itemAnexoAux.grupoanexoitemID ? updatedAnexo : anexo
+            )
+
+            setArrAnexo(updatedArrAnexo)
+        } else {
+            const newAnexo = {
                 titulo: itemAnexoAux.nome,
                 grupoAnexoItemID: itemAnexoAux.grupoanexoitemID,
                 arquivo: selectedFile,
                 usuarioID: user.usuarioID,
                 recebimentoMpID: '',
-                naoConformidadeID: ''
+                naoConformidadeID: '',
+                file: {
+                    status: true,
+                    name: selectedFile.name,
+                    size: selectedFile.size,
+                    type: selectedFile.type
+                }
             }
-        ])
+
+            setArrAnexo([...arrAnexo, newAnexo])
+        }
     }
 
     const enviarPDFsParaBackend = async () => {
@@ -533,7 +560,11 @@ const FormFornecedor = () => {
                 }
             })
             .then(response => {
-                console.log(response)
+                if (response.status === 200) {
+                    toast.success('Anexos enviados com sucesso!')
+                    setArrAnexo([])
+                    setItemAnexoAux({})
+                }
             })
     }
 
@@ -694,21 +725,48 @@ const FormFornecedor = () => {
                                                 {grupo.descricao}
                                             </Typography>
 
+                                            {/* {JSON.stringify(arrAnexo)} */}
+
                                             {grupo.itens.map((item, indexItem) => (
-                                                <Box display='flex' alignItems='center' sx={{ gap: 2, my: 2 }}>
+                                                <Box display='flex' alignItems='center' sx={{ gap: 2, my: 7 }}>
                                                     <Box>
                                                         <Button
+                                                            sx={{ display: 'relative' }}
                                                             variant='outlined'
                                                             startIcon={<Icon icon='material-symbols:upload' />}
                                                             onClick={() => handleAvatarClick(item)}
                                                         >
+                                                            Selecione Anexo
                                                             <input
                                                                 type='file'
                                                                 ref={fileInputRef}
                                                                 style={{ display: 'none' }}
                                                                 onChange={handleFileSelect}
                                                             />
-                                                            Selecione Anexo {item.grupoanexoitemID}
+                                                            {(() => {
+                                                                const foundAnexo = arrAnexo.find(
+                                                                    anexo =>
+                                                                        item.grupoanexoitemID === anexo.grupoAnexoItemID
+                                                                )
+                                                                if (foundAnexo) {
+                                                                    return (
+                                                                        <div className='flex absolute -bottom-5 left-0 w-[10000px] gap-1 items-center transform lowercase'>
+                                                                            <Icon
+                                                                                className='text-sm'
+                                                                                icon='akar-icons:check'
+                                                                            />
+                                                                            <Typography variant='body2'>{`${
+                                                                                foundAnexo.file.name
+                                                                            } (${(
+                                                                                foundAnexo.file.size /
+                                                                                1024 /
+                                                                                1024
+                                                                            ).toFixed(2)}mb)`}</Typography>
+                                                                        </div>
+                                                                    )
+                                                                }
+                                                                return null
+                                                            })()}
                                                         </Button>
                                                     </Box>
                                                     <Box>
