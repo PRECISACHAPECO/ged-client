@@ -88,6 +88,7 @@ const FormFornecedor = () => {
     const [copiedDataContext, setCopiedDataContext] = useState(false)
     const [itemAnexoAux, setItemAnexoAux] = useState(null)
     const [arrAnexo, setArrAnexo] = useState([])
+    const [arrAnexoRemoved, setArrAnexoRemoved] = useState([])
 
     const [canEdit, setCanEdit] = useState({
         status: false,
@@ -361,7 +362,7 @@ const FormFornecedor = () => {
                             console.log('🚀 ~ itemmAnexoo:', item.anexo)
                             if (item.anexo) {
                                 arrAnexo.push({
-                                    titulo: item.descricao,
+                                    titulo: item.nome,
                                     grupoAnexoItemID: item.grupoanexoitemID,
                                     arquivo: item.anexo,
                                     usuarioID: user.usuarioID,
@@ -404,7 +405,7 @@ const FormFornecedor = () => {
         }
     }
 
-    console.log('dfjkfdfgjkjhjhgjhghjh', arrAnexo)
+    console.log('ARRRANEXONOVO', arrAnexo)
 
     const noPermissions = () => {
         router.push('/formularios/fornecedor/')
@@ -526,7 +527,8 @@ const FormFornecedor = () => {
     }
 
     // Quando selecionar um arquivo, o arquivo é adicionado ao array de anexos
-    const handleFileSelect = async event => {
+    const handleFileSelect = event => {
+        console.log('choegou akii')
         const selectedFile = event.target.files[0]
 
         if (selectedFile?.type !== 'application/pdf') {
@@ -550,9 +552,11 @@ const FormFornecedor = () => {
                 }
             }
 
-            const updatedArrAnexo = arrAnexo.map(anexo =>
-                anexo.grupoAnexoItemID === itemAnexoAux.grupoanexoitemID ? updatedAnexo : anexo
-            )
+            const updatedArrAnexo = arrAnexo.map(anexo => {
+                console.log('🚀 ~ anexo.grupoAnexoItemID:', anexo.grupoAnexoItemID)
+                return anexo.grupoAnexoItemID === itemAnexoAux.grupoanexoitemID ? updatedAnexo : anexo
+            })
+            arrAnexoRemoved.splice(arrAnexoRemoved.indexOf(existingAnexo), 1)
 
             setArrAnexo(updatedArrAnexo)
         } else {
@@ -570,8 +574,8 @@ const FormFornecedor = () => {
                     type: selectedFile?.type
                 }
             }
-
             setArrAnexo([...arrAnexo, newAnexo])
+            arrAnexoRemoved.splice(arrAnexoRemoved.indexOf(existingAnexo), 1)
         }
     }
 
@@ -593,6 +597,7 @@ const FormFornecedor = () => {
             formData.append(`recebimentoMpID`, file.recebimentoMpID)
             formData.append(`naoConformidadeID`, file.naoConformidadeID)
             formData.append(`unidadeID`, loggedUnity.unidadeID)
+            // formData.append(`arrAnexoRemoved`, arrAnexoRemoved)
         })
 
         await api
@@ -606,6 +611,7 @@ const FormFornecedor = () => {
                     toast.success('Anexos enviados com sucesso!')
                     setArrAnexo([])
                     setItemAnexoAux({})
+                    setLoadingSave(!isLoadingSave)
                 }
             })
     }
@@ -614,7 +620,10 @@ const FormFornecedor = () => {
     const handleRemoveAnexo = item => {
         const updatedArrAnexo = arrAnexo.filter(anexo => anexo.grupoAnexoItemID !== item)
         setArrAnexo(updatedArrAnexo)
+        setArrAnexoRemoved([...arrAnexoRemoved, item])
     }
+
+    console.log('lista de ids removidos', arrAnexoRemoved)
 
     return (
         <>
@@ -772,10 +781,10 @@ const FormFornecedor = () => {
                                         <Typography variant='body2' sx={{ mb: 2 }}>
                                             {grupo.descricao}
                                         </Typography>
-
+                                        {/* Itens do grupo */}
                                         <Grid container spacing={4}>
                                             {grupo.itens.map((item, indexItem) => (
-                                                <Grid item xs={12} md={4} key={indexItem}>
+                                                <Grid item xs={12} md={4} key={`${indexGrupo}-${indexItem}`}>
                                                     <Box
                                                         style={{
                                                             border: `${
@@ -816,8 +825,7 @@ const FormFornecedor = () => {
                                                         </div>
                                                         {(() => {
                                                             const foundAnexo = arrAnexo.find(
-                                                                anexo =>
-                                                                    item.grupoanexoitemID === anexo.grupoAnexoItemID
+                                                                anexo => item.grupoanexoitemID == anexo.grupoAnexoItemID
                                                             )
                                                             if (foundAnexo) {
                                                                 return (
