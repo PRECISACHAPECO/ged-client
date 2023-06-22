@@ -40,8 +40,6 @@ const DialogFormConclusion = ({
     const { user, loggedUnity } = useContext(AuthContext)
     const [result, setResult] = useState({})
 
-    console.log('🚀 ~ papelID:', user.papelID)
-    console.log('🚀 ~ openModal:', openModal)
     return (
         <>
             <Dialog
