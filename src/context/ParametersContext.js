@@ -32,11 +32,11 @@ const ParametersProvider = ({ children }) => {
         }
     }
 
-    // *? Função para gerar o relatório
-    const generateReport = async reportParameters => {
-        localStorage.setItem('reportParameters', JSON.stringify(reportParameters))
-        window.open('/relatorio', '_blank')
-    }
+    // // *? Função para gerar o relatório
+    // const generateReport = async reportParameters => {
+    //     localStorage.setItem('reportParameters', JSON.stringify(reportParameters))
+    //     window.open('/relatorio', '_blank')
+    // }
 
 
     const values = {
@@ -51,7 +51,7 @@ const ParametersProvider = ({ children }) => {
         setFilteredData,
         data,
         setData,
-        generateReport
+        // generateReport
     }
 
     return <ParametersContext.Provider value={values}>{children}</ParametersContext.Provider>

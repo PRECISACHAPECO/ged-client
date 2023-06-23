@@ -24,11 +24,12 @@ const FormHeader = ({
     onclickDelete,
     btnPrint,
     disabled,
-    dataReports
+    dataReports,
+    generateReport
 }) => {
     const router = Router
     const { user, routes } = useContext(AuthContext)
-    const { generateReport } = useContext(ParametersContext)
+    // const { generateReport } = useContext(ParametersContext)
     const [isVisible, setIsVisible] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
 

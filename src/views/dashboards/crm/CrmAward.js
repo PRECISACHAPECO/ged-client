@@ -26,30 +26,6 @@ const TrophyImg = styled('img')(({ theme }) => ({
 
 const CrmAward = () => {
     const { user, loggedUnity } = useContext(AuthContext)
-    const { generateReport } = useContext(ParametersContext)
-
-
-
-    const gerarPdf = async () => {
-        try {
-            const response = await api.get('/gerar-relatorio', {
-                responseType: 'blob', // Indica que a resposta é um arquivo
-            });
-
-            // Cria um URL temporário para o relatório
-            // Cria um URL temporário para o arquivo PDF
-            const fileUrl = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
-
-            // Abre o PDF em uma nova guia
-            window.open(fileUrl);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-
-
-
 
     return (
         <Card sx={{ position: 'relative' }}>
@@ -70,9 +46,6 @@ const CrmAward = () => {
                 <Typography variant='body2' sx={{ mb: 3.25 }}>
                     78% of target 🤟🏻
                 </Typography>
-                <Button size='small' variant='contained' onClick={gerarPdf}>
-                    Gerar Pdf
-                </Button>
                 <TrophyImg alt='trophy' src='/images/cards/trophy.png' />
             </CardContent>
         </Card>

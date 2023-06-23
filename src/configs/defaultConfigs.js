@@ -103,24 +103,24 @@ const backRoute = (route) => {
     return arrRoute.join('/')
 }
 
-// // Função pra gerar relatórios
-const generateReport = props => {
+// Função pra gerar relatórios
+const generateReport = async props => {
     const route = props.route
+    const params = props.params
 
-    api.post(route, props.params, { responseType: 'arraybuffer' })
-        .then(response => {
-            // Converter o buffer do PDF em um objeto Blob
-            const blob = new Blob([response.data], { type: 'application/pdf' })
-            // Criar um objeto URL para o Blob
 
-            const url = URL.createObjectURL(blob)
-            // Abrir uma nova aba com o URL do relatório
-            window.open(url, '_blank') // '_blank' abre em uma nova aba
-        })
-        .catch(error => {
-            console.error('Erro ao gerar relatório', error)
-        })
+    try {
+        const response = await api.post(route, { data: params }, {
+            responseType: 'blob',
+        });
+        const fileUrl = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+        window.open(fileUrl);
+    } catch (error) {
+        console.error(error);
+    }
 }
+
+
 function dateConfig(type, date, numDays) {
     let inputDate = new Date(date);
     if (inputDate) {

@@ -4,8 +4,16 @@ import Fade from '@mui/material/Fade'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext } from 'react'
 
-export default function MenuReports({ disabled, dataReports, open, anchorEl, handleClick, handleClose }) {
-    const { generateReport } = useContext(ParametersContext)
+export default function MenuReports({
+    disabled,
+    dataReports,
+    open,
+    anchorEl,
+    handleClick,
+    handleClose,
+    generateReport
+}) {
+    // const { generateReport } = useContext(ParametersContext)
 
     return (
         <div>

@@ -275,6 +275,7 @@ const FormFornecedor = () => {
             id: 1,
             name: 'Formulário do fornecedor',
             component: 'Fornecedor',
+            route: '/relatorio/fornecedor/dadosFornecedor',
             papelID: user.papelID,
             identification: '01',
             params: {
@@ -285,6 +286,7 @@ const FormFornecedor = () => {
             id: 2,
             name: 'Recepção',
             component: 'Fornecedor',
+            route: '/relatorio/fornecedor/dadosFornecedor',
             papelID: user.papelID,
             identification: '02'
         }
