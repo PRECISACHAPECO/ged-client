@@ -597,8 +597,10 @@ const FormFornecedor = () => {
             formData.append(`recebimentoMpID`, file.recebimentoMpID)
             formData.append(`naoConformidadeID`, file.naoConformidadeID)
             formData.append(`unidadeID`, loggedUnity.unidadeID)
-            // formData.append(`arrAnexoRemoved`, arrAnexoRemoved)
+            formData.append(`arrAnexoRemoved`, arrAnexoRemoved)
         })
+
+        console.log('enviando..')
 
         await api
             .post(`/formularios/fornecedor/saveAnexo/${id}`, formData, {
