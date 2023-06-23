@@ -11,6 +11,7 @@ import { ParametersContext } from 'src/context/ParametersContext'
 import Link from 'next/link'
 import ReactDOMServer from 'react-dom/server';
 import Fornecedor from 'src/pages/relatorio/formularios/fornecedor'
+import { api } from 'src/configs/api'
 
 // Styled component for the trophy image
 const TrophyImg = styled('img')(({ theme }) => ({
@@ -28,49 +29,25 @@ const CrmAward = () => {
     const { generateReport } = useContext(ParametersContext)
 
 
-    async function baixarPdf() {
-        const componenteHTML = ReactDOMServer.renderToString(<Fornecedor />);
 
-        fetch('https://demo.gedagro.com.br/api/pdf', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ componenteHTML })
-        })
-            .then(response => {
-                if (response.ok) {
-                    // PDF criado com sucesso, faça o download do PDF
-                    window.location.href = 'https://demo.gedagro.com.br/api/pdf/download';
-                } else {
-                    console.error('Erro ao criar o PDF');
-                }
-            })
-            .catch(error => {
-                console.error(error);
+    const gerarPdf = async () => {
+        try {
+            const response = await api.get('/gerar-relatorio', {
+                responseType: 'blob', // Indica que a resposta é um arquivo
             });
-    }
 
-    const gerarPdf = () => {
-        const generateReport = async () => {
-            try {
-                const response = await fetch('https://demo.gedagro.com.br/api/pdf/gerar', {
-                    method: 'POST',
-                });
+            // Cria um URL temporário para o relatório
+            // Cria um URL temporário para o arquivo PDF
+            const fileUrl = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
 
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    window.open(url, '_blank');
-                } else {
-                    console.error('Failed to generate report');
-                }
-            } catch (error) {
-                console.error('Error generating report:', error);
-            }
-        };
-        generateReport();
-    }
+            // Abre o PDF em uma nova guia
+            window.open(fileUrl);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
 
 
 
@@ -93,9 +70,6 @@ const CrmAward = () => {
                 <Typography variant='body2' sx={{ mb: 3.25 }}>
                     78% of target 🤟🏻
                 </Typography>
-                <Button size='small' variant='contained' onClick={baixarPdf}>
-                    Baixar Pdf
-                </Button>
                 <Button size='small' variant='contained' onClick={gerarPdf}>
                     Gerar Pdf
                 </Button>
