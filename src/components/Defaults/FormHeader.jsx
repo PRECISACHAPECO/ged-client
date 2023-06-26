@@ -23,6 +23,7 @@ const FormHeader = ({
     btnDelete,
     onclickDelete,
     btnPrint,
+    disabledPrint,
     disabled,
     dataReports,
     generateReport
@@ -82,7 +83,7 @@ const FormHeader = ({
             size: 'large',
             type: 'button',
             variant: 'outlined',
-            disabled: false,
+            disabled: disabled || disabledPrint,
             icon: 'material-symbols:print',
             function: handleClick
         },
@@ -175,7 +176,7 @@ const FormHeader = ({
                             aria-expanded={open ? 'true' : undefined}
                             onClick={() => generateReport(dataReports[0])}
                             color='primary'
-                            disabled={disabled}
+                            disabled={disabled || disabledPrint}
                             variant='outlined'
                             size='medium'
                             type='button'
@@ -194,7 +195,7 @@ const FormHeader = ({
                                 aria-expanded={open ? 'true' : undefined}
                                 onClick={handleClick}
                                 color='primary'
-                                disabled={disabled}
+                                disabled={disabled || disabledPrint}
                                 variant='outlined'
                                 size='medium'
                                 type='button'
@@ -260,6 +261,9 @@ const FormHeader = ({
                             ) {
                                 return null
                             }
+                            // if (item.id === 2 && !btnBackToTop) {
+                            //     return null
+                            // }
 
                             if (item.id === 2 && !btnPrint) {
                                 return null

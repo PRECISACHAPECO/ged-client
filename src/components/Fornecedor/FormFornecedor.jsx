@@ -661,6 +661,7 @@ const FormFornecedor = () => {
                             }
                             disabledSend={blocks.length === 0 ? true : false}
                             disabledSubmit={blocks.length === 0 ? true : false}
+                            disabledPrint={blocks.length === 0 ? true : false}
                             btnPrint
                             generateReport={generateReport}
                             dataReports={dataReports}
