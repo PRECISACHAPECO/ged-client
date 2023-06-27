@@ -61,7 +61,6 @@ const FormParametrosFornecedor = () => {
             blocks: values.blocks,
             orientacoes: values.orientacoes
         }
-        console.log('🚀 ~ onSubmit:', data)
 
         try {
             await api.put(`${staticUrl}/fornecedor/updateData`, data).then(response => {
@@ -74,23 +73,23 @@ const FormParametrosFornecedor = () => {
     }
 
     const addItem = index => {
-        const newBlock = [...blocks]
-        newBlock[index].itens.push({
-            ordem: newBlock[index].itens.length + 1,
-            obs: 1,
-            status: 1,
-            obrigatorio: 1
-        })
-        setBlocks(newBlock)
+        if (index) {
+            const newBlock = [...blocks]
+            newBlock[index].itens.push({
+                ordem: newBlock[index].itens?.length + 1,
+                obs: 1,
+                status: 1,
+                obrigatorio: 1
+            })
+            setBlocks(newBlock)
+        }
     }
-
     const removeItem = (item, indexBlock, indexItem) => {
         item.removed = true
-
         setValue(`blocks.[${indexBlock}].itens.[${indexItem}].removed`, true)
+
         document.getElementById(`item-${indexBlock}-${indexItem}`).style.display = 'none'
-        toast.success('Item pré removido, salve para concluir!')
-        console.log('🚀 item:', item)
+        toast.success('Item pré-removido, salve para concluir!')
     }
 
     //  Ao clicar no icone de pontuação, abre o modal de confirmação de pontuação e envia para o back o item selecionado
@@ -154,8 +153,6 @@ const FormParametrosFornecedor = () => {
         try {
             setLoading(true)
             api.post(`${staticUrl}/fornecedor/getData`, { unidadeID: loggedUnity.unidadeID }).then(response => {
-                console.log('getData: ', response.data)
-
                 setHeaders(response.data.header)
                 setBlocks(response.data.blocks)
                 setOptions(response.data.options)
@@ -171,7 +168,6 @@ const FormParametrosFornecedor = () => {
 
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
-        console.log('useEffect chamando getData...')
         getData()
     }, [savingForm])
 
@@ -437,17 +433,20 @@ const FormParametrosFornecedor = () => {
                                                     </FormControl>
                                                 </Grid>
 
-                                                {/* Item */}
+                                                {/* Itens */}
                                                 <Grid item xs={12} md={4}>
                                                     <FormControl fullWidth>
                                                         {blocks[index].itens[indexItem].nome !== '' && (
                                                             <Autocomplete
-                                                                options={options.itens}
-                                                                getOptionLabel={option => option.nome || ''}
+                                                                options={options?.itens?.filter(
+                                                                    option =>
+                                                                        !blocks[index].itens?.some(
+                                                                            item => item.nome === option?.nome
+                                                                        )
+                                                                )}
+                                                                getOptionLabel={option => option.nome}
                                                                 defaultValue={
-                                                                    blocks[index].itens[indexItem].item ?? {
-                                                                        nome: ''
-                                                                    }
+                                                                    blocks[index].itens[indexItem].item ?? { nome: '' }
                                                                 }
                                                                 disabled={item.hasPending == 1 || item.status == 0}
                                                                 name={`blocks.[${index}].itens.[${indexItem}].item`}
@@ -457,6 +456,7 @@ const FormParametrosFornecedor = () => {
                                                                 )}
                                                                 onChange={(event, value) => {
                                                                     const newValue = value ?? null
+
                                                                     setValue(
                                                                         `blocks.[${index}].itens.[${indexItem}].item`,
                                                                         newValue
