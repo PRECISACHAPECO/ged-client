@@ -436,12 +436,17 @@ const FormParametrosFornecedor = () => {
                                                 {/* Itens */}
                                                 <Grid item xs={12} md={4}>
                                                     <FormControl fullWidth>
+                                                        {/* {JSON.stringify(block)} */}
+                                                        {/* {JSON.stringify(item)} */}
                                                         {blocks[index].itens[indexItem].nome !== '' && (
                                                             <Autocomplete
                                                                 options={options?.itens?.filter(
                                                                     option =>
                                                                         !blocks[index].itens?.some(
-                                                                            item => item.nome === option?.nome
+                                                                            item =>
+                                                                                item.nome === option?.nome &&
+                                                                                block.dados.parFornecedorBlocoID ==
+                                                                                    item.parFornecedorBlocoID
                                                                         )
                                                                 )}
                                                                 getOptionLabel={option => option.nome}
