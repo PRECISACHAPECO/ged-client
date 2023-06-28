@@ -36,6 +36,7 @@ const FormParametrosFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
     const [headers, setHeaders] = useState()
     const [options, setOptions] = useState([])
+    console.log('🚀 ~ options:', options)
     const [blocks, setBlocks] = useState()
     const [orientacoes, setOrientacoes] = useState()
     const [openModalConfirmScore, setOpenModalConfirmScore] = useState(false)
@@ -433,52 +434,70 @@ const FormParametrosFornecedor = () => {
                                                     </FormControl>
                                                 </Grid>
 
-                                                {/* Itens */}
                                                 <Grid item xs={12} md={4}>
                                                     <FormControl fullWidth>
-                                                        {/* {JSON.stringify(block)} */}
-                                                        {/* {JSON.stringify(item)} */}
                                                         {blocks[index].itens[indexItem].nome !== '' && (
                                                             <Autocomplete
-                                                                options={options?.itens?.filter(
-                                                                    option =>
-                                                                        !blocks[index].itens?.some(
-                                                                            item =>
-                                                                                item.nome === option?.nome &&
-                                                                                block.dados.parFornecedorBlocoID ==
-                                                                                    item.parFornecedorBlocoID
-                                                                        )
-                                                                )}
+                                                                options={options?.itens
+                                                                    ?.filter(
+                                                                        option =>
+                                                                            !blocks[index].itens?.some(
+                                                                                item =>
+                                                                                    item.nome === option?.nome &&
+                                                                                    block.dados.parFornecedorBlocoID ===
+                                                                                        item.parFornecedorBlocoID
+                                                                            )
+                                                                    )
+                                                                    ?.filter(
+                                                                        option =>
+                                                                            option.nome !==
+                                                                            blocks[index].itens[indexItem].item?.nome
+                                                                    )}
                                                                 getOptionLabel={option => option.nome}
                                                                 defaultValue={
                                                                     blocks[index].itens[indexItem].item ?? { nome: '' }
                                                                 }
-                                                                disabled={item.hasPending == 1 || item.status == 0}
+                                                                disabled={
+                                                                    blocks[index].itens[indexItem].hasPending === 1 ||
+                                                                    blocks[index].itens[indexItem].status === 0
+                                                                }
                                                                 name={`blocks.[${index}].itens.[${indexItem}].item`}
                                                                 {...register(
                                                                     `blocks.[${index}].itens.[${indexItem}].item`,
-                                                                    { required: true }
+                                                                    {
+                                                                        required: true
+                                                                    }
                                                                 )}
                                                                 onChange={(event, value) => {
                                                                     const newValue = value ?? null
-
                                                                     setValue(
                                                                         `blocks.[${index}].itens.[${indexItem}].item`,
                                                                         newValue
                                                                     )
+
+                                                                    // Modify the options array to remove the newValue from the block's itens
+                                                                    const updatedOptions = options?.itens?.filter(
+                                                                        option => option.nome !== newValue?.nome
+                                                                    )
+
+                                                                    // Update the options state with the modified array
+                                                                    setOptions(prevOptions => ({
+                                                                        ...prevOptions,
+                                                                        itens: updatedOptions
+                                                                    }))
                                                                 }}
                                                                 renderInput={params => (
                                                                     <TextField
                                                                         {...params}
                                                                         label={
-                                                                            item.itemID
-                                                                                ? `Item [${item.itemID}]`
-                                                                                : `Item`
+                                                                            blocks[index].itens[indexItem].itemID
+                                                                                ? `Item [${blocks[index].itens[indexItem].itemID}]`
+                                                                                : 'Item'
                                                                         }
                                                                         placeholder={
-                                                                            item.itemID
-                                                                                ? `Item [${item.itemID}]`
-                                                                                : `Item`
+                                                                            blocks[index].itens[indexItem].itemID
+                                                                                ? `Item [${blocks[index].itens[indexItem].itemID}]`
+                                                                                : 'Item'
                                                                         }
                                                                         error={
                                                                             errors?.blocks?.[index]?.itens[indexItem]
