@@ -154,6 +154,7 @@ const FormParametrosFornecedor = () => {
         try {
             setLoading(true)
             api.post(`${staticUrl}/fornecedor/getData`, { unidadeID: loggedUnity.unidadeID }).then(response => {
+                console.log('getdata', response.data)
                 setHeaders(response.data.header)
                 setBlocks(response.data.blocks)
                 setOptions(response.data.options)
@@ -438,22 +439,15 @@ const FormParametrosFornecedor = () => {
                                                     <FormControl fullWidth>
                                                         {blocks[index].itens[indexItem].nome !== '' && (
                                                             <Autocomplete
-                                                                options={options?.itens
-                                                                    ?.filter(
-                                                                        option =>
-                                                                            !blocks[index].itens?.some(
-                                                                                item =>
-                                                                                    item.nome === option?.nome &&
-                                                                                    block.dados.parFornecedorBlocoID ===
-                                                                                        item.parFornecedorBlocoID
-                                                                            )
-                                                                    )
-                                                                    ?.filter(
-                                                                        option =>
-                                                                            option.nome !==
-                                                                            blocks[index].itens[indexItem].item?.nome
-                                                                    )}
-                                                                getOptionLabel={option => option.nome}
+                                                                options={blocks[index].optionsBlock?.itens.filter(
+                                                                    option =>
+                                                                        blocks[index].itens.every(
+                                                                            item => item.item?.nome !== option.nome
+                                                                        ) &&
+                                                                        option.nome !==
+                                                                            blocks[index].itens[indexItem]?.item?.nome
+                                                                )}
+                                                                getOptionLabel={optionsBlock => optionsBlock.nome}
                                                                 defaultValue={
                                                                     blocks[index].itens[indexItem].item ?? { nome: '' }
                                                                 }
@@ -475,16 +469,19 @@ const FormParametrosFornecedor = () => {
                                                                         newValue
                                                                     )
 
-                                                                    // Modify the options array to remove the newValue from the block's itens
-                                                                    const updatedOptions = options?.itens?.filter(
+                                                                    //! Modificar o array de options para remover o newValue dos itens
+                                                                    blocks[index].optionsBlock.itens = blocks[
+                                                                        index
+                                                                    ].optionsBlock.itens.filter(
                                                                         option => option.nome !== newValue?.nome
                                                                     )
 
-                                                                    // Update the options state with the modified array
-                                                                    setOptions(prevOptions => ({
-                                                                        ...prevOptions,
-                                                                        itens: updatedOptions
-                                                                    }))
+                                                                    //! Adicionar o item removido de volta ao array de options
+                                                                    if (blocks[index].itens[indexItem].item) {
+                                                                        blocks[index].optionsBlock.itens.push(
+                                                                            blocks[index].itens[indexItem].item
+                                                                        )
+                                                                    }
                                                                 }}
                                                                 renderInput={params => (
                                                                     <TextField
