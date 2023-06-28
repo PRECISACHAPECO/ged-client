@@ -43,6 +43,7 @@ const FormParametrosFornecedor = () => {
     const [itemScore, setItemScore] = useState()
     const [isLoading, setLoading] = useState(false)
     const [savingForm, setSavingForm] = useState(false)
+    const [itemSelected, setItemSelected] = useState({})
 
     const router = Router
     const staticUrl = backRoute(router.pathname) // Url sem ID
@@ -76,8 +77,10 @@ const FormParametrosFornecedor = () => {
     const addItem = index => {
         if (index) {
             const newBlock = [...blocks]
+
             newBlock[index].itens.push({
                 ordem: newBlock[index].itens?.length + 1,
+
                 obs: 1,
                 status: 1,
                 obrigatorio: 1
@@ -86,8 +89,32 @@ const FormParametrosFornecedor = () => {
         }
     }
     const removeItem = (item, indexBlock, indexItem) => {
+        console.log('🚀 ~ item:', item)
+
         item.removed = true
         setValue(`blocks.[${indexBlock}].itens.[${indexItem}].removed`, true)
+
+        // const updatedBlocks = [...blocks]
+
+        // let itemFormat = {
+        //     itemID: item.itemID,
+        //     nome: item.nome
+        // }
+
+        // if (updatedBlocks[indexBlock] && updatedBlocks[indexBlock].optionsBlock) {
+        //     console.log('entrou no if')
+        //     const optionsBlock = updatedBlocks[indexBlock].optionsBlock
+        //     optionsBlock.itens = optionsBlock.itens.filter(option => option?.nome !== itemFormat?.nome)
+
+        //     const isItemPresent = optionsBlock.itens.some(itemBlock => itemBlock?.nome === itemFormat?.nome)
+        //     console.log('🚀 ~ isItemPresenteeeeee:', isItemPresent)
+        //     if (!isItemPresent) {
+        //         console.log('item formatado e pushhhhh', itemFormat)
+        //         optionsBlock.itens.push(itemFormat)
+        //     }
+        // }
+
+        // setBlocks(updatedBlocks)
 
         document.getElementById(`item-${indexBlock}-${indexItem}`).style.display = 'none'
         toast.success('Item pré-removido, salve para concluir!')
@@ -420,7 +447,6 @@ const FormParametrosFornecedor = () => {
                                                         `blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`
                                                     )}
                                                 />
-
                                                 <Grid item xs={12} md={1} sx={{ textAlign: 'right' }}>
                                                     <FormControl>
                                                         <TextField
@@ -434,7 +460,7 @@ const FormParametrosFornecedor = () => {
                                                         />
                                                     </FormControl>
                                                 </Grid>
-
+                                                {/* Itens */}
                                                 <Grid item xs={12} md={4}>
                                                     <FormControl fullWidth>
                                                         {blocks[index].itens[indexItem].nome !== '' && (
@@ -442,12 +468,12 @@ const FormParametrosFornecedor = () => {
                                                                 options={blocks[index].optionsBlock?.itens.filter(
                                                                     option =>
                                                                         blocks[index].itens.every(
-                                                                            item => item.item?.nome !== option.nome
+                                                                            item => item.item?.nome !== option?.nome
                                                                         ) &&
-                                                                        option.nome !==
+                                                                        option?.nome !==
                                                                             blocks[index].itens[indexItem]?.item?.nome
                                                                 )}
-                                                                getOptionLabel={optionsBlock => optionsBlock.nome}
+                                                                getOptionLabel={optionsBlock => optionsBlock?.nome}
                                                                 defaultValue={
                                                                     blocks[index].itens[indexItem].item ?? { nome: '' }
                                                                 }
@@ -469,19 +495,25 @@ const FormParametrosFornecedor = () => {
                                                                         newValue
                                                                     )
 
-                                                                    //! Modificar o array de options para remover o newValue dos itens
-                                                                    blocks[index].optionsBlock.itens = blocks[
-                                                                        index
-                                                                    ].optionsBlock.itens.filter(
-                                                                        option => option.nome !== newValue?.nome
-                                                                    )
-
-                                                                    //! Adicionar o item removido de volta ao array de options
-                                                                    if (blocks[index].itens[indexItem].item) {
-                                                                        blocks[index].optionsBlock.itens.push(
-                                                                            blocks[index].itens[indexItem].item
-                                                                        )
+                                                                    const newBlocks = [...blocks]
+                                                                    const newItem = {
+                                                                        ...newBlocks[index].itens[indexItem],
+                                                                        nome: newValue.nome,
+                                                                        itemID: newValue.itemID
                                                                     }
+                                                                    newBlocks[index].itens[indexItem] = newItem
+                                                                    setBlocks(newBlocks)
+
+                                                                    setItemSelected(newValue)
+
+                                                                    // Modificar o array de options para remover o newValue dos itens
+                                                                    const newOptions = [
+                                                                        ...blocks[index].optionsBlock.itens
+                                                                    ]
+                                                                    blocks[index].optionsBlock.itens =
+                                                                        newOptions.filter(
+                                                                            option => option?.nome !== newValue?.nome
+                                                                        )
                                                                 }}
                                                                 renderInput={params => (
                                                                     <TextField
@@ -506,7 +538,6 @@ const FormParametrosFornecedor = () => {
                                                         )}
                                                     </FormControl>
                                                 </Grid>
-
                                                 <Grid item xs={12} md={2}>
                                                     <FormControl fullWidth>
                                                         <Autocomplete
@@ -544,7 +575,6 @@ const FormParametrosFornecedor = () => {
                                                         />
                                                     </FormControl>
                                                 </Grid>
-
                                                 <Grid item md={1}>
                                                     <Typography variant='body2'>
                                                         {indexItem == 0 ? 'Ativo' : ''}
@@ -555,7 +585,6 @@ const FormParametrosFornecedor = () => {
                                                         defaultChecked={item.status == 1 ? true : false}
                                                     />
                                                 </Grid>
-
                                                 <Grid item md={1}>
                                                     <Typography variant='body2'>
                                                         {indexItem == 0 ? 'Obs' : ''}
@@ -567,7 +596,6 @@ const FormParametrosFornecedor = () => {
                                                         defaultChecked={item.obs == 1 ? true : false}
                                                     />
                                                 </Grid>
-
                                                 <Grid item md={1}>
                                                     <Typography variant='body2'>
                                                         {indexItem == 0 ? 'Obrigatório' : ''}
@@ -599,7 +627,6 @@ const FormParametrosFornecedor = () => {
                                                         <Icon icon='ic:baseline-assessment' />
                                                     </Button>
                                                 </Grid>
-
                                                 {/* Deletar */}
                                                 <Grid item md={1}>
                                                     <Typography variant='body2'>
