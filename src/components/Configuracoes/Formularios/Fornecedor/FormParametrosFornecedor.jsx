@@ -43,7 +43,7 @@ const FormParametrosFornecedor = () => {
     const [itemScore, setItemScore] = useState()
     const [isLoading, setLoading] = useState(false)
     const [savingForm, setSavingForm] = useState(false)
-    const [itemSelected, setItemSelected] = useState({})
+    const [changeItem, setChangeItem] = useState(false)
 
     const router = Router
     const staticUrl = backRoute(router.pathname) // Url sem ID
@@ -74,8 +74,21 @@ const FormParametrosFornecedor = () => {
         }
     }
 
+    const refreshBlockOptions = (block, index) => {
+        console.log('🚀 ~ refreshBlockOptions: ', index, block)
+        //? Varre itens do bloco, se itemID já estiver selecionado em algum item, remove da lista de opções do bloco
+        let newOptions = [...block.optionsBlock.itens] // copia options do bloco atual
+        newOptions = newOptions.filter(option => option.id !== block.optionsBlock.itens[index].id) // remove item selecionado do bloco atual
+        console.log('🚀 ~ newOptions:', newOptions)
+        //? atualiza block.optionsBlock do bloco
+        let newBlock = [...blocks]
+        newBlock[index].optionsBlock.itens = newOptions
+        setBlocks(newBlock)
+    }
+
     const addItem = index => {
         if (index) {
+            // setChangeItem(!changeItem)
             const newBlock = [...blocks]
 
             newBlock[index].itens.push({
@@ -86,38 +99,24 @@ const FormParametrosFornecedor = () => {
                 obrigatorio: 1
             })
             setBlocks(newBlock)
+
+            refreshBlockOptions(newBlock[index], index)
         }
     }
     const removeItem = (item, indexBlock, indexItem) => {
-        console.log('🚀 ~ item:', item)
-
+        // setChangeItem(!changeItem)
         item.removed = true
         setValue(`blocks.[${indexBlock}].itens.[${indexItem}].removed`, true)
 
-        // const updatedBlocks = [...blocks]
-
-        // let itemFormat = {
-        //     itemID: item.itemID,
-        //     nome: item.nome
-        // }
-
-        // if (updatedBlocks[indexBlock] && updatedBlocks[indexBlock].optionsBlock) {
-        //     console.log('entrou no if')
-        //     const optionsBlock = updatedBlocks[indexBlock].optionsBlock
-        //     optionsBlock.itens = optionsBlock.itens.filter(option => option?.nome !== itemFormat?.nome)
-
-        //     const isItemPresent = optionsBlock.itens.some(itemBlock => itemBlock?.nome === itemFormat?.nome)
-        //     console.log('🚀 ~ isItemPresenteeeeee:', isItemPresent)
-        //     if (!isItemPresent) {
-        //         console.log('item formatado e pushhhhh', itemFormat)
-        //         optionsBlock.itens.push(itemFormat)
-        //     }
-        // }
-
-        // setBlocks(updatedBlocks)
-
         document.getElementById(`item-${indexBlock}-${indexItem}`).style.display = 'none'
         toast.success('Item pré-removido, salve para concluir!')
+
+        // Remove item do bloco
+        const newBlock = [...blocks]
+        newBlock[indexBlock].itens.splice(indexItem, 1)
+        setBlocks(newBlock)
+
+        refreshBlockOptions(blocks[indexBlock], indexBlock)
     }
 
     //  Ao clicar no icone de pontuação, abre o modal de confirmação de pontuação e envia para o back o item selecionado
@@ -153,6 +152,7 @@ const FormParametrosFornecedor = () => {
                     checked: 0
                 }))
             ],
+            // optionsBlock: options,
             itens: [
                 // Obter primeiro item do primeiro bloco
                 {
@@ -199,6 +199,11 @@ const FormParametrosFornecedor = () => {
         setTitle('Formulário do Fornecedor')
         getData()
     }, [savingForm])
+
+    //? useEffect pra ser chamado sempre que houver alteração, inclusão ou exclusão do item
+    useEffect(() => {
+        console.log('Alterou: ', blocks)
+    }, [blocks])
 
     return (
         <>
@@ -465,14 +470,7 @@ const FormParametrosFornecedor = () => {
                                                     <FormControl fullWidth>
                                                         {blocks[index].itens[indexItem].nome !== '' && (
                                                             <Autocomplete
-                                                                options={blocks[index].optionsBlock?.itens.filter(
-                                                                    option =>
-                                                                        blocks[index].itens.every(
-                                                                            item => item.item?.nome !== option?.nome
-                                                                        ) &&
-                                                                        option?.nome !==
-                                                                            blocks[index].itens[indexItem]?.item?.nome
-                                                                )}
+                                                                options={blocks[index].optionsBlock?.itens}
                                                                 getOptionLabel={optionsBlock => optionsBlock?.nome}
                                                                 defaultValue={
                                                                     blocks[index].itens[indexItem].item ?? { nome: '' }
@@ -489,31 +487,22 @@ const FormParametrosFornecedor = () => {
                                                                     }
                                                                 )}
                                                                 onChange={(event, value) => {
+                                                                    // setChangeItem(!changeItem)
                                                                     const newValue = value ?? null
                                                                     setValue(
                                                                         `blocks.[${index}].itens.[${indexItem}].item`,
                                                                         newValue
                                                                     )
 
-                                                                    const newBlocks = [...blocks]
-                                                                    const newItem = {
-                                                                        ...newBlocks[index].itens[indexItem],
-                                                                        nome: newValue.nome,
-                                                                        itemID: newValue.itemID
-                                                                    }
-                                                                    newBlocks[index].itens[indexItem] = newItem
-                                                                    setBlocks(newBlocks)
+                                                                    // Atualiza estado do item do bloco
+                                                                    const newBlock = [...blocks]
+                                                                    newBlock[index].itens[indexItem].itemID =
+                                                                        newValue.id
+                                                                    newBlock[index].itens[indexItem].nome =
+                                                                        newValue.nome
+                                                                    setBlocks(newBlock)
 
-                                                                    setItemSelected(newValue)
-
-                                                                    // Modificar o array de options para remover o newValue dos itens
-                                                                    const newOptions = [
-                                                                        ...blocks[index].optionsBlock.itens
-                                                                    ]
-                                                                    blocks[index].optionsBlock.itens =
-                                                                        newOptions.filter(
-                                                                            option => option?.nome !== newValue?.nome
-                                                                        )
+                                                                    refreshBlockOptions(blocks[index], index)
                                                                 }}
                                                                 renderInput={params => (
                                                                     <TextField
