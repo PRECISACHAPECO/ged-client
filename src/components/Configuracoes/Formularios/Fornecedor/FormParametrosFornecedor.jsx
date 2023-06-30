@@ -35,15 +35,14 @@ import DialogConfirmScore from 'src/components/Defaults/Dialogs/DialogConfirmSco
 const FormParametrosFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
     const [headers, setHeaders] = useState()
-    const [options, setOptions] = useState([])
-    console.log('🚀 ~ options:', options)
+    const [allOptions, setAllOptions] = useState(null)
+    const [optionsItens, setOptionsItens] = useState([])
     const [blocks, setBlocks] = useState()
     const [orientacoes, setOrientacoes] = useState()
     const [openModalConfirmScore, setOpenModalConfirmScore] = useState(false)
     const [itemScore, setItemScore] = useState()
     const [isLoading, setLoading] = useState(false)
     const [savingForm, setSavingForm] = useState(false)
-    const [changeItem, setChangeItem] = useState(false)
 
     const router = Router
     const staticUrl = backRoute(router.pathname) // Url sem ID
@@ -75,14 +74,19 @@ const FormParametrosFornecedor = () => {
     }
 
     const refreshBlockOptions = (block, index) => {
-        console.log('🚀 ~ refreshBlockOptions: ', index, block)
-        //? Varre itens do bloco, se itemID já estiver selecionado em algum item, remove da lista de opções do bloco
-        let newOptions = [...block.optionsBlock.itens] // copia options do bloco atual
-        newOptions = newOptions.filter(option => option.id !== block.optionsBlock.itens[index].id) // remove item selecionado do bloco atual
-        console.log('🚀 ~ newOptions:', newOptions)
-        //? atualiza block.optionsBlock do bloco
+        // Varre itens do bloco, se itemID já estiver selecionado em algum item, remove da lista de opções do bloco
+        let tempOptions = allOptions.itens
+
+        // Fazer 2 loops para remover o item selecionado do bloco atual
+        tempOptions = tempOptions.filter(option => {
+            // Verifica se a opção está presente nos itens selecionados do bloco
+            const isSelected = block.itens.some(i => i.item && option.id === i.item.id)
+            return !isSelected // Retorna true para manter a opção, false para remover
+        })
+
+        // Atualiza block.optionsBlock do bloco
         let newBlock = [...blocks]
-        newBlock[index].optionsBlock.itens = newOptions
+        newBlock[index].optionsBlock.itens = tempOptions
         setBlocks(newBlock)
     }
 
@@ -112,9 +116,9 @@ const FormParametrosFornecedor = () => {
         toast.success('Item pré-removido, salve para concluir!')
 
         // Remove item do bloco
-        const newBlock = [...blocks]
-        newBlock[indexBlock].itens.splice(indexItem, 1)
-        setBlocks(newBlock)
+        const newBlock = [...blocks[indexBlock].itens]
+        newBlock.splice(indexItem, 1)
+        setBlocks([...blocks, (blocks[indexBlock].itens = newBlock)])
 
         refreshBlockOptions(blocks[indexBlock], indexBlock)
     }
@@ -184,7 +188,11 @@ const FormParametrosFornecedor = () => {
                 console.log('getdata', response.data)
                 setHeaders(response.data.header)
                 setBlocks(response.data.blocks)
-                setOptions(response.data.options)
+                setAllOptions({
+                    itens: response.data.options.itens,
+                    alternativas: response.data.options.alternativas
+                })
+
                 setOrientacoes(response.data.orientations)
 
                 initializeValues(response.data)
@@ -201,9 +209,9 @@ const FormParametrosFornecedor = () => {
     }, [savingForm])
 
     //? useEffect pra ser chamado sempre que houver alteração, inclusão ou exclusão do item
-    useEffect(() => {
-        console.log('Alterou: ', blocks)
-    }, [blocks])
+    // useEffect(() => {
+    //     console.log('Alterou: ', blocks)
+    // }, [blocks])
 
     return (
         <>
@@ -472,7 +480,7 @@ const FormParametrosFornecedor = () => {
                                                             <Autocomplete
                                                                 options={blocks[index].optionsBlock?.itens}
                                                                 getOptionLabel={optionsBlock => optionsBlock?.nome}
-                                                                defaultValue={
+                                                                value={
                                                                     blocks[index].itens[indexItem].item ?? { nome: '' }
                                                                 }
                                                                 disabled={
@@ -487,8 +495,8 @@ const FormParametrosFornecedor = () => {
                                                                     }
                                                                 )}
                                                                 onChange={(event, value) => {
-                                                                    // setChangeItem(!changeItem)
                                                                     const newValue = value ?? null
+                                                                    console.log('🚀 ~ newValue:', newValue)
                                                                     setValue(
                                                                         `blocks.[${index}].itens.[${indexItem}].item`,
                                                                         newValue
@@ -496,13 +504,10 @@ const FormParametrosFornecedor = () => {
 
                                                                     // Atualiza estado do item do bloco
                                                                     const newBlock = [...blocks]
-                                                                    newBlock[index].itens[indexItem].itemID =
-                                                                        newValue.id
-                                                                    newBlock[index].itens[indexItem].nome =
-                                                                        newValue.nome
+                                                                    newBlock[index].itens[indexItem].item = newValue
                                                                     setBlocks(newBlock)
 
-                                                                    refreshBlockOptions(blocks[index], index)
+                                                                    refreshBlockOptions(newBlock[index], index)
                                                                 }}
                                                                 renderInput={params => (
                                                                     <TextField
@@ -530,7 +535,7 @@ const FormParametrosFornecedor = () => {
                                                 <Grid item xs={12} md={2}>
                                                     <FormControl fullWidth>
                                                         <Autocomplete
-                                                            options={options.alternativas}
+                                                            options={allOptions.alternativas}
                                                             getOptionLabel={option => option.nome || ''}
                                                             defaultValue={
                                                                 blocks[index].itens[indexItem].alternativa ?? {
