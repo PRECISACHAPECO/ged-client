@@ -31,7 +31,7 @@ const CrmAward = () => {
 
 
     const generatePDF = () => {
-        axios.post(`http://localhost:3333/teste2`, {}, { responseType: 'blob' })
+        api.post(`/teste2`, {}, { responseType: 'blob' })
             .then((response) => {
                 const blob = new Blob([response.data], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);

@@ -368,8 +368,6 @@ const FormFornecedor = () => {
 
                     response.data.grupoAnexo.map((grupo, index) => {
                         grupo.itens.map((item, index) => {
-                            console.log('🚀 ~ itemm:', item)
-                            console.log('🚀 ~ itemmAnexoo:', item.anexo)
                             if (item.anexo) {
                                 arrAnexo.push({
                                     titulo: item.nome,
@@ -414,8 +412,6 @@ const FormFornecedor = () => {
             console.log(error)
         }
     }
-
-    console.log('ARRRANEXONOVO', arrAnexo)
 
     const noPermissions = () => {
         router.push('/formularios/fornecedor/')
@@ -538,7 +534,6 @@ const FormFornecedor = () => {
 
     // Quando selecionar um arquivo, o arquivo é adicionado ao array de anexos
     const handleFileSelect = event => {
-        console.log('choegou akii')
         const selectedFile = event.target.files[0]
 
         if (selectedFile?.type !== 'application/pdf') {
@@ -563,7 +558,6 @@ const FormFornecedor = () => {
             }
 
             const updatedArrAnexo = arrAnexo.map(anexo => {
-                console.log('🚀 ~ anexo.grupoAnexoItemID:', anexo.grupoAnexoItemID)
                 return anexo.grupoAnexoItemID === itemAnexoAux.grupoanexoitemID ? updatedAnexo : anexo
             })
             arrAnexoRemoved.splice(arrAnexoRemoved.indexOf(existingAnexo), 1)
@@ -610,8 +604,6 @@ const FormFornecedor = () => {
             formData.append(`arrAnexoRemoved`, arrAnexoRemoved)
         })
 
-        console.log('enviando..')
-
         await api
             .post(`/formularios/fornecedor/saveAnexo/${id}`, formData, {
                 headers: {
@@ -634,8 +626,6 @@ const FormFornecedor = () => {
         setArrAnexo(updatedArrAnexo)
         setArrAnexoRemoved([...arrAnexoRemoved, item])
     }
-
-    console.log('lista de ids removidos', arrAnexoRemoved)
 
     return (
         <>
