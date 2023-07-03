@@ -103,22 +103,37 @@ const backRoute = (route) => {
     return arrRoute.join('/')
 }
 
-// Função pra gerar relatórios
-const generateReport = async props => {
+// // Função pra gerar relatórios
+// const generateReport = async props => {
+//     const route = props.route
+//     const params = props.params
+
+
+//     try {
+//         const response = await api.post(route, { data: params }, {
+//             responseType: 'blob',
+//         });
+//         const fileUrl = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+//         window.open(fileUrl);
+//     } catch (error) {
+//         console.error(error);
+//     }
+// }
+
+const generateReport = (props) => {
     const route = props.route
     const params = props.params
-
-
-    try {
-        const response = await api.post(route, { data: params }, {
-            responseType: 'blob',
+    api.post(route, { data: params }, { responseType: 'blob' })
+        .then((response) => {
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            window.open(url);
+        })
+        .catch((error) => {
+            console.log('Erro ao gerar o PDF:', error);
         });
-        const fileUrl = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
-        window.open(fileUrl);
-    } catch (error) {
-        console.error(error);
-    }
-}
+};
+
 
 
 function dateConfig(type, date, numDays) {
