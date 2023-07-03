@@ -284,11 +284,19 @@ const FormFornecedor = () => {
         },
         {
             id: 2,
-            name: 'Teste relatório',
+            name: 'Teste relatório1',
             component: 'Fornecedor',
             route: '/relatorio/fornecedor/dadosFornecedor/teste',
             papelID: user.papelID,
             identification: '02'
+        },
+        {
+            id: 3,
+            name: 'Teste relatório2',
+            component: 'Fornecedor',
+            route: '/relatorio/fornecedor/dadosFornecedor/teste2',
+            papelID: user.papelID,
+            identification: '03'
         }
     ]
 

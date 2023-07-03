@@ -12,6 +12,7 @@ import Link from 'next/link'
 import ReactDOMServer from 'react-dom/server';
 import Fornecedor from 'src/pages/relatorio/formularios/fornecedor'
 import { api } from 'src/configs/api'
+import axios from 'axios'
 
 // Styled component for the trophy image
 const TrophyImg = styled('img')(({ theme }) => ({
@@ -27,6 +28,20 @@ const TrophyImg = styled('img')(({ theme }) => ({
 const CrmAward = () => {
     const { user, loggedUnity } = useContext(AuthContext)
 
+
+
+    const generatePDF = () => {
+        axios.post(`http://localhost:3333/teste2`, {}, { responseType: 'blob' })
+            .then((response) => {
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                window.open(url);
+            })
+            .catch((error) => {
+                console.log('Erro ao gerar o PDF:', error);
+            });
+    };
+
     return (
         <Card sx={{ position: 'relative' }}>
             <CardContent>
@@ -37,6 +52,9 @@ const CrmAward = () => {
                     </Box>
                     !
                 </Typography>
+                <Button onClick={generatePDF}>
+                    Gerar relatorio
+                </Button>
                 <Typography variant='body2' sx={{ mb: 3.25 }}>
                     {loggedUnity.nomeFantasia}
                 </Typography>
