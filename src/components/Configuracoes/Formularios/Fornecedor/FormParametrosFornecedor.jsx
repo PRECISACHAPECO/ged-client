@@ -43,6 +43,7 @@ const FormParametrosFornecedor = () => {
     const [itemScore, setItemScore] = useState()
     const [isLoading, setLoading] = useState(false)
     const [savingForm, setSavingForm] = useState(false)
+    const [arrRemovedItems, setArrRemovedItems] = useState([])
 
     const router = Router
     const staticUrl = backRoute(router.pathname) // Url sem ID
@@ -52,6 +53,9 @@ const FormParametrosFornecedor = () => {
         setValue,
         register,
         handleSubmit,
+        reset,
+        trigger,
+        getValues,
         formState: { errors }
     } = useForm()
 
@@ -60,8 +64,10 @@ const FormParametrosFornecedor = () => {
             unidadeID: loggedUnity.unidadeID,
             header: values.headers,
             blocks: values.blocks,
+            arrRemovedItems: arrRemovedItems,
             orientacoes: values.orientacoes
         }
+        console.log('🚀 ~ onSubmit:', values.blocks)
 
         try {
             await api.put(`${staticUrl}/fornecedor/updateData`, data).then(response => {
@@ -73,13 +79,11 @@ const FormParametrosFornecedor = () => {
         }
     }
 
-    const refreshBlockOptions = (block, index) => {
-        // Varre itens do bloco, se itemID já estiver selecionado em algum item, remove da lista de opções do bloco
+    const refreshBlockOptions = (block, index, blocks, allOptions) => {
         let tempOptions = allOptions.itens
 
-        // Fazer 2 loops para remover o item selecionado do bloco atual
+        //? Verifica se a opção está presente nos itens selecionados do bloco
         tempOptions = tempOptions.filter(option => {
-            // Verifica se a opção está presente nos itens selecionados do bloco
             const isSelected = block.itens.some(i => i.item && option.id === i.item.id)
             return !isSelected // Retorna true para manter a opção, false para remover
         })
@@ -91,36 +95,42 @@ const FormParametrosFornecedor = () => {
     }
 
     const addItem = index => {
-        if (index) {
-            // setChangeItem(!changeItem)
-            const newBlock = [...blocks]
-
-            newBlock[index].itens.push({
-                ordem: newBlock[index].itens?.length + 1,
-
-                obs: 1,
-                status: 1,
-                obrigatorio: 1
-            })
-            setBlocks(newBlock)
-
-            refreshBlockOptions(newBlock[index], index)
-        }
-    }
-    const removeItem = (item, indexBlock, indexItem) => {
         // setChangeItem(!changeItem)
-        item.removed = true
-        setValue(`blocks.[${indexBlock}].itens.[${indexItem}].removed`, true)
+        const newBlock = [...blocks]
 
-        document.getElementById(`item-${indexBlock}-${indexItem}`).style.display = 'none'
-        toast.success('Item pré-removido, salve para concluir!')
+        newBlock[index].itens.push({
+            ordem: newBlock[index].itens?.length + 1,
+            obs: 1,
+            status: 1,
+            obrigatorio: 1
+        })
+        setBlocks(newBlock)
+
+        // setValue(`blocks.[${index}].itens.[${newBlock[index].itens.length - 1}].new`, true)
+
+        refreshBlockOptions(newBlock[index], index, blocks, allOptions)
+    }
+
+    const removeItem = (item, indexBlock, indexItem) => {
+        console.log('🚀 ~ length:', blocks[indexBlock].itens.length)
+        if (blocks[indexBlock].itens.length === 1) {
+            toast.error('Você deve ter ao menos um item!')
+            return
+        }
+
+        // Inserir no array de itens removidos, para o bloco atual
+        let newRemovedItems = [...arrRemovedItems]
+        newRemovedItems.push(item)
+        setArrRemovedItems(newRemovedItems)
 
         // Remove item do bloco
+        const updatedBlocks = [...blocks]
         const newBlock = [...blocks[indexBlock].itens]
         newBlock.splice(indexItem, 1)
-        setBlocks([...blocks, (blocks[indexBlock].itens = newBlock)])
+        updatedBlocks[indexBlock].itens = newBlock
+        setBlocks(updatedBlocks)
 
-        refreshBlockOptions(blocks[indexBlock], indexBlock)
+        refreshBlockOptions(blocks[indexBlock], indexBlock, blocks, allOptions)
     }
 
     //  Ao clicar no icone de pontuação, abre o modal de confirmação de pontuação e envia para o back o item selecionado
@@ -174,6 +184,10 @@ const FormParametrosFornecedor = () => {
         values.blocks.map((block, indexBlock) => {
             block.itens.map((item, indexItem) => {
                 if (item) {
+                    console.log('initialize values:', indexBlock, item.item.nome)
+
+                    // setar item.new como false
+                    // setValue(`blocks.[${indexBlock}].itens.[${indexItem}].new`, false)
                     setValue(`blocks.[${indexBlock}].itens.[${indexItem}].item`, item.item)
                     setValue(`blocks.[${indexBlock}].itens.[${indexItem}].alternativa`, item.alternativa)
                 }
@@ -196,6 +210,13 @@ const FormParametrosFornecedor = () => {
                 setOrientacoes(response.data.orientations)
 
                 initializeValues(response.data)
+
+                setTimeout(() => {
+                    response.data.blocks.map((block, indexBlock) => {
+                        refreshBlockOptions(block, indexBlock, response.data.blocks, response.data.options)
+                    })
+                }, 3000)
+
                 setLoading(false)
             })
         } catch (error) {
@@ -507,7 +528,12 @@ const FormParametrosFornecedor = () => {
                                                                     newBlock[index].itens[indexItem].item = newValue
                                                                     setBlocks(newBlock)
 
-                                                                    refreshBlockOptions(newBlock[index], index)
+                                                                    refreshBlockOptions(
+                                                                        newBlock[index],
+                                                                        index,
+                                                                        blocks,
+                                                                        allOptions
+                                                                    )
                                                                 }}
                                                                 renderInput={params => (
                                                                     <TextField
