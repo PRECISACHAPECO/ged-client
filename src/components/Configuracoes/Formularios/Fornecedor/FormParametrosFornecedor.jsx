@@ -106,7 +106,7 @@ const FormParametrosFornecedor = () => {
         })
         setBlocks(newBlock)
 
-        // setValue(`blocks.[${index}].itens.[${newBlock[index].itens.length - 1}].new`, true)
+        setValue(`blocks.[${index}].itens.[${newBlock[index].itens.length - 1}].new`, true)
 
         refreshBlockOptions(newBlock[index], index, blocks, allOptions)
     }
@@ -129,6 +129,8 @@ const FormParametrosFornecedor = () => {
         newBlock.splice(indexItem, 1)
         updatedBlocks[indexBlock].itens = newBlock
         setBlocks(updatedBlocks)
+
+        setValue(`blocks.[${indexBlock}].itens.[${indexItem}].new`, false)
 
         refreshBlockOptions(blocks[indexBlock], indexBlock, blocks, allOptions)
     }
@@ -184,10 +186,9 @@ const FormParametrosFornecedor = () => {
         values.blocks.map((block, indexBlock) => {
             block.itens.map((item, indexItem) => {
                 if (item) {
-                    console.log('initialize values:', indexBlock, item.item.nome)
-
+                    console.log('initialize values:', indexBlock, item)
                     // setar item.new como false
-                    // setValue(`blocks.[${indexBlock}].itens.[${indexItem}].new`, false)
+                    setValue(`blocks.[${indexBlock}].itens.[${indexItem}].new`, false)
                     setValue(`blocks.[${indexBlock}].itens.[${indexItem}].item`, item.item)
                     setValue(`blocks.[${indexBlock}].itens.[${indexItem}].alternativa`, item.alternativa)
                 }
@@ -228,11 +229,6 @@ const FormParametrosFornecedor = () => {
         setTitle('Formulário do Fornecedor')
         getData()
     }, [savingForm])
-
-    //? useEffect pra ser chamado sempre que houver alteração, inclusão ou exclusão do item
-    // useEffect(() => {
-    //     console.log('Alterou: ', blocks)
-    // }, [blocks])
 
     return (
         <>
@@ -320,12 +316,12 @@ const FormParametrosFornecedor = () => {
                             <Card key={index} md={12} sx={{ mt: 4 }}>
                                 <CardContent>
                                     {/* Header */}
-                                    <input
+                                    {/* <input
                                         type='hidden'
                                         name={`blocks.[${index}].parFornecedorBlocoID`}
                                         defaultValue={block.dados.parFornecedorBlocoID}
                                         {...register(`blocks.[${index}].parFornecedorBlocoID`)}
-                                    />
+                                    /> */}
 
                                     <Grid container spacing={4}>
                                         <Grid item xs={12} md={2}>
@@ -476,7 +472,7 @@ const FormParametrosFornecedor = () => {
                                                 <input
                                                     type='hidden'
                                                     name={`blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`}
-                                                    defaultValue={item.parFornecedorBlocoItemID}
+                                                    value={item.parFornecedorBlocoItemID}
                                                     {...register(
                                                         `blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`
                                                     )}
