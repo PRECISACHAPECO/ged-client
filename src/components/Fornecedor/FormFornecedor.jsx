@@ -10,6 +10,7 @@ import upload from 'src/icon/Upload'
 import Fields from 'src/components/Defaults/Formularios/Fields'
 import CheckList from 'src/components/Defaults/Formularios/CheckList'
 import Block from 'src/components/Defaults/Formularios/Block'
+import CardAnexo from 'src/components/Anexos/CardAnexo'
 
 import {
     Alert,
@@ -116,7 +117,7 @@ const FormFornecedor = () => {
     } = useForm()
 
     const dynamicId = localStorage.getItem('dynamicId')
-    //! TODO - Verificar para deixar funções em arquivo separado
+    //TODO - Verificar para deixar funções em arquivo separado
     const setDynamicId = () => {
         const { id } = router.query
         if (id) {
@@ -366,27 +367,27 @@ const FormFornecedor = () => {
                     setData(response.data.data)
                     setGrupoAnexo(response.data.grupoAnexo)
 
-                    response.data.grupoAnexo.map((grupo, index) => {
-                        grupo.itens.map((item, index) => {
-                            if (item.anexo) {
-                                arrAnexo.push({
-                                    titulo: item.nome,
-                                    grupoAnexoItemID: item.grupoanexoitemID,
-                                    arquivo: item.anexo,
-                                    usuarioID: user.usuarioID,
-                                    recebimentoMpID: '',
-                                    naoConformidadeID: '',
-                                    file: {
-                                        status: true,
-                                        name: item.anexo.path,
-                                        size: item.anexo.size,
-                                        type: item.anexo.type,
-                                        path: item.anexo.time
-                                    }
-                                })
-                            }
-                        })
-                    })
+                    // response.data.grupoAnexo.map((grupo, index) => {
+                    //     grupo.itens.map((item, index) => {
+                    //         if (item.anexo) {
+                    //             arrAnexo.push({
+                    //                 titulo: item.nome,
+                    //                 grupoAnexoItemID: item.grupoanexoitemID,
+                    //                 arquivo: item.anexo,
+                    //                 usuarioID: user.usuarioID,
+                    //                 recebimentoMpID: '',
+                    //                 naoConformidadeID: '',
+                    //                 file: {
+                    //                     status: true,
+                    //                     name: item.anexo.path,
+                    //                     size: item.anexo.size,
+                    //                     type: item.anexo.type,
+                    //                     path: item.anexo.time
+                    //                 }
+                    //             })
+                    //         }
+                    //     })
+                    // })
 
                     setInfo(response.data.info)
                     setUnidade(response.data.unidade)
@@ -417,11 +418,6 @@ const FormFornecedor = () => {
         router.push('/formularios/fornecedor/')
         toast.error('Você não tem permissões para acessar esta página!')
     }
-
-    // const handleSendForm = async () => {
-    //     console.log('handleSendForm.....')
-    //     handleSubmit(onSubmit)(true)
-    // }
 
     const handleSendForm = () => {
         checkErrors()
@@ -524,63 +520,44 @@ const FormFornecedor = () => {
         }
     }, [copiedDataContext])
 
-    // Quando clicar no botão de foto, o input de foto é clicado abrindo o seletor de arquivos
-    const fileInputRef = useRef(null)
-
-    const handleAvatarClick = item => {
-        fileInputRef.current.click()
-        setItemAnexoAux(item)
-    }
-
     // Quando selecionar um arquivo, o arquivo é adicionado ao array de anexos
-    const handleFileSelect = event => {
+    const handleFileSelect = (event, item) => {
         const selectedFile = event.target.files[0]
+        console.log('🚀 ~ selectedFile:', selectedFile)
 
-        if (selectedFile?.type !== 'application/pdf') {
-            toast.error('Formato de arquivo inválido, selecione um arquivo PDF!')
-            return
+        // Atualiza o objeto anexo com o arquivo selecionado
+        const updatedItem = {
+            ...item,
+            anexo: {
+                exist: true,
+                path: null,
+                nome: selectedFile.name,
+                type: selectedFile.type,
+                size: selectedFile.size,
+                time: selectedFile.lastModified
+            }
         }
 
-        const existingAnexo = arrAnexo.find(anexo => anexo.grupoAnexoItemID === itemAnexoAux.grupoanexoitemID)
+        console.log('🚀 ~ updatedItem:', updatedItem)
 
-        if (existingAnexo) {
-            const updatedAnexo = {
-                ...existingAnexo,
-                titulo: itemAnexoAux.nome,
-                arquivo: selectedFile,
-                file: {
-                    status: true,
-                    name: selectedFile.name,
-                    size: selectedFile.size,
-                    type: selectedFile.type,
-                    time: new Date().getTime()
+        // Atualiza estado grupoAnexo com o item atualizado
+        const updatedGrupoAnexo = grupoAnexo.map(grupo => {
+            if (grupo.grupoAnexoID == item.grupoanexoID) {
+                return {
+                    ...grupo,
+                    itens: grupo.itens.map(item => {
+                        if (item.grupoanexoitemID == updatedItem.grupoanexoitemID) {
+                            console.log('encontrou item')
+                            return updatedItem
+                        }
+                        return item
+                    })
                 }
             }
-
-            const updatedArrAnexo = arrAnexo.map(anexo => {
-                return anexo.grupoAnexoItemID === itemAnexoAux.grupoanexoitemID ? updatedAnexo : anexo
-            })
-            arrAnexoRemoved.splice(arrAnexoRemoved.indexOf(existingAnexo), 1)
-
-            setArrAnexo(updatedArrAnexo)
-        } else {
-            const newAnexo = {
-                titulo: itemAnexoAux.nome,
-                grupoAnexoItemID: itemAnexoAux.grupoanexoitemID,
-                arquivo: selectedFile,
-                usuarioID: user.usuarioID,
-                recebimentoMpID: '',
-                naoConformidadeID: '',
-                file: {
-                    status: true,
-                    name: selectedFile?.name,
-                    size: selectedFile?.size,
-                    type: selectedFile?.type
-                }
-            }
-            setArrAnexo([...arrAnexo, newAnexo])
-            arrAnexoRemoved.splice(arrAnexoRemoved.indexOf(existingAnexo), 1)
-        }
+            return grupo
+        })
+        console.log('🚀 ~ updatedGrupoAnexo:', updatedGrupoAnexo)
+        setGrupoAnexo(updatedGrupoAnexo)
     }
 
     // Envia os arquivos de anexo para o backend
@@ -775,124 +752,14 @@ const FormFornecedor = () => {
                     {grupoAnexo && (
                         <>
                             {grupoAnexo.map((grupo, indexGrupo) => (
-                                <Card key={indexGrupo} sx={{ mt: 4 }}>
-                                    <CardContent>
-                                        {/* {JSON.stringify(arrAnexo)} */}
-                                        <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
-                                            {grupo.nome}
-                                        </Typography>
-                                        <Typography variant='body2' sx={{ mb: 2 }}>
-                                            {grupo.descricao}
-                                        </Typography>
-                                        {/* Itens do grupo */}
-                                        <Grid container spacing={4}>
-                                            {grupo.itens.map((item, indexItem) => (
-                                                <Grid item xs={12} md={4} key={`${indexGrupo}-${indexItem}`}>
-                                                    <Box
-                                                        style={{
-                                                            border: `${
-                                                                mode == 'dark'
-                                                                    ? '1px solid rgba(234, 234, 255, 0.10)'
-                                                                    : '1px solid rgba(76, 78, 100, 0.12)'
-                                                            }`,
-                                                            borderRadius: '12px',
-                                                            padding: '25px',
-                                                            paddingTop: '120px',
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            gap: '6px',
-                                                            position: 'relative',
-                                                            zIndex: 10
-                                                        }}
-                                                    >
-                                                        <div
-                                                            onClick={() => handleAvatarClick(item)}
-                                                            className='cursor-pointer '
-                                                        >
-                                                            <img
-                                                                src='/images/storyset/a.svg'
-                                                                alt=''
-                                                                className='w-[20%] top-8 left-0 absolute'
-                                                            />
-                                                            <div>
-                                                                <Typography
-                                                                    variant='subtitle1'
-                                                                    sx={{ fontWeight: 600, mb: 2 }}
-                                                                >
-                                                                    {item.nome}
-                                                                </Typography>
-                                                                <Typography variant='body2' sx={{ mb: 2 }}>
-                                                                    {item.descricao}
-                                                                </Typography>
-                                                            </div>
-                                                        </div>
-                                                        {(() => {
-                                                            const foundAnexo = arrAnexo.find(
-                                                                anexo => item.grupoanexoitemID == anexo.grupoAnexoItemID
-                                                            )
-                                                            if (foundAnexo) {
-                                                                return (
-                                                                    <div
-                                                                        className={`flex p-2 items-center justify-between gap-2 rounded-lg `}
-                                                                        style={{
-                                                                            border: `${
-                                                                                mode == 'dark'
-                                                                                    ? '1px dashed rgba(234, 234, 255, 0.10)'
-                                                                                    : '1px dashed rgba(76, 78, 100, 0.12)'
-                                                                            }`
-                                                                        }}
-                                                                    >
-                                                                        <div className='flex gap-2 items-center'>
-                                                                            <img
-                                                                                width={28}
-                                                                                height={28}
-                                                                                alt='invoice.pdf'
-                                                                                src='/images/icons/file-icons/pdf.png'
-                                                                            />
-                                                                            <Typography variant='body2'>{`${
-                                                                                foundAnexo?.file?.name
-                                                                            } (${(
-                                                                                foundAnexo?.file?.size /
-                                                                                1024 /
-                                                                                1024
-                                                                            ).toFixed(2)}mb)`}</Typography>
-                                                                        </div>
-                                                                        <div
-                                                                            style={{
-                                                                                zIndex: 9999
-                                                                            }}
-                                                                        >
-                                                                            <Button
-                                                                                variant='outlined'
-                                                                                size='small'
-                                                                                onClick={() =>
-                                                                                    handleRemoveAnexo(
-                                                                                        foundAnexo.grupoAnexoItemID
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                Remover
-                                                                            </Button>
-                                                                        </div>
-                                                                    </div>
-                                                                )
-                                                            }
-                                                            return null
-                                                        })()}
-                                                        <input
-                                                            type='file'
-                                                            ref={fileInputRef}
-                                                            style={{ display: 'none' }}
-                                                            onChange={handleFileSelect}
-                                                        />
-                                                    </Box>
-                                                </Grid>
-                                            ))}
-                                        </Grid>
-                                    </CardContent>
-                                </Card>
+                                <CardAnexo
+                                    key={indexGrupo}
+                                    grupo={grupo}
+                                    indexGrupo={indexGrupo}
+                                    handleFileSelect={handleFileSelect}
+                                />
                             ))}
-                            <Button variant='contained' onClick={enviarPDFsParaBackend}>
+                            <Button variant='contained' onClick={enviarPDFsParaBackend} sx={{ mt: 4 }}>
                                 Enviar Anexos
                             </Button>
                         </>
