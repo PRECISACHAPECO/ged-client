@@ -353,7 +353,7 @@ const FormFornecedor = () => {
         try {
             setLoading(true)
             if (id) {
-                api.get(`${staticUrl}/${id}`).then(response => {
+                api.get(`${staticUrl}/${id}/${loggedUnity.unidadeID}`).then(response => {
                     console.log('getData: ', response.data.grupoAnexo)
 
                     setFields(response.data.fields)
@@ -453,10 +453,11 @@ const FormFornecedor = () => {
 
         try {
             setLoadingSave(true)
-            await api.put(`${staticUrl}/${id}`, data).then(response => {
-                toast.success(toastMessage.successUpdate)
-                setLoadingSave(false)
-            })
+            await enviarPDFsParaBackend()
+            // await api.put(`${staticUrl}/${id}`, data).then(response => {
+            //     toast.success(toastMessage.successUpdate)
+            //     setLoadingSave(false)
+            // })
         } catch (error) {
             console.log(error)
         }
@@ -531,6 +532,7 @@ const FormFornecedor = () => {
             anexo: {
                 exist: true,
                 path: null,
+                file: selectedFile,
                 nome: selectedFile.name,
                 type: selectedFile.type,
                 size: selectedFile.size,
@@ -538,7 +540,7 @@ const FormFornecedor = () => {
             }
         }
 
-        console.log('🚀 ~ updatedItem:', updatedItem)
+        // console.log('🚀 ~ updatedItem:', updatedItem)
 
         // Atualiza estado grupoAnexo com o item atualizado
         const updatedGrupoAnexo = grupoAnexo.map(grupo => {
@@ -564,43 +566,41 @@ const FormFornecedor = () => {
     const enviarPDFsParaBackend = async () => {
         const formData = new FormData()
 
-        if (arrAnexo.length === 0) {
-            toast.error('Selecione ao menos um arquivo para enviar!')
-            return
-        }
+        formData.append(`usuarioID`, user.usuarioID)
+        formData.append(`unidadeID`, loggedUnity.unidadeID)
 
-        arrAnexo.forEach((file, index) => {
-            formData.append(`pdfFiles`, file.arquivo)
-            formData.append(`titulo`, file.titulo)
-            formData.append(`tamanho`, file.file.size)
-            formData.append(`grupoAnexoItemID`, file.grupoAnexoItemID)
-            formData.append(`usuarioID`, file.usuarioID)
-            formData.append(`recebimentoMpID`, file.recebimentoMpID)
-            formData.append(`naoConformidadeID`, file.naoConformidadeID)
-            formData.append(`unidadeID`, loggedUnity.unidadeID)
-            formData.append(`arrAnexoRemoved`, arrAnexoRemoved)
+        grupoAnexo.forEach((grupo, grupoIndex) => {
+            // grupo
+            grupo.itens.forEach((item, itemIndex) => {
+                // itens
+                if (item.anexo.file) {
+                    console.log('setando em form data: ', item)
+
+                    formData.append(`pdfFiles`, item.anexo.file)
+                    formData.append(`titulo[${grupoIndex}]`, item.anexo.nome)
+                    formData.append(`grupoanexoitemID[${grupoIndex}]`, item.grupoanexoitemID)
+                }
+            })
         })
 
-        await api
-            .post(`/formularios/fornecedor/saveAnexo/${id}`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
-            .then(response => {
-                if (response.status === 200) {
-                    toast.success('Anexos enviados com sucesso!')
-                    setArrAnexo([])
-                    setItemAnexoAux({})
-                    setLoadingSave(!isLoadingSave)
-                }
-            })
+        //? Envia array de anexos a serem removidos
+        arrAnexoRemoved.forEach((item, index) => {
+            console.log('🚀 =====================>>>> ', item)
+            formData.append(`arrAnexoRemoved`, item)
+        })
+
+        await api.post(`/formularios/fornecedor/saveAnexo/${id}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
     }
 
     // Remove um anexo do array de anexos
     const handleRemoveAnexo = item => {
-        const updatedArrAnexo = arrAnexo.filter(anexo => anexo.grupoAnexoItemID !== item)
-        setArrAnexo(updatedArrAnexo)
+        console.log('🚀 ~ handleRemoveAnexo:', item)
+
+        // Array que envia pro backend deletar
         setArrAnexoRemoved([...arrAnexoRemoved, item])
     }
 
@@ -749,21 +749,16 @@ const FormFornecedor = () => {
                         ))}
 
                     {/* Grupo de anexos */}
-                    {grupoAnexo && (
-                        <>
-                            {grupoAnexo.map((grupo, indexGrupo) => (
-                                <CardAnexo
-                                    key={indexGrupo}
-                                    grupo={grupo}
-                                    indexGrupo={indexGrupo}
-                                    handleFileSelect={handleFileSelect}
-                                />
-                            ))}
-                            <Button variant='contained' onClick={enviarPDFsParaBackend} sx={{ mt: 4 }}>
-                                Enviar Anexos
-                            </Button>
-                        </>
-                    )}
+                    {grupoAnexo &&
+                        grupoAnexo.map((grupo, indexGrupo) => (
+                            <CardAnexo
+                                key={indexGrupo}
+                                grupo={grupo}
+                                indexGrupo={indexGrupo}
+                                handleFileSelect={handleFileSelect}
+                                handleRemoveAnexo={handleRemoveAnexo}
+                            />
+                        ))}
 
                     {/* Observação do formulário */}
                     <Card sx={{ mt: 4 }}>

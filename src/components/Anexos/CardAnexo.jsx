@@ -2,7 +2,7 @@ import { Box, Button, Card, CardContent, Grid, Typography } from '@mui/material'
 import { useRef, useContext, useState, useEffect } from 'react'
 import { SettingsContext } from 'src/@core/context/settingsContext'
 
-const CardAnexo = ({ grupo, indexGrupo, handleFileSelect }) => {
+const CardAnexo = ({ grupo, indexGrupo, handleFileSelect, handleRemoveAnexo }) => {
     const [selectedItem, setSelectedItem] = useState(null)
 
     const { settings } = useContext(SettingsContext)
@@ -117,7 +117,7 @@ const CardAnexo = ({ grupo, indexGrupo, handleFileSelect }) => {
                                             <Button
                                                 variant='outlined'
                                                 size='small'
-                                                onClick={() => handleRemoveAnexo(item.anexo.grupoAnexoItemID)}
+                                                onClick={() => handleRemoveAnexo(item.grupoanexoitemID)}
                                             >
                                                 Remover
                                             </Button>
