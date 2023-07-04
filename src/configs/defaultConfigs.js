@@ -120,6 +120,21 @@ const generateReport = async props => {
     }
 }
 
+// const generateReport = (props) => {
+//     const route = props.route
+//     const params = props.params
+//     api.post(route, { data: params }, { responseType: 'blob' })
+//         .then((response) => {
+//             const blob = new Blob([response.data], { type: 'application/pdf' });
+//             const url = URL.createObjectURL(blob);
+//             window.open(url);
+//         })
+//         .catch((error) => {
+//             console.log('Erro ao gerar o PDF:', error);
+//         });
+// };
+
+
 
 function dateConfig(type, date, numDays) {
     let inputDate = new Date(date);
