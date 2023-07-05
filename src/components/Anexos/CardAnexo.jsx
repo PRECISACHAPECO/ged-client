@@ -35,27 +35,11 @@ const CardAnexo = ({ grupo, indexGrupo, handleFileSelect, handleRemoveAnexo }) =
                 {/* Itens do grupo */}
                 <Grid container spacing={4}>
                     {grupo.itens.map((item, indexItem) => (
-                        <Grid item xs={12} md={4} key={`${indexGrupo}-${indexItem}`}>
+                        <Grid item xs={12} md={3} key={`${indexGrupo}-${indexItem}`}>
                             <div
                                 className={`border hover:border-[#4A8B57] transition-colors ${
                                     mode === 'dark' ? 'border-[#71717B]' : 'border-[#E1E1E6]'
                                 } rounded-lg p-6 pt-32 flex flex-col gap-6 relative z-10`}
-
-                                // style={{
-                                //     border: `${
-                                //         mode == 'dark'
-                                //             ? '1px solid rgba(234, 234, 255, 0.10)'
-                                //             : '1px solid rgba(76, 78, 100, 0.12)'
-                                //     }`,
-                                //     borderRadius: '12px',
-                                //     padding: '25px',
-                                //     paddingTop: '120px',
-                                //     display: 'flex',
-                                //     flexDirection: 'column',
-                                //     gap: '6px',
-                                //     position: 'relative',
-                                //     zIndex: 10
-                                // }}
                             >
                                 <div
                                     onClick={() => {
@@ -117,7 +101,7 @@ const CardAnexo = ({ grupo, indexGrupo, handleFileSelect, handleRemoveAnexo }) =
                                             <Button
                                                 variant='outlined'
                                                 size='small'
-                                                onClick={() => handleRemoveAnexo(item.grupoanexoitemID)}
+                                                onClick={() => handleRemoveAnexo(item)}
                                             >
                                                 Remover
                                             </Button>

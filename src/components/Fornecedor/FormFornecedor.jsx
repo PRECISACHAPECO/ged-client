@@ -71,10 +71,8 @@ const FormFornecedor = () => {
     const [atividades, setAtividades] = useState([])
     const [sistemasQualidade, setSistemasQualidade] = useState([])
     const [grupoAnexo, setGrupoAnexo] = useState([])
-
     const [allBlocks, setAllBlocks] = useState([])
     const [blocks, setBlocks] = useState([])
-
     const [info, setInfo] = useState('')
     const [openModal, setOpenModal] = useState(false)
     const [unidade, setUnidade] = useState(null)
@@ -82,13 +80,8 @@ const FormFornecedor = () => {
     const [statusEdit, setStatusEdit] = useState(false)
     const [openModalStatus, setOpenModalStatus] = useState(false)
     const [hasFormPending, setHasFormPending] = useState(true) //? Tem pendencia no formulário (já vinculado em formulário de recebimento, não altera mais o status)
-    const [countViewBlocks, setCountViewBlocks] = useState(0)
-    const [answers, setAnswers] = useState([])
-    const [dateStatus, setDateStatus] = useState({})
     const [listErrors, setListErrors] = useState({ status: false, errors: [] })
     const [copiedDataContext, setCopiedDataContext] = useState(false)
-    const [itemAnexoAux, setItemAnexoAux] = useState(null)
-    const [arrAnexo, setArrAnexo] = useState([])
     const [arrAnexoRemoved, setArrAnexoRemoved] = useState([])
 
     const [canEdit, setCanEdit] = useState({
@@ -225,34 +218,6 @@ const FormFornecedor = () => {
         setInfo(newInfo)
     }
 
-    //* Formulário já foi enviado e atualizado, função apenas altera o status e envia o email
-
-    // const conclusionAndSendForm = async () => {
-    //     const data = {
-    //         usuarioID: user.usuarioID,
-    //         unidadeID: loggedUnity.unidadeID,
-    //         papelID: user.papelID
-    //     }
-    //     try {
-    //         setLoadingSave(true)
-    //         await api.post(`${staticUrl}/conclusionAndSendForm/${id}`, data).then(response => {
-    //             if (response.status === 201) {
-    //                 toast.error(`Erro ao concluir o formulário!`)
-    //             } else if (response.status === 202) {
-    //                 toast.error(`Erro ao realizar o envio de email para ${user.email}`)
-    //                 toast.success(`Formulário concluído com sucesso!`)
-    //                 getData()
-    //             } else {
-    //                 toast.success(`Formulário concluído com sucesso!`)
-    //             }
-    //             setOpenModal(false)
-    //             setLoadingSave(false)
-    //         })
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
-
     const getAddressByCep = cepString => {
         if (cepString.length == 9) {
             const cep = cepString.replace(/[^0-9]/g, '')
@@ -367,28 +332,6 @@ const FormFornecedor = () => {
                     setData(response.data.data)
                     setGrupoAnexo(response.data.grupoAnexo)
 
-                    // response.data.grupoAnexo.map((grupo, index) => {
-                    //     grupo.itens.map((item, index) => {
-                    //         if (item.anexo) {
-                    //             arrAnexo.push({
-                    //                 titulo: item.nome,
-                    //                 grupoAnexoItemID: item.grupoanexoitemID,
-                    //                 arquivo: item.anexo,
-                    //                 usuarioID: user.usuarioID,
-                    //                 recebimentoMpID: '',
-                    //                 naoConformidadeID: '',
-                    //                 file: {
-                    //                     status: true,
-                    //                     name: item.anexo.path,
-                    //                     size: item.anexo.size,
-                    //                     type: item.anexo.type,
-                    //                     path: item.anexo.time
-                    //                 }
-                    //             })
-                    //         }
-                    //     })
-                    // })
-
                     setInfo(response.data.info)
                     setUnidade(response.data.unidade)
 
@@ -454,10 +397,10 @@ const FormFornecedor = () => {
         try {
             setLoadingSave(true)
             await enviarPDFsParaBackend()
-            // await api.put(`${staticUrl}/${id}`, data).then(response => {
-            //     toast.success(toastMessage.successUpdate)
-            //     setLoadingSave(false)
-            // })
+            await api.put(`${staticUrl}/${id}`, data).then(response => {
+                toast.success(toastMessage.successUpdate)
+                setLoadingSave(false)
+            })
         } catch (error) {
             console.log(error)
         }
@@ -540,8 +483,6 @@ const FormFornecedor = () => {
             }
         }
 
-        // console.log('🚀 ~ updatedItem:', updatedItem)
-
         // Atualiza estado grupoAnexo com o item atualizado
         const updatedGrupoAnexo = grupoAnexo.map(grupo => {
             if (grupo.grupoAnexoID == item.grupoanexoID) {
@@ -558,8 +499,9 @@ const FormFornecedor = () => {
             }
             return grupo
         })
-        console.log('🚀 ~ updatedGrupoAnexo:', updatedGrupoAnexo)
         setGrupoAnexo(updatedGrupoAnexo)
+
+        toast.success('Anexo adicionado, salve para concluir!')
     }
 
     // Envia os arquivos de anexo para o backend
@@ -569,24 +511,24 @@ const FormFornecedor = () => {
         formData.append(`usuarioID`, user.usuarioID)
         formData.append(`unidadeID`, loggedUnity.unidadeID)
 
+        let index = 0
         grupoAnexo.forEach((grupo, grupoIndex) => {
             // grupo
             grupo.itens.forEach((item, itemIndex) => {
                 // itens
-                if (item.anexo.file) {
-                    console.log('setando em form data: ', item)
-
+                if (item.anexo && item.anexo.file) {
                     formData.append(`pdfFiles`, item.anexo.file)
-                    formData.append(`titulo[${grupoIndex}]`, item.anexo.nome)
-                    formData.append(`grupoanexoitemID[${grupoIndex}]`, item.grupoanexoitemID)
+                    formData.append(`titulo[${index}]`, item.anexo.nome)
+                    formData.append(`grupoanexoitemID[${index}]`, item.grupoanexoitemID)
+                    //
+                    index++
                 }
             })
         })
 
         //? Envia array de anexos a serem removidos
         arrAnexoRemoved.forEach((item, index) => {
-            console.log('🚀 =====================>>>> ', item)
-            formData.append(`arrAnexoRemoved`, item)
+            formData.append(`arrAnexoRemoved[${index}]`, item)
         })
 
         await api.post(`/formularios/fornecedor/saveAnexo/${id}`, formData, {
@@ -598,10 +540,30 @@ const FormFornecedor = () => {
 
     // Remove um anexo do array de anexos
     const handleRemoveAnexo = item => {
-        console.log('🚀 ~ handleRemoveAnexo:', item)
-
         // Array que envia pro backend deletar
-        setArrAnexoRemoved([...arrAnexoRemoved, item])
+        setArrAnexoRemoved([...arrAnexoRemoved, item.grupoanexoitemID])
+
+        // Atualiza estado com setGrupoAnexo, removendo objeto de anexo
+        const updatedGrupoAnexo = grupoAnexo.map(grupo => {
+            if (grupo.grupoAnexoID == item.grupoanexoID) {
+                return {
+                    ...grupo,
+                    itens: grupo.itens.map(row => {
+                        if (row.grupoanexoitemID == item.grupoanexoitemID) {
+                            return {
+                                ...item,
+                                anexo: null
+                            }
+                        }
+                        return row
+                    })
+                }
+            }
+            return grupo
+        })
+        setGrupoAnexo(updatedGrupoAnexo)
+
+        toast.success('Anexo pré-removido, salve para concluir!')
     }
 
     return (
