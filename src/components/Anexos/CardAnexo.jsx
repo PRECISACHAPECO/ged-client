@@ -54,10 +54,55 @@ const CardAnexo = ({ grupo, indexGrupo, handleFileSelect, handleRemoveAnexo }) =
                                     onClick={() => handleAvatarClick(item)}
                                 >
                                     {item.anexo && item.anexo.exist ? (
-                                        <div className='bg-red-500 h-full w-full'>
-                                            <Document file={item?.anexo?.path}>
-                                                <Page pageNumber={1} renderMode='pdf' />
-                                            </Document>
+                                        // Versão com pdf preview
+                                        // <div className='bg-red-500 h-full w-full'>
+                                        //     <Document file={item?.anexo?.path}>
+                                        //         <Page pageNumber={1} renderMode='pdf' />
+                                        //     </Document>
+                                        // </div>
+                                        // Versao antiga
+                                        <div
+                                            className={`flex p-2 w-full items-center justify-between gap-2 rounded-lg`}
+                                            style={{
+                                                border: `${
+                                                    mode == 'dark'
+                                                        ? '1px dashed rgba(234, 234, 255, 0.10)'
+                                                        : '1px dashed rgba(76, 78, 100, 0.12)'
+                                                }`
+                                            }}
+                                        >
+                                            <div className='flex gap-2 items-center'>
+                                                <a
+                                                    href={item.anexo.path}
+                                                    target='_blank'
+                                                    className='flex gap-2 items-center'
+                                                >
+                                                    <img
+                                                        width={28}
+                                                        height={28}
+                                                        alt='invoice.pdf'
+                                                        src='/images/icons/file-icons/pdf.png'
+                                                    />
+                                                    <Typography variant='body2'>{`${item.anexo.nome} (${(
+                                                        item.anexo.size /
+                                                        1024 /
+                                                        1024
+                                                    ).toFixed(2)}mb)`}</Typography>
+                                                </a>
+                                            </div>
+                                            <div
+                                                style={{
+                                                    zIndex: 9999
+                                                }}
+                                            >
+                                                <Button
+                                                    variant='outlined'
+                                                    size='small'
+                                                    onClick={() => handleRemoveAnexo(item)}
+                                                >
+                                                    Remover
+                                                </Button>
+                                            </div>
                                         </div>
                                     ) : (
                                         <div>
