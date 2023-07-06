@@ -29,333 +29,226 @@ import { backRoute } from 'src/configs/defaultConfigs'
 import { toastMessage } from 'src/configs/defaultConfigs'
 
 const FormGrupoAnexos = () => {
-    const [open, setOpen] = useState(false)
-    const [data, setData] = useState(null)
-    const [removedItems, setRemovedItems] = useState([])
     const { id } = Router.query
     const router = Router
+    const [data, setData] = useState(null)
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
-    const inputRef = useRef(null)
     const { title } = useContext(ParametersContext)
+    const inputRef = useRef(null)
     const { loggedUnity } = useContext(AuthContext)
-    console.log('🚀 ~ loggedUnity:', loggedUnity)
+    const [savingForm, setSavingForm] = useState(false)
+    const [removedItems, setRemovedItems] = useState([]) //? Itens removidos do formulário
 
     const {
         trigger,
         handleSubmit,
         setValue,
+        reset,
         formState: { errors },
         register
-    } = useForm({})
+    } = useForm()
 
-    console.log(errors)
-
-    //! Função que atualiza os dados ou cria novo dependendo do tipo da rota
-    const onSubmit = async data => {
-        const newData = {
-            ...data,
-            removedItems,
-            unidade: loggedUnity.unidadeID
-        }
-        console.log('🚀 ~ newData vai para o back:', newData)
-
-        // try {
-        //     if (type === 'new') {
-        //         await api.post(`${staticUrl}/novo/insertData`, { newData })
-        //         router.push(staticUrl)
-        //         toast.success(toastMessage.successNew)
-        //     } else if (type === 'edit') {
-        //         await api.post(`${staticUrl}/${id}`, { newData })
-        //         toast.success(toastMessage.successUpdate)
-        //     }
-        // } catch (error) {
-        //     if (error.response && error.response.status === 409) {
-        //         toast.error(toastMessage.errorRepeated)
-        //     } else {
-        //         console.log(error)
-        //     }
-        // }
-    }
-    //! Função que deleta os dados
-    const handleClickDelete = async () => {
-        try {
-            await api.delete(`${staticUrl}/${id}`)
-            router.push(staticUrl)
-            toast.success(toastMessage.successDelete)
-        } catch (error) {
-            if (error.response && error.response.status === 409) {
-                toast.error(toastMessage.pendingDelete)
-                setOpen(false)
-            } else {
-                console.log(error)
-            }
-        }
-    }
-
-    //! Seta os valores iniciais dos campos
-    const initializeValues = values => {
-        setValue(`status`, values.status == 1 ? true : false)
-        setValue(`nome`, values.nome)
-        setValue(`descricao`, values.descricao)
-        values.requisitos.map((item, index) => {
-            setValue(`requisitos[${index}].nome`, item.nome)
-            setValue(`requisitos[${index}].descricao`, item.descricao)
-            setValue(`requisitos[${index}].statusRequisito`, item.status == 1 ? true : false)
-            setValue(`requisitos[${index}].obrigatorio`, item.obrigatorio == 1 ? true : false)
-        })
-    }
-
-    //! Requisição ao banco de dados, para dados já existentes
     const getData = async () => {
-        api.get(`${staticUrl}/getData/${id}`).then(response => {
-            initializeValues(response.data)
-            setData(response.data)
-        })
-    }
-
-    //! Requisição ao banco de dados, quando inicializa pagina novo
-    const getNovo = async () => {
-        api.get(`${staticUrl}/novo/getDataNew`).then(response => {
-            console.log('requisição novo', response.data)
-            const dataOld = {
-                ...response.data,
-                requisitos: [
-                    {
-                        nome: '',
-                        grupoanexoitemID: null,
-                        descricao: '',
-                        status: true,
-                        obrigatorio: true
-                    }
-                ]
-            }
-            setData(dataOld)
-            initializeValues(dataOld)
-        })
-    }
-
-    //! Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
-    useEffect(() => {
-        if (type === 'new') {
-            getNovo()
-        } else if (type === 'edit') {
-            getData()
+        try {
+            await api.get(`${staticUrl}/getData/${id}`).then(response => {
+                console.log('🚀 ~ getData:', response.data)
+                setData(response.data)
+                reset(response.data) //* Insere os dados no formulário
+            })
+        } catch (error) {
+            console.log(error)
         }
-    }, [])
+    }
 
-    //! Adiciona um novo item
-    const addRequisito = () => {
-        const newRequisito = { ...data }
-        newRequisito.requisitos.push({
+    const addItem = () => {
+        const newValue = { ...data }
+        newValue.items.push({
             nome: '',
-            grupoanexoitemID: null,
             descricao: '',
             status: true,
             obrigatorio: true
         })
-        setData(newRequisito)
+        setData(newValue)
     }
 
-    //! Remove item do setValue
     const removeItem = (value, index) => {
-        if (data.requisitos.length === 1) {
+        if (data.items.length === 1) {
             toast.error('É necessário ter pelo menos um item!')
             return
         }
 
-        const newRequisitos = [...data.requisitos]
-        newRequisitos.splice(index, 1)
-        console.log('🚀 ~ data.requisitos:', data.requisitos)
-        // newRequisitos.filter(requisito => requisito)
-        console.log('🚀 ~ newRequisitos:', newRequisitos)
+        //* Adiciona item removido ao array
+        if (value.id) {
+            setRemovedItems([...removedItems, value.id])
+        }
 
-        setData({
-            ...data,
-            requisitos: newRequisitos
-        })
+        const newValue = [...data.items]
+        newValue.splice(index, 1)
+        setData({ ...data, items: newValue })
 
-        setValue('requisitos', newRequisitos)
+        setValue(`items`, newValue) //* Remove item do formulário
     }
 
-    console.log('dataaa', data)
+    const onSubmit = async values => {
+        //* Valores auxiliares
+        values['removedItems'] = removedItems
+        values['unidade'] = loggedUnity.unidadeID
+
+        console.log('🚀 ~ newData vai para o back:', values)
+
+        try {
+            if (type === 'new') {
+                await api.post(`${staticUrl}/novo/insertData`, values)
+                router.push(staticUrl)
+                toast.success(toastMessage.successNew)
+            } else if (type === 'edit') {
+                await api.post(`${staticUrl}/${id}`, values)
+                toast.success(toastMessage.successUpdate)
+            }
+            setSavingForm(!savingForm)
+        } catch (error) {
+            if (error.response && error.response.status === 409) {
+                toast.error(toastMessage.errorRepeated)
+            } else {
+                console.log(error)
+            }
+        }
+
+        // reset()
+    }
+
+    useEffect(() => {
+        getData()
+
+        setTimeout(() => {
+            trigger()
+        }, 200)
+    }, [savingForm])
 
     return (
-        <>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <Card>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <FormHeader
-                        btnCancel
-                        btnSave
-                        // disabled={Object.keys(errors).length > 0 ? true : false}
-                        handleSubmit={() => handleSubmit(onSubmit)}
-                        btnDelete={type === 'edit' ? true : false}
-                        onclickDelete={() => setOpen(true)}
-                    />
+                {/* Botões cabeçalho */}
+                <FormHeader
+                    btnCancel
+                    btnSave
+                    btnDelete={type === 'edit' ? true : false}
+                    // onclickDelete={() => setOpen(true)}
+                />
+
+                {/* Formulário */}
+                {data && (
                     <CardContent>
-                        <Grid container spacing={3}>
+                        <Grid container spacing={4}>
                             <Grid item xs={12} md={11}>
                                 <FormControl fullWidth>
                                     <TextField
                                         label='Nome'
                                         placeholder='Nome'
-                                        name='nome'
-                                        {...register('nome', { required: true })}
-                                        // defaultValue={data?.nome ?? ''}
-                                        error={Boolean(errors.nome)}
+                                        {...register('fields.nome', { required: true })}
+                                        error={Boolean(errors?.fields?.nome)}
                                         aria-describedby='validation-schema-nome'
                                         inputRef={inputRef}
                                     />
                                 </FormControl>
                             </Grid>
 
-                            {data && (
-                                <Grid item xs={12} md={1}>
-                                    <>
-                                        <Typography>Ativo</Typography>
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    sx={{ ml: 4 }}
-                                                    name='status'
-                                                    {...register('status')}
-                                                    defaultChecked={
-                                                        data?.status == 1 ? true : false | (type == 'new' && true)
-                                                    }
-                                                />
-                                            }
-                                        />
-                                    </>
-                                </Grid>
-                            )}
-                            {data && (
-                                /* Formularios */
-                                <Grid item xs={12} md={12}>
-                                    <FormControl fullWidth>
-                                        <Autocomplete
-                                            multiple
-                                            limitTags={2}
-                                            options={data.formulariosOptions}
-                                            getOptionLabel={option => option.nome || ''}
-                                            defaultValue={data?.formulario ?? []}
-                                            name={`formulario[]`}
-                                            {...register(`formulario`, {
-                                                required: false
-                                            })}
-                                            onChange={(index, value) => {
-                                                const newDataFormularios = value
-                                                    ? value.map(item => {
-                                                          return {
-                                                              id: item?.id,
-                                                              nome: item?.nome,
-                                                              edit: true
-                                                          }
-                                                      })
-                                                    : []
-                                                setValue(`formulario`, newDataFormularios)
-                                            }}
-                                            renderInput={params => (
-                                                <TextField
-                                                    {...params}
-                                                    label='Formularios'
-                                                    placeholder='Formulários'
-                                                    error={errors?.formulario}
-                                                />
-                                            )}
-                                        />
-                                    </FormControl>
-                                </Grid>
-                            )}
                             <Grid item xs={12} md={12}>
                                 <FormControl fullWidth>
-                                    <TextField
-                                        label='Descrição'
-                                        placeholder='Descrição'
-                                        name='descricao'
-                                        multiline
-                                        rows={4}
-                                        {...register('descricao')}
-                                        defaultValue={data?.descricao ?? ''}
-                                        error={Boolean(errors.data?.descricao)}
-                                        aria-describedby='validation-schema-descricao'
+                                    <Autocomplete
+                                        multiple
+                                        limitTags={5}
+                                        options={data.formulario.options} // array
+                                        getOptionLabel={option => option.nome || ''}
+                                        defaultValue={data?.formulario.fields ?? []}
+                                        {...register(`formulario.fields`, {
+                                            required: true
+                                        })}
+                                        onChange={(index, value) => {
+                                            const newValue = value
+                                                ? value.map(item => {
+                                                      return {
+                                                          id: item?.id,
+                                                          nome: item?.nome,
+                                                          edit: true
+                                                      }
+                                                  })
+                                                : []
+                                            setValue(`formulario.fields`, newValue)
+                                        }}
+                                        renderInput={params => (
+                                            <TextField
+                                                {...params}
+                                                label='Formulários'
+                                                placeholder='Formulários'
+                                                error={errors?.formulario?.fields ? true : false}
+                                            />
+                                        )}
                                     />
                                 </FormControl>
                             </Grid>
                         </Grid>
                     </CardContent>
-                </form>
+                )}
             </Card>
+
             <Card sx={{ mt: 4 }}>
-                <CardHeader title='Itens do Anexo' />
                 <CardContent>
+                    <Typography>Itens</Typography>
                     <Grid container spacing={3}>
-                        {data?.requisitos?.map((item, index) => (
-                            <>
-                                <input
-                                    type='hidden'
-                                    name={`requisitos[${index}].grupoanexoitemID`}
-                                    {...register(`requisitos[${index}].grupoanexoitemID`)}
-                                    defaultValue={item?.grupoanexoitemID ?? ''}
-                                />
-
-                                <Grid item xs={12} md={3}>
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            label='Nome'
-                                            placeholder='Nome'
-                                            // defaultValue={item?.nome ?? ''}
-                                            name={`requisitos[${index}].nome`}
-                                            {...register(`requisitos[${index}].nome`)}
-                                            error={errors?.requisitos?.[index]?.nome ? true : false}
-                                            aria-describedby='validation-schema-nome'
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <FormControl fullWidth>
-                                        <TextField
-                                            label='Descrição'
-                                            defaultValue={item?.descricao ?? ''}
-                                            placeholder='Descrição'
-                                            // multiline
-                                            // rows={2}
-                                            name={`requisitos[${index}].descricao`}
-                                            {...register(`requisitos[${index}].descricao`, { required: true })}
-                                            error={errors?.requisitos?.[index]?.descricao ? true : false}
-                                            aria-describedby='validation-schema-descricao'
-                                        />
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12} md={1}>
-                                    <Typography variant='caption'>{index === 0 ? 'Obrigatório' : ` `}</Typography>
-
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                sx={{ ml: 4 }}
-                                                name={`requisitos[${index}].obrigatorio`}
-                                                {...register(`requisitos[${index}].obrigatorio`)}
-                                                defaultChecked={item.obrigatorio == 1 ? true : false}
+                        {data &&
+                            data?.items?.map((item, index) => (
+                                <>
+                                    <Grid item xs={12} md={3}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label='Nome'
+                                                placeholder='Nome'
+                                                {...register(`items[${index}].nome`, { required: true })}
+                                                error={errors?.items?.[index]?.nome ? true : false}
+                                                aria-describedby='validation-schema-nome'
                                             />
-                                        }
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={1}>
-                                    {index === 0 && <Typography variant='caption'>Status</Typography>}
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                sx={{ ml: 4 }}
-                                                name={`requisitos[${index}].statusRequisito`}
-                                                {...register(`requisitos[${index}].statusRequisito`)}
-                                                defaultChecked={item.status == 1 ? true : false}
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label='Descrição'
+                                                placeholder='Descrição'
+                                                {...register(`items[${index}].descricao`, { required: false })}
+                                                error={errors?.items?.[index]?.descricao ? true : false}
+                                                aria-describedby='validation-schema-descricao'
                                             />
-                                        }
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={1}>
-                                    <Box flexBasis='20%' textAlign='center'>
-                                        {index === 0 && <Typography variant='caption'>Remover</Typography>}
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12} md={1}>
+                                        <Typography variant='caption'>{index === 0 ? 'Obrigatório' : ``}</Typography>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    sx={{ ml: 4 }}
+                                                    {...register(`items[${index}].obrigatorio`)}
+                                                    defaultChecked={item.obrigatorio == 1 ? true : false}
+                                                />
+                                            }
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={1}>
+                                        <Typography variant='caption'>{index === 0 ? 'Status' : ``}</Typography>
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    sx={{ ml: 4 }}
+                                                    {...register(`items[${index}].obrigatorio`)}
+                                                    defaultChecked={item.obrigatorio == 1 ? true : false}
+                                                />
+                                            }
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} md={1}>
+                                        <Typography variant='caption'>{index === 0 ? 'Remover' : ``}</Typography>
                                         <Tooltip
                                             title={
                                                 2 == 1
@@ -374,10 +267,9 @@ const FormGrupoAnexos = () => {
                                                 <Icon icon='tabler:trash-filled' />
                                             </IconButton>
                                         </Tooltip>
-                                    </Box>
-                                </Grid>
-                            </>
-                        ))}
+                                    </Grid>
+                                </>
+                            ))}
                     </Grid>
                     <Button
                         variant='outlined'
@@ -385,24 +277,14 @@ const FormGrupoAnexos = () => {
                         sx={{ mt: 4 }}
                         startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
                         onClick={() => {
-                            addRequisito()
+                            addItem()
                         }}
                     >
                         Inserir item
                     </Button>
                 </CardContent>
             </Card>
-
-            <DialogForm
-                text='Tem certeza que deseja excluir?'
-                title={'Excluir ' + title}
-                openModal={open}
-                handleClose={() => setOpen(false)}
-                handleSubmit={handleClickDelete}
-                btnCancel
-                btnConfirm
-            />
-        </>
+        </form>
     )
 }
 
