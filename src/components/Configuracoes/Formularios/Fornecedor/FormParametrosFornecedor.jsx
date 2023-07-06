@@ -38,6 +38,7 @@ const FormParametrosFornecedor = () => {
     const [allOptions, setAllOptions] = useState(null)
     const [optionsItens, setOptionsItens] = useState([])
     const [blocks, setBlocks] = useState()
+    console.log('🚀 ~ blocks:', blocks)
     const [orientacoes, setOrientacoes] = useState()
     const [openModalConfirmScore, setOpenModalConfirmScore] = useState(false)
     const [itemScore, setItemScore] = useState()
@@ -67,7 +68,11 @@ const FormParametrosFornecedor = () => {
             arrRemovedItems: arrRemovedItems,
             orientacoes: values.orientacoes
         }
-        console.log('🚀 ~ onSubmit:', values.blocks)
+
+        //* Limpa valores do formulário
+        reset()
+
+        console.log('🚀 ~ onSubmit:', data)
 
         try {
             await api.put(`${staticUrl}/fornecedor/updateData`, data).then(response => {
@@ -118,7 +123,7 @@ const FormParametrosFornecedor = () => {
             return
         }
 
-        // Inserir no array de itens removidos, para o bloco atual
+        // Inserir no array de itens removidos
         let newRemovedItems = [...arrRemovedItems]
         newRemovedItems.push(item)
         setArrRemovedItems(newRemovedItems)
@@ -155,27 +160,30 @@ const FormParametrosFornecedor = () => {
                 status: 1
             },
             atividades: [
-                // Obter atividades do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
                 ...blocks[0].atividades.map(atividade => ({
                     ...atividade,
                     checked: 0
                 }))
             ],
             categorias: [
-                // Obter categorias do bloco 0 e inserir no novo bloco com todas as opções desmarcadas
                 ...blocks[0].categorias.map(categoria => ({
                     ...categoria,
                     checked: 0
                 }))
             ],
-            // optionsBlock: options,
+            optionsBlock: {
+                itens: [...allOptions.itens],
+                alternativas: [...allOptions.alternativas]
+            },
             itens: [
-                // Obter primeiro item do primeiro bloco
                 {
-                    ordem: 1,
-                    obs: 1,
+                    parFormularioID: 1,
+                    new: true,
+                    ordem: '1',
+                    nome: '',
                     status: 1,
-                    obrigatorio: 1
+                    item: null,
+                    alternativa: null
                 }
             ]
         })
@@ -188,9 +196,10 @@ const FormParametrosFornecedor = () => {
                 if (item) {
                     console.log('initialize values:', indexBlock, item)
                     // setar item.new como false
-                    setValue(`blocks.[${indexBlock}].itens.[${indexItem}].new`, false)
-                    setValue(`blocks.[${indexBlock}].itens.[${indexItem}].item`, item.item)
-                    setValue(`blocks.[${indexBlock}].itens.[${indexItem}].alternativa`, item.alternativa)
+                    setValue(`blocks.[${indexBlock}].itens.[${indexItem}]`, item) //? Seta objeto inteiro
+                    // setValue(`blocks.[${indexBlock}].itens.[${indexItem}].new`, false)
+                    // setValue(`blocks.[${indexBlock}].itens.[${indexItem}].item`, item.item)
+                    // setValue(`blocks.[${indexBlock}].itens.[${indexItem}].alternativa`, item.alternativa)
                 }
             })
         })
@@ -201,6 +210,7 @@ const FormParametrosFornecedor = () => {
             setLoading(true)
             api.post(`${staticUrl}/fornecedor/getData`, { unidadeID: loggedUnity.unidadeID }).then(response => {
                 console.log('getdata', response.data)
+
                 setHeaders(response.data.header)
                 setBlocks(response.data.blocks)
                 setAllOptions({
@@ -316,12 +326,12 @@ const FormParametrosFornecedor = () => {
                             <Card key={index} md={12} sx={{ mt: 4 }}>
                                 <CardContent>
                                     {/* Header */}
-                                    {/* <input
+                                    <input
                                         type='hidden'
                                         name={`blocks.[${index}].parFornecedorBlocoID`}
-                                        defaultValue={block.dados.parFornecedorBlocoID}
+                                        value={block.dados.parFornecedorBlocoID}
                                         {...register(`blocks.[${index}].parFornecedorBlocoID`)}
-                                    /> */}
+                                    />
 
                                     <Grid container spacing={4}>
                                         <Grid item xs={12} md={2}>
@@ -493,7 +503,7 @@ const FormParametrosFornecedor = () => {
                                                 {/* Itens */}
                                                 <Grid item xs={12} md={4}>
                                                     <FormControl fullWidth>
-                                                        {blocks[index].itens[indexItem].nome !== '' && (
+                                                        {blocks[index].optionsBlock && (
                                                             <Autocomplete
                                                                 options={blocks[index].optionsBlock?.itens}
                                                                 getOptionLabel={optionsBlock => optionsBlock?.nome}
