@@ -16,7 +16,8 @@ import {
     Button,
     Box,
     Tooltip,
-    IconButton
+    IconButton,
+    Autocomplete
 } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 import { useForm } from 'react-hook-form'
@@ -57,23 +58,24 @@ const FormGrupoAnexos = () => {
             removedItems,
             unidade: loggedUnity.unidadeID
         }
+        console.log('🚀 ~ newData vai para o back:', newData)
 
-        try {
-            if (type === 'new') {
-                await api.post(`${staticUrl}/novo/insertData`, { newData })
-                router.push(staticUrl)
-                toast.success(toastMessage.successNew)
-            } else if (type === 'edit') {
-                await api.post(`${staticUrl}/${id}`, { newData })
-                toast.success(toastMessage.successUpdate)
-            }
-        } catch (error) {
-            if (error.response && error.response.status === 409) {
-                toast.error(toastMessage.errorRepeated)
-            } else {
-                console.log(error)
-            }
-        }
+        // try {
+        //     if (type === 'new') {
+        //         await api.post(`${staticUrl}/novo/insertData`, { newData })
+        //         router.push(staticUrl)
+        //         toast.success(toastMessage.successNew)
+        //     } else if (type === 'edit') {
+        //         await api.post(`${staticUrl}/${id}`, { newData })
+        //         toast.success(toastMessage.successUpdate)
+        //     }
+        // } catch (error) {
+        //     if (error.response && error.response.status === 409) {
+        //         toast.error(toastMessage.errorRepeated)
+        //     } else {
+        //         console.log(error)
+        //     }
+        // }
     }
     //! Função que deleta os dados
     const handleClickDelete = async () => {
@@ -112,9 +114,10 @@ const FormGrupoAnexos = () => {
         })
     }
 
-    //! Requisição ao banco de dados, para cadastrar novo
+    //! Requisição ao banco de dados, quando inicializa pagina novo
     const getNovo = async () => {
         api.get(`${staticUrl}/novo/getDataNew`).then(response => {
+            console.log('requisição novo', response.data)
             const dataOld = {
                 ...response.data,
                 requisitos: [
@@ -161,15 +164,18 @@ const FormGrupoAnexos = () => {
             return
         }
 
-        data.requisitos.splice(index, 1)
-        setData({ ...data })
+        const newRequisitos = [...data.requisitos]
+        newRequisitos.splice(index, 1)
+        console.log('🚀 ~ data.requisitos:', data.requisitos)
+        // newRequisitos.filter(requisito => requisito)
+        console.log('🚀 ~ newRequisitos:', newRequisitos)
 
-        if (value.grupoanexoitemID) {
-            setRemovedItems(prevItems => [...prevItems, value.grupoanexoitemID])
-        }
+        setData({
+            ...data,
+            requisitos: newRequisitos
+        })
 
-        setValue('requisitos', data.requisitos)
-        trigger()
+        setValue('requisitos', newRequisitos)
     }
 
     console.log('dataaa', data)
@@ -222,7 +228,44 @@ const FormGrupoAnexos = () => {
                                     </>
                                 </Grid>
                             )}
-
+                            {data && (
+                                /* Formularios */
+                                <Grid item xs={12} md={12}>
+                                    <FormControl fullWidth>
+                                        <Autocomplete
+                                            multiple
+                                            limitTags={2}
+                                            options={data.formulariosOptions}
+                                            getOptionLabel={option => option.nome || ''}
+                                            defaultValue={data?.formulario ?? []}
+                                            name={`formulario[]`}
+                                            {...register(`formulario`, {
+                                                required: false
+                                            })}
+                                            onChange={(index, value) => {
+                                                const newDataFormularios = value
+                                                    ? value.map(item => {
+                                                          return {
+                                                              id: item?.id,
+                                                              nome: item?.nome,
+                                                              edit: true
+                                                          }
+                                                      })
+                                                    : []
+                                                setValue(`formulario`, newDataFormularios)
+                                            }}
+                                            renderInput={params => (
+                                                <TextField
+                                                    {...params}
+                                                    label='Formularios'
+                                                    placeholder='Formulários'
+                                                    error={errors?.formulario}
+                                                />
+                                            )}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                            )}
                             <Grid item xs={12} md={12}>
                                 <FormControl fullWidth>
                                     <TextField

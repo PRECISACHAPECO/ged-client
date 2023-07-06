@@ -98,9 +98,6 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
             })
         }
     }
-    useEffect(() => {
-        onSubmit()
-    }, [onSubmit()])
 
     // Função que atualiza os dados ou cria novo dependendo do tipo da rota
     const onSubmit = async datas => {

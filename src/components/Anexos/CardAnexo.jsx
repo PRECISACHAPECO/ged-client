@@ -7,6 +7,7 @@ import IconFilePdf from '../../icon/IconPdf'
 
 const CardAnexo = ({ grupo, indexGrupo, handleFileSelect, handleRemoveAnexo }) => {
     const [selectedItem, setSelectedItem] = useState(null)
+    console.log('🚀 ~ selectedItem:', selectedItem)
 
     const { settings } = useContext(SettingsContext)
     const mode = settings.mode
