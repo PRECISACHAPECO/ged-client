@@ -10,7 +10,7 @@ import Input from 'src/components/Form/Input'
 import Select from 'src/components/Form/Select'
 import DateField from 'src/components/Form/DateField'
 
-const Fields = ({ register, errors, setValue, fields, values, isDisabled, setCopiedDataContext }) => {
+const Fields = ({ register, errors, setValue, fields, values, disabled, setCopiedDataContext }) => {
     const [dateStatus, setDateStatus] = useState({})
     const [watchRegistroEstabelecimento, setWatchRegistroEstabelecimento] = useState(null)
     const { loggedUnity, user } = useContext(AuthContext)
@@ -63,57 +63,59 @@ const Fields = ({ register, errors, setValue, fields, values, isDisabled, setCop
             {fields &&
                 fields.map((field, index) => (
                     <>
-                        <Grid key={index} item xs={12} md={3}>
-                            <FormControl fullWidth>
-                                {/* Autocomplete (int) */}
-                                {field && field.tipo === 'int' && field.tabela && (
-                                    <Select
-                                        title={field.nomeCampo}
-                                        options={field.options}
-                                        name={`header.${field.tabela}`}
-                                        value={values?.[field.tabela]}
-                                        type={field.tabela}
-                                        isDisabled={isDisabled}
-                                        register={register}
-                                        setValue={setValue}
-                                        errors={errors?.header?.[field.tabela]}
-                                        handleRegistroEstabelecimento={setWatchRegistroEstabelecimento}
-                                    />
-                                )}
+                        {/* Autocomplete (int) */}
+                        {field && field.tipo === 'int' && field.tabela && (
+                            <Select
+                                xs={12}
+                                md={3}
+                                title={field.nomeCampo}
+                                name={`header.${field.tabela}`}
+                                options={field.options}
+                                value={values?.[field.tabela]}
+                                mask={field.tabela}
+                                disabled={disabled}
+                                register={register}
+                                setValue={setValue}
+                                errors={errors?.header?.[field.tabela]}
+                                handleRegistroEstabelecimento={setWatchRegistroEstabelecimento}
+                            />
+                        )}
 
-                                {/* Date */}
-                                {field && field.tipo == 'date' && (
-                                    <DateField
-                                        title='Data da avaliação'
-                                        isDisabled={isDisabled}
-                                        value={values?.[field.nomeColuna]}
-                                        type={field.nomeColuna}
-                                        name={`header.${field.nomeColuna}`}
-                                        errors={errors?.header?.[field.nomeColuna]}
-                                        setDateFormat={setDateFormat}
-                                        typeValidation='dataPassado'
-                                        daysValidation={365}
-                                        dateStatus={dateStatus}
-                                        register={register}
-                                    />
-                                )}
+                        {/* Date */}
+                        {field && field.tipo == 'date' && (
+                            <DateField
+                                xs={12}
+                                md={3}
+                                title='Data da avaliação'
+                                disabled={disabled}
+                                value={values?.[field.nomeColuna]}
+                                type={field.nomeColuna}
+                                name={`header.${field.nomeColuna}`}
+                                errors={errors?.header?.[field.nomeColuna]}
+                                setDateFormat={setDateFormat}
+                                typeValidation='dataPassado'
+                                daysValidation={365}
+                                dateStatus={dateStatus}
+                                register={register}
+                            />
+                        )}
 
-                                {/* Textfield */}
-                                {field &&
-                                    field.tipo == 'string' &&
-                                    (field.nomeColuna != 'numeroRegistro' || watchRegistroEstabelecimento > 1) && (
-                                        <Input
-                                            title={field.nomeCampo}
-                                            name={`header.${field.nomeColuna}`}
-                                            value={values?.[field.nomeColuna]}
-                                            type={field.nomeColuna}
-                                            isDisabled={isDisabled}
-                                            register={register}
-                                            errors={errors?.header?.[field.nomeColuna]}
-                                        />
-                                    )}
-                            </FormControl>
-                        </Grid>
+                        {/* Textfield */}
+                        {field &&
+                            field.tipo == 'string' &&
+                            (field.nomeColuna != 'numeroRegistro' || watchRegistroEstabelecimento > 1) && (
+                                <Input
+                                    xs={12}
+                                    md={3}
+                                    title={field.nomeCampo}
+                                    name={`header.${field.nomeColuna}`}
+                                    value={values?.[field.nomeColuna]}
+                                    type={field.nomeColuna}
+                                    disabled={disabled}
+                                    register={register}
+                                    errors={errors?.header?.[field.nomeColuna]}
+                                />
+                            )}
                     </>
                 ))}
         </Grid>

@@ -509,7 +509,7 @@ const FormRecebimentoMp = () => {
                                 setValue={setValue}
                                 fields={fieldsState}
                                 values={data}
-                                isDisabled={!canEdit.status}
+                                disabled={!canEdit.status}
                             />
                         </CardContent>
                     </Card>

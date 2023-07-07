@@ -652,7 +652,7 @@ const FormFornecedor = () => {
                                 watch={watch}
                                 fields={fieldsState}
                                 values={data}
-                                isDisabled={!canEdit.status}
+                                disabled={!canEdit.status}
                                 setCopiedDataContext={setCopiedDataContext}
                             />
 
