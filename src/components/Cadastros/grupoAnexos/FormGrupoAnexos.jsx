@@ -46,12 +46,6 @@ const FormGrupoAnexos = () => {
             const route = type === 'new' ? `${staticUrl}/new/getData` : `${staticUrl}/getData/${id}`
             console.log('🚀 ~ route:', route)
             await api.post(route, { unidadeID: loggedUnity.unidadeID }).then(response => {
-                //? Atualiza obrigatorio e status de 0 ou 1 pra true ou false
-                // response.data.fields.status = response.data.fields.status == 1 ? true : false
-                // response.data.items.map(item => {
-                //     item.obrigatorio = item.obrigatorio == 1 || type == 'new' ? true : false
-                //     item.status = item.status == 1 || type == 'new' ? true : false
-                // })
                 setData(response.data)
                 reset(response.data) //* Insere os dados no formulário
 
