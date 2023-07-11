@@ -21,13 +21,14 @@ const Item = () => {
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
 
+    const getList = async () => {
+        await api.get(currentLink).then(response => {
+            setResult(response.data)
+            setTitle('Item')
+        })
+    }
+
     useEffect(() => {
-        const getList = async () => {
-            await api.get(currentLink).then(response => {
-                setResult(response.data)
-                setTitle('Item')
-            })
-        }
         getList()
     }, [])
 
