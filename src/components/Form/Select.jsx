@@ -1,15 +1,23 @@
 import { Grid, FormControl, Autocomplete, TextField } from '@mui/material'
+import { useEffect, useState } from 'react'
 
 const Select = ({
     xs,
     md,
     title,
+
     options,
+    block,
+
+    optionsSelected,
+    indexFather,
+
     name,
     type,
     limitTags,
     value,
     required,
+
     disabled,
     register,
     multiple,
@@ -18,7 +26,7 @@ const Select = ({
     handleRegistroEstabelecimento
 }) => {
     return (
-        <Grid item xs={xs} md={md}>
+        <Grid item xs={xs} md={md} sx={{ my: 1 }}>
             <FormControl fullWidth>
                 <Autocomplete
                     multiple={multiple}

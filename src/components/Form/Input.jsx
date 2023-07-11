@@ -6,7 +6,7 @@ const Input = ({ xs, md, title, name, rows, value, type, mask, multiline, disabl
     const inputRef = useRef(null)
 
     return (
-        <Grid item xs={xs} md={md}>
+        <Grid item xs={xs} md={md} sx={{ my: 1 }}>
             <FormControl fullWidth>
                 <TextField
                     multiline={multiline}

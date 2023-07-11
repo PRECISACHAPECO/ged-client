@@ -8,8 +8,8 @@ const Remove = ({ xs, md, title, removeItem, item, pending, index, textSuccess, 
 
     return (
         <Grid item xs={xs} md={md}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Typography variant='caption'>{!index || index == 0 ? title : ''}</Typography>
+            <Box height='100%' display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
+                <Typography variant='caption'>{title}</Typography>
                 <Tooltip title={pending == 1 ? textError : textSuccess}>
                     <IconButton
                         color='error'
