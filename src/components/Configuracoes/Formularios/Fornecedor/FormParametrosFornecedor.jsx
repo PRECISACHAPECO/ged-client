@@ -1,25 +1,7 @@
 import { useState, useEffect, useContext } from 'react'
 
 import { useForm } from 'react-hook-form'
-import {
-    Alert,
-    Autocomplete,
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Checkbox,
-    FormControl,
-    FormControlLabel,
-    Grid,
-    IconButton,
-    List,
-    ListItem,
-    ListItemButton,
-    TextField,
-    Tooltip,
-    Typography
-} from '@mui/material'
+import { Box, Button, Card, CardContent, Grid, List, Typography } from '@mui/material'
 import Router from 'next/router'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
@@ -43,13 +25,10 @@ const FormParametrosFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
     const [headers, setHeaders] = useState()
     const [allOptions, setAllOptions] = useState(null)
-    const [optionsItens, setOptionsItens] = useState([])
     const [blocks, setBlocks] = useState()
-    console.log('🚀 ~ blocks:', blocks)
     const [orientacoes, setOrientacoes] = useState()
     const [openModalConfirmScore, setOpenModalConfirmScore] = useState(false)
     const [itemScore, setItemScore] = useState()
-    const [isLoading, setLoading] = useState(false)
     const [savingForm, setSavingForm] = useState(false)
     const [arrRemovedItems, setArrRemovedItems] = useState([])
 
@@ -62,8 +41,6 @@ const FormParametrosFornecedor = () => {
         register,
         handleSubmit,
         reset,
-        trigger,
-        getValues,
         formState: { errors }
     } = useForm()
 
@@ -73,11 +50,10 @@ const FormParametrosFornecedor = () => {
             header: values.header,
             blocks: values.blocks,
             arrRemovedItems: arrRemovedItems,
-            orientacoes: values.orientacoes
+            orientacoes: values.orientations
         }
 
-        //* Limpa valores do formulário
-        reset()
+        setHeaders(null) //? Pra exibir loading
 
         console.log('🚀 ~ onSubmit:', data)
 
@@ -91,7 +67,7 @@ const FormParametrosFornecedor = () => {
         }
     }
 
-    const refreshBlockOptions = (block, index, blocks, allOptions) => {
+    const refreshOptions = (block, index, blocks, allOptions) => {
         let tempOptions = allOptions.itens
 
         //? Verifica se a opção está presente nos itens selecionados do bloco
@@ -120,7 +96,7 @@ const FormParametrosFornecedor = () => {
 
         setValue(`blocks.[${index}].itens.[${newBlock[index].itens.length - 1}].new`, true)
 
-        refreshBlockOptions(newBlock[index], index, blocks, allOptions)
+        refreshOptions(newBlock[index], index, blocks, allOptions)
     }
 
     const removeItem = (item, indexBlock, indexItem) => {
@@ -142,10 +118,11 @@ const FormParametrosFornecedor = () => {
         updatedBlocks[indexBlock].itens = newBlock
         setBlocks(updatedBlocks)
 
-        // setValue(`blocks.[${indexBlock}].itens.[${indexItem}].new`, false)
+        console.log('🚀 ~ newBlock:', newBlock)
+
         setValue(`blocks.[${indexBlock}].itens`, newBlock) //* Remove item do formulário
 
-        refreshBlockOptions(blocks[indexBlock], indexBlock, blocks, allOptions)
+        refreshOptions(blocks[indexBlock], indexBlock, blocks, allOptions)
     }
 
     //  Ao clicar no icone de pontuação, abre o modal de confirmação de pontuação e envia para o back o item selecionado
@@ -167,18 +144,8 @@ const FormParametrosFornecedor = () => {
                 nome: '',
                 status: 1
             },
-            atividades: [
-                ...blocks[0].atividades.map(atividade => ({
-                    ...atividade,
-                    checked: 0
-                }))
-            ],
-            categorias: [
-                ...blocks[0].categorias.map(categoria => ({
-                    ...categoria,
-                    checked: 0
-                }))
-            ],
+            categorias: [],
+            atividades: [],
             optionsBlock: {
                 itens: [...allOptions.itens],
                 alternativas: [...allOptions.alternativas]
@@ -198,27 +165,12 @@ const FormParametrosFornecedor = () => {
         setBlocks(newBlock)
     }
 
-    const initializeValues = values => {
-        values.blocks.map((block, indexBlock) => {
-            block.itens.map((item, indexItem) => {
-                if (item) {
-                    console.log('initialize values:', indexBlock, item)
-                    // setar item.new como false
-                    setValue(`blocks.[${indexBlock}].itens.[${indexItem}]`, item) //? Seta objeto inteiro
-                    // setValue(`blocks.[${indexBlock}].itens.[${indexItem}].new`, false)
-                    // setValue(`blocks.[${indexBlock}].itens.[${indexItem}].item`, item.item)
-                    // setValue(`blocks.[${indexBlock}].itens.[${indexItem}].alternativa`, item.alternativa)
-                }
-            })
-        })
-    }
-
     const getData = () => {
         try {
-            setLoading(true)
             api.post(`${staticUrl}/fornecedor/getData`, { unidadeID: loggedUnity.unidadeID }).then(response => {
                 console.log('getdata', response.data)
 
+                //* Estados
                 setHeaders(response.data.header)
                 setBlocks(response.data.blocks)
                 setAllOptions({
@@ -227,20 +179,16 @@ const FormParametrosFornecedor = () => {
                     itens: response.data.options.itens,
                     alternativas: response.data.options.alternativas
                 })
-
                 setOrientacoes(response.data.orientations)
 
-                // initializeValues(response.data)
-
-                reset(response.data) //* Insere os dados no formulário
+                //* Insere os dados no formulário
+                reset(response.data)
 
                 setTimeout(() => {
                     response.data.blocks.map((block, indexBlock) => {
-                        refreshBlockOptions(block, indexBlock, response.data.blocks, response.data.options)
+                        refreshOptions(block, indexBlock, response.data.blocks, response.data.options)
                     })
                 }, 3000)
-
-                setLoading(false)
             })
         } catch (error) {
             console.log(error)
@@ -254,7 +202,7 @@ const FormParametrosFornecedor = () => {
 
     return (
         <>
-            {isLoading ? (
+            {!headers ? (
                 <Loading />
             ) : (
                 <form onSubmit={handleSubmit(onSubmit)}>
@@ -340,11 +288,11 @@ const FormParametrosFornecedor = () => {
                                             xs={12}
                                             md={1}
                                             title='Sequência'
-                                            name={`blocks.[${index}].dados.sequencia`}
+                                            name={`blocks.[${index}].dados.ordem`}
                                             value={block.dados.ordem}
                                             required={true}
                                             register={register}
-                                            errors={errors?.blocks?.[index]?.dados?.sequencia}
+                                            errors={errors?.blocks?.[index]?.dados?.ordem}
                                         />
 
                                         <Input
@@ -417,7 +365,7 @@ const FormParametrosFornecedor = () => {
                                                 key={indexItem}
                                                 container
                                                 spacing={2}
-                                                sx={{ mt: 4 }}
+                                                sx={{ my: 1 }}
                                             >
                                                 <input
                                                     type='hidden'
@@ -433,11 +381,11 @@ const FormParametrosFornecedor = () => {
                                                     xs={12}
                                                     md={1}
                                                     title='Sequência'
-                                                    name={`blocks.[${index}].itens.[${indexItem}].sequencia`}
+                                                    name={`blocks.[${index}].itens.[${indexItem}].ordem`}
                                                     value={item.ordem}
                                                     required={true}
                                                     register={register}
-                                                    errors={errors?.blocks?.[index]?.itens?.[indexItem]?.sequencia}
+                                                    errors={errors?.blocks?.[index]?.itens?.[indexItem]?.ordem}
                                                 />
 
                                                 {/* Item */}
@@ -476,6 +424,7 @@ const FormParametrosFornecedor = () => {
                                                     xs={12}
                                                     md={1}
                                                     title='Ativo'
+                                                    index={indexItem}
                                                     name={`blocks.[${index}].itens.[${indexItem}].status`}
                                                     value={blocks[index].itens[indexItem].status}
                                                     register={register}
@@ -485,6 +434,7 @@ const FormParametrosFornecedor = () => {
                                                     xs={12}
                                                     md={1}
                                                     title='Obs'
+                                                    index={indexItem}
                                                     name={`blocks.[${index}].itens.[${indexItem}].obs`}
                                                     value={blocks[index].itens[indexItem].obs}
                                                     register={register}
@@ -494,35 +444,44 @@ const FormParametrosFornecedor = () => {
                                                     xs={12}
                                                     md={1}
                                                     title='Obrigatório'
+                                                    index={indexItem}
                                                     name={`blocks.[${index}].itens.[${indexItem}].obrigatorio`}
                                                     value={blocks[index].itens[indexItem].obrigatorio}
                                                     register={register}
                                                 />
 
                                                 {/* Abre o modal que define a pontuação das respostas */}
-                                                <Grid item md={1}>
-                                                    <Typography variant='caption'>
-                                                        {indexItem == 0 ? 'Pontuação' : ''}
-                                                    </Typography>
-                                                    <Button
-                                                        style={item.pontuacao === 0 ? { opacity: 0.3 } : {}}
-                                                        title={
-                                                            !item.parFornecedorBlocoID
-                                                                ? 'Salve o bloco para definir a pontuação'
-                                                                : 'Definir pontuação para as respostas'
-                                                        }
-                                                        disabled={!item.parFornecedorBlocoID}
-                                                        onClick={() => openScoreModal(item)}
+                                                <Grid item xs={12} md={1}>
+                                                    <Box
+                                                        height='100%'
+                                                        display='flex'
+                                                        flexDirection='column'
+                                                        justifyContent='center'
+                                                        alignItems='center'
                                                     >
-                                                        <Icon icon='ic:baseline-assessment' />
-                                                    </Button>
+                                                        <Typography variant='caption'>
+                                                            {indexItem == 0 ? 'Pontuação' : ''}
+                                                        </Typography>
+                                                        <Button
+                                                            style={item.pontuacao === 0 ? { opacity: 0.3 } : {}}
+                                                            title={
+                                                                !item.parFornecedorBlocoID
+                                                                    ? 'Salve o bloco para definir a pontuação'
+                                                                    : 'Definir pontuação para as respostas'
+                                                            }
+                                                            disabled={!item.parFornecedorBlocoID}
+                                                            onClick={() => openScoreModal(item)}
+                                                        >
+                                                            <Icon icon='ic:baseline-assessment' />
+                                                        </Button>
+                                                    </Box>
                                                 </Grid>
 
                                                 {/* Deletar */}
                                                 <Remove
                                                     xs={12}
                                                     md={1}
-                                                    title='Remover'
+                                                    title={indexItem == 0 ? 'Remover' : ''}
                                                     index={index}
                                                     removeItem={removeItem}
                                                     item={item}
@@ -576,23 +535,25 @@ const FormParametrosFornecedor = () => {
                     </Grid>
 
                     {/* Orientações */}
-                    <Card md={12} sx={{ mt: 4 }}>
-                        <CardContent>
-                            <Grid container spacing={4}>
-                                <Input
-                                    xs={12}
-                                    md={12}
-                                    title='Orientações'
-                                    name={`orientations.obs`}
-                                    required={false}
-                                    value={orientacoes?.obs}
-                                    multiline
-                                    rows={4}
-                                    register={register}
-                                />
-                            </Grid>
-                        </CardContent>
-                    </Card>
+                    {orientacoes && (
+                        <Card md={12} sx={{ mt: 4 }}>
+                            <CardContent>
+                                <Grid container spacing={4}>
+                                    <Input
+                                        xs={12}
+                                        md={12}
+                                        title='Orientações'
+                                        name={`orientations.obs`}
+                                        required={false}
+                                        value={orientacoes?.obs}
+                                        multiline
+                                        rows={4}
+                                        register={register}
+                                    />
+                                </Grid>
+                            </CardContent>
+                        </Card>
+                    )}
                 </form>
             )}
         </>
