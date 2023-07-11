@@ -8,6 +8,7 @@ import upload from 'src/icon/Upload'
 
 //* Default Form Components
 import Fields from 'src/components/Defaults/Formularios/Fields'
+import Input from 'src/components/Form/Input'
 import CheckList from 'src/components/Defaults/Formularios/CheckList'
 import Block from 'src/components/Defaults/Formularios/Block'
 import CardAnexo from 'src/components/Anexos/CardAnexo'
@@ -666,7 +667,7 @@ const FormFornecedor = () => {
                                         name='categorias'
                                         changeCategory={changeCategory}
                                         register={register}
-                                        isDisabled={!canEdit.status}
+                                        disabled={!canEdit.status}
                                     />
                                 </Grid>
 
@@ -677,7 +678,7 @@ const FormFornecedor = () => {
                                         values={atividades}
                                         name='atividades'
                                         register={register}
-                                        isDisabled={!canEdit.status}
+                                        disabled={!canEdit.status}
                                     />
                                 </Grid>
 
@@ -688,7 +689,7 @@ const FormFornecedor = () => {
                                         values={sistemasQualidade}
                                         name='sistemasQualidade'
                                         register={register}
-                                        isDisabled={!canEdit.status}
+                                        disabled={!canEdit.status}
                                     />
                                 </Grid>
                             </Grid>
@@ -706,7 +707,7 @@ const FormFornecedor = () => {
                                 register={register}
                                 setValue={setValue}
                                 errors={errors}
-                                isDisabled={!canEdit.status}
+                                disabled={!canEdit.status}
                             />
                         ))}
 
@@ -731,16 +732,15 @@ const FormFornecedor = () => {
                                         <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
                                             Observações (campo de uso exclusivo da validadora)
                                         </Typography>
-                                        <TextField
+                                        {/* <Input
+                                            title='Observação (opcional)'
+                                            name='obs'
                                             multiline
                                             rows={4}
-                                            label='Observação (opcional)'
+                                            value={info.obs}
                                             disabled={!canEdit.status}
-                                            placeholder='Observação (opcional)'
-                                            name='obs'
-                                            defaultValue={info.obs ?? ''}
-                                            {...register('obs')}
-                                        />
+                                            register={register}
+                                        /> */}
                                     </FormControl>
                                 </Grid>
                             </Grid>
@@ -764,16 +764,6 @@ const FormFornecedor = () => {
                 conclusionForm={conclusionForm}
                 listErrors={listErrors}
             />
-            {/* <DialogForm
-                openModal={openModal}
-                handleClose={() => setOpenModal(false)}
-                title='Concluir e Enviar Formulário'
-                text={`Deseja realmente concluir e enviar? Após a conclusão, você não poderá mais alterar esse formulário. Um e-mail será enviado e agora basta aguardar a análise do ${unidade?.nomeFantasia}. Após a conclusão você será alertado no email ${user.email}`}
-                btnCancel
-                btnConfirm
-                btnConfirmColor='primary'
-                handleSubmit={conclusionAndSendForm}
-            /> */}
 
             {/* Dialog pra alterar status do formulário (se formulário estiver concluído e fábrica queira reabrir pro preenchimento do fornecedor) */}
             {openModalStatus && (

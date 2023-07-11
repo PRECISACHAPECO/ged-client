@@ -11,6 +11,10 @@ import Product from 'src/components/Defaults/Formularios/Product'
 import Block from 'src/components/Defaults/Formularios/Block'
 import DialogFormStatus from '../Defaults/Dialogs/DialogFormStatus'
 
+//* Custom components
+import Input from 'src/components/Form/Input'
+import Remove from 'src/components/Form/Remove'
+
 // ** Custom Components
 import CustomChip from 'src/@core/components/mui/chip'
 
@@ -537,7 +541,7 @@ const FormRecebimentoMp = () => {
                                                     field={field}
                                                     data={data}
                                                     indexData={indexData}
-                                                    isDisabled={!canEdit.status}
+                                                    disabled={!canEdit.status}
                                                     register={register}
                                                     setValue={setValue}
                                                     errors={errors}
@@ -545,30 +549,17 @@ const FormRecebimentoMp = () => {
                                             </Box>
                                         ))}
                                         {/* Delete */}
-                                        <Box>
-                                            <Tooltip
-                                                title={
-                                                    2 == 1
-                                                        ? `Este item não pode mais ser removido pois já foi respondido em um formulário`
-                                                        : `Remover este item`
-                                                }
-                                            >
-                                                <IconButton
-                                                    color='error'
-                                                    disabled={!canEdit.status}
-                                                    onClick={() => {
-                                                        2 === 1 ? null : removeProduct(data, indexData)
-                                                    }}
-                                                    sx={{
-                                                        marginTop: 2,
-                                                        opacity: 2 === 1 ? 0.5 : 1,
-                                                        cursor: 2 === 1 ? 'default' : 'pointer'
-                                                    }}
-                                                >
-                                                    <Icon icon='tabler:trash-filled' />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </Box>
+                                        <Remove
+                                            xs={12}
+                                            md={1}
+                                            title='Remover'
+                                            index={indexData}
+                                            removeItem={removeProduct}
+                                            item={data}
+                                            pending={!canEdit.status}
+                                            textSuccess='Remover este item'
+                                            textError='Este item não pode mais ser removido pois já foi respondido em um formulário'
+                                        />
                                     </Box>
                                 ))}
 
@@ -614,15 +605,14 @@ const FormRecebimentoMp = () => {
                                                 <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
                                                     Observações (campo de uso exclusivo da validadora)
                                                 </Typography>
-                                                <TextField
+                                                <Input
+                                                    title='Observação (opcional)'
+                                                    name='obs'
                                                     multiline
                                                     rows={4}
-                                                    label='Observação (opcional)'
+                                                    value={info.obs}
                                                     disabled={!canEdit.status}
-                                                    placeholder='Observação (opcional)'
-                                                    defaultValue={info.obs ?? ''}
-                                                    name='obs'
-                                                    {...register('obs')}
+                                                    register={register}
                                                 />
                                             </FormControl>
                                         </Grid>

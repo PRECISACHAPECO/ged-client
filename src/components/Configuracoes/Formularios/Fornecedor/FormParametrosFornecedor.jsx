@@ -32,6 +32,13 @@ import Loading from 'src/components/Loading'
 import Icon from 'src/@core/components/icon'
 import DialogConfirmScore from 'src/components/Defaults/Dialogs/DialogConfirmScore'
 
+//* Custom components
+import Select from 'src/components/Form/Select'
+import Input from 'src/components/Form/Input'
+import Check from 'src/components/Form/Check'
+import CheckLabel from 'src/components/Form/CheckLabel'
+import Remove from 'src/components/Form/Remove'
+
 const FormParametrosFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
     const [headers, setHeaders] = useState()
@@ -63,7 +70,7 @@ const FormParametrosFornecedor = () => {
     const onSubmit = async values => {
         const data = {
             unidadeID: loggedUnity.unidadeID,
-            header: values.headers,
+            header: values.header,
             blocks: values.blocks,
             arrRemovedItems: arrRemovedItems,
             orientacoes: values.orientacoes
@@ -135,7 +142,8 @@ const FormParametrosFornecedor = () => {
         updatedBlocks[indexBlock].itens = newBlock
         setBlocks(updatedBlocks)
 
-        setValue(`blocks.[${indexBlock}].itens.[${indexItem}].new`, false)
+        // setValue(`blocks.[${indexBlock}].itens.[${indexItem}].new`, false)
+        setValue(`blocks.[${indexBlock}].itens`, newBlock) //* Remove item do formulário
 
         refreshBlockOptions(blocks[indexBlock], indexBlock, blocks, allOptions)
     }
@@ -214,13 +222,17 @@ const FormParametrosFornecedor = () => {
                 setHeaders(response.data.header)
                 setBlocks(response.data.blocks)
                 setAllOptions({
+                    categorias: response.data.options.categorias,
+                    atividades: response.data.options.atividades,
                     itens: response.data.options.itens,
                     alternativas: response.data.options.alternativas
                 })
 
                 setOrientacoes(response.data.orientations)
 
-                initializeValues(response.data)
+                // initializeValues(response.data)
+
+                reset(response.data) //* Insere os dados no formulário
 
                 setTimeout(() => {
                     response.data.blocks.map((block, indexBlock) => {
@@ -255,62 +267,52 @@ const FormParametrosFornecedor = () => {
                                 <List component='nav' aria-label='main mailbox'>
                                     <Grid container spacing={2}>
                                         {/* Cabeçalho */}
-                                        <ListItem divider disablePadding>
-                                            <ListItemButton>
-                                                <Grid item md={4}>
-                                                    <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                        Nome do Campo
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item md={3}>
-                                                    <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                        Mostra no Formulário
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item md={3}>
-                                                    <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                        Obrigatório
-                                                    </Typography>
-                                                </Grid>
-                                            </ListItemButton>
-                                        </ListItem>
+                                        <Grid item md={4}>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                Nome do Campo
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item md={3}>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                Mostra no Formulário
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item md={3}>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                Obrigatório
+                                            </Typography>
+                                        </Grid>
 
                                         {headers.map((header, index) => (
                                             <>
-                                                <ListItem key={index} divider disablePadding>
-                                                    <ListItemButton>
-                                                        <input
-                                                            type='hidden'
-                                                            name={`headers.[${index}].parFornecedorID`}
-                                                            defaultValue={header.parFornecedorID}
-                                                            {...register(`headers.[${index}].parFornecedorID`)}
-                                                        />
+                                                <input
+                                                    type='hidden'
+                                                    name={`header.[${index}].parFornecedorID`}
+                                                    defaultValue={header.parFornecedorID}
+                                                    {...register(`header.[${index}].parFornecedorID`)}
+                                                />
 
-                                                        <Grid item md={4}>
-                                                            {header.nomeCampo}
-                                                        </Grid>
+                                                <Grid item md={4}>
+                                                    {header.nomeCampo}
+                                                </Grid>
 
-                                                        <Grid item md={3}>
-                                                            <Checkbox
-                                                                name={`headers.[${index}].mostra`}
-                                                                {...register(`headers.[${index}].mostra`)}
-                                                                defaultChecked={
-                                                                    headers[index].mostra == 1 ? true : false
-                                                                }
-                                                            />
-                                                        </Grid>
+                                                <CheckLabel
+                                                    xs={12}
+                                                    md={3}
+                                                    title=''
+                                                    name={`header.[${index}].mostra`}
+                                                    value={header.mostra}
+                                                    register={register}
+                                                />
 
-                                                        <Grid item md={3}>
-                                                            <Checkbox
-                                                                name={`headers.[${index}].obrigatorio`}
-                                                                {...register(`headers.[${index}].obrigatorio`)}
-                                                                defaultChecked={
-                                                                    headers[index].obrigatorio == 1 ? true : false
-                                                                }
-                                                            />
-                                                        </Grid>
-                                                    </ListItemButton>
-                                                </ListItem>
+                                                <CheckLabel
+                                                    xs={12}
+                                                    md={3}
+                                                    title=''
+                                                    name={`header.[${index}].obrigatorio`}
+                                                    value={header.obrigatorio}
+                                                    register={register}
+                                                />
                                             </>
                                         ))}
                                     </Grid>
@@ -328,155 +330,93 @@ const FormParametrosFornecedor = () => {
                                     {/* Header */}
                                     <input
                                         type='hidden'
-                                        name={`blocks.[${index}].parFornecedorBlocoID`}
+                                        name={`blocks.[${index}].dados.parFornecedorBlocoID`}
                                         value={block.dados.parFornecedorBlocoID}
-                                        {...register(`blocks.[${index}].parFornecedorBlocoID`)}
+                                        {...register(`blocks.[${index}].dados.parFornecedorBlocoID`)}
                                     />
 
                                     <Grid container spacing={4}>
-                                        <Grid item xs={12} md={2}>
-                                            <TextField
-                                                label='Sequência'
-                                                placeholder='Sequência'
-                                                name={`blocks.[${index}].sequencia`}
-                                                defaultValue={block.dados.ordem}
-                                                {...register(`blocks.[${index}].sequencia`)}
-                                            />
-                                        </Grid>
+                                        <Input
+                                            xs={12}
+                                            md={1}
+                                            title='Sequência'
+                                            name={`blocks.[${index}].dados.sequencia`}
+                                            value={block.dados.ordem}
+                                            required={true}
+                                            register={register}
+                                            errors={errors?.blocks?.[index]?.dados?.sequencia}
+                                        />
 
-                                        <Grid item xs={12} md={6}>
-                                            <FormControl fullWidth>
-                                                <TextField
-                                                    label='Nome do Bloco'
-                                                    placeholder='Nome do Bloco'
-                                                    name={`blocks.[${index}].nome`}
-                                                    defaultValue={block.dados.nome}
-                                                    {...register(`blocks.[${index}].nome`)}
-                                                />
-                                            </FormControl>
-                                        </Grid>
+                                        <Input
+                                            xs={12}
+                                            md={9}
+                                            title='Nome do Bloco'
+                                            name={`blocks.[${index}].dados.nome`}
+                                            value={block.dados.nome}
+                                            required={true}
+                                            register={register}
+                                            errors={errors?.blocks?.[index]?.dados?.nome}
+                                        />
 
-                                        <Grid item xs={12} md={2}>
-                                            <Typography variant='body2'>Ativo</Typography>
-                                            <Checkbox
-                                                name={`blocks.[${index}].status`}
-                                                {...register(`blocks.[${index}].status`)}
-                                                defaultChecked={blocks[index].dados.status == 1 ? true : false}
-                                            />
-                                        </Grid>
+                                        <Check
+                                            xs={12}
+                                            md={1}
+                                            title='Ativo'
+                                            name={`blocks.[${index}].dados.status`}
+                                            value={blocks[index].dados.status}
+                                            register={register}
+                                        />
 
-                                        <Grid item xs={12} md={2}>
-                                            <Typography variant='body2'>Observação</Typography>
-                                            <Checkbox
-                                                name={`blocks.[${index}].obs`}
-                                                {...register(`blocks.[${index}].obs`)}
-                                                defaultChecked={blocks[index].dados.obs == 1 ? true : false}
-                                            />
-                                        </Grid>
-                                    </Grid>
+                                        <Check
+                                            xs={12}
+                                            md={1}
+                                            title='Observação'
+                                            name={`blocks.[${index}].dados.obs`}
+                                            value={blocks[index].dados.obs}
+                                            register={register}
+                                        />
 
-                                    {/* Atividades e Importador/Fabricante */}
-                                    <Grid container spacing={4} sx={{ mt: 2 }}>
-                                        <Grid item xs={12} md={12}>
-                                            <Alert severity='info'>
-                                                Esse bloco será habilitado para o Fornecedor se satisfazer as condições
-                                                abaixo:
-                                            </Alert>
-                                        </Grid>
-                                    </Grid>
+                                        {/* Configurações de exibição */}
+                                        <Select
+                                            xs={12}
+                                            md={5}
+                                            multiple
+                                            title='Mostrar esse bloco quando é'
+                                            name={`blocks.[${index}].categorias`}
+                                            value={block.categorias}
+                                            required={true}
+                                            options={allOptions.categorias}
+                                            register={register}
+                                            setValue={setValue}
+                                            errors={errors?.blocks?.[index]?.categorias}
+                                        />
 
-                                    <Grid container spacing={4}>
-                                        {/* Fabricante/Importador */}
-                                        <Grid item xs={12} md={3}>
-                                            <ListItem disablePadding>
-                                                <ListItemButton>
-                                                    <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                        Mostrar esse bloco quando é:
-                                                    </Typography>
-                                                </ListItemButton>
-                                            </ListItem>
-                                            {block.categorias &&
-                                                block.categorias.map((categoria, indexCategoria) => (
-                                                    <ListItem key={indexCategoria} disablePadding>
-                                                        <ListItemButton>
-                                                            <input
-                                                                type='hidden'
-                                                                name={`blocks.[${index}].categorias[${indexCategoria}].categoriaID`}
-                                                                defaultValue={categoria.categoriaID}
-                                                                {...register(
-                                                                    `blocks.[${index}].categorias[${indexCategoria}].categoriaID`
-                                                                )}
-                                                            />
-
-                                                            <FormControlLabel
-                                                                control={
-                                                                    <Checkbox
-                                                                        name={`blocks.[${index}].categorias[${indexCategoria}].checked`}
-                                                                        {...register(
-                                                                            `blocks.[${index}].categorias[${indexCategoria}].checked`
-                                                                        )}
-                                                                        defaultChecked={
-                                                                            categoria.checked == 1 ? true : false
-                                                                        }
-                                                                    />
-                                                                }
-                                                                label={categoria.nome}
-                                                            />
-                                                        </ListItemButton>
-                                                    </ListItem>
-                                                ))}
-                                        </Grid>
-
-                                        {/* Atividade */}
-                                        <Grid item xs={12} md={4}>
-                                            <ListItem disablePadding>
-                                                <ListItemButton>
-                                                    <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                        Mostrar esse bloco se atividade for:
-                                                    </Typography>
-                                                </ListItemButton>
-                                            </ListItem>
-                                            {block.atividades &&
-                                                block.atividades.map((atividade, indexAtividade) => (
-                                                    <ListItem key={indexAtividade} disablePadding>
-                                                        <ListItemButton>
-                                                            <input
-                                                                type='hidden'
-                                                                name={`blocks.[${index}].atividades[${indexAtividade}].atividadeID`}
-                                                                defaultValue={atividade.atividadeID}
-                                                                {...register(
-                                                                    `blocks.[${index}].atividades[${indexAtividade}].atividadeID`
-                                                                )}
-                                                            />
-
-                                                            <FormControlLabel
-                                                                control={
-                                                                    <Checkbox
-                                                                        name={`blocks.[${index}].atividades[${indexAtividade}].checked`}
-                                                                        {...register(
-                                                                            `blocks.[${index}].atividades[${indexAtividade}].checked`
-                                                                        )}
-                                                                        defaultChecked={
-                                                                            atividade.checked == 1 ? true : false
-                                                                        }
-                                                                    />
-                                                                }
-                                                                label={atividade.nome}
-                                                            />
-                                                        </ListItemButton>
-                                                    </ListItem>
-                                                ))}
-                                        </Grid>
+                                        <Select
+                                            xs={12}
+                                            md={7}
+                                            multiple
+                                            title='Atividade(s)'
+                                            name={`blocks.[${index}].atividades`}
+                                            value={block.atividades}
+                                            required={false}
+                                            options={allOptions.atividades}
+                                            register={register}
+                                            setValue={setValue}
+                                            errors={errors?.blocks?.[index]?.atividades}
+                                        />
                                     </Grid>
 
                                     {/* Itens */}
+                                    <Typography variant='subtitle1' sx={{ fontWeight: 600, mt: 4 }}>
+                                        Itens
+                                    </Typography>
                                     {block.itens &&
                                         block.itens.map((item, indexItem) => (
                                             <Grid
                                                 id={`item-${index}-${indexItem}`}
                                                 key={indexItem}
                                                 container
-                                                spacing={4}
+                                                spacing={2}
                                                 sx={{ mt: 4 }}
                                             >
                                                 <input
@@ -487,157 +427,81 @@ const FormParametrosFornecedor = () => {
                                                         `blocks.[${index}].itens.[${indexItem}].parFornecedorBlocoItemID`
                                                     )}
                                                 />
-                                                <Grid item xs={12} md={1} sx={{ textAlign: 'right' }}>
-                                                    <FormControl>
-                                                        <TextField
-                                                            label='Sequência'
-                                                            placeholder='Sequência'
-                                                            name={`blocks.[${index}].itens.[${indexItem}].sequencia`}
-                                                            defaultValue={item.ordem}
-                                                            {...register(
-                                                                `blocks.[${index}].itens.[${indexItem}].sequencia`
-                                                            )}
-                                                        />
-                                                    </FormControl>
-                                                </Grid>
-                                                {/* Itens */}
-                                                <Grid item xs={12} md={4}>
-                                                    <FormControl fullWidth>
-                                                        {blocks[index].optionsBlock && (
-                                                            <Autocomplete
-                                                                options={blocks[index].optionsBlock?.itens}
-                                                                getOptionLabel={optionsBlock => optionsBlock?.nome}
-                                                                value={
-                                                                    blocks[index].itens[indexItem].item ?? { nome: '' }
-                                                                }
-                                                                disabled={
-                                                                    blocks[index].itens[indexItem].hasPending === 1 ||
-                                                                    blocks[index].itens[indexItem].status === 0
-                                                                }
-                                                                name={`blocks.[${index}].itens.[${indexItem}].item`}
-                                                                {...register(
-                                                                    `blocks.[${index}].itens.[${indexItem}].item`,
-                                                                    {
-                                                                        required: true
-                                                                    }
-                                                                )}
-                                                                onChange={(event, value) => {
-                                                                    const newValue = value ?? null
-                                                                    console.log('🚀 ~ newValue:', newValue)
-                                                                    setValue(
-                                                                        `blocks.[${index}].itens.[${indexItem}].item`,
-                                                                        newValue
-                                                                    )
 
-                                                                    // Atualiza estado do item do bloco
-                                                                    const newBlock = [...blocks]
-                                                                    newBlock[index].itens[indexItem].item = newValue
-                                                                    setBlocks(newBlock)
+                                                {/* Sequência do item */}
+                                                <Input
+                                                    xs={12}
+                                                    md={1}
+                                                    title='Sequência'
+                                                    name={`blocks.[${index}].itens.[${indexItem}].sequencia`}
+                                                    value={item.ordem}
+                                                    required={true}
+                                                    register={register}
+                                                    errors={errors?.blocks?.[index]?.itens?.[indexItem]?.sequencia}
+                                                />
 
-                                                                    refreshBlockOptions(
-                                                                        newBlock[index],
-                                                                        index,
-                                                                        blocks,
-                                                                        allOptions
-                                                                    )
-                                                                }}
-                                                                renderInput={params => (
-                                                                    <TextField
-                                                                        {...params}
-                                                                        label={
-                                                                            blocks[index].itens[indexItem].itemID
-                                                                                ? `Item [${blocks[index].itens[indexItem].itemID}]`
-                                                                                : 'Item'
-                                                                        }
-                                                                        placeholder={
-                                                                            blocks[index].itens[indexItem].itemID
-                                                                                ? `Item [${blocks[index].itens[indexItem].itemID}]`
-                                                                                : 'Item'
-                                                                        }
-                                                                        error={
-                                                                            errors?.blocks?.[index]?.itens[indexItem]
-                                                                                ?.item
-                                                                        }
-                                                                    />
-                                                                )}
-                                                            />
-                                                        )}
-                                                    </FormControl>
-                                                </Grid>
-                                                <Grid item xs={12} md={2}>
-                                                    <FormControl fullWidth>
-                                                        <Autocomplete
-                                                            options={allOptions.alternativas}
-                                                            getOptionLabel={option => option.nome || ''}
-                                                            defaultValue={
-                                                                blocks[index].itens[indexItem].alternativa ?? {
-                                                                    nome: ''
-                                                                }
-                                                            }
-                                                            disabled={item.hasPending == 1 || item.status == 0}
-                                                            name={`blocks.[${index}].itens.[${indexItem}].alternativa`}
-                                                            {...register(
-                                                                `blocks.[${index}].itens.[${indexItem}].alternativa`,
-                                                                { required: true }
-                                                            )}
-                                                            onChange={(event, value) => {
-                                                                const newValue = value ?? null
-                                                                setValue(
-                                                                    `blocks.[${index}].itens.[${indexItem}].alternativa`,
-                                                                    newValue
-                                                                )
-                                                            }}
-                                                            renderInput={params => (
-                                                                <TextField
-                                                                    {...params}
-                                                                    label='Alternativa'
-                                                                    placeholder='Alternativa'
-                                                                    error={
-                                                                        errors?.blocks?.[index]?.itens[indexItem]
-                                                                            ?.alternativa
-                                                                    }
-                                                                />
-                                                            )}
-                                                        />
-                                                    </FormControl>
-                                                </Grid>
-                                                <Grid item md={1}>
-                                                    <Typography variant='body2'>
-                                                        {indexItem == 0 ? 'Ativo' : ''}
-                                                    </Typography>
-                                                    <Checkbox
-                                                        name={`blocks.[${index}][${indexItem}].status`}
-                                                        {...register(`blocks.[${index}].itens.[${indexItem}].status`)}
-                                                        defaultChecked={item.status == 1 ? true : false}
-                                                    />
-                                                </Grid>
-                                                <Grid item md={1}>
-                                                    <Typography variant='body2'>
-                                                        {indexItem == 0 ? 'Obs' : ''}
-                                                    </Typography>
-                                                    <Checkbox
-                                                        disabled={item.status == 0 ? true : false}
-                                                        name={`blocks.[${index}][${indexItem}].obs`}
-                                                        {...register(`blocks.[${index}].itens.[${indexItem}].obs`)}
-                                                        defaultChecked={item.obs == 1 ? true : false}
-                                                    />
-                                                </Grid>
-                                                <Grid item md={1}>
-                                                    <Typography variant='body2'>
-                                                        {indexItem == 0 ? 'Obrigatório' : ''}
-                                                    </Typography>
-                                                    <Checkbox
-                                                        disabled={item.status == 0 ? true : false}
-                                                        name={`blocks.[${index}][${indexItem}].obrigatorio`}
-                                                        {...register(
-                                                            `blocks.[${index}].itens.[${indexItem}].obrigatorio`
-                                                        )}
-                                                        defaultChecked={item.obrigatorio == 1 ? true : false}
-                                                    />
-                                                </Grid>
+                                                {/* Item */}
+                                                <Select
+                                                    xs={12}
+                                                    md={4}
+                                                    title={
+                                                        blocks[index].itens[indexItem].itemID
+                                                            ? `Item [${blocks[index].itens[indexItem].itemID}]`
+                                                            : 'Item'
+                                                    }
+                                                    name={`blocks.[${index}].itens.[${indexItem}].item`}
+                                                    value={blocks[index].itens[indexItem].item ?? null}
+                                                    required={true}
+                                                    options={blocks[index].optionsBlock?.itens}
+                                                    register={register}
+                                                    setValue={setValue}
+                                                    errors={errors?.blocks?.[index]?.itens?.[indexItem]?.item}
+                                                />
+
+                                                {/* Alternativa do item */}
+                                                <Select
+                                                    xs={12}
+                                                    md={2}
+                                                    title='Alternativa'
+                                                    name={`blocks.[${index}].itens.[${indexItem}].alternativa`}
+                                                    value={blocks[index].itens[indexItem].alternativa ?? null}
+                                                    required={true}
+                                                    options={allOptions.alternativas}
+                                                    register={register}
+                                                    setValue={setValue}
+                                                    errors={errors?.blocks?.[index]?.itens?.[indexItem]?.alternativa}
+                                                />
+
+                                                <Check
+                                                    xs={12}
+                                                    md={1}
+                                                    title='Ativo'
+                                                    name={`blocks.[${index}].itens.[${indexItem}].status`}
+                                                    value={blocks[index].itens[indexItem].status}
+                                                    register={register}
+                                                />
+
+                                                <Check
+                                                    xs={12}
+                                                    md={1}
+                                                    title='Obs'
+                                                    name={`blocks.[${index}].itens.[${indexItem}].obs`}
+                                                    value={blocks[index].itens[indexItem].obs}
+                                                    register={register}
+                                                />
+
+                                                <Check
+                                                    xs={12}
+                                                    md={1}
+                                                    title='Obrigatório'
+                                                    name={`blocks.[${index}].itens.[${indexItem}].obrigatorio`}
+                                                    value={blocks[index].itens[indexItem].obrigatorio}
+                                                    register={register}
+                                                />
+
                                                 {/* Abre o modal que define a pontuação das respostas */}
                                                 <Grid item md={1}>
-                                                    <Typography variant='body2'>
+                                                    <Typography variant='caption'>
                                                         {indexItem == 0 ? 'Pontuação' : ''}
                                                     </Typography>
                                                     <Button
@@ -653,34 +517,19 @@ const FormParametrosFornecedor = () => {
                                                         <Icon icon='ic:baseline-assessment' />
                                                     </Button>
                                                 </Grid>
+
                                                 {/* Deletar */}
-                                                <Grid item md={1}>
-                                                    <Typography variant='body2'>
-                                                        {indexItem == 0 ? 'Remover' : ''}
-                                                    </Typography>
-                                                    <Tooltip
-                                                        title={
-                                                            item.hasPending == 1
-                                                                ? `Este item não pode mais ser removido pois já foi respondido em um formulário`
-                                                                : `Remover este item`
-                                                        }
-                                                    >
-                                                        <IconButton
-                                                            color='error'
-                                                            onClick={() => {
-                                                                item.hasPending == 1
-                                                                    ? null
-                                                                    : removeItem(item, index, indexItem)
-                                                            }}
-                                                            sx={{
-                                                                opacity: item.hasPending == 1 ? 0.5 : 1,
-                                                                cursor: item.hasPending == 1 ? 'default' : 'pointer'
-                                                            }}
-                                                        >
-                                                            <Icon icon='tabler:trash-filled' />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </Grid>
+                                                <Remove
+                                                    xs={12}
+                                                    md={1}
+                                                    title='Remover'
+                                                    index={index}
+                                                    removeItem={removeItem}
+                                                    item={item}
+                                                    pending={item.hasPending}
+                                                    textSuccess='Remover este item'
+                                                    textError='Este item não pode mais ser removido pois já foi respondido em um formulário'
+                                                />
                                             </Grid>
                                         ))}
                                     {/* Modal que define a pontuação das respostas */}
@@ -730,18 +579,17 @@ const FormParametrosFornecedor = () => {
                     <Card md={12} sx={{ mt: 4 }}>
                         <CardContent>
                             <Grid container spacing={4}>
-                                <Grid item xs={12} md={12}>
-                                    <TextField
-                                        label='Orientações'
-                                        placeholder='Orientações'
-                                        rows={4}
-                                        multiline
-                                        fullWidth
-                                        name={`orientacoes`}
-                                        defaultValue={orientacoes?.obs ?? ''}
-                                        {...register(`orientacoes`)}
-                                    />
-                                </Grid>
+                                <Input
+                                    xs={12}
+                                    md={12}
+                                    title='Orientações'
+                                    name={`orientations.obs`}
+                                    required={false}
+                                    value={orientacoes?.obs}
+                                    multiline
+                                    rows={4}
+                                    register={register}
+                                />
                             </Grid>
                         </CardContent>
                     </Card>

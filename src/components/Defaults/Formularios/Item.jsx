@@ -7,7 +7,7 @@ import Input from 'src/components/Form/Input'
 import Select from 'src/components/Form/Select'
 import DateField from 'src/components/Form/DateField'
 
-const Item = ({ blockIndex, index, values, register, errors, setValue, isDisabled }) => {
+const Item = ({ blockIndex, index, values, register, errors, setValue, disabled }) => {
     console.log('🚀 ~ values:', values)
     const [dateStatus, setDateStatus] = useState({})
 
@@ -63,7 +63,7 @@ const Item = ({ blockIndex, index, values, register, errors, setValue, isDisable
                             name={`blocos[${blockIndex}].itens[${index}].resposta`}
                             idName={'alternativaID'}
                             value={values.resposta}
-                            isDisabled={isDisabled}
+                            disabled={disabled}
                             register={register}
                             setValue={setValue}
                             errors={errors?.blocos?.[blockIndex]?.itens[index]?.resposta}
@@ -74,7 +74,7 @@ const Item = ({ blockIndex, index, values, register, errors, setValue, isDisable
                     {values.alternativas.length == 0 && values.alternativa == 'Data' && (
                         <DateField
                             title='Data da avaliação'
-                            isDisabled={isDisabled}
+                            disabled={disabled}
                             value={values.resposta}
                             type={null}
                             name={`blocos[${blockIndex}].itens[${index}].resposta`}
@@ -94,7 +94,7 @@ const Item = ({ blockIndex, index, values, register, errors, setValue, isDisable
                             name={`blocos[${blockIndex}].itens[${index}].resposta`}
                             value={values.resposta}
                             multiline
-                            isDisabled={isDisabled}
+                            disabled={disabled}
                             register={register}
                             errors={errors?.blocos?.[blockIndex]?.itens[index]?.resposta}
                         />
@@ -111,7 +111,7 @@ const Item = ({ blockIndex, index, values, register, errors, setValue, isDisable
                             name={`blocos[${blockIndex}].itens[${index}].observacao`}
                             value={values.observacao}
                             multiline
-                            isDisabled={isDisabled}
+                            disabled={disabled}
                             register={register}
                         />
                     </FormControl>

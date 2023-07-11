@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { FormControl, Grid, TextField } from '@mui/material'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 
-const Input = ({ xs, md, title, name, value, type, mask, multiline, isDisabled, required, register, errors }) => {
+const Input = ({ xs, md, title, name, rows, value, type, mask, multiline, disabled, required, register, errors }) => {
     const inputRef = useRef(null)
 
     return (
@@ -12,10 +12,11 @@ const Input = ({ xs, md, title, name, value, type, mask, multiline, isDisabled, 
                     multiline={multiline}
                     defaultValue={value ?? ''}
                     label={title}
+                    rows={rows}
                     type={type ?? 'text'}
                     placeholder={title}
                     name={name}
-                    disabled={isDisabled ? true : false}
+                    disabled={disabled}
                     aria-describedby='validation-schema-nome'
                     error={errors}
                     {...register(name, { required })}

@@ -1,9 +1,12 @@
 import { Autocomplete, FormControl, Grid, TextField, Box, Tooltip, IconButton } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
+
+//* Custom components
+import Select from 'src/components/Form/Select'
 import Input from 'src/components/Form/Input'
 
-const Product = ({ field, data, indexData, isDisabled, register, setValue, errors }) => {
+const Product = ({ field, data, indexData, disabled, register, setValue, errors }) => {
     console.log('product errors: ', errors)
 
     return (
@@ -18,25 +21,20 @@ const Product = ({ field, data, indexData, isDisabled, register, setValue, error
 
             {/* int (select) */}
             {field && field.tipo === 'int' && field.tabela && (
-                <Autocomplete
+                <Select
                     key={indexData}
-                    options={field.options}
-                    value={data?.[field.tabela]}
-                    getOptionLabel={option => option.nome}
+                    xs={12}
+                    md={12}
+                    title={field.nomeCampo}
                     name={`produtos[${indexData}].${field.tabela}`}
-                    disabled={isDisabled ? true : false}
-                    {...register(`produtos[${indexData}].${field.tabela}`)}
-                    onChange={(event, newValue) => {
-                        setValue(`produtos[${indexData}].${field.tabela}`, newValue ? newValue : null)
-                    }}
-                    renderInput={params => (
-                        <TextField
-                            {...params}
-                            label={field.nomeCampo}
-                            placeholder={field.nomeCampo}
-                            error={errors?.produtos?.[indexData]?.[field.tabela] ? true : false}
-                        />
-                    )}
+                    value={data?.[field.tabela] ?? null}
+                    multiple={false}
+                    disabled={disabled}
+                    required={true}
+                    options={field.options}
+                    register={register}
+                    setValue={setValue}
+                    errors={errors?.produtos?.[indexData]?.[field.tabela]}
                 />
             )}
 
@@ -47,7 +45,7 @@ const Product = ({ field, data, indexData, isDisabled, register, setValue, error
                     name={`produtos[${indexData}].${field.nomeColuna}`}
                     value={data?.[field.nomeColuna]}
                     type={field.nomeColuna}
-                    isDisabled={isDisabled}
+                    disabled={disabled}
                     register={register}
                     errors={errors?.produtos?.[indexData]?.[field.nomeColuna]}
                 />

@@ -10,7 +10,7 @@ const Select = ({
     limitTags,
     value,
     required,
-    isDisabled,
+    disabled,
     register,
     multiple,
     setValue,
@@ -30,7 +30,7 @@ const Select = ({
                             ? value.map(item => options.find(option => option.nome === item.nome))
                             : value ?? { nome: '' }
                     }
-                    disabled={isDisabled}
+                    disabled={disabled}
                     {...register(name, { required })}
                     onChange={(e, newValue) => {
                         console.log('🚀 Select => onChange:', newValue)

@@ -7,7 +7,11 @@ const Check = ({ xs, md, title, index, name, typePage, value, register }) => {
                 <Typography variant='caption'>{!index || index == 0 ? title : ''}</Typography>
                 <FormControlLabel
                     control={
-                        <Checkbox sx={{ ml: 4 }} {...register(name)} defaultChecked={value || typePage == 'new'} />
+                        <Checkbox
+                            sx={{ ml: 4 }}
+                            {...register(name)}
+                            defaultChecked={value == true || value == 1 || typePage == 'new'}
+                        />
                     }
                 />
             </Box>
