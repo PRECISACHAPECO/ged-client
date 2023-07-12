@@ -2,7 +2,22 @@ import { useRef } from 'react'
 import { FormControl, Grid, TextField } from '@mui/material'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 
-const Input = ({ xs, md, title, name, rows, value, type, mask, multiline, disabled, required, register, errors }) => {
+const Input = ({
+    xs,
+    md,
+    title,
+    name,
+    rows,
+    value,
+    type,
+    mask,
+    getAddressByCep,
+    multiline,
+    disabled,
+    required,
+    register,
+    errors
+}) => {
     const inputRef = useRef(null)
 
     return (
@@ -35,11 +50,23 @@ const Input = ({ xs, md, title, name, rows, value, type, mask, multiline, disabl
                     }}
                     inputProps={
                         mask === 'cnpj'
-                            ? { maxLength: 18 }
+                            ? {
+                                  maxLength: 18,
+                                  type: 'tel', // define o tipo de entrada como 'tel'
+                                  inputMode: 'numeric'
+                              }
                             : mask === 'cep'
-                            ? { maxLength: 9 }
+                            ? {
+                                  maxLength: 9,
+                                  type: 'tel', // define o tipo de entrada como 'tel'
+                                  inputMode: 'numeric'
+                              }
                             : mask === 'telefone'
-                            ? { maxLength: 15 }
+                            ? {
+                                  maxLength: 15,
+                                  type: 'tel', // define o tipo de entrada como 'tel'
+                                  inputMode: 'numeric'
+                              }
                             : mask === 'estado'
                             ? { maxLength: 2 }
                             : {}
