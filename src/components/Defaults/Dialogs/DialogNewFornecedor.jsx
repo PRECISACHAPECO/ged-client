@@ -8,15 +8,18 @@ import {
     TextField,
     DialogContentText,
     Grid,
+    Autocomplete,
     Alert,
     Typography
 } from '@mui/material'
-import Autocomplete from '@mui/material/Autocomplete'
 import { useEffect, useState, useContext } from 'react'
 import { AuthContext } from 'src/context/AuthContext'
 import { ParametersContext } from 'src/context/ParametersContext'
 
 import { useRouter } from 'next/router'
+
+//* Custom components
+import Select from 'src/components/Form/Select'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -45,8 +48,10 @@ const DialogNewFornecedor = ({ handleClose, openModal, makeFornecedor, loadingSa
     const [errorEmail, setErrorEmail] = useState(false)
     const [openConfirmMakeFornecedor, setOpenConfirmMakeFornecedor] = useState(false)
     const [messageCopied, setMessageCopied] = useState(false)
+    const [optionsGruposAnexo, setOptionsGruposAnexo] = useState([])
+    const [gruposAnexo, setGruposAnexo] = useState([])
 
-    console.log('unidade logada: ' + loggedUnity.nomeFantasia)
+    console.log('🚀 ~ gruposAnexo:', gruposAnexo)
 
     const {
         handleSubmit,
@@ -121,15 +126,27 @@ const DialogNewFornecedor = ({ handleClose, openModal, makeFornecedor, loadingSa
         setOpenConfirmMakeFornecedor(true)
     }
 
+    const getGruposAnexo = async () => {
+        await api
+            .post(`/formularios/fornecedor/getGruposAnexo`, { unidadeID: loggedUnity.unidadeID })
+            .then(response => {
+                console.log('🚀 ~ getGruposAnexo response:', response.data)
+                setOptionsGruposAnexo(response.data)
+            })
+            .catch(error => {
+                console.log('🚀 ~ getGruposAnexo error:', error)
+            })
+    }
+
     const onSubmit = values => {
         console.log('🚀 ~ onSubmit ~ values:', values)
     }
 
     useEffect(() => {
-        console.log('ON USEeFFECT: ', loadingSave)
         getFornecedorByCnpj(cnpj)
         setData(null)
         handleSubmit(onSubmit)
+        getGruposAnexo()
 
         setCnpj(null)
         setEmail(null)
@@ -249,7 +266,34 @@ const DialogNewFornecedor = ({ handleClose, openModal, makeFornecedor, loadingSa
                                         preenchidos
                                     </Alert>
                                 ) : !data.isFornecedor && !data.hasFormulario ? (
-                                    <Alert severity='info'>Esse CNPJ ainda não é seu fornecedor</Alert>
+                                    <>
+                                        <Grid item xs={12} md={12} sx={{ my: 1 }}>
+                                            <FormControl fullWidth>
+                                                <Autocomplete
+                                                    multiple
+                                                    limitTags={5}
+                                                    options={optionsGruposAnexo}
+                                                    getOptionLabel={option => option.nome}
+                                                    defaultValue={[]}
+                                                    {...register('gruposAnexo')}
+                                                    onChange={(e, newValue) => {
+                                                        console.log('🚀 Select => onChange:', newValue)
+                                                        setGruposAnexo(newValue)
+                                                    }}
+                                                    renderInput={params => (
+                                                        <TextField
+                                                            {...params}
+                                                            label='Grupos de Anexo'
+                                                            placeholder='Grupos de Anexo'
+                                                        />
+                                                    )}
+                                                />
+                                            </FormControl>
+                                        </Grid>
+                                        <Alert severity='info' sx={{ mt: 3 }}>
+                                            Esse CNPJ ainda não é seu fornecedor
+                                        </Alert>
+                                    </>
                                 ) : null}
                             </Grid>
                         </Grid>
@@ -305,6 +349,8 @@ const DialogNewFornecedor = ({ handleClose, openModal, makeFornecedor, loadingSa
                 inputEmail
                 closeAfterSave={true}
                 cnpj={cnpj}
+                gruposAnexo={gruposAnexo}
+                grupoAnexosFornecedor={true}
                 btnCancel
                 btnConfirm
                 btnConfirmColor='primary'

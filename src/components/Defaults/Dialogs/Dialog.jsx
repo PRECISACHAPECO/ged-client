@@ -9,16 +9,27 @@ import { Alert, FormControl, TextField, Typography } from '@mui/material'
 import { useState } from 'react'
 import { validationEmail } from '../../../configs/validations'
 
+//* Custom components
+import Select from 'src/components/Form/Select'
+import Input from 'src/components/Form/Input'
+import Check from 'src/components/Form/Check'
+import CheckLabel from 'src/components/Form/CheckLabel'
+import Remove from 'src/components/Form/Remove'
+
 const DialogForm = ({
     title,
     text,
     handleClose,
     openModal,
     handleSubmit,
+
     cnpj,
+    gruposAnexo,
+
     inputEmail,
     btnCancel,
     btnConfirm,
+    grupoAnexosFornecedor,
     btnCancelColor,
     btnConfirmColor,
     closeAfterSave,
@@ -68,15 +79,9 @@ const DialogForm = ({
                                     placeholder='E-mail do Fornecedor (opcional)'
                                     aria-describedby='validation-schema-nome'
                                     name='email'
-                                    // {...register(`email`, {
-                                    //     required: true,
-                                    //     validate: value => value.includes('@') || 'E-mail inválido'
-                                    // })}
                                     error={email?.length > 0 && errorEmail}
-                                    // helperText={errorEmail ? 'Insira um e-mail válido' : null}
                                     inputProps={{
                                         onChange: e => {
-                                            // setValue('email', e.target.value)
                                             setEmail(e.target.value)
                                             setErrorEmail(validationEmail(e.target.value) ? false : true)
                                         }
@@ -111,7 +116,7 @@ const DialogForm = ({
                             onClick={
                                 inputEmail && cnpj
                                     ? () => {
-                                          handleSubmit(cnpj, email)
+                                          handleSubmit(cnpj, gruposAnexo, email)
                                           setEmail(null)
                                           closeAfterSave ? handleClose() : null
                                       }
