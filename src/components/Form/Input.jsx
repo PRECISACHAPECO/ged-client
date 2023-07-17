@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { FormControl, Grid, TextField } from '@mui/material'
-import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
+import { cnpjMask, cellPhoneMask, cepMask, ufMask, cpfMask, rgMask } from 'src/configs/masks'
 
 const Input = ({
     xs,
@@ -46,6 +46,10 @@ const Input = ({
                             ? (e.target.value = cellPhoneMask(e.target.value))
                             : mask === 'estado'
                             ? (e.target.value = ufMask(e.target.value))
+                            : mask === 'cpf'
+                            ? (e.target.value = cpfMask(e.target.value))
+                            : mask === 'rg'
+                            ? (e.target.value = rgMask(e.target.value))
                             : (e.target.value = e.target.value)
                     }}
                     inputProps={
@@ -63,9 +67,15 @@ const Input = ({
                               }
                             : mask === 'telefone'
                             ? {
-                                  maxLength: 15,
-                                  type: 'tel', // define o tipo de entrada como 'tel'
-                                  inputMode: 'numeric'
+                                  maxLength: 14
+                              }
+                            : mask === 'cpf'
+                            ? {
+                                  maxLength: 14
+                              }
+                            : mask === 'rg'
+                            ? {
+                                  maxLength: 11
                               }
                             : mask === 'estado'
                             ? { maxLength: 2 }

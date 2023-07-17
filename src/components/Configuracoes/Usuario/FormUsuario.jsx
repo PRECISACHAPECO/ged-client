@@ -1,5 +1,6 @@
 import Router from 'next/router'
 import { useEffect, useState, useContext, useRef } from 'react'
+import { dateConfig } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import Icon from 'src/@core/components/icon'
 
@@ -16,10 +17,8 @@ import {
     FormControl,
     TextField,
     Button,
-    FormControlLabel,
     Typography,
     Autocomplete,
-    Box,
     Checkbox,
     Accordion,
     AccordionSummary,
@@ -31,11 +30,7 @@ import {
     Avatar,
     Tooltip
 } from '@mui/material'
-import * as yup from 'yup'
-import { useForm, Controller } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { FormHelperText } from '@mui/material'
-import Switch from '@mui/material/Switch'
+import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
 import { formType } from 'src/configs/defaultConfigs'
@@ -50,6 +45,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br' // import locale
+import Input from 'src/components/Form/Input'
+import DateField from 'src/components/Form/DateField'
 
 const FormUsuario = () => {
     const [open, setOpen] = useState(false)
@@ -325,19 +322,31 @@ const FormUsuario = () => {
 
                                 {/* Campos a direita */}
                                 <Grid xs={12} sm={8} md={10} container spacing={5}>
-                                    <Grid item xs={12} md={4}>
-                                        <FormControl fullWidth>
-                                            <TextField
-                                                defaultValue={data?.nome}
-                                                label='Nome'
-                                                placeholder='Nome'
-                                                aria-describedby='validation-schema-nome'
-                                                name='nome'
-                                                {...register(`nome`, { required: true })}
-                                                error={errors.nome}
-                                            />
-                                        </FormControl>
-                                    </Grid>
+                                    <Input
+                                        xs={12}
+                                        md={4}
+                                        title='Nome'
+                                        name='nome'
+                                        value={data?.nome}
+                                        required={true}
+                                        register={register}
+                                        error={errors.nome}
+                                    />
+                                    {/* <DateField
+                                        xs={12}
+                                        md={3}
+                                        title='Data de Nascimento'
+                                        // disabled={disabled}
+                                        value={dayjs(new Date(data?.dataNascimento))}
+                                        type={null}
+                                        name='dataNascimento'
+                                        errors={errors.dataNascimento}
+                                        typeValidation='dataPassado'
+                                        daysValidation={365}
+                                        // dateStatus={dateStatus}
+                                        register={register}
+                                    /> */}
+
                                     <Grid item xs={12} md={4}>
                                         <FormControl fullWidth>
                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -359,103 +368,63 @@ const FormUsuario = () => {
                                             </LocalizationProvider>
                                         </FormControl>
                                     </Grid>
-                                    <Grid item xs={12} md={4}>
-                                        <FormControl fullWidth>
-                                            <TextField
-                                                defaultValue={data?.email}
-                                                label='E-mail'
-                                                placeholder='E-mail'
-                                                aria-describedby='validation-schema-nome'
-                                                name='email'
-                                                {...register(`email`, { required: true })}
-                                                error={errors.email}
-                                            />
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={12} md={4}>
-                                        <FormControl fullWidth>
-                                            <TextField
-                                                defaultValue={data?.cpf}
-                                                label='CPF'
-                                                placeholder='CPF'
-                                                aria-describedby='validation-schema-nome'
-                                                name='cpf'
-                                                {...register(`cpf`, {
-                                                    required: true,
-                                                    validate: value => validationCPF(value) || 'CPF inválido'
-                                                })}
-                                                error={errors.cpf}
-                                                helperText={errors.cpf?.message}
-                                                inputProps={{
-                                                    maxLength: 14,
-                                                    onChange: e => {
-                                                        setValue('cpf', cpfMask(e.target.value))
-                                                    }
-                                                }}
-                                            />
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={12} md={4}>
-                                        <FormControl fullWidth>
-                                            <TextField
-                                                defaultValue={data?.rg}
-                                                label='RG'
-                                                placeholder='RG'
-                                                aria-describedby='validation-schema-nome'
-                                                name='rg'
-                                                {...register(`rg`, { required: false })}
-                                                error={errors.rg}
-                                            />
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={12} md={4}>
-                                        <FormControl fullWidth>
-                                            <TextField
-                                                defaultValue={data?.registroConselhoClasse}
-                                                label='Registro Conselho Classe'
-                                                placeholder='Registro Conselho Classe'
-                                                aria-describedby='validation-schema-nome'
-                                                name='registroConselhoClasse'
-                                                {...register(`registroConselhoClasse`, { required: false })}
-                                                error={errors.registroConselhoClasse}
-                                            />
-                                        </FormControl>
-                                    </Grid>
+
+                                    <Input
+                                        xs={12}
+                                        md={4}
+                                        title='E-mail'
+                                        name='email'
+                                        value={data?.email}
+                                        required={true}
+                                        register={register}
+                                        error={errors.email}
+                                    />
+                                    <Input
+                                        xs={12}
+                                        md={4}
+                                        title='CPF'
+                                        name='cpf'
+                                        mask='cpf'
+                                        value={data?.cpf}
+                                        required={true}
+                                        register={register}
+                                        error={errors.cpf}
+                                    />
+                                    <Input
+                                        xs={12}
+                                        md={4}
+                                        title='RG'
+                                        name='rg'
+                                        mask='rg'
+                                        value={data?.rg}
+                                        required={true}
+                                        register={register}
+                                        error={errors.rg}
+                                    />
+                                    <Input
+                                        xs={12}
+                                        md={4}
+                                        title='Registro Conselho Classe'
+                                        name='registroConselhoClasse'
+                                        value={data?.registroConselhoClasse}
+                                        register={register}
+                                        error={errors.registroConselhoClasse}
+                                    />
+
                                     {data && user.admin == 0 && (
                                         <>
                                             {/* Profissão */}
-                                            <Grid item xs={12} md={4}>
-                                                <FormControl fullWidth>
-                                                    <Autocomplete
-                                                        options={data.profissaoOptions}
-                                                        getOptionLabel={option => option.nome || ''}
-                                                        defaultValue={data.profissao ?? ''}
-                                                        name={`profissao`}
-                                                        {...register(`profissao`, {
-                                                            required: false
-                                                        })}
-                                                        onChange={(index, value) => {
-                                                            const newDataProfission = value
-                                                                ? {
-                                                                      id: value?.profissaoID,
-                                                                      nome: value?.nome,
-                                                                      edit: true
-                                                                  }
-                                                                : null
-                                                            setValue(`profissao`, newDataProfission)
-                                                        }}
-                                                        renderInput={params => (
-                                                            <TextField
-                                                                {...params}
-                                                                label='Selecione a profissão'
-                                                                placeholder='Selecione a profissão'
-                                                                aria-describedby='formulario-error'
-                                                                error={errors?.profissao}
-                                                            />
-                                                        )}
-                                                    />
-                                                </FormControl>
-                                            </Grid>
+                                            <Select
+                                                title='Selecione a profissão'
+                                                options={data.profissaoOptions}
+                                                name={`profissao`}
+                                                idName={'profissaoID'}
+                                                value={values.resposta}
+                                                disabled={disabled}
+                                                register={register}
+                                                setValue={setValue}
+                                                errors={errors?.profissao}
+                                            />
 
                                             {/* Cargos */}
                                             <Grid item xs={12} md={4}>
@@ -1220,3 +1189,5 @@ const FormUsuario = () => {
 }
 
 export default FormUsuario
+
+// 1222 inicial
