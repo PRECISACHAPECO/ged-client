@@ -1,7 +1,7 @@
-import { PDFViewer, BlobProvider, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { useState } from 'react';
+import { BlobProvider, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 const FornecedorPDF = () => {
-
     const styles = StyleSheet.create({
         page: {
             flexDirection: 'row',
@@ -31,16 +31,36 @@ const FornecedorPDF = () => {
 };
 
 const CrmAward = () => {
+    const [showReport, setShowReport] = useState(false);
+
+    const handleOpenReport = () => {
+        setShowReport(true);
+    };
+
     return (
-        <BlobProvider document={<FornecedorPDF />}>
-            {({ blob, url, loading, error }) => (
-                <div>
-                    {loading ? 'Carregando o PDF...' : (
-                        <a href={url} target="_blank" rel="noopener noreferrer">Abrir em uma nova guia</a>
-                    )}
-                </div>
+        <div>
+            {!showReport && (
+                <a href="#" onClick={handleOpenReport}>
+                    Abrir relatório
+                </a>
             )}
-        </BlobProvider>
+
+            {showReport && (
+                <BlobProvider document={<FornecedorPDF />}>
+                    {({ blob, url, loading, error }) => (
+                        <div>
+                            {loading ? (
+                                'Carregando o PDF...'
+                            ) : (
+                                <a href={url} target="_blank" rel="noopener noreferrer">
+                                    Abrir em uma nova guia
+                                </a>
+                            )}
+                        </div>
+                    )}
+                </BlobProvider>
+            )}
+        </div>
     );
 };
 
