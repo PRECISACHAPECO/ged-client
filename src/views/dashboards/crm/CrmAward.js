@@ -1,73 +1,47 @@
-// ** MUI Imports
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import Button from '@mui/material/Button'
-import { styled } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
-import { useContext, useState } from 'react'
-import { AuthContext } from 'src/context/AuthContext'
-import { ParametersContext } from 'src/context/ParametersContext'
-import Link from 'next/link'
-import ReactDOMServer from 'react-dom/server';
-import Fornecedor from 'src/pages/relatorio/formularios/fornecedor'
-import { api } from 'src/configs/api'
-import axios from 'axios'
+import { PDFViewer, BlobProvider, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
-// Styled component for the trophy image
-const TrophyImg = styled('img')(({ theme }) => ({
-    right: 22,
-    bottom: 0,
-    width: 106,
-    position: 'absolute',
-    [theme.breakpoints.down('sm')]: {
-        width: 95
-    }
-}))
+const FornecedorPDF = () => {
 
-const CrmAward = () => {
-    const { user, loggedUnity } = useContext(AuthContext)
-
-
-
-    const generatePDF = () => {
-        api.post(`/teste2`, {}, { responseType: 'blob' })
-            .then((response) => {
-                const blob = new Blob([response.data], { type: 'application/pdf' });
-                const url = URL.createObjectURL(blob);
-                window.open(url);
-            })
-            .catch((error) => {
-                console.log('Erro ao gerar o PDF:', error);
-            });
-    };
+    const styles = StyleSheet.create({
+        page: {
+            flexDirection: 'row',
+            backgroundColor: '#E4E4E4'
+        },
+        section: {
+            margin: 10,
+            padding: 10,
+            flexGrow: 1,
+            justifyContent: 'center',
+            alignItems: 'center'
+        }
+    });
 
     return (
-        <Card sx={{ position: 'relative' }}>
-            <CardContent>
-                <Typography variant='h6'>
-                    Bem-vindo{' '}
-                    <Box component='span' sx={{ fontWeight: 'bold' }}>
-                        {user.nome}
-                    </Box>
-                    !
-                </Typography>
-                <Button onClick={generatePDF}>
-                    Gerar relatorio
-                </Button>
-                <Typography variant='body2' sx={{ mb: 3.25 }}>
-                    {loggedUnity.nomeFantasia}
-                </Typography>
-                <Typography variant='h5' sx={{ fontWeight: 600, color: 'primary.main' }}>
-                    $42.8k
-                </Typography>
-                <Typography variant='body2' sx={{ mb: 3.25 }}>
-                    78% of target 🤟🏻
-                </Typography>
-                <TrophyImg alt='trophy' src='/images/cards/trophy.png' />
-            </CardContent>
-        </Card>
-    )
-}
+        <Document>
+            <Page size="A4" style={styles.page}>
+                <View style={styles.section}>
+                    <Text>Section #1</Text>
+                </View>
+                <View style={styles.section}>
+                    <Text>Section #2</Text>
+                </View>
+            </Page>
+        </Document>
+    );
+};
 
-export default CrmAward
+const CrmAward = () => {
+    return (
+        <BlobProvider document={<FornecedorPDF />}>
+            {({ blob, url, loading, error }) => (
+                <div>
+                    {loading ? 'Carregando o PDF...' : (
+                        <a href={url} target="_blank" rel="noopener noreferrer">Abrir em uma nova guia</a>
+                    )}
+                </div>
+            )}
+        </BlobProvider>
+    );
+};
+
+export default CrmAward;

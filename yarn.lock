@@ -1436,13 +1436,13 @@
   dependencies:
     "@babel/runtime" "^7.20.13"
 
-"@react-pdf/font@^2.3.5":
-  version "2.3.5"
-  resolved "https://registry.npmjs.org/@react-pdf/font/-/font-2.3.5.tgz"
-  integrity sha512-mffmm/6PYYn0qPNxIyK1u65HlwzbQgD01YvkySmTRpnNwoGz8vpy3k01roPj6UXzcxbp/RgEUyDMexjFlRNl8g==
+"@react-pdf/font@^2.3.6":
+  version "2.3.6"
+  resolved "https://registry.npmjs.org/@react-pdf/font/-/font-2.3.6.tgz"
+  integrity sha512-JYV+KmVyG2tPdpCK0/iFiBy1V7VHz2fETttKCgTRsLAo+w8RpM0pUGSAYROSuRl7yqbhiKGw/A24PYWhBReiOQ==
   dependencies:
     "@babel/runtime" "^7.20.13"
-    "@react-pdf/types" "^2.3.2"
+    "@react-pdf/types" "^2.3.3"
     cross-fetch "^3.1.5"
     fontkit "^2.0.2"
     is-url "^1.2.4"
@@ -1456,19 +1456,19 @@
     "@react-pdf/png-js" "^2.2.0"
     cross-fetch "^3.1.5"
 
-"@react-pdf/layout@^3.6.1":
-  version "3.6.1"
-  resolved "https://registry.npmjs.org/@react-pdf/layout/-/layout-3.6.1.tgz"
-  integrity sha512-ETRlvZS41EmUOLNcpDOWNwxLyKf0nMW+TL+H0f9rOz9ryes4jNC8gPFJsU6F7pegWMbISgyiM8aFjk+yFlt+Sg==
+"@react-pdf/layout@^3.6.2":
+  version "3.6.2"
+  resolved "https://registry.npmjs.org/@react-pdf/layout/-/layout-3.6.2.tgz"
+  integrity sha512-YD3/tDC6p5XPCXI04zH79bgX8LytjxEYfeCtsIzEFk0A2VvIHoRnRRDZ2OhZmO5g112ykyjY8vn9//ubTt+Ktg==
   dependencies:
     "@babel/runtime" "^7.20.13"
     "@react-pdf/fns" "2.0.1"
     "@react-pdf/image" "^2.2.1"
     "@react-pdf/pdfkit" "^3.0.2"
     "@react-pdf/primitives" "^3.0.0"
-    "@react-pdf/stylesheet" "^4.1.6"
+    "@react-pdf/stylesheet" "^4.1.7"
     "@react-pdf/textkit" "^4.2.0"
-    "@react-pdf/types" "^2.3.2"
+    "@react-pdf/types" "^2.3.3"
     "@react-pdf/yoga" "^4.1.2"
     cross-fetch "^3.1.5"
     emoji-regex "^10.2.1"
@@ -1498,48 +1498,48 @@
   resolved "https://registry.npmjs.org/@react-pdf/primitives/-/primitives-3.0.1.tgz"
   integrity sha512-0HGcknrLNwyhxe+SZCBL29JY4M85mXKdvTZE9uhjNbADGgTc8wVnkc5+e4S/lDvugbVISXyuIhZnYwtK9eDnyQ==
 
-"@react-pdf/render@^3.2.5":
-  version "3.2.5"
-  resolved "https://registry.npmjs.org/@react-pdf/render/-/render-3.2.5.tgz"
-  integrity sha512-qscQa7ElhdTzAJnMoERQ/6wK8BWbee6pz8OZilxU1IhjeF6IloSkW+QLocBjHs6ZDgd/Rh73FKG6P1WzklF0oA==
+"@react-pdf/render@^3.2.6":
+  version "3.2.6"
+  resolved "https://registry.npmjs.org/@react-pdf/render/-/render-3.2.6.tgz"
+  integrity sha512-nsd1sleWMzBdrYGv5BwChPgVwoTZilfdiadE5wQiblFqG1C7EYINadalnEl1tjldKAzofSPBLKJbnSGR5r2lIQ==
   dependencies:
     "@babel/runtime" "^7.20.13"
     "@react-pdf/fns" "2.0.1"
     "@react-pdf/primitives" "^3.0.0"
     "@react-pdf/textkit" "^4.2.0"
-    "@react-pdf/types" "^2.3.2"
+    "@react-pdf/types" "^2.3.3"
     abs-svg-path "^0.1.1"
     color-string "^1.5.3"
     normalize-svg-path "^1.1.0"
     parse-svg-path "^0.1.2"
     svg-arc-to-cubic-bezier "^3.2.0"
 
-"@react-pdf/renderer@^3.1.10":
-  version "3.1.10"
-  resolved "https://registry.npmjs.org/@react-pdf/renderer/-/renderer-3.1.10.tgz"
-  integrity sha512-81mhtgHRYQzvhXUKXRBVjJrX8hGd8rrE5FSiXxgPL71OLHbjgPrpVX3fpxDQal7kE6nBU6L7jKy/IhqIxTEKPw==
+"@react-pdf/renderer@^3.1.12":
+  version "3.1.12"
+  resolved "https://registry.npmjs.org/@react-pdf/renderer/-/renderer-3.1.12.tgz"
+  integrity sha512-y4H2ELH0okJP7+ig+uNjFAfuAanWiF3mxsKsE7ZBuhF4tabbMt9fX+pQ7qn4xrzEWX0vlso6s6ebkkeGdSGWzA==
   dependencies:
     "@babel/runtime" "^7.20.13"
-    "@react-pdf/font" "^2.3.5"
-    "@react-pdf/layout" "^3.6.1"
+    "@react-pdf/font" "^2.3.6"
+    "@react-pdf/layout" "^3.6.2"
     "@react-pdf/pdfkit" "^3.0.2"
     "@react-pdf/primitives" "^3.0.0"
-    "@react-pdf/render" "^3.2.5"
-    "@react-pdf/types" "^2.3.2"
+    "@react-pdf/render" "^3.2.6"
+    "@react-pdf/types" "^2.3.3"
     events "^3.3.0"
     object-assign "^4.1.1"
     prop-types "^15.6.2"
     queue "^6.0.1"
     scheduler "^0.17.0"
 
-"@react-pdf/stylesheet@^4.1.6":
-  version "4.1.6"
-  resolved "https://registry.npmjs.org/@react-pdf/stylesheet/-/stylesheet-4.1.6.tgz"
-  integrity sha512-1TWpxyTDJXiihfIsIoWta7Pp1eJmmtI+Qo9YDk5L0JS2b1amOpg4+mdq5rptiug7V2zTvSUMfK9XZ8p81CXsqA==
+"@react-pdf/stylesheet@^4.1.7":
+  version "4.1.7"
+  resolved "https://registry.npmjs.org/@react-pdf/stylesheet/-/stylesheet-4.1.7.tgz"
+  integrity sha512-3n0Vg0XFszPyo0MpH75DkLRvsS4JOE0HzBH6XqFHDiquZDrC4mNgmMhZEbsOED+8xDGoCeVh8fLU3L6Tu0HWqg==
   dependencies:
     "@babel/runtime" "^7.20.13"
     "@react-pdf/fns" "2.0.1"
-    "@react-pdf/types" "^2.3.2"
+    "@react-pdf/types" "^2.3.3"
     color-string "^1.5.3"
     hsl-to-hex "^1.0.0"
     media-engine "^1.0.3"
@@ -1555,10 +1555,10 @@
     hyphen "^1.6.4"
     unicode-properties "^1.4.1"
 
-"@react-pdf/types@^2.3.2":
-  version "2.3.2"
-  resolved "https://registry.npmjs.org/@react-pdf/types/-/types-2.3.2.tgz"
-  integrity sha512-pFOLqSWp8esMitKKENk8Pi4pBk0NS1LLUYzbbEHeWTU2X5debuvjbcgzfgJw4lj/ZhIK9ji1WfypOjngKGKFdg==
+"@react-pdf/types@^2.3.3":
+  version "2.3.3"
+  resolved "https://registry.npmjs.org/@react-pdf/types/-/types-2.3.3.tgz"
+  integrity sha512-I3BVu5vF0xxX6rvqZHt4gCjFAt6X+mak5bwYQyf6bm21IIMDXXBtgXqWEl1wosWizArox7fcN/XbEnysrf/8Dw==
 
 "@react-pdf/yoga@^4.1.2":
   version "4.1.2"
@@ -2044,7 +2044,7 @@ axios-mock-adapter@1.21.2:
     fast-deep-equal "^3.1.3"
     is-buffer "^2.0.5"
 
-axios@1.1.3:
+axios@^1.1.3:
   version "1.1.3"
   resolved "https://registry.npmjs.org/axios/-/axios-1.1.3.tgz"
   integrity sha512-00tXVRwKx/FZr/IDVFt4C+f9FYairX517WoGCL6dpOntqLkZofjhu43F/Xl44UOpqa+9sLFDrG/XAnFsUYgkDA==
@@ -3810,9 +3810,9 @@ human-signals@^2.1.0:
   integrity sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==
 
 hyphen@^1.6.4:
-  version "1.6.5"
-  resolved "https://registry.npmjs.org/hyphen/-/hyphen-1.6.5.tgz"
-  integrity sha512-MZbhHutRaHCUxjvJBYqL51Ntjbq16LemuJr2u+LpKd3UwyNHZsZAKh5uD+KmdAHtWpteupOqQTTezVGR/al43w==
+  version "1.6.6"
+  resolved "https://registry.npmjs.org/hyphen/-/hyphen-1.6.6.tgz"
+  integrity sha512-XtqmnT+b9n5MX+MsqluFAVTIenbtC25iskW0Z+jLd+awfhA+ZbWKWQMIvLJccGoa2bM1R6juWJ27cZxIFOmkWw==
 
 hyphenate-style-name@^1.0.3:
   version "1.0.4"
@@ -4148,7 +4148,7 @@ jsonwebtoken@8.5.1:
     ms "^2.1.1"
     semver "^5.6.0"
 
-jspdf@^2.3.1:
+jspdf@^2.3.1, jspdf@^2.5.1:
   version "2.5.1"
   resolved "https://registry.npmjs.org/jspdf/-/jspdf-2.5.1.tgz"
   integrity sha512-hXObxz7ZqoyhxET78+XR34Xu2qFGrJJ2I2bE5w4SM8eFaFEkW2xcGRVUss360fYelwRSid/jT078kbNvmoW0QA==
@@ -5221,7 +5221,7 @@ react-dom-server@^0.0.5:
   resolved "https://registry.npmjs.org/react-dom-server/-/react-dom-server-0.0.5.tgz"
   integrity sha512-MI/kjsunWm+7K0buGxYCr685xLseLbfLXtX5I76rhcWNy6T+iEuRELTj59L+4JefR57gZLnxBPVfU2Sqy7XxHw==
 
-react-dom@18.2.0:
+react-dom@^18.2.0:
   version "18.2.0"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-18.2.0.tgz"
   integrity sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==
