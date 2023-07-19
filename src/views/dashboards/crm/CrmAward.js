@@ -1,29 +1,59 @@
-import { useState } from 'react';
-import { BlobProvider, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import React, { useState, useEffect } from 'react';
+import { PDFViewer, Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+
+const styles = StyleSheet.create({
+    page: {
+        flexDirection: 'row',
+        backgroundColor: '#E4E4E4',
+    },
+    table: {
+        width: '100%',
+        marginTop: 30,
+        marginBottom: 30,
+        marginLeft: 30,
+        marginRight: 30,
+    },
+    tableHeader: {
+        backgroundColor: '#F0F0F0',
+        color: '#000',
+        padding: 10,
+        fontSize: 12,
+        fontWeight: 'bold',
+    },
+    tableRow: {
+        flexDirection: 'row',
+    },
+    tableCell: {
+        padding: 5,
+        fontSize: 10,
+    },
+});
 
 const FornecedorPDF = () => {
-    const styles = StyleSheet.create({
-        page: {
-            flexDirection: 'row',
-            backgroundColor: '#E4E4E4'
-        },
-        section: {
-            margin: 10,
-            padding: 10,
-            flexGrow: 1,
-            justifyContent: 'center',
-            alignItems: 'center'
-        }
-    });
+    const data = [
+        { id: 1, name: 'Item 1', quantity: 10, price: 20 },
+        { id: 2, name: 'Item 2', quantity: 5, price: 15 },
+        { id: 3, name: 'Item 3', quantity: 3, price: 12 },
+    ];
 
     return (
         <Document>
             <Page size="A4" style={styles.page}>
-                <View style={styles.section}>
-                    <Text>Section #1</Text>
-                </View>
-                <View style={styles.section}>
-                    <Text>Section #2</Text>
+                <View style={styles.table}>
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableHeader}>ID</Text>
+                        <Text style={styles.tableHeader}>Nome</Text>
+                        <Text style={styles.tableHeader}>Quantidade</Text>
+                        <Text style={styles.tableHeader}>Preço</Text>
+                    </View>
+                    {data.map((item) => (
+                        <View style={styles.tableRow} key={item.id}>
+                            <Text style={styles.tableCell}>{item.id}</Text>
+                            <Text style={styles.tableCell}>{item.name}</Text>
+                            <Text style={styles.tableCell}>{item.quantity}</Text>
+                            <Text style={styles.tableCell}>{item.price}</Text>
+                        </View>
+                    ))}
                 </View>
             </Page>
         </Document>
@@ -40,25 +70,13 @@ const CrmAward = () => {
     return (
         <div>
             {!showReport && (
-                <a href="#" onClick={handleOpenReport}>
-                    Abrir relatório
-                </a>
+                <button onClick={handleOpenReport}>Abrir relatório</button>
             )}
 
             {showReport && (
-                <BlobProvider document={<FornecedorPDF />}>
-                    {({ blob, url, loading, error }) => (
-                        <div>
-                            {loading ? (
-                                'Carregando o PDF...'
-                            ) : (
-                                <a href={url} target="_blank" rel="noopener noreferrer">
-                                    Abrir em uma nova guia
-                                </a>
-                            )}
-                        </div>
-                    )}
-                </BlobProvider>
+                <PDFViewer width="100%" height="500px">
+                    <FornecedorPDF />
+                </PDFViewer>
             )}
         </div>
     );

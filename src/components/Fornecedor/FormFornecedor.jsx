@@ -61,7 +61,6 @@ import Upload from 'src/icon/Upload'
 
 const FormFornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
-    const { setTitle } = useContext(ParametersContext)
     const [isLoading, setLoading] = useState(false) //? loading de carregamento da página
     const [isLoadingSave, setLoadingSave] = useState(false) //? dependencia do useEffect pra atualizar a página após salvar
     const [validateForm, setValidateForm] = useState(false) //? Se true, valida campos obrigatórios
@@ -90,13 +89,20 @@ const FormFornecedor = () => {
         message: 'Você não tem permissões',
         messageType: 'info'
     })
+
+    //! Se perder Id, copia do localstorage
+    const { setTitle, setStorageId, getStorageId } = useContext(ParametersContext)
     const router = Router
     let { id } = router.query
+    if (!id) id = getStorageId()
+    useEffect(() => {
+        setStorageId(id)
+    }, [])
+
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const type = formType(router.pathname) // Verifica se é novo ou edição
 
     const { settings } = useContext(SettingsContext)
-    const mode = settings.mode
 
     const {
         watch,
@@ -109,31 +115,6 @@ const FormFornecedor = () => {
         handleSubmit,
         formState: { errors }
     } = useForm()
-
-    const dynamicId = localStorage.getItem('dynamicId')
-    //TODO - Verificar para deixar funções em arquivo separado
-    const setDynamicId = () => {
-        const { id } = router.query
-        if (id) {
-            localStorage.setItem('dynamicId', id)
-        }
-    }
-
-    const getDynamicId = () => {
-        if (!id) {
-            id = dynamicId
-        }
-        return id
-    }
-
-    useEffect(() => {
-        const { id } = router.query
-        getDynamicId(id)
-    }, [])
-
-    useEffect(() => {
-        setDynamicId()
-    }, [])
 
     const initializeValues = values => {
         // Seta itens no formulário

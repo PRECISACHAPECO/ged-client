@@ -32,12 +32,14 @@ const ParametersProvider = ({ children }) => {
         }
     }
 
-    // // *? Função para gerar o relatório
-    // const generateReport = async reportParameters => {
-    //     localStorage.setItem('reportParameters', JSON.stringify(reportParameters))
-    //     window.open('/relatorio', '_blank')
-    // }
-
+    // Funções para guardar ids dinamicos no localStorage
+    const setStorageId = (id) => {
+        localStorage.setItem('dynamicId', JSON.stringify(id))
+    }
+    const getStorageId = () => {
+        const id = JSON.parse(localStorage.getItem('dynamicId'))
+        return id
+    }
 
     const values = {
         title,
@@ -51,7 +53,8 @@ const ParametersProvider = ({ children }) => {
         setFilteredData,
         data,
         setData,
-        // generateReport
+        setStorageId,
+        getStorageId,
     }
 
     return <ParametersContext.Provider value={values}>{children}</ParametersContext.Provider>

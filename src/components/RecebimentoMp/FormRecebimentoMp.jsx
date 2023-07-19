@@ -62,7 +62,6 @@ import 'dayjs/locale/pt-br' // import locale
 
 const FormRecebimentoMp = () => {
     const { user, loggedUnity } = useContext(AuthContext)
-    const { setTitle } = useContext(ParametersContext)
     const [isLoading, setLoading] = useState(false)
     const [savingForm, setSavingForm] = useState(false)
     const [validateForm, setValidateForm] = useState(false) //? Se true, valida campos obrigatórios
@@ -87,35 +86,17 @@ const FormRecebimentoMp = () => {
         messageType: 'info'
     })
 
+    //! Se perder Id, copia do localstorage
+    const { setTitle, setStorageId, getStorageId } = useContext(ParametersContext)
     const router = Router
+    let { id } = router.query
+    if (!id) id = getStorageId()
+    useEffect(() => {
+        setStorageId(id)
+    }, [])
+
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const type = formType(router.pathname) // Verifica se é novo ou edição
-    let id = router.query.id
-
-    const dynamicId = localStorage.getItem('dynamicId')
-    //! TODO - Verificar para deixar funções em arquivo separado
-    const setDynamicId = () => {
-        const { id } = router.query
-        if (id) {
-            localStorage.setItem('dynamicId', id)
-        }
-    }
-
-    const getDynamicId = () => {
-        if (!id) {
-            id = dynamicId
-        }
-        return id
-    }
-
-    useEffect(() => {
-        const { id } = router.query
-        getDynamicId(id)
-    }, [])
-
-    useEffect(() => {
-        setDynamicId()
-    }, [])
 
     const {
         trigger,
