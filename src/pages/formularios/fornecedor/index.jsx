@@ -33,7 +33,9 @@ const Fornecedor = () => {
         setOpen(true)
     }
 
-    const makeFornecedor = async (cnpj, email) => {
+    const makeFornecedor = async (cnpj, gruposAnexo, email) => {
+        console.log('🚀 ~ makeFornecedor => gruposAnexo:', gruposAnexo)
+
         try {
             setLoadingSave(true)
             await api
@@ -41,12 +43,12 @@ const Fornecedor = () => {
                     usuarioID: user.usuarioID,
                     unidadeID: loggedUnity.unidadeID,
                     papelID: user.papelID,
-                    cnpj: cnpj
+                    cnpj: cnpj,
+                    gruposAnexo: gruposAnexo
                 })
                 .then(response => {
                     if (response.status === 200) {
                         toast.success('Fornecedor habilitado com sucesso')
-                        console.log('tornou um fornecedor.....')
                         if (email) {
                             sendMail(email, cnpj)
                         }
