@@ -30,7 +30,8 @@ const Factory = () => {
         <ApexChartWrapper>
             <Grid container spacing={6} className='match-height'>
                 <Grid item xs={12} md={4}>
-                    <CrmAward />
+                    {/* <CrmAward /> */}
+                    <CrmTotalProfit />
                 </Grid>
                 <Grid item xs={6} sm={3} md={2}>
                     <CardStatisticsVertical
