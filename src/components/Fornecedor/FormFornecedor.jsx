@@ -93,11 +93,11 @@ const FormFornecedor = () => {
     //! Se perder Id, copia do localstorage
     const { setTitle, setStorageId, getStorageId } = useContext(ParametersContext)
     const router = Router
-    let { id } = router.query
-    if (!id) id = getStorageId()
-    useEffect(() => {
-        setStorageId(id)
-    }, [])
+    const { id } = router.query
+    // if (!id) id = getStorageId()
+    // useEffect(() => {
+    //     setStorageId(id)
+    // }, [])
 
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const type = formType(router.pathname) // Verifica se é novo ou edição
@@ -297,10 +297,12 @@ const FormFornecedor = () => {
     }
 
     const getData = () => {
+        console.log('🚀 ~ loggedUnity.unidadeID:', loggedUnity.unidadeID)
         try {
             setLoading(true)
             if (id) {
-                api.get(`${staticUrl}/${id}/${loggedUnity.unidadeID}`).then(response => {
+                console.log('🚀 ~ id:', id)
+                api.post(`${staticUrl}/${id}`, { unidadeLogadaID: loggedUnity.unidadeID }).then(response => {
                     console.log('getData: ', response.data.grupoAnexo)
 
                     setFields(response.data.fields)

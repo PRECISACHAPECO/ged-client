@@ -130,11 +130,10 @@ const DialogNewFornecedor = ({ handleClose, openModal, makeFornecedor, loadingSa
         await api
             .post(`/formularios/fornecedor/getGruposAnexo`, { unidadeID: loggedUnity.unidadeID })
             .then(response => {
-                console.log('🚀 ~ getGruposAnexo response:', response.data)
                 setOptionsGruposAnexo(response.data)
             })
             .catch(error => {
-                console.log('🚀 ~ getGruposAnexo error:', error)
+                console.log('🚀 ~ error:', error)
             })
     }
 
