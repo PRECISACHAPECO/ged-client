@@ -12,7 +12,6 @@ function cnpjMask(cnpj) {
     return cnpj
 }
 
-
 // Mascara para CPF
 function cpfMask(cpf) {
     if (cpf) {
