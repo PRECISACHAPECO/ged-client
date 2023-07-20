@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const api = axios.create({
     baseURL: process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3333/api/' // URL do backend local
-        : 'https://app.gedagro.com.br/api/' // URL do backend de produção
+        ? 'http://localhost:3333/api/'
+        : process.env.REACT_APP_BASE_URL_PRODUCTION
 });
 
