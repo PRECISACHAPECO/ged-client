@@ -51,8 +51,6 @@ const DialogNewFornecedor = ({ handleClose, openModal, makeFornecedor, loadingSa
     const [optionsGruposAnexo, setOptionsGruposAnexo] = useState([])
     const [gruposAnexo, setGruposAnexo] = useState([])
 
-    console.log('🚀 ~ gruposAnexo:', gruposAnexo)
-
     const {
         handleSubmit,
         formState: { errors },
@@ -75,9 +73,8 @@ const DialogNewFornecedor = ({ handleClose, openModal, makeFornecedor, loadingSa
     }
 
     const getFornecedorByCnpj = async cnpj => {
-        console.log('getFornecedorByCnpj: ', cnpj)
-
         if (cnpj && cnpj.length === 18) {
+            console.log('getFornecedorByCnpj: ', cnpj)
             if (validationCNPJ(cnpj)) {
                 setLoading(true)
                 setErrorCnpj(false)
@@ -142,11 +139,13 @@ const DialogNewFornecedor = ({ handleClose, openModal, makeFornecedor, loadingSa
     }
 
     useEffect(() => {
+        getGruposAnexo()
+    }, [])
+
+    useEffect(() => {
         getFornecedorByCnpj(cnpj)
         setData(null)
         handleSubmit(onSubmit)
-        getGruposAnexo()
-
         setCnpj(null)
         setEmail(null)
     }, [openModal, loadingSave])

@@ -301,8 +301,7 @@ const FormFornecedor = () => {
         try {
             setLoading(true)
             if (id) {
-                console.log('🚀 ~ id:', id)
-                api.post(`${staticUrl}/${id}`, { unidadeLogadaID: loggedUnity.unidadeID }).then(response => {
+                api.post(`${staticUrl}/getData/${id}`, { unidadeLogadaID: loggedUnity.unidadeID }).then(response => {
                     console.log('getData: ', response.data.grupoAnexo)
 
                     setFields(response.data.fields)
@@ -381,7 +380,7 @@ const FormFornecedor = () => {
         try {
             setLoadingSave(true)
             await enviarPDFsParaBackend()
-            await api.put(`${staticUrl}/${id}`, data).then(response => {
+            await api.put(`${staticUrl}/updateData/${id}`, data).then(response => {
                 toast.success(toastMessage.successUpdate)
                 setLoadingSave(false)
             })
