@@ -6,7 +6,6 @@ export const styles = StyleSheet.create({
         backgroundColor: '#FFF',
         justifyContent: 'start',
         paddingTop: 15,
-        // paddingHorizontal: 10,
         paddingBottom: 30
     },
 
@@ -15,10 +14,10 @@ export const styles = StyleSheet.create({
         top: -5,
         left: 0,
         right: 0,
-        marginHorizontal: 10,
+        margin: '0 auto',
         fontSize: 12,
         height: 50,
-        width: '100%',
+        width: '92%',
         backgroundColor: 'orange',
         display: 'flex',
         justifyContent: 'center',
@@ -29,7 +28,6 @@ export const styles = StyleSheet.create({
         marginHorizontal: 10,
         fontSize: 11,
         padding: 15,
-        // backgroundColor: 'green',
         flex: 1
     },
 
@@ -41,7 +39,7 @@ export const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingHorizontal: 10,
+        paddingHorizontal: 25,
         fontSize: 10
     }
 })
