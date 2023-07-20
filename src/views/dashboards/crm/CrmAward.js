@@ -1,4 +1,4 @@
-import { PDFViewer, BlobProvider, Document, Page, Text, View, Table, StyleSheet } from '@react-pdf/renderer';
+import { PDFViewer, BlobProvider, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import LayoutReport from 'src/components/Reports/Layout'
 
 const ContentReport = () => {
@@ -68,7 +68,6 @@ const ContentReport = () => {
             borderTop: '1px solid #ddd',
             borderLeft: '1px solid #ddd',
             borderRight: '1px solid #ddd',
-            // border radius somente no topo
             borderTopLeftRadius: 3,
             borderTopRightRadius: 3,
         },
@@ -107,29 +106,33 @@ const ContentReport = () => {
                         data.map((bloco, indexBlock) => (
                             <View style={styles.table} key={indexBlock} >
                                 <Text style={styles.header} >{bloco.nome}</Text>
+
                                 <View style={styles.body}>
                                     {
                                         bloco.itens.map((item, indexItem) => (
-                                            <View style={styles.row} key={indexItem}>
-                                                <View style={{
-                                                    ...styles.column,
-                                                    flex: 0.5
-                                                }}  >
-                                                    <Text>{item.item}</Text>
+                                            <>
+                                                <View style={styles.row} key={indexItem}>
+                                                    <View style={{
+                                                        ...styles.column,
+                                                        flex: 0.5
+                                                    }}  >
+
+                                                        <Text>{item.item}</Text>
+                                                    </View>
+                                                    <View style={{
+                                                        ...styles.column,
+                                                        flex: 0.2
+                                                    }}  >
+                                                        <Text>{item.resultado}</Text>
+                                                    </View>
+                                                    <View style={{
+                                                        ...styles.column,
+                                                        flex: 0.3
+                                                    }}  >
+                                                        <Text>{item.observacao}</Text>
+                                                    </View>
                                                 </View>
-                                                <View style={{
-                                                    ...styles.column,
-                                                    flex: 0.2
-                                                }}  >
-                                                    <Text>{item.resultado}</Text>
-                                                </View>
-                                                <View style={{
-                                                    ...styles.column,
-                                                    flex: 0.3
-                                                }}  >
-                                                    <Text>{item.observacao}</Text>
-                                                </View>
-                                            </View>
+                                            </>
                                         ))
                                     }
                                 </View>
