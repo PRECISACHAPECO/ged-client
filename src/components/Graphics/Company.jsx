@@ -24,14 +24,14 @@ import CrmProjectTimeline from 'src/views/dashboards/crm/CrmProjectTimeline'
 import CrmMeetingSchedule from 'src/views/dashboards/crm/CrmMeetingSchedule'
 import CrmSocialNetworkVisits from 'src/views/dashboards/crm/CrmSocialNetworkVisits'
 import CrmMostSalesInCountries from 'src/views/dashboards/crm/CrmMostSalesInCountries'
-import { Typography } from '@mui/material'
+import { Alert } from '@mui/material'
 const Company = () => {
     return (
         // relatorio-fornecedor
         <ApexChartWrapper>
             <Grid container spacing={6} className='match-height'>
                 <Grid item xs={12} md={12}>
-                    <Typography variant='subtitle1'>Dados em desenvolvimento...</Typography>
+                    <Alert severity='info'>Dados em desenvolvimento...</Alert>
                 </Grid>
 
                 <Grid item xs={12} md={4}>

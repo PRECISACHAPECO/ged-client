@@ -24,14 +24,19 @@ import CrmProjectTimeline from 'src/views/dashboards/crm/CrmProjectTimeline'
 import CrmMeetingSchedule from 'src/views/dashboards/crm/CrmMeetingSchedule'
 import CrmSocialNetworkVisits from 'src/views/dashboards/crm/CrmSocialNetworkVisits'
 import CrmMostSalesInCountries from 'src/views/dashboards/crm/CrmMostSalesInCountries'
-
+import { Alert } from '@mui/material'
 const Factory = () => {
     return (
+        // relatorio-fornecedor
         <ApexChartWrapper>
             <Grid container spacing={6} className='match-height'>
+                <Grid item xs={12} md={12}>
+                    <Alert severity='info'>Dados em desenvolvimento...</Alert>
+                </Grid>
+
                 <Grid item xs={12} md={4}>
+                    <CrmOrganicSessions />
                     {/* <CrmAward /> */}
-                    <CrmTotalProfit />
                 </Grid>
                 <Grid item xs={6} sm={3} md={2}>
                     <CardStatisticsVertical
@@ -60,12 +65,13 @@ const Factory = () => {
                     <CrmTotalGrowth />
                 </Grid>
                 <Grid item xs={12} md={4}>
-                    <CrmOrganicSessions />
+                    <CrmWeeklyOverview />
                 </Grid>
                 <Grid item xs={12} md={8}>
                     <CrmProjectTimeline />
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+
+                {/* <Grid item xs={12} sm={6} md={4}>
                     <CrmWeeklyOverview />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -88,7 +94,7 @@ const Factory = () => {
                 </Grid>
                 <Grid item xs={12} md={8}>
                     <CrmTable />
-                </Grid>
+                </Grid> */}
             </Grid>
         </ApexChartWrapper>
     )
