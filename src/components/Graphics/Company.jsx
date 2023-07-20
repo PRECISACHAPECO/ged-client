@@ -24,13 +24,19 @@ import CrmProjectTimeline from 'src/views/dashboards/crm/CrmProjectTimeline'
 import CrmMeetingSchedule from 'src/views/dashboards/crm/CrmMeetingSchedule'
 import CrmSocialNetworkVisits from 'src/views/dashboards/crm/CrmSocialNetworkVisits'
 import CrmMostSalesInCountries from 'src/views/dashboards/crm/CrmMostSalesInCountries'
+import { Typography } from '@mui/material'
 const Company = () => {
     return (
         // relatorio-fornecedor
         <ApexChartWrapper>
             <Grid container spacing={6} className='match-height'>
+                <Grid item xs={12} md={12}>
+                    <Typography variant='subtitle1'>Dados em desenvolvimento...</Typography>
+                </Grid>
+
                 <Grid item xs={12} md={4}>
-                    <CrmAward />
+                    <CrmOrganicSessions />
+                    {/* <CrmAward /> */}
                 </Grid>
                 <Grid item xs={6} sm={3} md={2}>
                     <CardStatisticsVertical
@@ -59,12 +65,13 @@ const Company = () => {
                     <CrmTotalGrowth />
                 </Grid>
                 <Grid item xs={12} md={4}>
-                    <CrmOrganicSessions />
+                    <CrmWeeklyOverview />
                 </Grid>
                 <Grid item xs={12} md={8}>
                     <CrmProjectTimeline />
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+
+                {/* <Grid item xs={12} sm={6} md={4}>
                     <CrmWeeklyOverview />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -87,7 +94,7 @@ const Company = () => {
                 </Grid>
                 <Grid item xs={12} md={8}>
                     <CrmTable />
-                </Grid>
+                </Grid> */}
             </Grid>
         </ApexChartWrapper>
     )
