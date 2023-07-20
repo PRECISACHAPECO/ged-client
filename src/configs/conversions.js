@@ -9,6 +9,7 @@ function formatDate(date, format) {
     return dataFormatada
 }
 
+
 function criptoMd5(value) {
     const hash = md5(value).toString()
     return hash
