@@ -2,6 +2,7 @@ import { createContext, useState, useEffect } from 'react'
 import { api } from 'src/configs/api'
 import axios from 'axios'
 
+
 const ParametersContext = createContext({})
 
 const ParametersProvider = ({ children }) => {
