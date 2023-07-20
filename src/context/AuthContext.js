@@ -99,6 +99,7 @@ const AuthProvider = ({ children }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+
     //* Login da fabrica (CPF)
     const handleLogin = (params, errorCallback) => {
         api.post('/login', params).then(async response => {
