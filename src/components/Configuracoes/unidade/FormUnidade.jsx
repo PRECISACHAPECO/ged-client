@@ -1,7 +1,7 @@
 import Router from 'next/router'
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
-import { Card, CardContent, Grid, Typography } from '@mui/material'
+import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
@@ -11,6 +11,7 @@ import { toastMessage } from 'src/configs/defaultConfigs'
 import { formatDate } from 'src/configs/conversions'
 import { AuthContext } from 'src/context/AuthContext'
 import Input from 'src/components/Form/Input'
+import FileInput from 'src/components/Form/File'
 
 const FormUnidade = ({ paramFornecedorUnidadeID }) => {
     const { user, setLoggedUnity, loggedUnity } = useContext(AuthContext)
@@ -271,6 +272,22 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
                         </Grid>
                     </CardContent>
                 </form>
+            </Card>
+            <Card sx={{ mt: 4 }}>
+                <CardContent>
+                    <Grid container spacing={4}>
+                        <Input
+                            xs={12}
+                            md={4}
+                            title='Titulo do relatório'
+                            name='titleReport'
+                            required={false}
+                            register={register}
+                            errors={errors?.fields?.titleReport}
+                        />
+                        <FileInput label='Nenhum arquivo selecionado' />
+                    </Grid>
+                </CardContent>
             </Card>
             {type === 'edit' && data && (
                 <Typography variant='caption' sx={{ display: 'flex', justifyContent: 'end', p: 4 }}>

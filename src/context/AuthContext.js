@@ -54,6 +54,8 @@ const AuthProvider = ({ children }) => {
     // ** Hooks
     useEffect(() => {
         const initAuth = async () => {
+            console.log("🚀 ~ staticUrl:", staticUrl)
+
             setCurrentRoute(router.pathname)
             const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)
             if (storedToken) {
@@ -96,7 +98,6 @@ const AuthProvider = ({ children }) => {
             }
         }
         initAuth()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     //* Login da fabrica (CPF)

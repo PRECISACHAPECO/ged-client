@@ -90,10 +90,10 @@ const FormRecebimentoMp = () => {
     const { setTitle, setStorageId, getStorageId } = useContext(ParametersContext)
     const router = Router
     const { id } = router.query
-    // if (!id) id = getStorageId()
-    // useEffect(() => {
-    //     setStorageId(id)
-    // }, [])
+    if (!id) id = getStorageId()
+    useEffect(() => {
+        setStorageId(id)
+    }, [])
 
     const staticUrl = backRoute(router.pathname) // Url sem ID
     const type = formType(router.pathname) // Verifica se é novo ou edição
@@ -103,6 +103,7 @@ const FormRecebimentoMp = () => {
         reset,
         register,
         getValues,
+        control,
         setValue,
         handleSubmit,
         clearErrors,
@@ -494,6 +495,7 @@ const FormRecebimentoMp = () => {
                                 setValue={setValue}
                                 fields={fieldsState}
                                 values={data}
+                                control={control}
                                 disabled={!canEdit.status}
                             />
                         </CardContent>
@@ -570,6 +572,7 @@ const FormRecebimentoMp = () => {
                                 values={bloco}
                                 register={register}
                                 setValue={setValue}
+                                control={control}
                                 errors={errors}
                                 isDisabled={!canEdit.status}
                             />

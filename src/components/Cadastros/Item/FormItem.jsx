@@ -17,12 +17,18 @@ import Check from 'src/components/Form/Check'
 const FormItem = () => {
     const [open, setOpen] = useState(false)
     const [data, setData] = useState(null)
-    const { id } = Router.query
+
+    //! Se perder Id, copia do localstorage
+    const { title, setStorageId, getStorageId } = useContext(ParametersContext)
     const router = Router
+    let id = router.query.id
+    if (!id) id = getStorageId()
+    useEffect(() => {
+        setStorageId(id)
+    }, [])
+
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
-    const { title } = useContext(ParametersContext)
-
     const {
         trigger,
         handleSubmit,
