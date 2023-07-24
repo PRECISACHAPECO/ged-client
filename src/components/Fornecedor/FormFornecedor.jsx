@@ -13,6 +13,8 @@ import CheckList from 'src/components/Defaults/Formularios/CheckList'
 import Block from 'src/components/Defaults/Formularios/Block'
 import CardAnexo from 'src/components/Anexos/CardAnexo'
 
+import ReportFornecedor from 'src/components/Reports/Formularios/Fornecedor'
+
 import {
     Alert,
     Autocomplete,
@@ -32,7 +34,7 @@ import {
     Typography
 } from '@mui/material'
 import Router from 'next/router'
-import { backRoute, generateReport } from 'src/configs/defaultConfigs'
+import { backRoute } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
@@ -107,6 +109,7 @@ const FormFornecedor = () => {
     const {
         watch,
         register,
+        reset,
         control,
         getValues,
         clearErrors,
@@ -116,17 +119,17 @@ const FormFornecedor = () => {
         formState: { errors }
     } = useForm()
 
-    const initializeValues = values => {
-        // Seta itens no formulário
-        values?.blocos?.map((block, indexBlock) => {
-            block?.itens?.map((item, indexItem) => {
-                if (item?.resposta) {
-                    setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
-                }
-            })
-        })
-        setValue()
-    }
+    // const initializeValues = values => {
+    //     // Seta itens no formulário
+    //     values?.blocos?.map((block, indexBlock) => {
+    //         block?.itens?.map((item, indexItem) => {
+    //             if (item?.resposta) {
+    //                 setValue(`blocos[${indexBlock}].itens[${indexItem}].resposta`, item?.resposta)
+    //             }
+    //         })
+    //     })
+    //     setValue()
+    // }
 
     const verifyFormPending = async () => {
         try {
@@ -222,29 +225,13 @@ const FormFornecedor = () => {
         {
             id: 1,
             name: 'Formulário do fornecedor',
-            component: 'Fornecedor',
+            component: <ReportFornecedor params={{ id: id }} />,
             route: '/relatorio/fornecedor/dadosFornecedor',
             papelID: user.papelID,
             identification: '01',
             params: {
                 fornecedorID: id
             }
-        },
-        {
-            id: 2,
-            name: 'Teste relatório1',
-            component: 'Fornecedor',
-            route: '/relatorio/fornecedor/dadosFornecedor/teste',
-            papelID: user.papelID,
-            identification: '02'
-        },
-        {
-            id: 3,
-            name: 'Teste relatório2',
-            component: 'Fornecedor',
-            route: '/relatorio/fornecedor/dadosFornecedor/teste2',
-            papelID: user.papelID,
-            identification: '03'
         }
     ]
 
@@ -297,12 +284,11 @@ const FormFornecedor = () => {
     }
 
     const getData = () => {
-        console.log('🚀 ~ loggedUnity.unidadeID:', loggedUnity.unidadeID)
         try {
             setLoading(true)
             if (id) {
                 api.post(`${staticUrl}/getData/${id}`, { unidadeLogadaID: loggedUnity.unidadeID }).then(response => {
-                    console.log('getData: ', response.data.grupoAnexo)
+                    console.log('getData: ', response.data)
 
                     setFields(response.data.fields)
                     setCategorias(response.data.categorias)
@@ -312,13 +298,15 @@ const FormFornecedor = () => {
                     setAllBlocks(response.data.blocos)
                     setVisibleBlocks(response.data.blocos, response.data.categorias)
 
-                    setData(response.data.data)
+                    // setData(response.data.data)
                     setGrupoAnexo(response.data.grupoAnexo)
 
                     setInfo(response.data.info)
                     setUnidade(response.data.unidade)
 
-                    initializeValues(response.data)
+                    // initializeValues(response.data)
+                    //* Insere os dados no formulário
+                    reset(response.data)
 
                     let objStatus = statusDefault[response.data.info.status]
                     setStatus(objStatus)
@@ -364,18 +352,15 @@ const FormFornecedor = () => {
         }
 
         const data = {
-            forms: {
-                ...values,
-                header: {
-                    ...values.header
-                }
-            },
+            form: values,
             auth: {
                 usuarioID: user.usuarioID,
                 papelID: user.papelID,
                 unidadeID: loggedUnity.unidadeID
             }
         }
+        console.log('🚀 ~ onSubmit:', data.form)
+        // return
 
         try {
             setLoadingSave(true)
@@ -583,7 +568,6 @@ const FormFornecedor = () => {
                             disabledSubmit={blocks.length === 0 ? true : false}
                             disabledPrint={blocks.length === 0 ? true : false}
                             btnPrint
-                            generateReport={generateReport}
                             dataReports={dataReports}
                             handleSubmit={() => handleSubmit(onSubmit)}
                             handleSend={handleSendForm}
@@ -629,12 +613,12 @@ const FormFornecedor = () => {
 
                             {/* Header */}
                             <Fields
+                                fields={fieldsState}
                                 register={register}
                                 errors={errors}
                                 setValue={setValue}
+                                control={control}
                                 watch={watch}
-                                fields={fieldsState}
-                                values={data}
                                 disabled={!canEdit.status}
                                 setCopiedDataContext={setCopiedDataContext}
                             />
@@ -686,6 +670,7 @@ const FormFornecedor = () => {
                                 index={indexBloco}
                                 blockKey={`parFornecedorBlocoID`}
                                 values={bloco}
+                                control={control}
                                 register={register}
                                 setValue={setValue}
                                 errors={errors}

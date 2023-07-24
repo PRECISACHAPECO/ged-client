@@ -1,11 +1,12 @@
 import { Grid, FormControl, TextField, Typography } from '@mui/material'
+import { Controller } from 'react-hook-form'
 
 const DateField = ({
     xs,
     md,
     title,
     isRequired,
-    isDisabled,
+    disabled,
     type,
     value,
     name,
@@ -14,39 +15,44 @@ const DateField = ({
     daysValidation,
     dateStatus,
     errors,
-    register
+    control // Add 'control' prop to receive the react-hook-form control object
 }) => {
-    console.log('🚀 ~ value:', value)
+    const formatDate = dateString => {
+        const date = new Date(dateString)
+        const day = date.getDate().toString().padStart(2, '0')
+        const month = (date.getMonth() + 1).toString().padStart(2, '0')
+        const year = date.getFullYear()
+        return `${year}-${month}-${day}`
+    }
+
     return (
         <Grid item xs={xs} md={md}>
             <FormControl fullWidth>
-                <TextField
-                    type='date'
-                    label={title}
-                    disabled={isDisabled ? true : false}
-                    defaultValue={value ? new Date(value) : null}
+                <Controller
                     name={name}
-                    aria-describedby='validation-schema-nome'
-                    // error={errors ? true : !dateStatus?.[type]?.status ? true : false}
-                    {...register(name)}
-                    onChange={e => {
-                        setDateFormat(typeValidation, type, e.target.value, daysValidation)
-                    }}
-                    variant='outlined'
-                    fullWidth
-                    InputLabelProps={{
-                        shrink: true
-                    }}
-                    inputProps={{
-                        min: dateStatus[type]?.dataIni,
-                        max: dateStatus[type]?.dataFim
-                    }}
+                    control={control}
+                    render={({ field }) => (
+                        <TextField
+                            type='date'
+                            label={title}
+                            disabled={disabled ? true : false}
+                            defaultValue={value ? formatDate(value) : ''}
+                            onChange={e => {
+                                field.onChange(e) // Manually update the field value
+                                setDateFormat(typeValidation, type, e.target.value, daysValidation)
+                            }}
+                            variant='outlined'
+                            fullWidth
+                            InputLabelProps={{
+                                shrink: true
+                            }}
+                            inputProps={{
+                                min: dateStatus[type]?.dataIni,
+                                max: dateStatus[type]?.dataFim
+                            }}
+                        />
+                    )}
                 />
-                {/* {!dateStatus?.status && (
-                <Typography component='span' variant='caption' color='error'>
-                    {dateStatus?.[type]?.message}
-                </Typography>
-            )} */}
             </FormControl>
         </Grid>
     )

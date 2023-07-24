@@ -10,6 +10,8 @@ import { validationCPF } from 'src/configs/validations'
 // ** Custom Components
 import CustomChip from 'src/@core/components/mui/chip'
 
+import Select from 'src/components/Form/Select'
+
 import {
     Card,
     CardContent,
@@ -419,7 +421,7 @@ const FormUsuario = () => {
                                                 options={data.profissaoOptions}
                                                 name={`profissao`}
                                                 idName={'profissaoID'}
-                                                value={values.resposta}
+                                                value={values?.resposta}
                                                 disabled={disabled}
                                                 register={register}
                                                 setValue={setValue}

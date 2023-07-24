@@ -154,7 +154,6 @@ const ContentReport = () => {
     )
 }
 
-
 const CrmAward = () => {
     return (
         <LayoutReport
@@ -164,4 +163,4 @@ const CrmAward = () => {
     )
 };
 
-export default CrmAward;
+export { ContentReport, CrmAward };

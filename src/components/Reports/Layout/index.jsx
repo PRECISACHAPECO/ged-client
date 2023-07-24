@@ -7,6 +7,7 @@ const Layout = ({ title, content }) => {
     return (
         <>
             <GenerateReport
+                title={title}
                 component={
                     <Document>
                         <Page size='A4' style={styles.page}>

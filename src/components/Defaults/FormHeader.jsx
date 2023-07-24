@@ -10,6 +10,10 @@ import { AuthContext } from 'src/context/AuthContext'
 import { ParametersContext } from 'src/context/ParametersContext'
 import Fab from '@mui/material/Fab'
 
+// import GenerateReport from 'src/components/Reports'
+import LayoutReport from 'src/components/Reports/Layout'
+// import { CrmAward, ContentReport } from 'src/views/dashboards/crm/CrmAward'
+
 const FormHeader = ({
     btnCancel,
     btnSave,
@@ -25,12 +29,10 @@ const FormHeader = ({
     btnPrint,
     disabledPrint,
     disabled,
-    dataReports,
-    generateReport
+    dataReports
 }) => {
     const router = Router
     const { user, routes } = useContext(AuthContext)
-    // const { generateReport } = useContext(ParametersContext)
     const [isVisible, setIsVisible] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
 
@@ -171,10 +173,6 @@ const FormHeader = ({
                     {btnPrint && dataReports.length === 1 && (
                         <Button
                             id='fade-button'
-                            aria-controls={open ? 'fade-menu' : undefined}
-                            aria-haspopup='true'
-                            aria-expanded={open ? 'true' : undefined}
-                            onClick={() => generateReport(dataReports[0])}
                             color='primary'
                             disabled={disabled || disabledPrint}
                             variant='outlined'
@@ -182,7 +180,7 @@ const FormHeader = ({
                             type='button'
                             startIcon={<Icon icon='material-symbols:print' />}
                         >
-                            Imprimir
+                            <LayoutReport title={dataReports[0].name} content={dataReports[0].component} />
                         </Button>
                     )}
                     {/* Imprimir com +1 opção (dropdown) */}
@@ -190,9 +188,6 @@ const FormHeader = ({
                         <Box>
                             <Button
                                 id='fade-button'
-                                aria-controls={open ? 'fade-menu' : undefined}
-                                aria-haspopup='true'
-                                aria-expanded={open ? 'true' : undefined}
                                 onClick={handleClick}
                                 color='primary'
                                 disabled={disabled || disabledPrint}
@@ -205,7 +200,6 @@ const FormHeader = ({
                                 Imprimir
                             </Button>
                             <MenuReports
-                                generateReport={generateReport}
                                 dataReports={dataReports}
                                 handleClick={handleClick}
                                 handleClose={handleClose}

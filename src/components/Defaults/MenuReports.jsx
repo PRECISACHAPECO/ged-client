@@ -3,18 +3,9 @@ import MenuItem from '@mui/material/MenuItem'
 import Fade from '@mui/material/Fade'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext } from 'react'
+import LayoutReport from 'src/components/Reports/Layout'
 
-export default function MenuReports({
-    disabled,
-    dataReports,
-    open,
-    anchorEl,
-    handleClick,
-    handleClose,
-    generateReport
-}) {
-    // const { generateReport } = useContext(ParametersContext)
-
+export default function MenuReports({ disabled, dataReports, open, anchorEl, handleClick, handleClose }) {
     return (
         <div>
             <Menu
@@ -32,12 +23,11 @@ export default function MenuReports({
                         key={item.id}
                         onClick={() => {
                             handleClose()
-                            generateReport(item)
                         }}
                     >
                         <span>{item.identification}</span>
                         <span style={{ padding: '0 5px' }}>-</span>
-                        <span>{item.name}</span>
+                        <LayoutReport title={item.name} content={item.component} />
                     </MenuItem>
                 ))}
             </Menu>
