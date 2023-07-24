@@ -13,7 +13,7 @@ const Layout = ({ title, content }) => {
                         <Page size='A4' style={styles.page}>
                             {/* Header */}
                             <View style={styles.header}>
-                                <Text style={{ fontWeight: 'bold' }}>{title}</Text>
+                                <Text style={{ fontFamily: 'Helvetica-Bold', fontSize: 14 }}>{title}</Text>
                             </View>
 
                             {/* Content */}
