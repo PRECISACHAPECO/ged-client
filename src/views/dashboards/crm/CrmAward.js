@@ -1,5 +1,5 @@
 import { PDFViewer, BlobProvider, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import LayoutReport from 'src/components/Reports/Layout'
+// import LayoutReport from 'src/components/Reports/Layout'
 
 const ContentReport = () => {
 
@@ -157,10 +157,11 @@ const ContentReport = () => {
 
 const CrmAward = () => {
     return (
-        <LayoutReport
-            title='Teste de relatório 4'
-            content={<ContentReport />}
-        />
+        // <LayoutReport
+        //     title='Teste de relatório 4'
+        //     content={<ContentReport />}
+        // />
+        <h1>CRM</h1>
     )
 };
 

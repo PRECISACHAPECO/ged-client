@@ -32,7 +32,7 @@ export default function MenuReports({
                         key={item.id}
                         onClick={() => {
                             handleClose()
-                            generateReport(item)
+                            // generateReport(item)
                         }}
                     >
                         <span>{item.identification}</span>

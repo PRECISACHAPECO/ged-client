@@ -174,7 +174,7 @@ const FormHeader = ({
                             aria-controls={open ? 'fade-menu' : undefined}
                             aria-haspopup='true'
                             aria-expanded={open ? 'true' : undefined}
-                            onClick={() => generateReport(dataReports[0])}
+                            // onClick={() => generateReport(dataReports[0])}
                             color='primary'
                             disabled={disabled || disabledPrint}
                             variant='outlined'

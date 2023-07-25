@@ -61,10 +61,8 @@ const AuthProvider = ({ children }) => {
                 setLoading(true)
                 const data = JSON.parse(window.localStorage.getItem('userData'))
 
-                // if (window.location.pathname.match(/\/\d+\/$/)) {
-                //     console.log("voltar rota anterior")
-                //     router.push(staticUrl)
-                // }
+                //* Volta pra URL estática
+                router.replace(staticUrl)
 
                 setUnitsUser(JSON.parse(window.localStorage.getItem('userUnits')))
                 setLoggedUnity(JSON.parse(window.localStorage.getItem('loggedUnity')))
