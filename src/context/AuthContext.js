@@ -62,7 +62,19 @@ const AuthProvider = ({ children }) => {
                 const data = JSON.parse(window.localStorage.getItem('userData'))
 
                 //* Volta pra URL estática
-                router.push(staticUrl)
+                // verificar se rota possui id dinamico 
+                // verificar se rota possui numero dinamico utilizando expressao regular 
+
+                const match = window.location.pathname.match(/\/(\d+)\/?$/); // Expressão regular corrigida
+                if (match) {
+                    console.log("caiu akiiiiiiiiii");
+                    console.log("voltar rota anterior");
+                    router.push(staticUrl);
+                }
+
+                // if (router.query.id) {
+                //     console.log('volta rota')
+                // }
 
                 setUnitsUser(JSON.parse(window.localStorage.getItem('userUnits')))
                 setLoggedUnity(JSON.parse(window.localStorage.getItem('loggedUnity')))

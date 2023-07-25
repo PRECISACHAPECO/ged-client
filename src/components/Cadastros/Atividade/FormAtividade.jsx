@@ -80,11 +80,13 @@ const FormAtividade = () => {
         }
         try {
             const route = type === 'new' ? `${staticUrl}/new/getData` : `${staticUrl}/getData/${id}`
-            await api.post(route, { id }).then(response => {
-                setData(response.data)
-                console.log('🚀 ~ response.data:', response.data)
-                reset(response.data) //* Insere os dados no formulário
-            })
+            if (type === 'new' || id > 0) {
+                await api.post(route, { id }).then(response => {
+                    setData(response.data)
+                    console.log('🚀 ~ response.data:', response.data)
+                    reset(response.data) //* Insere os dados no formulário
+                })
+            }
         } catch (error) {
             console.log(error)
         }
