@@ -1,4 +1,5 @@
 import Router from 'next/router'
+import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { api } from 'src/configs/api'
 import { Card, CardContent, Grid } from '@mui/material'
@@ -81,11 +82,13 @@ const FormAtividade = () => {
         try {
             const route = type === 'new' ? `${staticUrl}/new/getData` : `${staticUrl}/getData/${id}`
             if (type === 'new' || id > 0) {
-                await api.post(route, { id }).then(response => {
-                    setData(response.data)
-                    console.log('🚀 ~ response.data:', response.data)
-                    reset(response.data) //* Insere os dados no formulário
-                })
+                await axios
+                    .post(`https://demo.gedagro.com.br/api/cadastros/atividade/getData/${id}`, { id })
+                    .then(response => {
+                        setData(response.data)
+                        console.log('🚀 ~ response.data:', response.data)
+                        reset(response.data) //* Insere os dados no formulário
+                    })
             }
         } catch (error) {
             console.log(error)
