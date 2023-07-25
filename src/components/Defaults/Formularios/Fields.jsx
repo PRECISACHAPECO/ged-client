@@ -87,6 +87,7 @@ const Fields = ({ register, errors, setValue, fields, values, disabled, control,
                                 mask={field.tabela}
                                 disabled={disabled}
                                 register={register}
+                                control={control}
                                 setValue={setValue}
                                 errors={errors?.header?.[field.tabela]}
                                 handleRegistroEstabelecimento={setWatchRegistroEstabelecimento}
