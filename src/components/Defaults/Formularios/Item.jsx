@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Autocomplete, Card, CardContent, FormControl, Grid, TextField, Typography } from '@mui/material'
+import { Autocomplete, Box, Card, CardContent, FormControl, Grid, TextField, Typography } from '@mui/material'
 import { dateConfig } from 'src/configs/defaultConfigs'
 
 //* Custom inputs
@@ -30,7 +30,16 @@ const Item = ({ blockIndex, index, values, register, control, errors, setValue, 
     }, [])
 
     return (
-        <Grid index={index} container spacing={4} sx={{ mb: 4 }}>
+        <Grid
+            index={index}
+            container
+            spacing={4}
+            sx={{
+                mb: 4,
+                display: 'flex',
+                alignItems: 'center'
+            }}
+        >
             {/* Hidden do itemID */}
             <input
                 type='hidden'
@@ -58,7 +67,7 @@ const Item = ({ blockIndex, index, values, register, control, errors, setValue, 
                     {/* +1 opção pra selecionar (Select) */}
                     {values && values.alternativas && values.alternativas.length > 1 && (
                         <Select
-                            title='Selecione uma resposta'
+                            title={`Selecione uma resposta`}
                             options={values.alternativas}
                             name={`blocos[${blockIndex}].itens[${index}].resposta`}
                             idName={'alternativaID'}

@@ -39,6 +39,7 @@ const FormParametrosFornecedor = () => {
     const {
         setValue,
         register,
+        control,
         handleSubmit,
         reset,
         formState: { errors }
@@ -335,6 +336,7 @@ const FormParametrosFornecedor = () => {
                                             required={true}
                                             options={allOptions.categorias}
                                             register={register}
+                                            control={control}
                                             setValue={setValue}
                                             errors={errors?.blocks?.[index]?.categorias}
                                         />
@@ -349,6 +351,7 @@ const FormParametrosFornecedor = () => {
                                             required={false}
                                             options={allOptions.atividades}
                                             register={register}
+                                            control={control}
                                             setValue={setValue}
                                             errors={errors?.blocks?.[index]?.atividades}
                                         />
@@ -402,6 +405,7 @@ const FormParametrosFornecedor = () => {
                                                     required={true}
                                                     options={blocks[index].optionsBlock?.itens}
                                                     register={register}
+                                                    control={control}
                                                     setValue={setValue}
                                                     errors={errors?.blocks?.[index]?.itens?.[indexItem]?.item}
                                                 />
@@ -416,6 +420,7 @@ const FormParametrosFornecedor = () => {
                                                     required={true}
                                                     options={allOptions.alternativas}
                                                     register={register}
+                                                    control={control}
                                                     setValue={setValue}
                                                     errors={errors?.blocks?.[index]?.itens?.[indexItem]?.alternativa}
                                                 />

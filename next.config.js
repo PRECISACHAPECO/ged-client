@@ -6,31 +6,31 @@ const withFonts = require('next-fonts');
 
 // Remove this if you're not using Fullcalendar features
 const withTM = require('next-transpile-modules')([
-  '@fullcalendar/common',
-  '@fullcalendar/react',
-  '@fullcalendar/daygrid',
-  '@fullcalendar/list',
-  '@fullcalendar/timegrid'
+    '@fullcalendar/common',
+    '@fullcalendar/react',
+    '@fullcalendar/daygrid',
+    '@fullcalendar/list',
+    '@fullcalendar/timegrid'
 ])
 
 module.exports = withTM({
-  trailingSlash: true,
-  reactStrictMode: false,
-  experimental: {
-    esmExternals: false
-  },
-  webpack: config => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      apexcharts: path.resolve(__dirname, './node_modules/apexcharts-clevision')
-    }
+    trailingSlash: true,
+    reactStrictMode: false,
+    experimental: {
+        esmExternals: false
+    },
+    webpack: config => {
+        config.resolve.alias = {
+            ...config.resolve.alias,
+            apexcharts: path.resolve(__dirname, './node_modules/apexcharts-clevision')
+        }
 
-    return config
-  }
+        return config
+    }
 })
 
 module.exports = withFonts({
-  webpack(config, options) {
-    return config;
-  },
+    webpack(config, options) {
+        return config;
+    },
 });

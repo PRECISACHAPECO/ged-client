@@ -224,7 +224,8 @@ const FormFornecedor = () => {
     const dataReports = [
         {
             id: 1,
-            name: 'Formulário do fornecedor',
+            title: 'Formulário do fornecedor',
+            titleButton: 'Imprimir',
             component: <ReportFornecedor params={{ id: id }} />,
             route: '/relatorio/fornecedor/dadosFornecedor',
             papelID: user.papelID,

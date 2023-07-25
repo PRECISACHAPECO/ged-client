@@ -23,17 +23,19 @@ const Block = ({ index, values, blockKey, register, control, setValue, errors, d
                         {/* Itens */}
                         {values.itens &&
                             values.itens.map((item, indexItem) => (
-                                <Item
-                                    key={indexItem}
-                                    blockIndex={index}
-                                    index={indexItem}
-                                    values={item}
-                                    control={control}
-                                    register={register}
-                                    setValue={setValue}
-                                    errors={errors}
-                                    disabled={disabled}
-                                />
+                                <>
+                                    <Item
+                                        key={indexItem}
+                                        blockIndex={index}
+                                        index={indexItem}
+                                        values={item}
+                                        control={control}
+                                        register={register}
+                                        setValue={setValue}
+                                        errors={errors}
+                                        disabled={disabled}
+                                    />
+                                </>
                             ))}
                     </Grid>
                 </CardContent>
