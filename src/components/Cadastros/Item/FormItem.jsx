@@ -22,10 +22,10 @@ const FormItem = () => {
     const { title, setStorageId, getStorageId } = useContext(ParametersContext)
     const router = Router
     let id = router.query.id
-    if (!id) id = getStorageId()
-    useEffect(() => {
-        setStorageId(id)
-    }, [])
+    // if (!id) id = getStorageId()
+    // useEffect(() => {
+    //     setStorageId(id)
+    // }, [])
 
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
