@@ -3,11 +3,11 @@ import { Document, Page, Text, View } from '@react-pdf/renderer'
 import GenerateReport from 'src/components/Reports'
 import { styles } from './Style'
 
-const Layout = ({ title, content }) => {
+const Layout = ({ title, titleButton, content }) => {
     return (
         <>
             <GenerateReport
-                title={title}
+                title={titleButton}
                 component={
                     <Document>
                         <Page size='A4' style={styles.page}>

@@ -180,7 +180,11 @@ const FormHeader = ({
                             type='button'
                             startIcon={<Icon icon='material-symbols:print' />}
                         >
-                            <LayoutReport title={dataReports[0].name} content={dataReports[0].component} />
+                            <LayoutReport
+                                titleButton={dataReports[0].titleButton}
+                                title={dataReports[0].title}
+                                content={dataReports[0].component}
+                            />
                         </Button>
                     )}
                     {/* Imprimir com +1 opção (dropdown) */}
