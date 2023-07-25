@@ -1,6 +1,7 @@
 import axios from 'axios';
-import URL_PRODUCTION from './productionUrl'; //? demo ou app
-console.log("🚀 ~ URL_PRODUCTION:", URL_PRODUCTION)
+// import URL_PRODUCTION from './productionUrl'; //? demo ou app
+
+console.log("🚀 ~ ENV:", process.env.NODE_ENV)
 
 export const api = axios.create({
     baseURL: process.env.NODE_ENV === 'development'

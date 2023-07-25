@@ -1,5 +1,4 @@
 import Router from 'next/router'
-import axios from 'axios'
 import { useEffect, useState, useContext } from 'react'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { api } from 'src/configs/api'
@@ -23,10 +22,10 @@ const FormItem = () => {
     const { title, setStorageId, getStorageId } = useContext(ParametersContext)
     const router = Router
     let id = router.query.id
-    if (!id) id = getStorageId()
-    useEffect(() => {
-        setStorageId(id)
-    }, [])
+    // if (!id) id = getStorageId()
+    // useEffect(() => {
+    //     setStorageId(id)
+    // }, [])
 
     const type = formType(router.pathname) // Verifica se é novo ou edição
     const staticUrl = backRoute(router.pathname) // Url sem ID
@@ -81,13 +80,12 @@ const FormItem = () => {
     //? Dados iniciais ao carregar página
     const getData = async () => {
         try {
-            const route = type === 'new' ? `api/${staticUrl}/new/getData` : `api/${staticUrl}/getData/${id}`
-            // console.log('🚀 ~ getData:', response.data)
-
-            await axios.post(`https://demo.gedagro.com.br/api/cadastros/item/getData/${id}`, { id }).then(response => {
-                console.log('🚀 ~ route:', route)
+            const route = type === 'new' ? `${staticUrl}/new/getData` : `${staticUrl}/getData/${id}`
+            await api.post(route, { id }).then(response => {
                 setData(response.data)
                 reset(response.data) //* Insere os dados no formulário
+
+                console.log('🚀 ~ getData:', response.data)
             })
         } catch (error) {
             console.log(error)
