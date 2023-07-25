@@ -98,6 +98,7 @@ const AuthProvider = ({ children }) => {
         initAuth()
     }, [])
 
+
     //* Login da fabrica (CPF)
     const handleLogin = (params, errorCallback) => {
         api.post('/login', params).then(async response => {
