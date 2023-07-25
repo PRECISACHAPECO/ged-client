@@ -34,6 +34,7 @@ const FormItem = () => {
         handleSubmit,
         setValue,
         reset,
+        control,
         formState: { errors },
         register
     } = useForm()
@@ -144,6 +145,7 @@ const FormItem = () => {
                                     required={true}
                                     options={data.formulario.options}
                                     register={register}
+                                    control={control}
                                     setValue={setValue}
                                     errors={errors?.formulario?.fields}
                                 />

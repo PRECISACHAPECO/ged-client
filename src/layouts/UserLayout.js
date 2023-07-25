@@ -37,7 +37,10 @@ const UserLayout = ({ children, contentHeightFixed }) => {
     const ClickUpdateAcept = () => {
         localStorage.setItem('latestVersion', newVersionAvailable.version)
         setNewVersionAvailable({ status: false, version: '' })
-        window.location.reload()
+
+        //? Insere GET com data/hora atual pra limpar o cache
+        const timestamp = Date.now();
+        window.location.href = `${window.location.pathname}?v=${timestamp}`;
     }
 
     //! Fecha modal de atualização
