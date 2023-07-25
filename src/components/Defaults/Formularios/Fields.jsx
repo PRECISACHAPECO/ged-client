@@ -24,7 +24,7 @@ const Fields = ({ register, errors, setValue, fields, values, disabled, setCopie
                 setValue(`header.${field.tabela}`, values?.[field.tabela] ? values?.[field.tabela] : null)
             } else {
                 if (field.tipo == 'date') {
-                    setDateFormat('dataPassado', field.nomeColuna, values[field.nomeColuna], 365)
+                    setDateFormat('dataPassado', field.nomeColuna, values?.[field.nomeColuna], 365)
                 } else {
                     if (staticUrl == '/formularios/fornecedor' && user.papelID == 2) {
                         const result =
