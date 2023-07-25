@@ -62,7 +62,7 @@ const AuthProvider = ({ children }) => {
                 const data = JSON.parse(window.localStorage.getItem('userData'))
 
                 //* Volta pra URL estática
-                router.replace(staticUrl)
+                // router.replace(staticUrl)
 
                 setUnitsUser(JSON.parse(window.localStorage.getItem('userUnits')))
                 setLoggedUnity(JSON.parse(window.localStorage.getItem('loggedUnity')))
