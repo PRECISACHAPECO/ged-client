@@ -1,4 +1,5 @@
 import Router from 'next/router'
+import axios from 'axios'
 import { useEffect, useState, useContext } from 'react'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { api } from 'src/configs/api'
@@ -80,12 +81,13 @@ const FormItem = () => {
     //? Dados iniciais ao carregar página
     const getData = async () => {
         try {
-            const route = type === 'new' ? `${staticUrl}/new/getData` : `${staticUrl}/getData/${id}`
-            await api.post(route, { id }).then(response => {
+            const route = type === 'new' ? `api/${staticUrl}/new/getData` : `api/${staticUrl}/getData/${id}`
+            // console.log('🚀 ~ getData:', response.data)
+
+            await axios.post(`https://demo.gedagro.com.br/api/cadastros/item/getData/${id}`, { id }).then(response => {
+                console.log('🚀 ~ route:', route)
                 setData(response.data)
                 reset(response.data) //* Insere os dados no formulário
-
-                console.log('🚀 ~ getData:', response.data)
             })
         } catch (error) {
             console.log(error)
