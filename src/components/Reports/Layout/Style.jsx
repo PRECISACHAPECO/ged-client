@@ -33,6 +33,9 @@ export const styles = StyleSheet.create({
         paddingTop: 15,
         paddingBottom: 30
     },
+    title: {
+        fontFamily: 'InterBold'
+    },
 
     header: {
         position: 'fixed',
@@ -69,7 +72,8 @@ export const styles = StyleSheet.create({
 
     // Text / Title
     blockTitle: {
-        paddingVertical: 5
+        paddingVertical: 5,
+        fontFamily: 'InterBold'
     },
     containerFields: {
         display: 'flex',
@@ -87,11 +91,9 @@ export const styles = StyleSheet.create({
     },
     fieldTitle: {
         fontSize: 8,
-        opacity: '0.8',
-        fontFamily: 'InterBold'
+        opacity: '0.8'
     },
     fieldValue: {
-        fontFamily: 'PoppinsBold',
         fontSize: 10
     },
 
@@ -123,7 +125,8 @@ export const styles = StyleSheet.create({
         backgroundColor: '#EEE',
         borderTopLeftRadius: 2,
         borderTopRightRadius: 2,
-        borderLeft: '1px solid #ddd'
+        borderLeft: '1px solid #ddd',
+        fontFamily: 'InterBold'
     },
     tableTitlecolumn: {
         padding: 8
