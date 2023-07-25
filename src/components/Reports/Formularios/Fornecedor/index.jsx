@@ -1,10 +1,21 @@
-import { Fragment } from 'react'
-import { Text, View } from '@react-pdf/renderer'
+import { Fragment, useEffect } from 'react'
+import { Text, View, Font } from '@react-pdf/renderer'
 import { styles as stylesDefault } from '../../Layout/Style'
 import getData from './getData'
+import { fonts } from '../../fonts'
 
 const ReportFornecedor = ({ params }) => {
     const data = getData(params)
+
+    Font.register({
+        family: 'Inter',
+        fonts: [
+            { src: fonts.inter.regular, fontWeight: 'normal' },
+            { src: fonts.inter.semiBold, fontWeight: 'semi-bold' },
+            { src: fonts.inter.ExtraBold, fontWeight: 'extra-bold' }
+        ]
+    })
+
     return (
         <>
             {data && (
@@ -54,7 +65,11 @@ const ReportFornecedor = ({ params }) => {
                                     <Text
                                         style={[
                                             stylesDefault.tableTitlecolumn,
-                                            { width: '20%', borderLeft: '1px solid #ddd' }
+                                            {
+                                                width: '20%',
+                                                borderLeft: '1px solid #ddd',
+                                                fontFamily: 'Inter'
+                                            }
                                         ]}
                                     >
                                         Resposta

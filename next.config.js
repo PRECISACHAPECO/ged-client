@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path')
+const withFonts = require('next-fonts');
 
 /** @type {import('next').NextConfig} */
 
@@ -27,3 +28,9 @@ module.exports = withTM({
     return config
   }
 })
+
+module.exports = withFonts({
+  webpack(config, options) {
+    return config;
+  },
+});
