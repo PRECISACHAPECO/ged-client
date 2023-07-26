@@ -21,6 +21,7 @@ import { backRoute } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { AuthContext } from 'src/context/AuthContext'
 import toast from 'react-hot-toast'
 import { toastMessage } from 'src/configs/defaultConfigs'
@@ -47,7 +48,8 @@ const FormParametrosRecebimentoMp = ({ id }) => {
     const router = Router
     const staticUrl = router.pathname
     const type = 'edit'
-    const { setId, setTitle } = useContext(ParametersContext)
+    const { setTitle } = useContext(ParametersContext)
+    const { setId } = useContext(RouteContext)
 
     const {
         setValue,

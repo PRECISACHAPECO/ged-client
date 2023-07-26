@@ -7,6 +7,7 @@ import { backRoute } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { AuthContext } from 'src/context/AuthContext'
 import toast from 'react-hot-toast'
 import { toastMessage } from 'src/configs/defaultConfigs'
@@ -32,7 +33,8 @@ const FormParametrosFornecedor = ({ id }) => {
     const [savingForm, setSavingForm] = useState(false)
     const [arrRemovedItems, setArrRemovedItems] = useState([])
 
-    const { setId, setTitle } = useContext(ParametersContext)
+    const { setTitle } = useContext(ParametersContext)
+    const { setId } = useContext(RouteContext)
     const router = Router
     const type = 'edit'
     const staticUrl = router.pathname

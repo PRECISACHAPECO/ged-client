@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
 import Table from 'src/components/Defaults/Table'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import FormParametrosFornecedor from 'src/components/Configuracoes/Formularios/Fornecedor/FormParametrosFornecedor'
 import FormParametrosRecebimentoMp from 'src/components/Configuracoes/Formularios/RecebimentoMp/FormParametrosRecebimentoMp'
 import Loading from 'src/components/Loading'
@@ -16,7 +17,8 @@ const ListParametrosFormularios = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
-    const { id, setTitle } = useContext(ParametersContext)
+    const { setTitle } = useContext(ParametersContext)
+    const { id } = useContext(RouteContext)
 
     useEffect(() => {
         const getList = async () => {
