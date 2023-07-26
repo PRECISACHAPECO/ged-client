@@ -1,8 +1,10 @@
 import Router from 'next/router'
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
+import { ParametersContext } from 'src/context/ParametersContext'
 import { Card, CardContent, Grid, Typography } from '@mui/material'
 import { useForm } from 'react-hook-form'
+import Loading from 'src/components/Loading'
 import toast from 'react-hot-toast'
 import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
 import { formType } from 'src/configs/defaultConfigs'
@@ -12,15 +14,17 @@ import { formatDate } from 'src/configs/conversions'
 import { AuthContext } from 'src/context/AuthContext'
 import Input from 'src/components/Form/Input'
 
-const FormUnidade = ({ paramFornecedorUnidadeID }) => {
+const FormUnidade = ({ id: paramId }) => {
     const { user, setLoggedUnity, loggedUnity } = useContext(AuthContext)
+    const { setId } = useContext(ParametersContext)
+
     const [open, setOpen] = useState(false)
     const [data, setData] = useState()
     //* Componente é chamado na tela da unidade e Meus dados do fornecedor
-    const id = paramFornecedorUnidadeID ? paramFornecedorUnidadeID : Router.query.id //? id vem por parametro se for home do fornecedor
+    const id = paramId ?? loggedUnity.unidadeID //? se nao tem id é fornecedor, então pega id da unidade logada pelo fornecedor
     const router = Router
-    const type = formType(router.pathname) // Verifica se é novo ou edição
-    const staticUrl = '/configuracoes/unidade'
+    const type = id && id > 0 ? 'edit' : 'new'
+    const staticUrl = router.pathname
 
     const {
         trigger,
@@ -62,13 +66,14 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
 
         try {
             if (type === 'new') {
-                await api.post(`${staticUrl}/novo`, data)
-                toast.success(toastMessage.successNew)
-                reset(data)
+                await api.post(`${backRoute(staticUrl)}/new/insertData`, values).then(response => {
+                    router.push(`${backRoute(staticUrl)}`) //? backRoute pra remover 'novo' da rota
+                    setId(response.data)
+                    toast.success(toastMessage.successNew)
+                })
             } else if (type === 'edit') {
-                await api.put(`${staticUrl}/${id}`, data)
+                await api.post(`${staticUrl}/updateData/${id}`, values)
                 toast.success(toastMessage.successUpdate)
-                console.log(data)
             }
         } catch (error) {
             if (error.response && error.response.status === 409) {
@@ -93,7 +98,8 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
     const handleClickDelete = async () => {
         try {
             await api.delete(`${staticUrl}/${id}`)
-            router.push(staticUrl)
+            setId(null)
+            setOpen(false)
             toast.success(toastMessage.successDelete)
         } catch (error) {
             if (error.response && error.response.status === 409) {
@@ -120,10 +126,12 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
         setTimeout(() => {
             trigger()
         }, 300)
-    }, [])
+    }, [id])
 
     return (
         <>
+            {!data && <Loading />}
+
             <Card>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <FormHeader
@@ -132,6 +140,7 @@ const FormUnidade = ({ paramFornecedorUnidadeID }) => {
                         handleSubmit={() => handleSubmit(onSubmit)}
                         btnDelete={type === 'edit' && user.papelID === 1 ? true : false}
                         onclickDelete={() => setOpen(true)}
+                        type={type}
                     />
                     <CardContent>
                         <Grid container spacing={4}>

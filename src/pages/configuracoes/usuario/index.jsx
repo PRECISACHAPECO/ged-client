@@ -1,10 +1,9 @@
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
-import TableFilter from 'src/views/table/data-grid/TableFilter'
-import { CardContent } from '@mui/material'
+import Table from 'src/components/Defaults/Table'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
-
+import FormUsuario from 'src/components/Configuracoes/Usuario/FormUsuario'
 import Loading from 'src/components/Loading'
 
 // ** Next
@@ -12,14 +11,13 @@ import { useRouter } from 'next/router'
 
 // ** Configs
 import { configColumns } from 'src/configs/defaultConfigs'
-import { Card } from '@mui/material'
 
 const Usuario = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
-    const { setTitle } = useContext(ParametersContext)
-    const { user, loggedUnity } = useContext(AuthContext)
+    const { setTitle, id } = useContext(ParametersContext)
+    const { loggedUnity } = useContext(AuthContext)
 
     useEffect(() => {
         const getList = async () => {
@@ -31,7 +29,7 @@ const Usuario = () => {
                 })
         }
         getList()
-    }, [])
+    }, [id])
 
     const arrColumns = [
         {
@@ -55,22 +53,15 @@ const Usuario = () => {
 
     return (
         <>
-            {!result && <Loading />}
-            {result && (
-                <>
-                    <Card>
-                        <CardContent sx={{ pt: '0' }}>
-                            <TableFilter
-                                rows={result}
-                                columns={columns}
-                                buttonsHeader={{
-                                    btnNew: true,
-                                    btnPrint: true
-                                }}
-                            />
-                        </CardContent>
-                    </Card>
-                </>
+            {/* Exibe loading enquanto não existe result */}
+            {!result ? (
+                <Loading />
+            ) : //? Se tem id, exibe o formulário
+            id ? (
+                <FormUsuario id={id} />
+            ) : (
+                //? Lista tabela de resultados da listagem
+                <Table result={result} columns={columns} />
             )}
         </>
     )

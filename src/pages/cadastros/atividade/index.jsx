@@ -5,7 +5,6 @@ import { Box, Button, CardContent } from '@mui/material'
 import { ParametersContext } from 'src/context/ParametersContext'
 
 import FormAtividade from 'src/components/Cadastros/Atividade/FormAtividade'
-
 import Loading from 'src/components/Loading'
 
 // ** Next
@@ -54,7 +53,20 @@ const Atividade = () => {
 
     const columns = configColumns(currentLink, arrColumns)
 
-    return <>{id && id > 0 ? <FormAtividade id={id} /> : result && <Table result={result} columns={columns} />}</>
+    return (
+        <>
+            {/* Exibe loading enquanto não existe result */}
+            {!result ? (
+                <Loading />
+            ) : //? Se tem id, exibe o formulário
+            id ? (
+                <FormAtividade id={id} />
+            ) : (
+                //? Lista tabela de resultados da listagem
+                <Table result={result} columns={columns} />
+            )}
+        </>
+    )
 }
 
 export default Atividade

@@ -5,6 +5,7 @@ import { api } from 'src/configs/api'
 import { Button, Card, CardContent, Grid } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
+import Loading from 'src/components/Loading'
 import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
 import { formType } from 'src/configs/defaultConfigs'
 import FormHeader from '../../Defaults/FormHeader'
@@ -17,16 +18,11 @@ import Check from 'src/components/Form/Check'
 
 const FormAtividade = ({ id }) => {
     const { title, setId } = useContext(ParametersContext)
-
-    console.log('🚀 ~ id:', id)
-
     const [open, setOpen] = useState(false)
     const [data, setData] = useState(null)
-    // const { id } = Router.query
     const router = Router
     const type = id && id > 0 ? 'edit' : 'new'
     const staticUrl = router.pathname // Url sem ID
-    console.log('🚀 ~ staticUrl:', staticUrl)
 
     const {
         trigger,
@@ -62,7 +58,6 @@ const FormAtividade = ({ id }) => {
     const handleClickDelete = async () => {
         try {
             await api.delete(`${staticUrl}/${id}`)
-            // router.push(staticUrl)
             setId(null)
             setOpen(false)
             toast.success(toastMessage.successDelete)
@@ -116,6 +111,7 @@ const FormAtividade = ({ id }) => {
 
     return (
         <>
+            {!data && <Loading />}
             {data && (
                 <Card>
                     <form onSubmit={handleSubmit(onSubmit)}>

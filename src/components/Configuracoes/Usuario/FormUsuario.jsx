@@ -1,9 +1,10 @@
 import Router from 'next/router'
 import { useEffect, useState, useContext, useRef } from 'react'
+import { ParametersContext } from 'src/context/ParametersContext'
 import { dateConfig } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import Icon from 'src/@core/components/icon'
-
+import Loading from 'src/components/Loading'
 import { cpfMask } from 'src/configs/masks'
 import { validationCPF } from 'src/configs/validations'
 
@@ -48,15 +49,17 @@ import 'dayjs/locale/pt-br' // import locale
 import Input from 'src/components/Form/Input'
 import DateField from 'src/components/Form/DateField'
 
-const FormUsuario = () => {
+const FormUsuario = ({ id }) => {
+    const { setId } = useContext(ParametersContext)
+    const { user, setUser, loggedUnity } = useContext(AuthContext)
+
+    const router = Router
+    const type = id && id > 0 ? 'edit' : 'new'
+    const staticUrl = router.pathname
+
     const [open, setOpen] = useState(false)
     const [data, setData] = useState()
-    const { id } = Router.query
-    const router = Router
-    const type = formType(router.pathname) // Verifica se é novo ou edição
-    const staticUrl = backRoute(router.pathname) // Url sem ID
-    const { user, setUser, loggedUnity } = useContext(AuthContext)
-    // Acorddion das permissões
+
     // ** State
     const [expanded, setExpanded] = useState(false)
     const [expandedItem, setExpandedItem] = useState(false)
@@ -101,13 +104,14 @@ const FormUsuario = () => {
         console.log('🚀 ~ onSubmit:', values)
         try {
             if (type === 'new') {
-                const result = await api.post(`${staticUrl}/novo`, values)
-                router.replace(`${staticUrl}/${result.data.id}`)
-                toast.success(toastMessage.successNew)
+                await api.post(`${backRoute(staticUrl)}/new/insertData`, values).then(response => {
+                    router.push(`${backRoute(staticUrl)}`) //? backRoute pra remover 'novo' da rota
+                    setId(response.data)
+                    toast.success(toastMessage.successNew)
+                })
             } else if (type === 'edit') {
-                await api.put(`${staticUrl}/${id}`, values)
+                await api.post(`${staticUrl}/updateData/${id}`, values)
                 toast.success(toastMessage.successUpdate)
-                console.log('🚀 ~ values:', values)
             }
         } catch (error) {
             if (error.response && error.response.status === 409) {
@@ -122,7 +126,8 @@ const FormUsuario = () => {
     const handleClickDelete = async () => {
         try {
             await api.delete(`${staticUrl}/${id}`)
-            router.push(staticUrl)
+            setId(null)
+            setOpen(false)
             toast.success(toastMessage.successDelete)
         } catch (error) {
             if (error.response && error.response.status === 409) {
@@ -216,10 +221,11 @@ const FormUsuario = () => {
             }
         }
         if (type === 'edit') getData()
-    }, [])
+    }, [id])
 
     return (
         <>
+            {!data && <Loading />}
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Deixar atualizar e salvar a foto do usuário */}
                 {(type == 'new' || data) && (
@@ -230,6 +236,7 @@ const FormUsuario = () => {
                             handleSubmit={() => handleSubmit(onSubmit)}
                             btnDelete={type === 'edit' ? true : false}
                             onclickDelete={() => setOpen(true)}
+                            type={type}
                         />
                         <CardContent>
                             {/* Enviar via hidden flag indicando se usuário logado é admin */}
@@ -576,11 +583,10 @@ const FormUsuario = () => {
                     </Card>
                 )}
 
-                {user.admin == 1 && type === 'edit' && (
+                {data && user.admin == 1 && type === 'edit' && (
                     <>
                         {/* Lista as unidades do usuario */}
-                        {data &&
-                            data.units &&
+                        {data.units &&
                             data.units.map((unit, indexUnit) => (
                                 <>
                                     {/* Cada unidade */}
