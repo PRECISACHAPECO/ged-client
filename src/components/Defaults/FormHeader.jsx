@@ -4,7 +4,7 @@ import { useState, useContext, useEffect } from 'react'
 import { CardContent, Button, Box, Tooltip } from '@mui/material'
 import Link from 'next/link'
 import Icon from 'src/@core/components/icon'
-import { backRoute } from 'src/configs/defaultConfigs'
+// import { backRoute } from 'src/configs/defaultConfigs'
 import MenuReports from './MenuReports'
 import { AuthContext } from 'src/context/AuthContext'
 import { ParametersContext } from 'src/context/ParametersContext'
@@ -30,7 +30,7 @@ const FormHeader = ({
 }) => {
     const router = Router
     const { user, routes } = useContext(AuthContext)
-    // const { generateReport } = useContext(ParametersContext)
+    const { setId } = useContext(ParametersContext)
     const [isVisible, setIsVisible] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
 
@@ -43,14 +43,6 @@ const FormHeader = ({
         setAnchorEl(null)
     }
 
-    //* Função remove /id (se houver) da rota caso seja dentro de um cadastro pra poder validar as rotas de permissao
-    const getStaticRoute = () => {
-        const route = router.pathname.split('/').slice(0, -1).join('/')
-        return route ? route : router.pathname
-    }
-
-    const dynamicRoute = getStaticRoute()
-
     //? Função que volta ao topo
     const backToTop = () => {
         window.scrollTo({
@@ -61,7 +53,7 @@ const FormHeader = ({
 
     //? Função que volta a página anterior
     const previousPage = () => {
-        window.history.back()
+        setId(null)
     }
 
     const dataButtons = [
@@ -132,14 +124,18 @@ const FormHeader = ({
             <CardContent sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Box sx={{ display: 'flex', gap: '8px' }}>
                     {btnCancel && (
-                        <Link href={backRoute(router.pathname)}>
-                            <Button type='button' variant='outlined' color='primary' size='medium'>
-                                <Icon icon='material-symbols:arrow-back-rounded' />
-                            </Button>
-                        </Link>
+                        <Button
+                            onClick={() => setId(null)}
+                            type='button'
+                            variant='outlined'
+                            color='primary'
+                            size='medium'
+                        >
+                            <Icon icon='material-symbols:arrow-back-rounded' />
+                        </Button>
                     )}
 
-                    {btnDelete && routes.find(route => route.rota === dynamicRoute && route.excluir) && (
+                    {btnDelete && routes.find(route => route.rota === router.pathname && route.excluir) && (
                         <Button
                             type='button'
                             onClick={onclickDelete}
@@ -215,7 +211,7 @@ const FormHeader = ({
                         </Box>
                     )}
 
-                    {btnSave && routes.find(route => route.rota === dynamicRoute && route.editar) && (
+                    {btnSave && routes.find(route => route.rota === router.pathname && route.editar) && (
                         <Button
                             onClick={handleSubmit}
                             type='submit'
@@ -257,7 +253,7 @@ const FormHeader = ({
                         {dataButtons.map(item => {
                             if (
                                 item.id === 1 &&
-                                (!btnSave || !routes.find(route => route.rota === dynamicRoute && route.editar))
+                                (!btnSave || !routes.find(route => route.rota === router.pathname && route.editar))
                             ) {
                                 return null
                             }

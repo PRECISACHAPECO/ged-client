@@ -1,8 +1,10 @@
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
-import TableFilter from 'src/views/table/data-grid/TableFilter'
-import { CardContent } from '@mui/material'
+import Table from 'src/components/Defaults/Table'
+import { Box, Button, CardContent } from '@mui/material'
 import { ParametersContext } from 'src/context/ParametersContext'
+
+import FormAtividade from 'src/components/Cadastros/Atividade/FormAtividade'
 
 import Loading from 'src/components/Loading'
 
@@ -19,17 +21,18 @@ const Atividade = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
-    const { setTitle } = useContext(ParametersContext)
+    const { setTitle, id, setId } = useContext(ParametersContext)
 
     useEffect(() => {
         const getList = async () => {
             await api.get(currentLink).then(response => {
+                console.log('🚀 ~ response.data:', response.data)
                 setResult(response.data)
                 setTitle('Atividade')
             })
         }
         getList()
-    }, [])
+    }, [id])
 
     const arrColumns = [
         {
@@ -51,27 +54,7 @@ const Atividade = () => {
 
     const columns = configColumns(currentLink, arrColumns)
 
-    return (
-        <>
-            {!result && <Loading />}
-            {result && (
-                <>
-                    <Card>
-                        <CardContent sx={{ pt: '0' }}>
-                            <TableFilter
-                                rows={result}
-                                columns={columns}
-                                buttonsHeader={{
-                                    btnNew: true,
-                                    btnPrint: true
-                                }}
-                            />
-                        </CardContent>
-                    </Card>
-                </>
-            )}
-        </>
-    )
+    return <>{id && id > 0 ? <FormAtividade id={id} /> : result && <Table result={result} columns={columns} />}</>
 }
 
 export default Atividade

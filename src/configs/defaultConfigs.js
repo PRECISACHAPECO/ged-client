@@ -42,33 +42,31 @@ const configColumns = (currentLink, arrColumns) => {
             ...column,
             flex: column.size,
             renderCell: params => (
-                <Link href={`${currentLink}/${params.row.id}`}>
-                    <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                        {arrColumns &&
-                            arrColumns.map((c, j) => {
-                                if (c.field === currentColumns) {
-                                    // Encotrou a coluna
-                                    if (c.field == 'status') {
-                                        const status = statusDefault[params.row.status]
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                    {arrColumns &&
+                        arrColumns.map((c, j) => {
+                            if (c.field === currentColumns) {
+                                // Encotrou a coluna
+                                if (c.field == 'status') {
+                                    const status = statusDefault[params.row.status]
 
-                                        return (
-                                            <CustomChip
-                                                key={j}
-                                                size='small'
-                                                skin='light'
-                                                color={status.color}
-                                                label={status.title}
-                                                sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
-                                            />
-                                        )
+                                    return (
+                                        <CustomChip
+                                            key={j}
+                                            size='small'
+                                            skin='light'
+                                            color={status.color}
+                                            label={status.title}
+                                            sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
+                                        />
+                                    )
 
-                                    } else {
-                                        return params.row[c.field]
-                                    }
+                                } else {
+                                    return params.row[c.field]
                                 }
-                            })}
-                    </Typography>
-                </Link >
+                            }
+                        })}
+                </Typography>
             )
         }
     })

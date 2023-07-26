@@ -2,6 +2,7 @@ import { createContext, useState, useEffect } from 'react'
 import { api } from 'src/configs/api'
 import axios from 'axios'
 
+
 const ParametersContext = createContext({})
 
 const ParametersProvider = ({ children }) => {
@@ -10,6 +11,9 @@ const ParametersProvider = ({ children }) => {
     const [searchText, setSearchText] = useState('')
     const [filteredData, setFilteredData] = useState([])
     const [data, setData] = useState([])
+
+    //* Rotas 
+    const [id, setId] = useState('')
 
     //* Função para filtrar os dados da tabela
     const handleSearch = searchValue => {
@@ -55,6 +59,9 @@ const ParametersProvider = ({ children }) => {
         setData,
         setStorageId,
         getStorageId,
+
+        id,
+        setId
     }
 
     return <ParametersContext.Provider value={values}>{children}</ParametersContext.Provider>

@@ -2,7 +2,7 @@ import Router from 'next/router'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { api } from 'src/configs/api'
-import { Card, CardContent, Grid } from '@mui/material'
+import { Button, Card, CardContent, Grid } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
@@ -15,14 +15,18 @@ import { useContext } from 'react'
 import Input from 'src/components/Form/Input'
 import Check from 'src/components/Form/Check'
 
-const FormAtividade = () => {
+const FormAtividade = ({ id }) => {
+    const { title, setId } = useContext(ParametersContext)
+
+    console.log('🚀 ~ id:', id)
+
     const [open, setOpen] = useState(false)
     const [data, setData] = useState(null)
-    const { id } = Router.query
+    // const { id } = Router.query
     const router = Router
-    const type = formType(router.pathname) // Verifica se é novo ou edição
-    const staticUrl = backRoute(router.pathname) // Url sem ID
-    const { title } = useContext(ParametersContext)
+    const type = id && id > 0 ? 'edit' : 'new'
+    const staticUrl = router.pathname // Url sem ID
+    console.log('🚀 ~ staticUrl:', staticUrl)
 
     const {
         trigger,
@@ -36,8 +40,9 @@ const FormAtividade = () => {
     const onSubmit = async values => {
         try {
             if (type === 'new') {
-                await api.post(`${staticUrl}/new/insertData`, values).then(response => {
-                    router.push(`${staticUrl}/${response.data}`)
+                await api.post(`${backRoute(staticUrl)}/new/insertData`, values).then(response => {
+                    router.push(`${backRoute(staticUrl)}`) //? backRoute pra remover 'novo' da rota
+                    setId(response.data)
                     toast.success(toastMessage.successNew)
                 })
             } else if (type === 'edit') {
@@ -82,13 +87,12 @@ const FormAtividade = () => {
         try {
             const route = type === 'new' ? `${staticUrl}/new/getData` : `${staticUrl}/getData/${id}`
             if (type === 'new' || id > 0) {
-                await axios
-                    .post(`https://demo.gedagro.com.br/api/cadastros/atividade/getData/${id}`, { id })
-                    .then(response => {
-                        setData(response.data)
-                        console.log('🚀 ~ response.data:', response.data)
-                        reset(response.data) //* Insere os dados no formulário
-                    })
+                console.log('🚀 ~ route:', route)
+                await api.post(route, { id }).then(response => {
+                    setData(response.data)
+                    console.log('🚀 ~ response.data:', response.data)
+                    reset(response.data) //* Insere os dados no formulário
+                })
             }
         } catch (error) {
             console.log(error)
@@ -97,6 +101,7 @@ const FormAtividade = () => {
 
     //? Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
     useEffect(() => {
+        console.log('getData: ', id)
         getData()
 
         //? Seta error nos campos obrigatórios
@@ -105,7 +110,7 @@ const FormAtividade = () => {
                 trigger()
             }, 300)
         }
-    }, [])
+    }, [id])
 
     return (
         <>
@@ -135,7 +140,7 @@ const FormAtividade = () => {
                                     md={1}
                                     title='Ativo'
                                     name='fields.status'
-                                    value={data?.fields.status}
+                                    value={data?.fields?.status}
                                     typePage={type}
                                     register={register}
                                 />
