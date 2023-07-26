@@ -1,8 +1,10 @@
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
-import TableFilter from 'src/views/table/data-grid/TableFilter'
+import Table from 'src/components/Defaults/Table'
 import { CardContent } from '@mui/material'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
+import FormGrupoAnexos from 'src/components/Cadastros/grupoAnexos/FormGrupoAnexos'
 
 import Loading from 'src/components/Loading'
 
@@ -20,17 +22,19 @@ const GrupoAnexos = () => {
     const router = useRouter()
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
+    const { id } = useContext(RouteContext)
+
+    const getList = async () => {
+        await api.get(currentLink).then(response => {
+            setResult(response.data)
+            console.log('ta vindo', response.data)
+            setTitle('Requisitos de anexos')
+        })
+    }
 
     useEffect(() => {
-        const getList = async () => {
-            await api.get(currentLink).then(response => {
-                setResult(response.data)
-                console.log('ta vindo', response.data)
-                setTitle('Requisitos de anexos')
-            })
-        }
         getList()
-    }, [])
+    }, [id])
 
     const arrColumns = [
         {
@@ -59,22 +63,15 @@ const GrupoAnexos = () => {
 
     return (
         <>
-            {!result && <Loading />}
-            {result && (
-                <>
-                    <Card>
-                        <CardContent sx={{ pt: '0' }}>
-                            <TableFilter
-                                rows={result}
-                                columns={columns}
-                                buttonsHeader={{
-                                    btnNew: true,
-                                    btnPrint: true
-                                }}
-                            />
-                        </CardContent>
-                    </Card>
-                </>
+            {/* Exibe loading enquanto não existe result */}
+            {!result ? (
+                <Loading />
+            ) : //? Se tem id, exibe o formulário
+            id && id > 0 ? (
+                <FormGrupoAnexos id={id} />
+            ) : (
+                //? Lista tabela de resultados da listagem
+                <Table result={result} columns={columns} />
             )}
         </>
     )

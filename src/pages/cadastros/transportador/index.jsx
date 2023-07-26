@@ -1,7 +1,8 @@
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
-import TableFilter from 'src/views/table/data-grid/TableFilter'
-import { CardContent } from '@mui/material'
+import FormTransportador from 'src/components/Cadastros/Transportador/FormTransportador'
+import Table from 'src/components/Defaults/Table'
+import { RouteContext } from 'src/context/RouteContext'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { AuthContext } from 'src/context/AuthContext'
 
@@ -19,19 +20,21 @@ import { Card } from '@mui/material'
 const Transportador = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
+    const { id } = useContext(RouteContext)
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
     const { user, loggedUnity } = useContext(AuthContext)
 
+    const getList = async () => {
+        await api.post(currentLink, { unidadeID: loggedUnity.unidadeID }).then(response => {
+            setResult(response.data)
+            setTitle('Transportador')
+        })
+    }
+
     useEffect(() => {
-        const getList = async () => {
-            await api.post(currentLink, { unidadeID: loggedUnity.unidadeID }).then(response => {
-                setResult(response.data)
-                setTitle('Transportador')
-            })
-        }
         getList()
-    }, [])
+    }, [id])
 
     const arrColumns = [
         {
@@ -55,22 +58,15 @@ const Transportador = () => {
 
     return (
         <>
-            {!result && <Loading />}
-            {result && (
-                <>
-                    <Card>
-                        <CardContent sx={{ pt: '0' }}>
-                            <TableFilter
-                                rows={result}
-                                columns={columns}
-                                buttonsHeader={{
-                                    btnNew: true,
-                                    btnPrint: true
-                                }}
-                            />
-                        </CardContent>
-                    </Card>
-                </>
+            {/* Exibe loading enquanto não existe result */}
+            {!result ? (
+                <Loading />
+            ) : //? Se tem id, exibe o formulário
+            id && id > 0 ? (
+                <FormTransportador id={id} />
+            ) : (
+                //? Lista tabela de resultados da listagem
+                <Table result={result} columns={columns} />
             )}
         </>
     )

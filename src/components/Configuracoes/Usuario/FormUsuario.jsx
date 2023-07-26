@@ -209,39 +209,26 @@ const FormUsuario = ({ id }) => {
     }
 
     const getData = async () => {
-        try {
-            const route =
-                type === 'new'
-                    ? `${backRoute(staticUrl)}/new/getData`
-                    : `${staticUrl}/getData/${id}?unidadeID=${loggedUnity.unidadeID}&papelID=${loggedUnity.papelID}&admin=${user.admin}`
+        if (type == 'edit') {
+            try {
+                const route = `${staticUrl}/getData/${id}?unidadeID=${loggedUnity.unidadeID}&papelID=${loggedUnity.papelID}&admin=${user.admin}`
+                await api.post(route).then(response => {
+                    setData(response.data)
+                    setPhotoProfile(response.data.imagem)
+                    reset(response.data) //* Insere os dados no formulário
 
-            await api.post(route).then(response => {
-                setData(response.data)
-                setPhotoProfile(response.data.imagem)
-                reset(response.data) //* Insere os dados no formulário
-
-                console.log('🚀 ~ getData:', response.data)
-            })
-        } catch (error) {
-            console.log(error)
+                    console.log('🚀 ~ getData:', response.data)
+                })
+            } catch (error) {
+                console.log(error)
+            }
+        } else {
+            setData({}) // remove loading
         }
     }
 
     // Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
     useEffect(() => {
-        // const getData = async () => {
-        //     try {
-        //         const response = await api.get(
-        //             `${staticUrl}/${id}?unidadeID=${loggedUnity.unidadeID}&papelID=${loggedUnity.papelID}&admin=${user.admin}`
-        //         )
-        //         setData(response.data)
-        //         setPhotoProfile(response.data.imagem)
-        //         console.log('🚀 ~ getData: ', response.data)
-        //     } catch (error) {
-        //         console.log(error)
-        //     }
-        // }
-        // if (type === 'edit')
         getData()
     }, [id])
 

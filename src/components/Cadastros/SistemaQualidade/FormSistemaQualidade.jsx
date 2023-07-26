@@ -5,23 +5,24 @@ import { Card, CardContent, Grid } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
-import { formType } from 'src/configs/defaultConfigs'
 import FormHeader from '../../Defaults/FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
+import Loading from 'src/components/Loading'
 import { toastMessage } from 'src/configs/defaultConfigs'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { useContext } from 'react'
 import Input from 'src/components/Form/Input'
 import Check from 'src/components/Form/Check'
 
-const FormSistemaQualidade = () => {
+const FormSistemaQualidade = ({ id }) => {
     const [open, setOpen] = useState(false)
     const [data, setData] = useState(null)
-    const { id } = Router.query
     const router = Router
-    const type = formType(router.pathname) // Verifica se é novo ou edição
-    const staticUrl = backRoute(router.pathname) // Url sem ID
+    const type = id && id > 0 ? 'edit' : 'new'
+    const staticUrl = router.pathname
     const { title } = useContext(ParametersContext)
+    const { setId } = useContext(RouteContext)
 
     const {
         trigger,
@@ -35,8 +36,9 @@ const FormSistemaQualidade = () => {
     const onSubmit = async values => {
         try {
             if (type === 'new') {
-                await api.post(`${staticUrl}/new/insertData`, values).then(response => {
-                    router.push(`${staticUrl}/${response.data}`)
+                await api.post(`${backRoute(staticUrl)}/new/insertData`, values).then(response => {
+                    router.push(`${backRoute(staticUrl)}`) //? backRoute pra remover 'novo' da rota
+                    setId(response.data)
                     toast.success(toastMessage.successNew)
                 })
             } else if (type === 'edit') {
@@ -56,7 +58,8 @@ const FormSistemaQualidade = () => {
     const handleClickDelete = async () => {
         try {
             await api.delete(`${staticUrl}/${id}`)
-            router.push(staticUrl)
+            setId(null)
+            setOpen(false)
             toast.success(toastMessage.successDelete)
         } catch (error) {
             if (error.response && error.response.status === 409) {
@@ -100,10 +103,11 @@ const FormSistemaQualidade = () => {
                 trigger()
             }, 300)
         }
-    }, [])
+    }, [id])
 
     return (
         <>
+            {!data && <Loading />}
             {data && (
                 <Card>
                     <form onSubmit={handleSubmit(onSubmit)}>
@@ -113,6 +117,7 @@ const FormSistemaQualidade = () => {
                             handleSubmit={() => handleSubmit(onSubmit)}
                             btnDelete={type === 'edit' ? true : false}
                             onclickDelete={() => setOpen(true)}
+                            type={type}
                         />
                         <CardContent>
                             <Grid container spacing={5}>

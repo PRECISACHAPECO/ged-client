@@ -1,8 +1,10 @@
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
-import TableFilter from 'src/views/table/data-grid/TableFilter'
+import Table from 'src/components/Defaults/Table'
 import { CardContent } from '@mui/material'
+import FormTipoVeiculo from 'src/components/Cadastros/TipoVeiculo/FormTipoVeiculo'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 
 import Loading from 'src/components/Loading'
 
@@ -20,16 +22,18 @@ const TipoVeiculo = () => {
     const router = useRouter()
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
+    const { id } = useContext(RouteContext)
+
+    const getList = async () => {
+        await api.get(currentLink).then(response => {
+            setResult(response.data)
+            setTitle('Tipo de Veículo')
+        })
+    }
 
     useEffect(() => {
-        const getList = async () => {
-            await api.get(currentLink).then(response => {
-                setResult(response.data)
-                setTitle('Tipo de Veículo')
-            })
-        }
         getList()
-    }, [])
+    }, [id])
 
     const arrColumns = [
         {
@@ -53,22 +57,15 @@ const TipoVeiculo = () => {
 
     return (
         <>
-            {!result && <Loading />}
-            {result && (
-                <>
-                    <Card>
-                        <CardContent sx={{ pt: '0' }}>
-                            <TableFilter
-                                rows={result}
-                                columns={columns}
-                                buttonsHeader={{
-                                    btnNew: true,
-                                    btnPrint: true
-                                }}
-                            />
-                        </CardContent>
-                    </Card>
-                </>
+            {/* Exibe loading enquanto não existe result */}
+            {!result ? (
+                <Loading />
+            ) : //? Se tem id, exibe o formulário
+            id && id > 0 ? (
+                <FormTipoVeiculo id={id} />
+            ) : (
+                //? Lista tabela de resultados da listagem
+                <Table result={result} columns={columns} />
             )}
         </>
     )

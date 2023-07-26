@@ -1,11 +1,12 @@
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
-import TableFilter from 'src/views/table/data-grid/TableFilter'
-import { CardContent } from '@mui/material'
+import Table from 'src/components/Defaults/Table'
+import FormFornecedor from 'src/components/Fornecedor/FormFornecedor'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { AuthContext } from 'src/context/AuthContext'
 import DialogNewFornecedor from 'src/components/Defaults/Dialogs/DialogNewFornecedor'
-import { validationCNPJ, validationEmail } from '../../../configs/validations'
+import { validationEmail } from '../../../configs/validations'
 import { toast } from 'react-hot-toast'
 
 import Loading from 'src/components/Loading'
@@ -15,7 +16,6 @@ import { useRouter } from 'next/router'
 
 // ** Configs
 import { configColumns } from 'src/configs/defaultConfigs'
-import { Card } from '@mui/material'
 
 const Fornecedor = () => {
     const { user, loggedUnity } = useContext(AuthContext)
@@ -25,8 +25,7 @@ const Fornecedor = () => {
     const { setTitle } = useContext(ParametersContext)
     const [open, setOpen] = useState(false)
     const [loadingSave, setLoadingSave] = useState(false) //? Dependencia do useEffect pra atualizar listagem ao salvar
-
-    console.log('result: ', result)
+    const { id } = useContext(RouteContext)
 
     //* Controles modal pra inserir fornecedor
     const openModal = () => {
@@ -97,9 +96,7 @@ const Fornecedor = () => {
 
     useEffect(() => {
         getList()
-    }, [loadingSave])
-
-    console.log('dados do bakc', result)
+    }, [id, loadingSave])
 
     const arrColumns =
         user.papelID == 1
@@ -184,25 +181,21 @@ const Fornecedor = () => {
 
     return (
         <>
-            {!result && <Loading />}
-            {result && (
-                <>
-                    <Card>
-                        <CardContent sx={{ pt: '0' }}>
-                            <TableFilter
-                                rows={result}
-                                columns={columns}
-                                buttonsHeader={{
-                                    btnNew: user.papelID == 1 ? true : false,
-                                    btnPrint: true,
-                                    openModal: user.papelID == 1 ? openModal : null
-                                }}
-                            />
-                        </CardContent>
-                    </Card>
-                </>
+            {/* Exibe loading enquanto não existe result */}
+            {!result ? (
+                <Loading />
+            ) : //? Se tem id, exibe o formulário
+            id && id > 0 ? (
+                <FormFornecedor id={id} />
+            ) : (
+                //? Lista tabela de resultados da listagem
+                <Table
+                    result={result}
+                    columns={columns}
+                    btnNew={user.papelID == 1 ? true : false}
+                    openModal={user.papelID == 1 ? openModal : null}
+                />
             )}
-
             <DialogNewFornecedor
                 openModal={open}
                 handleClose={() => setOpen(false)}
@@ -211,6 +204,29 @@ const Fornecedor = () => {
             />
         </>
     )
+
+    // return (
+    //     <>
+    //         {!result && <Loading />}
+    //         {result && (
+    //             <>
+    //                 <Card>
+    //                     <CardContent sx={{ pt: '0' }}>
+    //                         <TableFilter
+    //                             rows={result}
+    //                             columns={columns}
+    //                             buttonsHeader={{
+    //                                 btnNew: user.papelID == 1 ? true : false,
+    //                                 btnPrint: true,
+    //                                 openModal: user.papelID == 1 ? openModal : null
+    //                             }}
+    //                         />
+    //                     </CardContent>
+    //                 </Card>
+    //             </>
+    //         )}
+    //     </>
+    // )
 }
 
 export default Fornecedor

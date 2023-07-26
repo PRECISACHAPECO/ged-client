@@ -43,6 +43,7 @@ import { generateReport } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { AuthContext } from 'src/context/AuthContext'
 import Loading from 'src/components/Loading'
 import toast from 'react-hot-toast'
@@ -60,7 +61,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br' // import locale
 
-const FormRecebimentoMp = () => {
+const FormRecebimentoMp = ({ id }) => {
     const { user, loggedUnity } = useContext(AuthContext)
     const [isLoading, setLoading] = useState(false)
     const [savingForm, setSavingForm] = useState(false)
@@ -79,6 +80,7 @@ const FormRecebimentoMp = () => {
     const [openModal, setOpenModal] = useState(false)
     const [listErrors, setListErrors] = useState({ status: false, errors: [] })
     const { settings } = useContext(SettingsContext)
+    const { setId } = useContext(RouteContext)
 
     const [canEdit, setCanEdit] = useState({
         status: false,
@@ -89,14 +91,8 @@ const FormRecebimentoMp = () => {
     //! Se perder Id, copia do localstorage
     const { setTitle, setStorageId, getStorageId } = useContext(ParametersContext)
     const router = Router
-    const { id } = router.query
-    // if (!id) id = getStorageId()
-    // useEffect(() => {
-    //     setStorageId(id)
-    // }, [])
-
-    const staticUrl = backRoute(router.pathname) // Url sem ID
-    const type = formType(router.pathname) // Verifica se é novo ou edição
+    const type = id && id > 0 ? 'edit' : 'new'
+    const staticUrl = router.pathname
 
     const {
         trigger,
@@ -417,14 +413,14 @@ const FormRecebimentoMp = () => {
         try {
             if (type == 'edit') {
                 setSavingForm(true)
-                await api.put(`${staticUrl}/${id}`, data).then(response => {
+                await api.put(`${staticUrl}/updateData`, data).then(response => {
                     toast.success(toastMessage.successUpdate)
                     setSavingForm(false)
                 })
             } else if (type == 'new') {
-                await api.post(`${staticUrl}/insertData`, data).then(response => {
-                    const newId = response.data
-                    router.push(`${staticUrl}/${newId}`)
+                await api.post(`${backRoute(staticUrl)}/insertData`, data).then(response => {
+                    router.push(`${backRoute(staticUrl)}`) //? backRoute pra remover 'novo' da rota
+                    setId(response.data)
                     toast.success(toastMessage.successNew)
                 })
             } else {
@@ -438,7 +434,7 @@ const FormRecebimentoMp = () => {
     useEffect(() => {
         setTitle('Recebimento de MP')
         type == 'new' ? getNewData() : getData()
-    }, [savingForm])
+    }, [id, savingForm])
 
     useEffect(() => {
         checkErrors()
@@ -471,6 +467,7 @@ const FormRecebimentoMp = () => {
                             title='Recebimento MP'
                             btnStatus={type == 'edit' ? true : false}
                             handleBtnStatus={() => setOpenModalStatus(true)}
+                            type={type}
                         />
 
                         {/* Header */}

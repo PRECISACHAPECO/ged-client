@@ -16,15 +16,14 @@ import { backRoute } from 'src/configs/defaultConfigs'
 import { AuthContext } from 'src/context/AuthContext'
 import Input from 'src/components/Form/Input'
 
-const FormUnidade = ({ id: paramId }) => {
-    console.log('🚀 ~ paramId:', paramId)
+const FormUnidade = ({ id }) => {
     const { user, setLoggedUnity, loggedUnity } = useContext(AuthContext)
     const { setId } = useContext(RouteContext)
 
     const [open, setOpen] = useState(false)
     const [data, setData] = useState()
     //* Componente é chamado na tela da unidade e Meus dados do fornecedor
-    const id = paramId ?? loggedUnity.unidadeID //? se nao tem id é fornecedor, então pega id da unidade logada pelo fornecedor
+    // const id = paramId ?? loggedUnity.unidadeID //? se nao tem id é fornecedor, então pega id da unidade logada pelo fornecedor
     const router = Router
     const type = id && id > 0 ? 'edit' : 'new'
     const staticUrl = router.pathname
@@ -64,8 +63,6 @@ const FormUnidade = ({ id: paramId }) => {
             ...datas.fields,
             dataCadastro: formatDate(datas.dataCadastro, 'YYYY-MM-DD')
         }
-
-        console.log('🚀 ~ data:', data)
 
         try {
             if (type === 'new') {
@@ -116,12 +113,16 @@ const FormUnidade = ({ id: paramId }) => {
 
     //? Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
     const getData = async () => {
-        try {
-            const response = await api.get(`${backRoute(staticUrl)}/${id}`)
-            reset(response.data)
-            setData(response.data)
-        } catch (error) {
-            console.log(error)
+        if (type == 'edit') {
+            try {
+                const response = await api.get(`${staticUrl}/${id}`)
+                reset(response.data)
+                setData(response.data)
+            } catch (error) {
+                console.log(error)
+            }
+        } else {
+            setData({}) // pra sair o loading
         }
     }
     useEffect(() => {

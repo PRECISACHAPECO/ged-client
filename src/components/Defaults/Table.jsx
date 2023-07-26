@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@mui/material'
 import TableFilter from 'src/views/table/data-grid/TableFilter'
 
-const Table = ({ result, columns }) => {
+const Table = ({ result, columns, btnNew = true, btnPrint = true, openModal }) => {
     return (
         <Card>
             <CardContent sx={{ pt: '0' }}>
@@ -9,8 +9,9 @@ const Table = ({ result, columns }) => {
                     rows={result}
                     columns={columns}
                     buttonsHeader={{
-                        btnNew: true,
-                        btnPrint: true
+                        btnNew: btnNew,
+                        btnPrint: btnPrint,
+                        openModal: openModal
                     }}
                 />
             </CardContent>

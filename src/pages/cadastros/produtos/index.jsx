@@ -1,8 +1,9 @@
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
-import TableFilter from 'src/views/table/data-grid/TableFilter'
-import { CardContent } from '@mui/material'
+import Table from 'src/components/Defaults/Table'
+import FormProdutos from 'src/components/Cadastros/Produtos/FormProdutos'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { AuthContext } from 'src/context/AuthContext'
 
 import Loading from 'src/components/Loading'
@@ -22,16 +23,18 @@ const Produtos = () => {
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
     const { user, loggedUnity } = useContext(AuthContext)
+    const { id } = useContext(RouteContext)
+
+    const getList = async () => {
+        await api.post(currentLink, { unidadeID: loggedUnity.unidadeID }).then(response => {
+            setResult(response.data)
+            setTitle('Produto')
+        })
+    }
 
     useEffect(() => {
-        const getList = async () => {
-            await api.post(currentLink, { unidadeID: loggedUnity.unidadeID }).then(response => {
-                setResult(response.data)
-                setTitle('Produto')
-            })
-        }
         getList()
-    }, [])
+    }, [id])
 
     const arrColumns = [
         {
@@ -60,22 +63,15 @@ const Produtos = () => {
 
     return (
         <>
-            {!result && <Loading />}
-            {result && (
-                <>
-                    <Card>
-                        <CardContent sx={{ pt: '0' }}>
-                            <TableFilter
-                                rows={result}
-                                columns={columns}
-                                buttonsHeader={{
-                                    btnNew: true,
-                                    btnPrint: true
-                                }}
-                            />
-                        </CardContent>
-                    </Card>
-                </>
+            {/* Exibe loading enquanto não existe result */}
+            {!result ? (
+                <Loading />
+            ) : //? Se tem id, exibe o formulário
+            id && id > 0 ? (
+                <FormProdutos id={id} />
+            ) : (
+                //? Lista tabela de resultados da listagem
+                <Table result={result} columns={columns} />
             )}
         </>
     )
