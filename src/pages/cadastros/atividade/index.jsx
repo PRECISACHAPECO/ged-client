@@ -21,7 +21,7 @@ const Atividade = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
-    const { setTitle, id, setId } = useContext(ParametersContext)
+    const { setTitle, id } = useContext(ParametersContext)
 
     useEffect(() => {
         const getList = async () => {

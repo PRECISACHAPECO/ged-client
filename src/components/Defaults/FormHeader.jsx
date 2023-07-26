@@ -4,7 +4,7 @@ import { useState, useContext, useEffect } from 'react'
 import { CardContent, Button, Box, Tooltip } from '@mui/material'
 import Link from 'next/link'
 import Icon from 'src/@core/components/icon'
-// import { backRoute } from 'src/configs/defaultConfigs'
+import { backRoute } from 'src/configs/defaultConfigs'
 import MenuReports from './MenuReports'
 import { AuthContext } from 'src/context/AuthContext'
 import { ParametersContext } from 'src/context/ParametersContext'
@@ -26,7 +26,8 @@ const FormHeader = ({
     disabledPrint,
     disabled,
     dataReports,
-    generateReport
+    generateReport,
+    type
 }) => {
     const router = Router
     const { user, routes } = useContext(AuthContext)
@@ -55,6 +56,8 @@ const FormHeader = ({
     const previousPage = () => {
         setId(null)
     }
+
+    const currentUrl = type === 'new' ? backRoute(router.pathname) : router.pathname
 
     const dataButtons = [
         {
@@ -125,7 +128,10 @@ const FormHeader = ({
                 <Box sx={{ display: 'flex', gap: '8px' }}>
                     {btnCancel && (
                         <Button
-                            onClick={() => setId(null)}
+                            onClick={() => {
+                                setId(null)
+                                router.push(currentUrl)
+                            }}
                             type='button'
                             variant='outlined'
                             color='primary'
@@ -135,7 +141,7 @@ const FormHeader = ({
                         </Button>
                     )}
 
-                    {btnDelete && routes.find(route => route.rota === router.pathname && route.excluir) && (
+                    {btnDelete && routes.find(route => route.rota === currentUrl && route.excluir) && (
                         <Button
                             type='button'
                             onClick={onclickDelete}
@@ -211,7 +217,7 @@ const FormHeader = ({
                         </Box>
                     )}
 
-                    {btnSave && routes.find(route => route.rota === router.pathname && route.editar) && (
+                    {btnSave && routes.find(route => route.rota === currentUrl && route.editar) && (
                         <Button
                             onClick={handleSubmit}
                             type='submit'
@@ -253,7 +259,7 @@ const FormHeader = ({
                         {dataButtons.map(item => {
                             if (
                                 item.id === 1 &&
-                                (!btnSave || !routes.find(route => route.rota === router.pathname && route.editar))
+                                (!btnSave || !routes.find(route => route.rota === currentUrl && route.editar))
                             ) {
                                 return null
                             }

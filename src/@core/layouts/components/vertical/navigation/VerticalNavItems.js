@@ -4,23 +4,23 @@ import VerticalNavGroup from './VerticalNavGroup'
 import VerticalNavSectionTitle from './VerticalNavSectionTitle'
 
 const resolveNavItemComponent = item => {
-  if (item.sectionTitle) return VerticalNavSectionTitle
-  if (item.children) return VerticalNavGroup
+    if (item.sectionTitle) return VerticalNavSectionTitle
+    if (item.children) return VerticalNavGroup
 
-  return VerticalNavLink
+    return VerticalNavLink
 }
 
 const VerticalNavItems = props => {
-  // ** Props
-  const { verticalNavItems } = props
+    // ** Props
+    const { verticalNavItems } = props
 
-  const RenderMenuItems = verticalNavItems?.map((item, index) => {
-    const TagName = resolveNavItemComponent(item)
+    const RenderMenuItems = verticalNavItems?.map((item, index) => {
+        const TagName = resolveNavItemComponent(item)
 
-    return <TagName {...props} key={index} item={item} />
-  })
+        return <TagName {...props} key={index} item={item} />
+    })
 
-  return <>{RenderMenuItems}</>
+    return <>{RenderMenuItems}</>
 }
 
 export default VerticalNavItems

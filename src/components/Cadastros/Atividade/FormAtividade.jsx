@@ -62,7 +62,9 @@ const FormAtividade = ({ id }) => {
     const handleClickDelete = async () => {
         try {
             await api.delete(`${staticUrl}/${id}`)
-            router.push(staticUrl)
+            // router.push(staticUrl)
+            setId(null)
+            setOpen(false)
             toast.success(toastMessage.successDelete)
         } catch (error) {
             if (error.response && error.response.status === 409) {
@@ -123,6 +125,7 @@ const FormAtividade = ({ id }) => {
                             handleSubmit={() => handleSubmit(onSubmit)}
                             btnDelete={type === 'edit' ? true : false}
                             onclickDelete={() => setOpen(true)}
+                            type={type}
                         />
                         <CardContent>
                             <Grid container spacing={5}>
