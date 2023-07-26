@@ -11,9 +11,6 @@ import { useRouter } from 'next/router'
 
 // ** Configs
 import { configColumns } from 'src/configs/defaultConfigs'
-import { Card } from '@mui/material'
-
-// import axios from 'axios'
 
 const Item = () => {
     const [result, setResult] = useState(null)

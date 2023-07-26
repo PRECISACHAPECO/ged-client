@@ -1,6 +1,7 @@
 import Router from 'next/router'
 import { useEffect, useState, useContext } from 'react'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { api } from 'src/configs/api'
 import { Card, CardContent, Grid } from '@mui/material'
 import { useForm } from 'react-hook-form'
@@ -21,7 +22,8 @@ const FormItem = ({ id }) => {
     const router = Router
     const type = id && id > 0 ? 'edit' : 'new'
     const staticUrl = router.pathname
-    const { setId, title } = useContext(ParametersContext)
+    const { title } = useContext(ParametersContext)
+    const { setId } = useContext(RouteContext)
 
     const {
         trigger,
