@@ -5,6 +5,7 @@ import { api } from 'src/configs/api'
 import { Card, CardContent, Grid } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
+import Loading from 'src/components/Loading'
 import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
 import { formType } from 'src/configs/defaultConfigs'
 import FormHeader from '../../Defaults/FormHeader'
@@ -14,14 +15,13 @@ import Input from 'src/components/Form/Input'
 import Select from 'src/components/Form/Select'
 import Check from 'src/components/Form/Check'
 
-const FormItem = () => {
+const FormItem = ({ id }) => {
     const [open, setOpen] = useState(false)
     const [data, setData] = useState(null)
-    const { id } = Router.query
     const router = Router
-    const type = formType(router.pathname) // Verifica se é novo ou edição
-    const staticUrl = backRoute(router.pathname) // Url sem ID
-    const { title } = useContext(ParametersContext)
+    const type = id && id > 0 ? 'edit' : 'new'
+    const staticUrl = router.pathname
+    const { setId, title } = useContext(ParametersContext)
 
     const {
         trigger,
@@ -36,8 +36,9 @@ const FormItem = () => {
     const onSubmit = async values => {
         try {
             if (type === 'new') {
-                await api.post(`${staticUrl}/new/insertData`, values).then(response => {
-                    router.push(`${staticUrl}/${response.data}`)
+                await api.post(`${backRoute(staticUrl)}/new/insertData`, values).then(response => {
+                    router.push(`${backRoute(staticUrl)}`) //? backRoute pra remover 'novo' da rota
+                    setId(response.data)
                     toast.success(toastMessage.successNew)
                 })
             } else if (type === 'edit') {
@@ -58,7 +59,8 @@ const FormItem = () => {
     const handleClickDelete = async () => {
         try {
             await api.delete(`${staticUrl}/${id}`)
-            router.push(staticUrl)
+            setId(null)
+            setOpen(false)
             toast.success(toastMessage.successDelete)
         } catch (error) {
             if (error.response && error.response.status === 409) {
@@ -73,8 +75,8 @@ const FormItem = () => {
     //? Dados iniciais ao carregar página
     const getData = async () => {
         try {
-            const route = type === 'new' ? `${staticUrl}/new/getData` : `${staticUrl}/getData/${id}`
-            await api.post(route, { id }).then(response => {
+            const route = type === 'new' ? `${backRoute(staticUrl)}/new/getData` : `${staticUrl}/getData/${id}`
+            await api.post(route).then(response => {
                 setData(response.data)
                 reset(response.data) //* Insere os dados no formulário
 
@@ -95,10 +97,11 @@ const FormItem = () => {
                 trigger()
             }, 300)
         }
-    }, [])
+    }, [id])
 
     return (
         <>
+            {!data && <Loading />}
             {data && (
                 <Card>
                     <form onSubmit={handleSubmit(onSubmit)}>
@@ -108,6 +111,7 @@ const FormItem = () => {
                             handleSubmit={() => handleSubmit(onSubmit)}
                             btnDelete={type === 'edit' ? true : false}
                             onclickDelete={() => setOpen(true)}
+                            type={type}
                         />
                         <CardContent>
                             <Grid container spacing={5}>

@@ -34,7 +34,7 @@ import Check from 'src/components/Form/Check'
 import CheckLabel from 'src/components/Form/CheckLabel'
 import Remove from 'src/components/Form/Remove'
 
-const FormParametrosRecebimentoMp = () => {
+const FormParametrosRecebimentoMp = ({ id }) => {
     const { user, loggedUnity } = useContext(AuthContext)
     const [headers, setHeaders] = useState()
     const [products, setProducts] = useState()
@@ -45,8 +45,9 @@ const FormParametrosRecebimentoMp = () => {
     const [arrRemovedItems, setArrRemovedItems] = useState([])
 
     const router = Router
-    const staticUrl = backRoute(router.pathname) // Url sem ID
-    const { setTitle } = useContext(ParametersContext)
+    const staticUrl = router.pathname
+    const type = 'edit'
+    const { setId, setTitle } = useContext(ParametersContext)
 
     const {
         setValue,
@@ -190,7 +191,7 @@ const FormParametrosRecebimentoMp = () => {
     useEffect(() => {
         setTitle('Formulário do Recebimento de MP')
         getData()
-    }, [savingForm])
+    }, [id, savingForm])
 
     console.log('errors: ', errors)
 
@@ -203,7 +204,7 @@ const FormParametrosRecebimentoMp = () => {
                     {/* Cabeçalho */}
                     {headers && (
                         <Card>
-                            <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} />
+                            <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} type={type} />
                             <CardContent>
                                 {/* Lista campos */}
                                 <List component='nav' aria-label='main mailbox'>

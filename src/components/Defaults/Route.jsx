@@ -1,9 +1,10 @@
 import Router from 'next/router'
-import { ParametersContext } from 'src/context/ParametersContext'
+import { useContext } from 'react'
+import { RouteContext } from 'src/context/RouteContext'
 
 const Route = ({ path }) => {
     const router = Router
-    const { setId } = useContext(ParametersContext)
+    const { setId } = useContext(RouteContext)
 
     const goRoute = () => {
         setId(null)

@@ -12,12 +12,14 @@ import FormHeader from '../../Defaults/FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { toastMessage } from 'src/configs/defaultConfigs'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { useContext } from 'react'
 import Input from 'src/components/Form/Input'
 import Check from 'src/components/Form/Check'
 
 const FormAtividade = ({ id }) => {
-    const { title, setId } = useContext(ParametersContext)
+    const { title } = useContext(ParametersContext)
+    const { setId } = useContext(RouteContext)
     const [open, setOpen] = useState(false)
     const [data, setData] = useState(null)
     const router = Router
@@ -82,10 +84,10 @@ const FormAtividade = ({ id }) => {
             })
         }
         try {
-            const route = type === 'new' ? `${staticUrl}/new/getData` : `${staticUrl}/getData/${id}`
+            const route = type === 'new' ? `${backRoute(staticUrl)}/new/getData` : `${staticUrl}/getData/${id}`
             if (type === 'new' || id > 0) {
                 console.log('🚀 ~ route:', route)
-                await api.post(route, { id }).then(response => {
+                await api.post(route).then(response => {
                     setData(response.data)
                     console.log('🚀 ~ response.data:', response.data)
                     reset(response.data) //* Insere os dados no formulário

@@ -2,6 +2,7 @@ import { useContext } from 'react'
 import { DataGrid, ptBR } from '@mui/x-data-grid'
 import QuickSearchToolbar from 'src/views/table/data-grid/QuickSearchToolbar'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 
 const TableFilter = ({ rows, columns, buttonsHeader }) => {
     const {
@@ -11,9 +12,10 @@ const TableFilter = ({ rows, columns, buttonsHeader }) => {
         searchText,
         filteredData,
         setData,
-        data,
-        setId
+        data
     } = useContext(ParametersContext)
+
+    const { setId } = useContext(RouteContext)
 
     // ** States
     setData(rows)

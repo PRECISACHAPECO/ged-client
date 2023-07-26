@@ -8,6 +8,7 @@ import { backRoute } from 'src/configs/defaultConfigs'
 import MenuReports from './MenuReports'
 import { AuthContext } from 'src/context/AuthContext'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import Fab from '@mui/material/Fab'
 
 const FormHeader = ({
@@ -31,7 +32,7 @@ const FormHeader = ({
 }) => {
     const router = Router
     const { user, routes } = useContext(AuthContext)
-    const { setId } = useContext(ParametersContext)
+    const { setId } = useContext(RouteContext)
     const [isVisible, setIsVisible] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
 

@@ -11,7 +11,7 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import { styled, useTheme } from '@mui/material/styles'
 import ListItemButton from '@mui/material/ListItemButton'
 
-import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 
 // ** Configs Import
 import themeConfig from 'src/configs/themeConfig'
@@ -68,7 +68,7 @@ const VerticalNavLink = ({
     navigationBorderWidth
 }) => {
     //* ID do contexto
-    const { setId } = useContext(ParametersContext)
+    const { setId } = useContext(RouteContext)
 
     // ** Hooks
     const theme = useTheme()

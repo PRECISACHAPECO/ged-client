@@ -1,9 +1,8 @@
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
 import Table from 'src/components/Defaults/Table'
-import { Box, Button, CardContent } from '@mui/material'
 import { ParametersContext } from 'src/context/ParametersContext'
-
+import { RouteContext } from 'src/context/RouteContext'
 import FormAtividade from 'src/components/Cadastros/Atividade/FormAtividade'
 import Loading from 'src/components/Loading'
 
@@ -12,15 +11,13 @@ import { useRouter } from 'next/router'
 
 // ** Configs
 import { configColumns } from 'src/configs/defaultConfigs'
-import { Card } from '@mui/material'
-
-// import axios from 'axios'
 
 const Atividade = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
-    const { setTitle, id } = useContext(ParametersContext)
+    const { setTitle } = useContext(ParametersContext)
+    const { id } = useContext(RouteContext)
 
     useEffect(() => {
         const getList = async () => {
@@ -59,7 +56,7 @@ const Atividade = () => {
             {!result ? (
                 <Loading />
             ) : //? Se tem id, exibe o formulário
-            id ? (
+            id && id > 0 ? (
                 <FormAtividade id={id} />
             ) : (
                 //? Lista tabela de resultados da listagem

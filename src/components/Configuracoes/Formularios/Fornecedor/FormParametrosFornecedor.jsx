@@ -21,7 +21,7 @@ import Check from 'src/components/Form/Check'
 import CheckLabel from 'src/components/Form/CheckLabel'
 import Remove from 'src/components/Form/Remove'
 
-const FormParametrosFornecedor = () => {
+const FormParametrosFornecedor = ({ id }) => {
     const { user, loggedUnity } = useContext(AuthContext)
     const [headers, setHeaders] = useState()
     const [allOptions, setAllOptions] = useState(null)
@@ -32,9 +32,10 @@ const FormParametrosFornecedor = () => {
     const [savingForm, setSavingForm] = useState(false)
     const [arrRemovedItems, setArrRemovedItems] = useState([])
 
+    const { setId, setTitle } = useContext(ParametersContext)
     const router = Router
-    const staticUrl = backRoute(router.pathname) // Url sem ID
-    const { setTitle } = useContext(ParametersContext)
+    const type = 'edit'
+    const staticUrl = router.pathname
 
     const {
         setValue,
@@ -198,7 +199,7 @@ const FormParametrosFornecedor = () => {
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
         getData()
-    }, [savingForm])
+    }, [id, savingForm])
 
     return (
         <>
@@ -209,7 +210,7 @@ const FormParametrosFornecedor = () => {
                     {/* Cabeçalho */}
                     {headers && (
                         <Card>
-                            <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} />
+                            <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} type={type} />
                             <CardContent>
                                 {/* Lista campos */}
                                 <List component='nav' aria-label='main mailbox'>
