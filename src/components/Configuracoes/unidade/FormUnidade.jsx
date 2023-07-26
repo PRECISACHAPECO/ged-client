@@ -2,6 +2,7 @@ import Router from 'next/router'
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { Card, CardContent, Grid, Typography } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import Loading from 'src/components/Loading'
@@ -11,12 +12,14 @@ import { formType } from 'src/configs/defaultConfigs'
 import FormHeader from '../../Defaults/FormHeader'
 import { toastMessage } from 'src/configs/defaultConfigs'
 import { formatDate } from 'src/configs/conversions'
+import { backRoute } from 'src/configs/defaultConfigs'
 import { AuthContext } from 'src/context/AuthContext'
 import Input from 'src/components/Form/Input'
 
 const FormUnidade = ({ id: paramId }) => {
+    console.log('🚀 ~ paramId:', paramId)
     const { user, setLoggedUnity, loggedUnity } = useContext(AuthContext)
-    const { setId } = useContext(ParametersContext)
+    const { setId } = useContext(RouteContext)
 
     const [open, setOpen] = useState(false)
     const [data, setData] = useState()
@@ -114,7 +117,7 @@ const FormUnidade = ({ id: paramId }) => {
     //? Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
     const getData = async () => {
         try {
-            const response = await api.get(`${staticUrl}/${id}`)
+            const response = await api.get(`${backRoute(staticUrl)}/${id}`)
             reset(response.data)
             setData(response.data)
         } catch (error) {

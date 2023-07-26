@@ -1,6 +1,7 @@
 import Router from 'next/router'
 import { useEffect, useState, useContext, useRef } from 'react'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { dateConfig } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import Icon from 'src/@core/components/icon'
@@ -50,7 +51,8 @@ import Input from 'src/components/Form/Input'
 import DateField from 'src/components/Form/DateField'
 
 const FormUsuario = ({ id }) => {
-    const { setId } = useContext(ParametersContext)
+    console.log('🚀 ~ id:', id)
+    const { setId } = useContext(RouteContext)
     const { user, setUser, loggedUnity } = useContext(AuthContext)
 
     const router = Router
@@ -206,21 +208,41 @@ const FormUsuario = ({ id }) => {
         }
     }
 
-    // Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
-    useEffect(() => {
-        const getData = async () => {
-            try {
-                const response = await api.get(
-                    `${staticUrl}/${id}?unidadeID=${loggedUnity.unidadeID}&papelID=${loggedUnity.papelID}&admin=${user.admin}`
-                )
+    const getData = async () => {
+        try {
+            const route =
+                type === 'new'
+                    ? `${backRoute(staticUrl)}/new/getData`
+                    : `${staticUrl}/getData/${id}?unidadeID=${loggedUnity.unidadeID}&papelID=${loggedUnity.papelID}&admin=${user.admin}`
+
+            await api.post(route).then(response => {
                 setData(response.data)
                 setPhotoProfile(response.data.imagem)
-                console.log('🚀 ~ getData: ', response.data)
-            } catch (error) {
-                console.log(error)
-            }
+                reset(response.data) //* Insere os dados no formulário
+
+                console.log('🚀 ~ getData:', response.data)
+            })
+        } catch (error) {
+            console.log(error)
         }
-        if (type === 'edit') getData()
+    }
+
+    // Função que traz os dados quando carrega a página e atualiza quando as dependências mudam
+    useEffect(() => {
+        // const getData = async () => {
+        //     try {
+        //         const response = await api.get(
+        //             `${staticUrl}/${id}?unidadeID=${loggedUnity.unidadeID}&papelID=${loggedUnity.papelID}&admin=${user.admin}`
+        //         )
+        //         setData(response.data)
+        //         setPhotoProfile(response.data.imagem)
+        //         console.log('🚀 ~ getData: ', response.data)
+        //     } catch (error) {
+        //         console.log(error)
+        //     }
+        // }
+        // if (type === 'edit')
+        getData()
     }, [id])
 
     return (

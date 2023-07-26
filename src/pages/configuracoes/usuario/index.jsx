@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
 import Table from 'src/components/Defaults/Table'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { AuthContext } from 'src/context/AuthContext'
 import FormUsuario from 'src/components/Configuracoes/Usuario/FormUsuario'
 import Loading from 'src/components/Loading'
@@ -16,7 +17,8 @@ const Usuario = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
-    const { setTitle, id } = useContext(ParametersContext)
+    const { setTitle } = useContext(ParametersContext)
+    const { id } = useContext(RouteContext)
     const { loggedUnity } = useContext(AuthContext)
 
     useEffect(() => {

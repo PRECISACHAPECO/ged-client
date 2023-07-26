@@ -5,6 +5,7 @@ import Table from 'src/components/Defaults/Table'
 import FormUnidade from 'src/components/Configuracoes/unidade/FormUnidade'
 import { CardContent } from '@mui/material'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { AuthContext } from 'src/context/AuthContext'
 
 import Loading from 'src/components/Loading'
@@ -22,7 +23,8 @@ const Unidade = () => {
     const [result, setResult] = useState(null)
     const router = useRouter()
     const currentLink = router.pathname
-    const { id, setTitle } = useContext(ParametersContext)
+    const { setTitle } = useContext(ParametersContext)
+    const { id } = useContext(RouteContext)
     const { user, loggedUnity } = useContext(AuthContext)
 
     useEffect(() => {
