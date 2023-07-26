@@ -106,6 +106,7 @@ const AuthProvider = ({ children }) => {
             }
         }
         initAuth()
+        console.log('useEffect no authContext')
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
