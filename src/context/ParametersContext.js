@@ -1,6 +1,4 @@
-import { createContext, useState, useEffect } from 'react'
-import { api } from 'src/configs/api'
-import axios from 'axios'
+import { createContext, useState } from 'react'
 
 
 const ParametersContext = createContext({})
@@ -55,7 +53,7 @@ const ParametersProvider = ({ children }) => {
         data,
         setData,
         setStorageId,
-        getStorageId,
+        getStorageId
     }
 
     return <ParametersContext.Provider value={values}>{children}</ParametersContext.Provider>

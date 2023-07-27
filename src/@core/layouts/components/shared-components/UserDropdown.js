@@ -14,6 +14,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { AuthContext } from 'src/context/AuthContext'
+import { ParametersContext } from 'src/context/ParametersContext'
 
 
 // ** Icon Imports
@@ -35,6 +36,7 @@ const UserDropdown = props => {
     // ** Props
     const { settings } = props
     const { user } = useContext(AuthContext)
+    const { setId } = useContext(ParametersContext)
 
     // ** States
     const [anchorEl, setAnchorEl] = useState(null)
@@ -56,8 +58,6 @@ const UserDropdown = props => {
         }
         setAnchorEl(null)
     }
-
-
 
     const styles = {
         py: 2,
@@ -134,7 +134,10 @@ const UserDropdown = props => {
                 <Divider sx={{ mt: '0 !important' }} />
                 <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
                     <Box sx={styles}
-                        onClick={() => handleDropdownClose(user.papelID === 1 ? `/configuracoes/usuario/${user.usuarioID}` : `/meus-dados`)}>
+                        onClick={() => {
+                            handleDropdownClose(user.papelID === 1 ? `/configuracoes/usuario` : `/meus-dados`)
+                            setId(user.usuarioID)
+                        }}>
 
                         <Icon icon='mdi:account-outline' />
                         Meus Dados

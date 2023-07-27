@@ -27,6 +27,7 @@ module.exports = withTM({
 
         return config
     }
+<<<<<<< HEAD
 })
 
 module.exports = withFonts({
@@ -34,3 +35,6 @@ module.exports = withFonts({
         return config;
     },
 });
+=======
+})
+>>>>>>> 775e144a93fcabce34b30f3c016004f6865b09b2

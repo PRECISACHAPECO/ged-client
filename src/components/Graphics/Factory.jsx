@@ -36,7 +36,6 @@ const Factory = () => {
 
                 <Grid item xs={12} md={4}>
                     <CrmOrganicSessions />
-                    {/* <CrmAward /> */}
                 </Grid>
                 <Grid item xs={6} sm={3} md={2}>
                     <CardStatisticsVertical

@@ -7,6 +7,7 @@ import { backRoute } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { AuthContext } from 'src/context/AuthContext'
 import toast from 'react-hot-toast'
 import { toastMessage } from 'src/configs/defaultConfigs'
@@ -21,7 +22,7 @@ import Check from 'src/components/Form/Check'
 import CheckLabel from 'src/components/Form/CheckLabel'
 import Remove from 'src/components/Form/Remove'
 
-const FormParametrosFornecedor = () => {
+const FormParametrosFornecedor = ({ id }) => {
     const { user, loggedUnity } = useContext(AuthContext)
     const [headers, setHeaders] = useState()
     const [allOptions, setAllOptions] = useState(null)
@@ -32,9 +33,11 @@ const FormParametrosFornecedor = () => {
     const [savingForm, setSavingForm] = useState(false)
     const [arrRemovedItems, setArrRemovedItems] = useState([])
 
-    const router = Router
-    const staticUrl = backRoute(router.pathname) // Url sem ID
     const { setTitle } = useContext(ParametersContext)
+    const { setId } = useContext(RouteContext)
+    const router = Router
+    const type = 'edit'
+    const staticUrl = router.pathname
 
     const {
         setValue,
@@ -199,7 +202,7 @@ const FormParametrosFornecedor = () => {
     useEffect(() => {
         setTitle('Formulário do Fornecedor')
         getData()
-    }, [savingForm])
+    }, [id, savingForm])
 
     return (
         <>
@@ -210,7 +213,7 @@ const FormParametrosFornecedor = () => {
                     {/* Cabeçalho */}
                     {headers && (
                         <Card>
-                            <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} />
+                            <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} type={type} />
                             <CardContent>
                                 {/* Lista campos */}
                                 <List component='nav' aria-label='main mailbox'>

@@ -38,6 +38,7 @@ import { backRoute } from 'src/configs/defaultConfigs'
 import { api } from 'src/configs/api'
 import FormHeader from 'src/components/Defaults/FormHeader'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { AuthContext } from 'src/context/AuthContext'
 import Loading from 'src/components/Loading'
 import { toastMessage, formType, statusDefault, dateConfig } from 'src/configs/defaultConfigs'
@@ -47,6 +48,7 @@ import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 import DialogFormConclusion from '../Defaults/Dialogs/DialogFormConclusion'
+import ReportFornecedor from 'src/components/Reports/Formularios/Fornecedor'
 
 // ** Custom Components
 import CustomChip from 'src/@core/components/mui/chip'
@@ -61,7 +63,7 @@ import DialogForm from '../Defaults/Dialogs/Dialog'
 import DialogFormStatus from '../Defaults/Dialogs/DialogFormStatus'
 import Upload from 'src/icon/Upload'
 
-const FormFornecedor = () => {
+const FormFornecedor = ({ id }) => {
     const { user, loggedUnity } = useContext(AuthContext)
     const [isLoading, setLoading] = useState(false) //? loading de carregamento da página
     const [isLoadingSave, setLoadingSave] = useState(false) //? dependencia do useEffect pra atualizar a página após salvar
@@ -95,14 +97,14 @@ const FormFornecedor = () => {
     //! Se perder Id, copia do localstorage
     const { setTitle, setStorageId, getStorageId } = useContext(ParametersContext)
     const router = Router
-    const { id } = router.query
+    const { setId } = useContext(RouteContext)
     // if (!id) id = getStorageId()
     // useEffect(() => {
     //     setStorageId(id)
     // }, [])
 
-    const staticUrl = backRoute(router.pathname) // Url sem ID
-    const type = formType(router.pathname) // Verifica se é novo ou edição
+    const type = id && id > 0 ? 'edit' : 'new'
+    const staticUrl = router.pathname
 
     const { settings } = useContext(SettingsContext)
 
@@ -420,7 +422,7 @@ const FormFornecedor = () => {
         //? Form Fornecedor não tem página NOVO
         type == 'edit' ? getData() : noPermissions()
         verifyFormPending()
-    }, [isLoadingSave])
+    }, [id, isLoadingSave])
 
     useEffect(() => {
         checkErrors()
@@ -575,6 +577,7 @@ const FormFornecedor = () => {
                             title='Fornecedor'
                             btnStatus
                             handleBtnStatus={() => setOpenModalStatus(true)}
+                            type={type}
                         />
 
                         <CardContent>

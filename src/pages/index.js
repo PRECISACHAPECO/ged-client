@@ -19,12 +19,15 @@ const Home = () => {
     const auth = useAuth()
     const router = useRouter()
 
+    console.log('Home....')
+
     useEffect(() => {
         if (!router.isReady) {
             return
         }
 
         if (auth.user && auth.user.role) {
+            console.log('useEffect no index.js')
             const homeRoute = getHomeRoute(auth.user.role)
 
             // Redirect user to Home URL

@@ -1,6 +1,7 @@
 import Router from 'next/router'
 import { useEffect, useState, useRef, useContext } from 'react'
 import { ParametersContext } from 'src/context/ParametersContext'
+import { RouteContext } from 'src/context/RouteContext'
 import { AuthContext } from 'src/context/AuthContext'
 import { api } from 'src/configs/api'
 import { Card, CardContent, Grid, Typography, Button } from '@mui/material'
@@ -9,6 +10,7 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import DialogForm from 'src/components/Defaults/Dialogs/Dialog'
 import { formType } from 'src/configs/defaultConfigs'
+import Loading from 'src/components/Loading'
 import FormHeader from '../../Defaults/FormHeader'
 import { backRoute } from 'src/configs/defaultConfigs'
 import { toastMessage } from 'src/configs/defaultConfigs'
@@ -19,13 +21,13 @@ import Input from 'src/components/Form/Input'
 import Check from 'src/components/Form/Check'
 import Remove from 'src/components/Form/Remove'
 
-const FormGrupoAnexos = () => {
-    const { id } = Router.query
+const FormGrupoAnexos = ({ id }) => {
+    const { setId } = useContext(RouteContext)
     const router = Router
     const [data, setData] = useState(null)
     const [openDelete, setOpenDelete] = useState(false) //? Dialog de confirmação de exclusão
-    const type = formType(router.pathname) // Verifica se é novo ou edição
-    const staticUrl = backRoute(router.pathname) // Url sem ID
+    const type = id && id > 0 ? 'edit' : 'new'
+    const staticUrl = router.pathname
     const { title } = useContext(ParametersContext)
     // const inputRef = useRef(null)
     const { loggedUnity } = useContext(AuthContext)
@@ -43,7 +45,7 @@ const FormGrupoAnexos = () => {
 
     const getData = async () => {
         try {
-            const route = type === 'new' ? `${staticUrl}/new/getData` : `${staticUrl}/getData/${id}`
+            const route = type === 'new' ? `${backRoute(staticUrl)}/new/getData` : `${staticUrl}/getData/${id}`
             console.log('🚀 ~ route:', route)
             await api.post(route, { unidadeID: loggedUnity.unidadeID }).then(response => {
                 setData(response.data)
@@ -92,14 +94,16 @@ const FormGrupoAnexos = () => {
 
         try {
             if (type === 'new') {
-                await api.post(`${staticUrl}/new/insertData`, values).then(response => {
-                    router.push(`${staticUrl}/${response.data}`)
+                await api.post(`${backRoute(staticUrl)}/new/insertData`, values).then(response => {
+                    router.push(`${backRoute(staticUrl)}`) //? backRoute pra remover 'novo' da rota
+                    setId(response.data)
                     toast.success(toastMessage.successNew)
                 })
             } else if (type === 'edit') {
                 await api.post(`${staticUrl}/updateData/${id}`, values)
                 toast.success(toastMessage.successUpdate)
             }
+
             setSavingForm(!savingForm)
         } catch (error) {
             if (error.response && error.response.status === 409) {
@@ -114,7 +118,8 @@ const FormGrupoAnexos = () => {
     const handleDelete = async () => {
         try {
             await api.delete(`${staticUrl}/deleteData/${id}`)
-            router.push(staticUrl)
+            setId(null)
+            setOpen(false)
             toast.success(toastMessage.successDelete)
         } catch (error) {
             if (error.response && error.response.status === 409) {
@@ -135,69 +140,71 @@ const FormGrupoAnexos = () => {
                 trigger()
             }, 300)
         }
-    }, [])
+    }, [id])
 
     return (
         <>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <Card>
-                    {/* Botões cabeçalho */}
-                    <FormHeader
-                        btnCancel
-                        btnSave
-                        btnDelete={type === 'edit' ? true : false}
-                        onclickDelete={() => setOpenDelete(true)}
-                    />
+            {!data && <Loading />}
+            {data && (
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <Card>
+                        {/* Botões cabeçalho */}
+                        <FormHeader
+                            btnCancel
+                            btnSave
+                            btnDelete={type === 'edit' ? true : false}
+                            onclickDelete={() => setOpenDelete(true)}
+                            type={type}
+                        />
 
-                    {/* Formulário */}
-                    {data && (
+                        {/* Formulário */}
+                        {data && (
+                            <CardContent>
+                                <Grid container spacing={4}>
+                                    <Input
+                                        xs={12}
+                                        md={11}
+                                        title='Nome'
+                                        name='fields.nome'
+                                        required={true}
+                                        register={register}
+                                        errors={errors?.fields?.nome}
+                                    />
+
+                                    <Check
+                                        xs={12}
+                                        md={1}
+                                        title='Ativo'
+                                        name='fields.status'
+                                        value={data.fields.status}
+                                        typePage={type}
+                                        register={register}
+                                    />
+
+                                    <Select
+                                        xs={12}
+                                        md={12}
+                                        title='Formulários'
+                                        name='formulario.fields'
+                                        value={data?.formulario.fields ?? null}
+                                        multiple={true}
+                                        limitTags={5}
+                                        required={true}
+                                        options={data.formulario.options}
+                                        register={register}
+                                        setValue={setValue}
+                                        errors={errors?.formulario?.fields}
+                                    />
+                                </Grid>
+                            </CardContent>
+                        )}
+                    </Card>
+
+                    <Card sx={{ mt: 4 }}>
                         <CardContent>
-                            <Grid container spacing={4}>
-                                <Input
-                                    xs={12}
-                                    md={11}
-                                    title='Nome'
-                                    name='fields.nome'
-                                    required={true}
-                                    register={register}
-                                    errors={errors?.fields?.nome}
-                                />
-
-                                <Check
-                                    xs={12}
-                                    md={1}
-                                    title='Ativo'
-                                    name='fields.status'
-                                    value={data.fields.status}
-                                    typePage={type}
-                                    register={register}
-                                />
-
-                                <Select
-                                    xs={12}
-                                    md={12}
-                                    title='Formulários'
-                                    name='formulario.fields'
-                                    value={data?.formulario.fields ?? null}
-                                    multiple={true}
-                                    limitTags={5}
-                                    required={true}
-                                    options={data.formulario.options}
-                                    register={register}
-                                    setValue={setValue}
-                                    errors={errors?.formulario?.fields}
-                                />
-                            </Grid>
-                        </CardContent>
-                    )}
-                </Card>
-
-                <Card sx={{ mt: 4 }}>
-                    <CardContent>
-                        <Typography sx={{ mb: 5 }}>Itens</Typography>
-                        <Grid container spacing={3}>
-                            {data &&
-                                data?.items?.map((item, index) => (
+                            <Typography sx={{ mb: 5 }}>Itens</Typography>
+                            <Grid container spacing={3}>
+                                {data?.items?.map((item, index) => (
                                     <>
                                         <Input
                                             xs={12}
@@ -254,21 +261,22 @@ const FormGrupoAnexos = () => {
                                         />
                                     </>
                                 ))}
-                        </Grid>
-                        <Button
-                            variant='outlined'
-                            color='primary'
-                            sx={{ mt: 4 }}
-                            startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
-                            onClick={() => {
-                                addItem()
-                            }}
-                        >
-                            Inserir item
-                        </Button>
-                    </CardContent>
-                </Card>
-            </form>
+                            </Grid>
+                            <Button
+                                variant='outlined'
+                                color='primary'
+                                sx={{ mt: 4 }}
+                                startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
+                                onClick={() => {
+                                    addItem()
+                                }}
+                            >
+                                Inserir item
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </form>
+            )}
 
             {/* Modal excluir */}
             <DialogForm
