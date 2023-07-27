@@ -21,18 +21,14 @@ const Unidade = () => {
     const router = useRouter()
     const currentLink = router.pathname
     const { setTitle } = useContext(ParametersContext)
-    const { user, loggedUnity } = useContext(AuthContext)
+    const { user } = useContext(AuthContext)
 
     useEffect(() => {
         const getList = async () => {
-            await api
-                .get(
-                    `${currentLink}?admin=${user.admin}&unidadeID=${loggedUnity.unidadeID}&usuarioID=${user.usuarioID}`
-                )
-                .then(response => {
-                    setResult(response.data)
-                    setTitle('Unidade')
-                })
+            await api.get(`${currentLink}?usuarioID=${user.usuarioID}`).then(response => {
+                setResult(response.data)
+                setTitle('Unidade')
+            })
         }
         getList()
     }, [])

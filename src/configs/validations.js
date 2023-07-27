@@ -1,7 +1,7 @@
 // Valida se o CNPJ é válido
 function validationCNPJ(cnpj) {
     // Remove caracteres indesejados do CNPJ
-    cnpj = cnpj?.replace(/[^\d]+/g, '')
+    cnpj = cnpj.replace(/[^\d]+/g, '')
 
     // Valida a quantidade de dígitos do CNPJ
     if (cnpj.length !== 14) {
@@ -101,9 +101,5 @@ function validationCPF(cpf) {
     return true
 }
 
-function validationEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-}
 
-export { validationCNPJ, validationCPF, validationEmail }
+export { validationCNPJ, validationCPF }

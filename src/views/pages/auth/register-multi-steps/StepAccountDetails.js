@@ -1,11 +1,10 @@
 // ** React Imports
 
-import { get, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { api } from 'src/configs/api'
 import { useState } from 'react'
-import { api } from '../../../../configs/api'
-import { useEffect, useRef } from 'react'
 
 // ** MUI Components
 import Box from '@mui/material/Box'
@@ -19,23 +18,16 @@ import Router from 'next/router'
 import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
 import InputAdornment from '@mui/material/InputAdornment'
-import { Alert, OutlinedInput } from '@mui/material'
+import { OutlinedInput } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import Link from 'next/link'
-import { set } from 'nprogress'
 
 const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
     const router = Router
     const rota = router.pathname
-    const [existsTableFactory, setExistsTableFactory] = useState(null)
-    const [lenghtPassword, setLenghtPassword] = useState(null)
-    const inputRef = useRef(null)
-
-    console.log("exist", existsTableFactory)
-    console.log("dataglobal", dataGlobal)
 
     const [values, setValues] = useState({
         showPassword: false,
@@ -96,7 +88,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
             .string()
             .when('cnpj', {
                 is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
-                then: yup.string().required('Senha é obrigatório').min(4, 'Senha deve ter no mínimo 4 caracteres')
+                then: yup.string().required('Senha é obrigatório')
             }),
 
         confirmaSenha: yup
@@ -104,7 +96,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
             .oneOf([yup.ref('senha')], 'As senhas não conferem')
             .when('cnpj', {
                 is: (val) => dataGlobal?.usuario?.exists === false ? true : false,
-                then: yup.string().required('Confirmação de senha é obrigatório').min(4, 'Senha deve ter no mínimo 4 caracteres')
+                then: yup.string().required('Confirmação de senha é obrigatório')
             })
     })
 
@@ -117,14 +109,9 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
         resolver: yupResolver(schema)
     })
 
-
     const handleGetCnpj = (cnpj) => {
         if (cnpj.length === 18 && validationCNPJ(cnpj)) {
-            api.post(`/registro-fornecedor`, { value: cnpj }, { headers: { 'function-name': 'VerifyCnpjTableFactory' } }).then((response, err) => {
-                setExistsTableFactory(response.data)
-            })
-            api.post(`/registro-fornecedor`, { cnpj: cnpj }, { headers: { 'function-name': 'handleGetCnpj' } }).then((response, err) => {
-                console.log("🚀 ~ :", response.data)
+            api.post(`http://localhost:3333/api/registro`, { cnpj: cnpj }, { headers: { 'function-name': 'handleGetCnpj' } }).then((response, err) => {
                 if (response.data.length > 0) {
                     // Quero manter oque ja tem no dataGlobal e adicionar o que vem do response.data[0]
                     setDataGlobal({
@@ -178,39 +165,12 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
         })
     }
 
-    // UnidadeID e CNPJ criptografados / CNPJ esta com mascara de apenas numeros
-    const unidadeIDRouter = router.query.u
-    const cnpjRouter = router.query.c
-
-    const setAcessLink = async (unidadeID, cnpj) => {
-        const data = {
-            unidadeID,
-            cnpj
-        }
-        await api.post(`/login-fornecedor/setAcessLink`, { data })
-            .then((response, err) => {
-                handleGetCnpj(response.data[0].cnpj)
-                setValue('cnpj', response.data[0].cnpj)
-            })
-    }
-
-    useEffect(() => {
-        if (unidadeIDRouter && cnpjRouter) {
-            setAcessLink(unidadeIDRouter, cnpjRouter)
-            setTimeout(() => {
-                inputRef?.current?.focus()
-            }, 500)
-        }
-
-    }, [unidadeIDRouter, cnpjRouter])
-
-
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Box sx={{ mb: 4 }}>
-                    <Typography variant='h5'>Informações obrigatórios</Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>Insira as informações obrigatórias</Typography>
+                    <Typography variant='h5'>Informações do usuário</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>Insira os detalhes da usuario</Typography>
                 </Box>
                 <Grid container spacing={5}>
 
@@ -228,26 +188,16 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
 
                             inputProps={{
                                 maxLength: 18,
-                                type: 'tel', // define o tipo de entrada como 'tel'
-                                inputMode: 'numeric', // define o inputMode como 'numeric'
                                 onChange: e => {
                                     setValue('cnpj', cnpjMask(e.target.value))
+
                                 }
                             }}
                         />
                     </Grid>
 
                     {
-                        !existsTableFactory && dataGlobal?.usuario?.exists === false && (
-                            <Grid item xs={12} md={12}>
-                                <Alert severity='warning'>
-                                    Antes de realizar o cadastro, é necessário que uma fábrica habilite o seu CNPJ como um fornecedor.
-                                </Alert>
-                            </Grid>
-                        )
-                    }
-                    {
-                        dataGlobal && dataGlobal?.usuario?.exists === false && existsTableFactory === true && (
+                        dataGlobal && dataGlobal?.usuario?.exists === false && (
                             <>
                                 <Grid item xs={12} md={6}>
                                     <TextField
@@ -256,7 +206,6 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                         defaultValue={dataGlobal?.usuario?.fields?.nomeFantasia}
                                         {...register('nomeFantasia', { required: true })}
                                         error={errors.nomeFantasia && true}
-                                        inputRef={inputRef}
                                         helperText={errors.nomeFantasia && errors.nomeFantasia.message}
                                     />
                                 </Grid>
@@ -264,7 +213,6 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                     <TextField
                                         fullWidth
                                         label='Razão Social'
-                                        className='required'
                                         defaultValue={dataGlobal?.usuario?.fields?.razaoSocial}
                                         {...register('razaoSocial', { required: true })}
                                         error={errors.razaoSocial && true}
@@ -313,10 +261,6 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                             {...register('confirmaSenha')}
                                             id='input-confirm-password'
                                             type={values.showConfirmPassword ? 'text' : 'password'} // altere o tipo para 'password'
-                                            onChange={e => {
-                                                setLenghtPassword(e.target.value)
-                                                console.log("dentro do onchange", e.target.value)
-                                            }}
                                             endAdornment={
                                                 <InputAdornment position='end'>
                                                     <IconButton
@@ -346,8 +290,8 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 <Box sx={{ display: 'flex', gap: '100px' }}>
                                     <Box>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <Typography sx={{ color: 'text.primary' }}>Nome Fantasia:</Typography>
-                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.nomeFantasia}</Typography>
+                                            <Typography sx={{ color: 'text.primary' }}>Responsável:</Typography>
+                                            <Typography sx={{ color: 'text.secondary' }}>{dataGlobal?.usuario?.fields.nome}</Typography>
                                         </Box>
                                         <Box sx={{ display: 'flex', gap: 2 }}>
                                             <Typography sx={{ color: 'text.primary' }}>Email Institucional:</Typography>
@@ -356,91 +300,10 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
 
                                     </Box>
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                        {
-                                            dataGlobal?.usuario?.fields?.existsFornecedor > 0 && (
-                                                <>
-                                                    <Typography
-                                                        href='/fornecedor'
-                                                        component={Link}
-                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
-                                                    >
-                                                        Fazer login
-                                                    </Typography>
-                                                    <Typography
-                                                        href='/fornecedor'
-                                                        component={Link}
-                                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
-                                                    >
-                                                        Esqueceu a senha?
-                                                    </Typography>
-                                                </>
-                                            )
-                                        }
+                                        <Link href='#'>Fazer login</Link>
+                                        <Link href='#'>Esqueceu a senha?</Link>
                                     </Box>
                                 </Box>
-
-                                {/* Empresa já cadastrada mas sem usuario, é necessario criar uma senha */}
-                                {
-                                    dataGlobal?.usuario?.fields?.existsFornecedor === 0 && existsTableFactory && (
-                                        <>
-                                            <h3 sx={{ color: 'text.primary', marginTop: "10px" }}>Empresa já cadastrada, apenas é necessario criar um usuário</h3>
-                                            <Grid item xs={12} sm={6} mt={6}>
-                                                <FormControl fullWidth>
-                                                    <InputLabel htmlFor='input-password' color={errors.senha ? 'error' : ''}>Senha</InputLabel>
-                                                    <OutlinedInput
-                                                        label='Senha'
-                                                        id='input-password'
-                                                        type={values.showPassword ? 'text' : 'password'}
-                                                        name='senha'
-                                                        {...register('senha')}
-                                                        endAdornment={
-                                                            <InputAdornment position='end'>
-                                                                <IconButton edge='end' onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword}>
-                                                                    <Icon icon={values.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} />
-                                                                </IconButton>
-                                                            </InputAdornment>
-                                                        }
-                                                        error={errors.senha && true}
-                                                        helperText={errors.senha && errors.senha.message}
-                                                    />
-                                                </FormControl>
-                                            </Grid>
-                                            <Grid item xs={12} sm={6} mt={6}>
-                                                <FormControl fullWidth>
-                                                    <InputLabel htmlFor='input-confirm-password' style={{
-                                                        color: errors.confirmaSenha && 'red'
-                                                    }}  >Confirme a senha</InputLabel>
-                                                    <OutlinedInput
-                                                        label='Confirme a senha'
-                                                        name='confirmaSenha'
-                                                        {...register('confirmaSenha')}
-                                                        id='input-confirm-password'
-                                                        type={values.showConfirmPassword ? 'text' : 'password'} // altere o tipo para 'password'
-                                                        onChange={e => {
-                                                            setLenghtPassword(e.target.value)
-                                                            console.log("dentro do onchange", e.target.value)
-                                                        }}
-                                                        endAdornment={
-                                                            <InputAdornment position='end'>
-                                                                <IconButton
-                                                                    edge='end'
-                                                                    onClick={handleClickShowConfirmPassword}
-                                                                    onMouseDown={handleMouseDownConfirmPassword}
-                                                                >
-                                                                    <Icon icon={values.showConfirmPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'} />
-                                                                </IconButton>
-                                                            </InputAdornment>
-                                                        }
-                                                        error={errors.confirmaSenha && true}
-                                                    />
-                                                    <Typography variant='caption' sx={{ color: 'error.main' }}>
-                                                        {errors.confirmaSenha && errors.confirmaSenha.message}
-                                                    </Typography>
-                                                </FormControl>
-                                            </Grid>
-                                        </>
-                                    )
-                                }
                             </Grid>
                         )
                     }
@@ -454,7 +317,7 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                                 Anterior
                             </Button>
                             <Button
-                                disabled={!existsTableFactory || (dataGlobal?.usuario?.exists === true && dataGlobal?.usuario?.fields?.existsFornecedor > 0 ? true : false) || (lenghtPassword <= 0 || lenghtPassword == null || lenghtPassword == undefined)}
+                                disabled={dataGlobal?.usuario?.exists === true}
                                 type='submit'
                                 variant='contained'
                                 onClick={handleSubmit}
@@ -462,27 +325,6 @@ const StepAccountDetails = ({ handleNext, setDataGlobal, dataGlobal, }) => {
                             >
                                 Proximo
                             </Button>
-                        </Box>
-
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                marginTop: 10,
-                                flexWrap: 'wrap',
-                                justifyContent: 'start'
-                            }}
-                        >
-                            <Typography sx={{ mr: 2, color: 'text.secondary' }}>
-                                Fazer login?
-                            </Typography>
-                            <Typography
-                                href='/fornecedor'
-                                component={Link}
-                                sx={{ color: 'primary.main', textDecoration: 'none' }}
-                            >
-                                Login
-                            </Typography>
                         </Box>
                     </Grid>
                 </Grid>

@@ -8,6 +8,7 @@ import CardContent from '@mui/material/CardContent'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { useContext, useEffect } from 'react'
 
+
 const Home = () => {
     const { setTitle } = useContext(ParametersContext)
 
@@ -15,23 +16,21 @@ const Home = () => {
         setTitle('Home')
     }, [])
 
+
     return (
         <Grid container spacing={6}>
             <Grid item xs={12}>
                 <Card>
-                    <CardHeader title='Home' />
+                    <CardHeader title="Home" />
                     <CardContent>
-                        <Typography variant='body1'>lorem ipsum</Typography>
+                        <Typography variant="body1">
+                            lorem ipsum
+                        </Typography>
                     </CardContent>
                 </Card>
             </Grid>
         </Grid>
     )
-}
-
-Home.acl = {
-    action: 'read',
-    subject: 'acl-page'
 }
 
 export default Home

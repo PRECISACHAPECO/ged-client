@@ -6,7 +6,7 @@ const TransportadorForm = () => {
     const { setTitle } = useContext(ParametersContext)
 
     useEffect(() => {
-        setTitle('Produto')
+        setTitle('Produtos')
     }, [])
 
     return <FormProdutos />

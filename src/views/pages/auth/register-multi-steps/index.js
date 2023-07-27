@@ -20,12 +20,12 @@ import StepperWrapper from 'src/@core/styles/mui/stepper'
 
 const steps = [
   {
-    title: 'Dados obrigatórios',
-    subtitle: 'Insira os dados obrigatórios'
+    title: 'Usuário',
+    subtitle: 'Insira os dados do usuário'
   },
   {
-    title: 'Dados opcionais',
-    subtitle: 'Insira os dados opcionais'
+    title: 'Usuário',
+    subtitle: 'Insira os dados do usuário'
   },
   {
     title: 'Finalizar',

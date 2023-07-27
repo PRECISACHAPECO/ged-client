@@ -1,6 +1,5 @@
 // ** React Imports
-import { useState, useEffect, useContext } from 'react'
-import Router from 'next/router'
+import { useState, useContext } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -22,8 +21,6 @@ import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography from '@mui/material/Typography'
 import MuiFormControlLabel from '@mui/material/FormControlLabel'
-import { cpfMask } from 'src/configs/masks'
-import { validationCPF } from 'src/configs/validations'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -49,8 +46,6 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 // ** Demo Imports
 import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
 import DialogSelectUnit from 'src/components/Defaults/Dialogs/DialogSelectUnit'
-import { toast } from 'react-hot-toast'
-import Logo from 'src/components/Defaults/Logo'
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)(({ theme }) => ({
@@ -103,13 +98,8 @@ const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
 }))
 
 const schema = yup.object().shape({
-    cpf: yup
-        .string()
-        .min(14, 'O CPF deve ser preenchido completamente')
-        .required('O CPF é obrigatório')
-        .test('valida-cpf', 'CPF inválido', value => validationCPF(value)),
-
-    password: yup.string().min(4, 'A senha deve conter no mínimo 4 digitos').required('A senha é obrigatória')
+    cpf: yup.string().required().min(14).max(14),
+    password: yup.string().min(5).required()
 })
 
 const defaultValues = {
@@ -126,11 +116,12 @@ const LoginPage = ({ units }) => {
 
     // Abre modal para selecionar unidade
     const [openModalSelectUnit, setOpenModalSelectUnit] = useState(false)
+
     // Dados do usuário
     const [data, setData] = useState({})
+
     // Unidade selecionada
     const [selectedUnit, setSelectedUnit] = useState(null)
-    const router = Router
 
     // ** Hooks
     const auth = useAuth()
@@ -157,14 +148,11 @@ const LoginPage = ({ units }) => {
         const { cpf, password } = data
         const verifyUnits = true
         setData(data)
-        auth.login({ cpf, password, rememberMe, verifyUnits }, error => {
+        auth.login({ cpf, password, rememberMe, verifyUnits }, () => {
             setError('cpf', {
                 type: 'manual',
                 message: 'CPF e/ou senha inválidos!'
             })
-            if (error && error.response && error.response.status === 401) {
-                toast.error('CPF e/ou senha inválidos!')
-            }
         })
     }
     const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
@@ -208,19 +196,13 @@ const LoginPage = ({ units }) => {
                             justifyContent: 'center'
                         }}
                     >
-                        <img src='/images/storyset/login.svg' style={{ height: '100vh' }} />
-                        <img
-                            alt='mask'
-                            src='https://demos.pixinvent.com/materialize-nextjs-admin-template/demo-3/images/pages/misc-mask-light.png'
-                            className='css-84vgca'
-                            style={{
-                                position: 'absolute',
-                                zIndex: '-1',
-                                bottom: '0',
-                                left: '0',
-                                width: '100%'
-                            }}
-                        />
+                        <LoginIllustrationWrapper>
+                            <LoginIllustration
+                                alt='login-illustration'
+                                src={`/images/pages/${imageSource}-${theme.palette.mode}.png`}
+                            />
+                        </LoginIllustrationWrapper>
+                        <FooterIllustrationsV2 />
                     </Box>
                 ) : null}
                 <RightWrapper
@@ -247,11 +229,91 @@ const LoginPage = ({ units }) => {
                                     justifyContent: 'center'
                                 }}
                             >
-                                {/* Logo do sistema GED */}
-                                <Logo />
+                                <svg
+                                    width={47}
+                                    fill='none'
+                                    height={26}
+                                    viewBox='0 0 268 150'
+                                    xmlns='http://www.w3.org/2000/svg'
+                                >
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fill={theme.palette.primary.main}
+                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 195.571 0)'
+                                    />
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fillOpacity='0.4'
+                                        fill='url(#paint0_linear_7821_79167)'
+                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 196.084 0)'
+                                    />
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fill={theme.palette.primary.main}
+                                        transform='matrix(0.865206 0.501417 -0.498585 0.866841 173.147 0)'
+                                    />
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fill={theme.palette.primary.main}
+                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 94.1973 0)'
+                                    />
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fillOpacity='0.4'
+                                        fill='url(#paint1_linear_7821_79167)'
+                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 94.1973 0)'
+                                    />
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fill={theme.palette.primary.main}
+                                        transform='matrix(0.865206 0.501417 -0.498585 0.866841 71.7728 0)'
+                                    />
+                                    <defs>
+                                        <linearGradient
+                                            y1='0'
+                                            x1='25.1443'
+                                            x2='25.1443'
+                                            y2='143.953'
+                                            id='paint0_linear_7821_79167'
+                                            gradientUnits='userSpaceOnUse'
+                                        >
+                                            <stop />
+                                            <stop offset='1' stopOpacity='0' />
+                                        </linearGradient>
+                                        <linearGradient
+                                            y1='0'
+                                            x1='25.1443'
+                                            x2='25.1443'
+                                            y2='143.953'
+                                            id='paint1_linear_7821_79167'
+                                            gradientUnits='userSpaceOnUse'
+                                        >
+                                            <stop />
+                                            <stop offset='1' stopOpacity='0' />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <Typography
+                                    variant='h6'
+                                    sx={{ ml: 2, lineHeight: 1, fontWeight: 700, fontSize: '1.5rem !important' }}
+                                >
+                                    {themeConfig.templateName}
+                                </Typography>
                             </Box>
                             <Box sx={{ mb: 6 }}>
-                                <TypographyStyled variant='h5'>{`Bem-vindo ao ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
+                                <TypographyStyled variant='h5'>{`Bem vindo ao ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
                                 <Typography variant='body2'>Digite seu CPF e senha para começar</Typography>
                             </Box>
 
@@ -265,16 +327,11 @@ const LoginPage = ({ units }) => {
                                             <TextField
                                                 autoFocus
                                                 label='CPF'
-                                                value={cpfMask(value ?? '')}
+                                                value={value}
                                                 onBlur={onBlur}
                                                 onChange={onChange}
                                                 error={Boolean(errors.cpf)}
                                                 placeholder='000.000.000-00'
-                                                inputProps={{
-                                                    maxLength: 14,
-                                                    type: 'tel', // define o tipo de entrada como 'tel'
-                                                    inputMode: 'numeric' // define o inputMode como 'numeric'
-                                                }}
                                             />
                                         )}
                                     />
@@ -349,7 +406,7 @@ const LoginPage = ({ units }) => {
                                     <Typography
                                         variant='body2'
                                         component={Link}
-                                        href='/esqueceu-sua-senha?type=login'
+                                        href='/forgot-password'
                                         sx={{ color: 'primary.main', textDecoration: 'none' }}
                                     >
                                         Esqueceu sua senha?
@@ -358,24 +415,26 @@ const LoginPage = ({ units }) => {
                                 <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
                                     Entrar
                                 </Button>
-                            </form>
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    flexWrap: 'wrap',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                <Typography sx={{ mr: 2, color: 'text.secondary' }}>É um fornecedor?</Typography>
-                                <Typography
-                                    href='/fornecedor'
-                                    component={Link}
-                                    sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        justifyContent: 'center'
+                                    }}
                                 >
-                                    Login
-                                </Typography>
-                            </Box>
+                                    <Typography sx={{ mr: 2, color: 'text.secondary' }}>
+                                        É um fornecedor novo?
+                                    </Typography>
+                                    <Typography
+                                        href='/registro'
+                                        component={Link}
+                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
+                                    >
+                                        Registre-se
+                                    </Typography>
+                                </Box>
+                            </form>
                         </BoxWrapper>
                     </Box>
                 </RightWrapper>

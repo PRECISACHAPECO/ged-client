@@ -27,22 +27,13 @@ import { toastMessage } from 'src/configs/defaultConfigs'
 import Loading from 'src/components/Loading'
 import Icon from 'src/@core/components/icon'
 
-//* Custom components
-import Select from 'src/components/Form/Select'
-import Input from 'src/components/Form/Input'
-import Check from 'src/components/Form/Check'
-import CheckLabel from 'src/components/Form/CheckLabel'
-import Remove from 'src/components/Form/Remove'
-
 const FormParametrosRecebimentoMp = () => {
     const { user, loggedUnity } = useContext(AuthContext)
     const [headers, setHeaders] = useState()
     const [products, setProducts] = useState()
-    const [options, setOptions] = useState(null)
-    const [blocks, setBlocks] = useState([])
-    const [orientacoes, setOrientacoes] = useState(null)
-    const [savingForm, setSavingForm] = useState(false)
-    const [arrRemovedItems, setArrRemovedItems] = useState([])
+    const [optionsItens, setOptionsItens] = useState([])
+    const [blocks, setBlocks] = useState()
+    const [orientacoes, setOrientacoes] = useState()
 
     const router = Router
     const staticUrl = backRoute(router.pathname) // Url sem ID
@@ -51,40 +42,23 @@ const FormParametrosRecebimentoMp = () => {
     const {
         setValue,
         register,
-        reset,
         handleSubmit,
         formState: { errors }
     } = useForm()
 
-    // const initializeValues = values => {
-    //     values.blocks.map((block, indexBlock) => {
-    //         block.itens.map((item, indexItem) => {
-    //             if (item) {
-    //                 setValue(`blocks.[${indexBlock}].itens.[${indexItem}].item`, item.item)
-    //                 setValue(`blocks.[${indexBlock}].itens.[${indexItem}].alternativa`, item.alternativa)
-    //             }
-    //         })
-    //     })
-    // }
-
-    const onSubmit = async values => {
-        const data = {
-            unidadeID: loggedUnity.unidadeID,
-            header: values.header,
-            products: values.products,
-            blocks: values.blocks,
-            arrRemovedItems: arrRemovedItems,
-            orientacoes: values.orientacoes
+    const onSubmit = async data => {
+        const dataForm = {
+            header: data.headers,
+            products: data.products,
+            blocks: data.blocks
+            // orientacoes: data.orientacoes
         }
 
-        setHeaders(null) //? Pra exibir loading
-
-        console.log('onSubmit: ', data)
+        console.log('onSubmit: ', dataForm)
 
         try {
-            await api.put(`${staticUrl}/recebimentoMp/updateData`, data).then(response => {
+            await api.put(`${staticUrl}/recebimentoMp/${loggedUnity.unidadeID}`, dataForm).then(response => {
                 toast.success(toastMessage.successUpdate)
-                setSavingForm(!savingForm)
             })
         } catch (error) {
             console.log(error)
@@ -100,8 +74,6 @@ const FormParametrosRecebimentoMp = () => {
             obrigatorio: 1
         })
         setBlocks(newBlock)
-
-        refreshOptions(newBlock[index], index, blocks, options)
     }
 
     const addBlock = () => {
@@ -125,432 +97,448 @@ const FormParametrosRecebimentoMp = () => {
         setBlocks(newBlock)
     }
 
-    const getData = () => {
-        try {
-            api.post(`${staticUrl}/recebimentoMp/getData`, { unidadeID: loggedUnity.unidadeID }).then(response => {
-                console.log('getData: ', response.data)
-
-                //* Estados
-                setHeaders(response.data.header)
-                setProducts(response.data.products)
-                setBlocks(response.data.blocks)
-                setOrientacoes(response.data.orientacoes.obs)
-                setOptions(response.data.options)
-
-                //* Insere os dados no formulário
-                reset(response.data)
-
-                setTimeout(() => {
-                    response.data.blocks.map((block, indexBlock) => {
-                        refreshOptions(block, indexBlock, response.data.blocks, response.data.options)
-                    })
-                }, 3000)
-            })
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    const removeItem = (item, indexBlock, indexItem) => {
-        console.log('🚀 ~ length:', blocks[indexBlock].itens.length)
-        if (blocks[indexBlock].itens.length === 1) {
-            toast.error('Você deve ter ao menos um item!')
-            return
-        }
-        // Inserir no array de itens removidos
-        let newRemovedItems = [...arrRemovedItems]
-        newRemovedItems.push(item)
-        setArrRemovedItems(newRemovedItems)
-        // Remove item do bloco
-        const updatedBlocks = [...blocks]
-        const newBlock = [...blocks[indexBlock].itens]
-        newBlock.splice(indexItem, 1)
-        updatedBlocks[indexBlock].itens = newBlock
-        setBlocks(updatedBlocks)
-        console.log('🚀 ~ newBlock:', newBlock)
-        setValue(`blocks.[${indexBlock}].itens`, newBlock) //* Remove item do formulário
-        refreshOptions(blocks[indexBlock], indexBlock, blocks, options)
-    }
-
-    const refreshOptions = (block, index, blocks, allOptions) => {
-        let tempOptions = allOptions.itens
-
-        //? Verifica se a opção está presente nos itens selecionados do bloco
-        tempOptions = tempOptions.filter(option => {
-            const isSelected = block.itens.some(i => i.item && option.id === i.item.id)
-            return !isSelected // Retorna true para manter a opção, false para remover
-        })
-
-        // Atualiza block.optionsBlock do bloco
-        let newBlock = [...blocks]
-        newBlock[index].optionsBlock.itens = tempOptions
-        setBlocks(newBlock)
-    }
-
     useEffect(() => {
         setTitle('Formulário do Recebimento de MP')
-        getData()
-    }, [savingForm])
+        console.log('=> ', staticUrl)
+
+        // Obtem o cabeçalho do formulário
+        const getHeader = () => {
+            api.get(`${staticUrl}/recebimentoMp/${loggedUnity.unidadeID}`, {
+                headers: { 'function-name': 'getHeader' }
+            }).then(response => {
+                console.log('getHeader: ', response.data)
+                setHeaders(response.data)
+            })
+        }
+
+        // Obtem os produtos
+        const getProducts = () => {
+            api.get(`${staticUrl}/recebimentoMp/${loggedUnity.unidadeID}`, {
+                headers: { 'function-name': 'getProducts' }
+            }).then(response => {
+                console.log('getProducts: ', response.data)
+                setProducts(response.data)
+            })
+        }
+
+        // Obtem as opções pra seleção da listagem dos selects de itens e alternativas
+        const getOptionsItens = () => {
+            api.get(`${staticUrl}/recebimentoMp/${loggedUnity.unidadeID}`, {
+                headers: { 'function-name': 'getOptionsItens' }
+            }).then(response => {
+                console.log('getOptionsItens: ', response.data)
+                setOptionsItens(response.data)
+            })
+        }
+
+        // Obtem os blocos do formulário
+        const getBlocks = () => {
+            api.get(`${staticUrl}/recebimentoMp/${loggedUnity.unidadeID}`, {
+                headers: { 'function-name': 'getBlocks' }
+            }).then(response => {
+                console.log('getBlocks: ', response.data)
+                setBlocks(response.data)
+            })
+        }
+
+        getHeader()
+        getProducts()
+        getBlocks()
+        getOptionsItens()
+    }, [])
 
     console.log('errors: ', errors)
 
     return (
         <>
-            {!headers ? (
-                <Loading />
-            ) : (
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    {/* Cabeçalho */}
-                    {headers && (
-                        <Card>
-                            <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} />
-                            <CardContent>
-                                {/* Lista campos */}
-                                <List component='nav' aria-label='main mailbox'>
-                                    <Grid container spacing={2}>
-                                        {/* Cabeçalho */}
-                                        <Grid item md={4}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Nome do Campo
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item md={3}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Mostra no Formulário
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item md={3}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Obrigatório
-                                            </Typography>
-                                        </Grid>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                {/* Cabeçalho */}
+                {headers && (
+                    <Card>
+                        <FormHeader btnCancel btnSave handleSubmit={() => handleSubmit(onSubmit)} />
+                        <CardContent>
+                            {/* Lista campos */}
+                            <List component='nav' aria-label='main mailbox'>
+                                <Grid container spacing={2}>
+                                    {/* Cabeçalho */}
+                                    <ListItem divider disablePadding>
+                                        <ListItemButton>
+                                            <Grid item md={4}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Nome do Campo
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item md={3}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Mostra no Formulário
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item md={3}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Obrigatório
+                                                </Typography>
+                                            </Grid>
+                                        </ListItemButton>
+                                    </ListItem>
 
-                                        {headers.map((header, index) => (
-                                            <>
-                                                <input
-                                                    type='hidden'
-                                                    name={`header.[${index}].parRecebimentompID`}
-                                                    defaultValue={header.parRecebimentompID}
-                                                    {...register(`headers.[${index}].parRecebimentompID`)}
-                                                />
-
-                                                <Grid item md={4}>
-                                                    {header.nomeCampo}
-                                                </Grid>
-
-                                                <CheckLabel
-                                                    xs={12}
-                                                    md={3}
-                                                    title=''
-                                                    name={`header.[${index}].mostra`}
-                                                    value={header.mostra}
-                                                    register={register}
-                                                />
-
-                                                <CheckLabel
-                                                    xs={12}
-                                                    md={3}
-                                                    title=''
-                                                    name={`header.[${index}].obrigatorio`}
-                                                    value={header.obrigatorio}
-                                                    register={register}
-                                                />
-                                            </>
-                                        ))}
-                                    </Grid>
-                                </List>
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {/* Produtos */}
-                    {products && (
-                        <Card sx={{ mt: 4 }}>
-                            <CardContent>
-                                {/* Lista campos */}
-                                <List component='nav' aria-label='main mailbox'>
-                                    <Grid container spacing={2}>
-                                        {/* Cabeçalho */}
-                                        <Grid item md={4}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Nome do Campo
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item md={3}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Mostra no Formulário
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item md={3}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                Obrigatório
-                                            </Typography>
-                                        </Grid>
-
-                                        {products.map((product, index) => (
-                                            <>
-                                                <input
-                                                    type='hidden'
-                                                    name={`products.[${index}].parRecebimentoMpProdutoID`}
-                                                    defaultValue={product.parRecebimentompProdutoID}
-                                                    {...register(`products.[${index}].parRecebimentoMpProdutoID`)}
-                                                />
-
-                                                <Grid item md={4}>
-                                                    {product.nomeCampo}
-                                                </Grid>
-
-                                                <CheckLabel
-                                                    xs={12}
-                                                    md={3}
-                                                    title=''
-                                                    name={`products.[${index}].mostra`}
-                                                    value={product.mostra}
-                                                    register={register}
-                                                />
-
-                                                <CheckLabel
-                                                    xs={12}
-                                                    md={3}
-                                                    title=''
-                                                    name={`products.[${index}].obrigatorio`}
-                                                    value={product.obrigatorio}
-                                                    register={register}
-                                                />
-                                            </>
-                                        ))}
-                                    </Grid>
-                                </List>
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {/* Blocos */}
-                    {blocks &&
-                        blocks.map((block, index) => (
-                            <Card key={index} md={12} sx={{ mt: 4 }}>
-                                <CardContent>
-                                    <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 4 }}>
-                                        {`Bloco ${index + 1}`}
-                                    </Typography>
-                                    {/* Header */}
-                                    <input
-                                        type='hidden'
-                                        name={`blocks.[${index}].parRecebimentompBlocoID`}
-                                        defaultValue={block.dados.parRecebimentompBlocoID}
-                                        {...register(`blocks.[${index}].parRecebimentompBlocoID`)}
-                                    />
-
-                                    <Grid container spacing={4}>
-                                        <Input
-                                            xs={12}
-                                            md={1}
-                                            title='Sequência'
-                                            name={`blocks.[${index}].dados.ordem`}
-                                            value={block.dados.ordem}
-                                            required={true}
-                                            register={register}
-                                            errors={errors?.blocks?.[index]?.dados?.ordem}
-                                        />
-
-                                        <Input
-                                            xs={12}
-                                            md={9}
-                                            title='Nome do Bloco'
-                                            name={`blocks.[${index}].dados.nome`}
-                                            value={block.dados.nome}
-                                            required={true}
-                                            register={register}
-                                            errors={errors?.blocks?.[index]?.dados?.nome}
-                                        />
-
-                                        <Check
-                                            xs={12}
-                                            md={1}
-                                            title='Ativo'
-                                            name={`blocks.[${index}].dados.status`}
-                                            value={blocks[index].dados.status}
-                                            register={register}
-                                        />
-
-                                        <Check
-                                            xs={12}
-                                            md={1}
-                                            title='Observação'
-                                            name={`blocks.[${index}].dados.obs`}
-                                            value={blocks[index].dados.obs}
-                                            register={register}
-                                        />
-                                    </Grid>
-
-                                    {/* Itens */}
-                                    <Grid container spacing={4} sx={{ mt: 0 }}>
-                                        <Grid item xs={12} md={12}>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                {`Itens`}
-                                            </Typography>
-                                        </Grid>
-                                        {block.itens &&
-                                            block.itens.map((item, indexItem) => (
-                                                <>
+                                    {headers.map((header, index) => (
+                                        <>
+                                            <ListItem key={index} divider disablePadding>
+                                                <ListItemButton>
                                                     <input
                                                         type='hidden'
-                                                        name={`blocks.[${index}].itens.[${indexItem}].parRecebimentompBlocoItemID`}
-                                                        defaultValue={item.parRecebimentompBlocoItemID}
-                                                        {...register(
-                                                            `blocks.[${index}].itens.[${indexItem}].parRecebimentompBlocoItemID`
-                                                        )}
+                                                        name={`headers.[${index}].parRecebimentompID`}
+                                                        defaultValue={header.parRecebimentompID}
+                                                        {...register(`headers.[${index}].parRecebimentompID`)}
                                                     />
 
-                                                    <Input
-                                                        xs={12}
-                                                        md={1}
-                                                        title='Sequência'
-                                                        name={`blocks.[${index}].itens.[${indexItem}].ordem`}
-                                                        value={item.ordem}
-                                                        required={true}
-                                                        register={register}
-                                                        errors={errors?.blocks?.[index]?.itens?.[indexItem]?.ordem}
+                                                    <Grid item md={4}>
+                                                        {header.nomeCampo}
+                                                    </Grid>
+
+                                                    <Grid item md={3}>
+                                                        <Checkbox
+                                                            name={`headers.[${index}].mostra`}
+                                                            {...register(`headers.[${index}].mostra`)}
+                                                            defaultChecked={headers[index].mostra == 1 ? true : false}
+                                                        />
+                                                    </Grid>
+
+                                                    <Grid item md={3}>
+                                                        <Checkbox
+                                                            name={`headers.[${index}].obrigatorio`}
+                                                            {...register(`headers.[${index}].obrigatorio`)}
+                                                            defaultChecked={
+                                                                headers[index].obrigatorio == 1 ? true : false
+                                                            }
+                                                        />
+                                                    </Grid>
+                                                </ListItemButton>
+                                            </ListItem>
+                                        </>
+                                    ))}
+                                </Grid>
+                            </List>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Produtos */}
+                {products && (
+                    <Card sx={{ mt: 4 }}>
+                        <CardContent>
+                            {/* Lista campos */}
+                            <List component='nav' aria-label='main mailbox'>
+                                <Grid container spacing={2}>
+                                    {/* Cabeçalho */}
+                                    <ListItem divider disablePadding>
+                                        <ListItemButton>
+                                            <Grid item md={4}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Nome do Campo
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item md={3}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Mostra no Formulário
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item md={3}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    Obrigatório
+                                                </Typography>
+                                            </Grid>
+                                        </ListItemButton>
+                                    </ListItem>
+
+                                    {products.map((product, index) => (
+                                        <>
+                                            <ListItem key={index} divider disablePadding>
+                                                <ListItemButton>
+                                                    <input
+                                                        type='hidden'
+                                                        name={`products.[${index}].parRecebimentoMpProdutoID`}
+                                                        defaultValue={product.parRecebimentoMpProdutoID}
+                                                        {...register(`products.[${index}].parRecebimentoMpProdutoID`)}
                                                     />
 
-                                                    <Select
-                                                        xs={12}
-                                                        md={5}
-                                                        title={
-                                                            blocks[index].itens[indexItem].itemID
-                                                                ? `Item [${blocks[index].itens[indexItem].itemID}]`
-                                                                : 'Item'
-                                                        }
-                                                        name={`blocks.[${index}].itens.[${indexItem}].item`}
-                                                        value={blocks[index].itens[indexItem].item ?? null}
-                                                        required={true}
-                                                        // options={block.optionsBlock.itens.map(row => {
-                                                        //     const isSelected = block.itens.some(i => {
-                                                        //         i.item && row.id == i.item.id
-                                                        //     })
-                                                        //     return !isSelected ? row : null
-                                                        // })}
-                                                        options={options.itens}
-                                                        register={register}
-                                                        setValue={setValue}
-                                                        errors={errors?.blocks?.[index]?.itens?.[indexItem]?.item}
-                                                    />
+                                                    <Grid item md={4}>
+                                                        {product.nomeCampo}
+                                                    </Grid>
 
-                                                    <Select
-                                                        xs={12}
-                                                        md={2}
-                                                        title='Alternativa'
-                                                        name={`blocks.[${index}].itens.[${indexItem}].alternativa`}
-                                                        value={blocks[index].itens[indexItem].alternativa ?? null}
-                                                        required={true}
-                                                        options={options.alternativas}
-                                                        register={register}
-                                                        setValue={setValue}
-                                                        errors={
-                                                            errors?.blocks?.[index]?.itens?.[indexItem]?.alternativa
-                                                        }
-                                                    />
+                                                    <Grid item md={3}>
+                                                        <Checkbox
+                                                            name={`products.[${index}].mostra`}
+                                                            {...register(`products.[${index}].mostra`)}
+                                                            defaultChecked={products[index].mostra == 1 ? true : false}
+                                                        />
+                                                    </Grid>
 
-                                                    <Check
-                                                        xs={12}
-                                                        md={1}
-                                                        title='Ativo'
-                                                        index={indexItem}
-                                                        name={`blocks.[${index}].itens.[${indexItem}].status`}
-                                                        value={blocks[index].itens[indexItem].status}
-                                                        register={register}
-                                                    />
+                                                    <Grid item md={3}>
+                                                        <Checkbox
+                                                            name={`products.[${index}].obrigatorio`}
+                                                            {...register(`products.[${index}].obrigatorio`)}
+                                                            defaultChecked={
+                                                                products[index].obrigatorio == 1 ? true : false
+                                                            }
+                                                        />
+                                                    </Grid>
+                                                </ListItemButton>
+                                            </ListItem>
+                                        </>
+                                    ))}
+                                </Grid>
+                            </List>
+                        </CardContent>
+                    </Card>
+                )}
 
-                                                    <Check
-                                                        xs={12}
-                                                        md={1}
-                                                        title='Obs'
-                                                        index={indexItem}
-                                                        name={`blocks.[${index}].itens.[${indexItem}].obs`}
-                                                        value={blocks[index].itens[indexItem].obs}
-                                                        register={register}
-                                                    />
+                {/* Blocos */}
+                {/* {!blocks && <Loading />} */}
+                {blocks &&
+                    blocks.map((block, index) => (
+                        <Card key={index} md={12} sx={{ mt: 4 }}>
+                            {/* <CardHeader title={`aaa`}> </CardHeader> */}
 
-                                                    <Check
-                                                        xs={12}
-                                                        md={1}
-                                                        title='Obrigatório'
-                                                        index={indexItem}
-                                                        name={`blocks.[${index}].itens.[${indexItem}].obrigatorio`}
-                                                        value={blocks[index].itens[indexItem].obrigatorio}
-                                                        register={register}
-                                                    />
-
-                                                    <Remove
-                                                        xs={12}
-                                                        md={1}
-                                                        title={indexItem == 0 ? 'Remover' : ''}
-                                                        index={index}
-                                                        removeItem={removeItem}
-                                                        item={item}
-                                                        pending={item.hasPending}
-                                                        textSuccess='Remover este item'
-                                                        textError='Este item não pode mais ser removido pois já foi respondido em um formulário'
-                                                    />
-                                                </>
-                                            ))}
-
-                                        {/* Botão inserir item */}
-                                        <Grid item xs={12} md={12}>
-                                            <Button
-                                                variant='outlined'
-                                                color='primary'
-                                                startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
-                                                onClick={() => {
-                                                    addItem(index)
-                                                }}
-                                            >
-                                                Inserir Item
-                                            </Button>
-                                        </Grid>
-                                    </Grid>
-                                </CardContent>
-                            </Card>
-                        ))}
-
-                    {/* Botão inserir bloco */}
-                    <Grid item xs={12} md={12} sx={{ mt: 4 }}>
-                        <Button
-                            variant='outlined'
-                            color='primary'
-                            startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
-                            onClick={() => {
-                                addBlock()
-                            }}
-                        >
-                            Inserir Bloco
-                        </Button>
-                    </Grid>
-
-                    {/* Orientações */}
-                    {headers && (
-                        <Card md={12} sx={{ mt: 4 }}>
                             <CardContent>
+                                <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 4 }}>
+                                    {`Bloco ${index + 1}`}
+                                </Typography>
+                                {/* Header */}
+                                <input
+                                    type='hidden'
+                                    name={`blocks.[${index}].parRecebimentompBlocoID`}
+                                    defaultValue={block.dados.parRecebimentompBlocoID}
+                                    {...register(`blocks.[${index}].parRecebimentompBlocoID`)}
+                                />
+
                                 <Grid container spacing={4}>
-                                    <Grid item xs={12} md={12}>
-                                        <Input
-                                            xs={12}
-                                            md={12}
-                                            title='Orientações'
-                                            name={`orientacoes.obs`}
-                                            required={false}
-                                            value={orientacoes?.obs}
-                                            multiline
-                                            rows={4}
-                                            register={register}
+                                    <Grid item xs={12} md={2}>
+                                        <TextField
+                                            label='Sequência'
+                                            placeholder='Sequência'
+                                            name={`blocks.[${index}].sequencia`}
+                                            defaultValue={block.dados.ordem}
+                                            {...register(`blocks.[${index}].sequencia`, { required: true })}
+                                            error={errors?.blocks?.[index]?.sequencia ? true : false}
                                         />
+                                    </Grid>
+
+                                    <Grid item xs={12} md={6}>
+                                        <FormControl fullWidth>
+                                            <TextField
+                                                label='Nome do Bloco'
+                                                placeholder='Nome do Bloco'
+                                                name={`blocks.[${index}].nome`}
+                                                defaultValue={block.dados.nome}
+                                                {...register(`blocks.[${index}].nome`, { required: true })}
+                                                error={errors?.blocks?.[index]?.nome ? true : false}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+
+                                    <Grid item xs={12} md={2}>
+                                        <Typography variant='body2'>Ativo</Typography>
+                                        <Checkbox
+                                            name={`blocks.[${index}].status`}
+                                            {...register(`blocks.[${index}].status`)}
+                                            defaultChecked={blocks[index].dados.status == 1 ? true : false}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} md={2}>
+                                        <Typography variant='body2'>Observação</Typography>
+                                        <Checkbox
+                                            name={`blocks.[${index}].obs`}
+                                            {...register(`blocks.[${index}].obs`)}
+                                            defaultChecked={blocks[index].dados.obs == 1 ? true : false}
+                                        />
+                                    </Grid>
+                                </Grid>
+
+                                {/* Itens */}
+                                <Grid container spacing={4} sx={{ mt: 4 }}>
+                                    {block.itens &&
+                                        block.itens.map((item, indexItem) => (
+                                            <>
+                                                <input
+                                                    type='hidden'
+                                                    name={`blocks.[${index}].itens.[${indexItem}].parRecebimentompBlocoItemID`}
+                                                    defaultValue={item.parRecebimentompBlocoItemID}
+                                                    {...register(
+                                                        `blocks.[${index}].itens.[${indexItem}].parRecebimentompBlocoItemID`
+                                                    )}
+                                                />
+
+                                                <Grid item xs={12} md={1}>
+                                                    <FormControl fullWidth>
+                                                        <TextField
+                                                            label='Sequência'
+                                                            placeholder='Sequência'
+                                                            name={`blocks.[${index}].itens.[${indexItem}].sequencia`}
+                                                            defaultValue={item.ordem}
+                                                            {...register(
+                                                                `blocks.[${index}].itens.[${indexItem}].sequencia`,
+                                                                { required: true }
+                                                            )}
+                                                            error={
+                                                                errors?.blocks?.[index]?.itens?.[indexItem]?.sequencia
+                                                                    ? true
+                                                                    : false
+                                                            }
+                                                        />
+                                                    </FormControl>
+                                                </Grid>
+
+                                                <Grid item xs={12} md={6}>
+                                                    <FormControl fullWidth>
+                                                        {blocks[index].itens[indexItem].nome !== '' && (
+                                                            <Autocomplete
+                                                                options={optionsItens.itens}
+                                                                defaultValue={blocks[index].itens[indexItem].item}
+                                                                getOptionLabel={option => option.nome || ''}
+                                                                name={`blocks.[${index}].itens.[${indexItem}].item`}
+                                                                {...register(
+                                                                    `blocks.[${index}].itens.[${indexItem}].item`
+                                                                )}
+                                                                onChange={(event, value) => {
+                                                                    console.log('===> ', value)
+                                                                    setValue(
+                                                                        `blocks.[${index}].itens.[${indexItem}].item`,
+                                                                        value ? value : ''
+                                                                    )
+                                                                }}
+                                                                renderInput={params => (
+                                                                    <TextField
+                                                                        {...params}
+                                                                        label='Item'
+                                                                        placeholder='Item'
+                                                                    />
+                                                                )}
+                                                            />
+                                                        )}
+                                                    </FormControl>
+                                                </Grid>
+
+                                                <Grid item xs={12} md={2}>
+                                                    <FormControl fullWidth>
+                                                        <Autocomplete
+                                                            options={optionsItens.alternativas}
+                                                            defaultValue={blocks[index].itens[indexItem]}
+                                                            id='autocomplete-outlined'
+                                                            getOptionLabel={option => option.alternativa || ''}
+                                                            onChange={(event, value) => {
+                                                                setValue(
+                                                                    `blocks.[${index}].itens.[${indexItem}].alternativaID`,
+                                                                    value?.alternativaID
+                                                                )
+                                                            }}
+                                                            renderInput={params => (
+                                                                <TextField
+                                                                    {...params}
+                                                                    name={`blocks.[${index}].itens.[${indexItem}].alternativa`}
+                                                                    label='Alternativa'
+                                                                    placeholder='Alternativa'
+                                                                    {...register(
+                                                                        `blocks.[${index}].itens.[${indexItem}].alternativa`
+                                                                    )}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </FormControl>
+                                                </Grid>
+
+                                                <Grid item md={1}>
+                                                    <Typography variant='body2'>
+                                                        {indexItem == 0 ? 'Ativo' : ''}
+                                                    </Typography>
+                                                    <Checkbox
+                                                        name={`blocks.[${index}][${indexItem}].status`}
+                                                        {...register(`blocks.[${index}].itens.[${indexItem}].status`)}
+                                                        defaultChecked={item.status == 1 ? true : false}
+                                                    />
+                                                </Grid>
+
+                                                <Grid item md={1}>
+                                                    <Typography variant='body2'>
+                                                        {indexItem == 0 ? 'Obs' : ''}
+                                                    </Typography>
+                                                    <Checkbox
+                                                        name={`blocks.[${index}][${indexItem}].obs`}
+                                                        // disabled checkbox se blocks.[${index}][${indexItem}].status for false
+                                                        disabled={item.status == 0 ? true : false}
+                                                        {...register(`blocks.[${index}].itens.[${indexItem}].obs`)}
+                                                        defaultChecked={item.obs == 1 ? true : false}
+                                                    />
+                                                </Grid>
+
+                                                <Grid item md={1}>
+                                                    <Typography variant='body2'>
+                                                        {indexItem == 0 ? 'Obrigatório' : ''}
+                                                    </Typography>
+                                                    <Checkbox
+                                                        name={`blocks.[${index}][${indexItem}].obrigatorio`}
+                                                        {...register(
+                                                            `blocks.[${index}].itens.[${indexItem}].obrigatorio`
+                                                        )}
+                                                        defaultChecked={item.obrigatorio == 1 ? true : false}
+                                                    />
+                                                </Grid>
+                                            </>
+                                        ))}
+
+                                    {/* Botão inserir item */}
+                                    <Grid item xs={12} md={12}>
+                                        <Button
+                                            variant='outlined'
+                                            color='primary'
+                                            startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
+                                            onClick={() => {
+                                                addItem(index)
+                                            }}
+                                        >
+                                            Inserir Item
+                                        </Button>
                                     </Grid>
                                 </Grid>
                             </CardContent>
                         </Card>
-                    )}
-                </form>
-            )}
+                    ))}
+
+                {/* Botão inserir bloco */}
+                <Grid item xs={12} md={12} sx={{ mt: 4 }}>
+                    <Button
+                        variant='outlined'
+                        color='primary'
+                        startIcon={<Icon icon='material-symbols:add-circle-outline-rounded' />}
+                        onClick={() => {
+                            addBlock()
+                        }}
+                    >
+                        Inserir Bloco
+                    </Button>
+                </Grid>
+
+                {/* Orientações */}
+                <Card md={12} sx={{ mt: 4 }}>
+                    <CardContent>
+                        <Grid container spacing={4}>
+                            <Grid item xs={12} md={12}>
+                                <TextField
+                                    label='Orientações'
+                                    placeholder='Orientações'
+                                    rows={4}
+                                    multiline
+                                    fullWidth
+                                    name={`orientacoes`}
+                                    defaultValue={orientacoes ?? ''}
+                                    {...register(`orientacoes`)}
+                                />
+                            </Grid>
+                        </Grid>
+                    </CardContent>
+                </Card>
+            </form>
         </>
     )
 }

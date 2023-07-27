@@ -1,10 +1,8 @@
 // ** React Imports
 import { useEffect, useCallback, useRef, useState } from 'react'
-import SearchDataNew from './SearchDataNew'
-const searchData = SearchDataNew
-
 
 // ** Next Imports
+
 import { useRouter } from 'next/router'
 
 // ** MUI Imports
@@ -19,6 +17,8 @@ import { styled, useTheme } from '@mui/material/styles'
 import ListItemButton from '@mui/material/ListItemButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import MuiAutocomplete from '@mui/material/Autocomplete'
+import axios from 'axios'
+
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -28,15 +28,11 @@ import themeConfig from 'src/configs/themeConfig'
 import NoResult from './PendenciaAutoComplete/NoResult'
 import DefaultSuggestions from './PendenciaAutoComplete/DefaultSuggestions'
 
-//! FilterDataNew
-import FilterDataNewContent from './filterDataNew'
-const filterDataNew = FilterDataNewContent
+
 
 const categoryTitle = {
-    Geral: 'Geral',
-    Formulários: 'Formulários',
-    Definições: 'Definições',
     Cadastros: 'Cadastros',
+    Fornecedor: 'Fornecedor',
     Configurações: 'Configurações',
 }
 
@@ -125,8 +121,6 @@ const AutocompleteComponent = ({ hidden, settings }) => {
     const [openDialog, setOpenDialog] = useState(false)
     const [options, setOptions] = useState([])
 
-
-
     // ** Hooks & Vars
     const theme = useTheme()
     const router = useRouter()
@@ -136,19 +130,18 @@ const AutocompleteComponent = ({ hidden, settings }) => {
 
     // Get all data using API
     useEffect(() => {
-        setOptions(searchData)
-
-        console.log('options', options)
-
-        let resultFilter = filterDataNew(searchValue)
-        if (resultFilter) {
-            setOptions(searchData)
-        } else {
-            setOptions([])
-        }
-
+        axios
+            .get('/app-bar/search', {
+                params: { q: searchValue }
+            })
+            .then(response => {
+                if (response.data && response.data.length) {
+                    setOptions(response.data)
+                } else {
+                    setOptions([])
+                }
+            })
     }, [searchValue])
-
     useEffect(() => {
         if (!openDialog) {
             setSearchValue('')
