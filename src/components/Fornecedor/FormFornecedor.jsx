@@ -48,7 +48,6 @@ import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 import DialogFormConclusion from '../Defaults/Dialogs/DialogFormConclusion'
-import ReportFornecedor from 'src/components/Reports/Formularios/Fornecedor'
 
 // ** Custom Components
 import CustomChip from 'src/@core/components/mui/chip'

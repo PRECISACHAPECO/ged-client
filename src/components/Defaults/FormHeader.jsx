@@ -12,10 +12,6 @@ import { RouteContext } from 'src/context/RouteContext'
 import Fab from '@mui/material/Fab'
 import LayoutReport from 'src/components/Reports/Layout'
 
-// import GenerateReport from 'src/components/Reports'
-import LayoutReport from 'src/components/Reports/Layout'
-// import { CrmAward, ContentReport } from 'src/views/dashboards/crm/CrmAward'
-
 const FormHeader = ({
     btnCancel,
     btnSave,
@@ -31,12 +27,6 @@ const FormHeader = ({
     btnPrint,
     disabledPrint,
     disabled,
-<<<<<<< HEAD
-    dataReports
-}) => {
-    const router = Router
-    const { user, routes } = useContext(AuthContext)
-=======
     dataReports,
     generateReport,
     type
@@ -44,7 +34,6 @@ const FormHeader = ({
     const router = Router
     const { user, routes } = useContext(AuthContext)
     const { setId } = useContext(RouteContext)
->>>>>>> 775e144a93fcabce34b30f3c016004f6865b09b2
     const [isVisible, setIsVisible] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
 

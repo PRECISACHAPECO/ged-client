@@ -63,26 +63,6 @@ const AuthProvider = ({ children }) => {
                 setLoading(true)
                 const data = JSON.parse(window.localStorage.getItem('userData'))
 
-<<<<<<< HEAD
-                //* Voltar pra rota estática
-                router.replace(staticUrl)
-=======
-                //* Volta pra URL estática
-                // verificar se rota possui id dinamico 
-                // verificar se rota possui numero dinamico utilizando expressao regular 
-
-                const match = window.location.pathname.match(/\/(\d+)\/?$/); // Expressão regular corrigida
-                if (match) {
-                    console.log("caiu akiiiiiiiiii");
-                    console.log("voltar rota anterior");
-                    router.push(staticUrl);
-                }
-
-                // if (router.query.id) {
-                //     console.log('volta rota')
-                // }
->>>>>>> 775e144a93fcabce34b30f3c016004f6865b09b2
-
                 setUnitsUser(JSON.parse(window.localStorage.getItem('userUnits')))
                 setLoggedUnity(JSON.parse(window.localStorage.getItem('loggedUnity')))
                 setRoutes(JSON.parse(window.localStorage.getItem('routes')))
@@ -113,13 +93,7 @@ const AuthProvider = ({ children }) => {
             }
         }
         initAuth()
-<<<<<<< HEAD
-=======
-        console.log('useEffect no authContext')
-        // eslint-disable-next-line react-hooks/exhaustive-deps
->>>>>>> 775e144a93fcabce34b30f3c016004f6865b09b2
     }, [])
-
 
     //* Login da fabrica (CPF)
     const handleLogin = (params, errorCallback) => {
