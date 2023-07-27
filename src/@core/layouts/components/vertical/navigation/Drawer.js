@@ -67,6 +67,7 @@ const Drawer = props => {
         }
     }
 
+<<<<<<< HEAD
     // Drawer Props for Laptop & Desktop screens
     const DesktopDrawerProps = {
         open: true,
@@ -78,6 +79,50 @@ const Drawer = props => {
                 setNavHover(true)
                 flag = false
             }
+=======
+  // Drawer Props for Laptop & Desktop screens
+  const DesktopDrawerProps = {
+    open: true,
+    onOpen: () => null,
+    onClose: () => null,
+    onMouseEnter: () => {
+      // Declared flag to resolve first time flicker issue while trying to collapse the menu
+      if (flag || navCollapsed) {
+        setNavHover(true)
+        flag = false
+      }
+    },
+    onMouseLeave: () => {
+      if (navCollapsed) {
+        setNavHover(false)
+      }
+    }
+  }
+  let userNavMenuStyle = {}
+  let userNavMenuPaperStyle = {}
+  if (navMenuProps && navMenuProps.sx) {
+    userNavMenuStyle = navMenuProps.sx
+  }
+  if (navMenuProps && navMenuProps.PaperProps && navMenuProps.PaperProps.sx) {
+    userNavMenuPaperStyle = navMenuProps.PaperProps.sx
+  }
+  const userNavMenuProps = Object.assign({}, navMenuProps)
+  delete userNavMenuProps.sx
+  delete userNavMenuProps.PaperProps
+
+  return (
+    <SwipeableDrawer
+      className='layout-vertical-nav'
+      variant={hidden ? 'temporary' : 'permanent'}
+      {...(hidden ? { ...MobileDrawerProps } : { ...DesktopDrawerProps })}
+      PaperProps={{
+        sx: {
+          ...drawerColors(),
+          width: navCollapsed && !navHover ? collapsedNavWidth : navWidth,
+          ...(!hidden && navCollapsed && navHover ? { boxShadow: 10 } : {}),
+          borderRight: navigationBorderWidth === 0 ? 0 : `${navigationBorderWidth}px solid ${theme.palette.divider}`,
+          ...userNavMenuPaperStyle
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
         },
         onMouseLeave: () => {
             if (navCollapsed) {

@@ -1,6 +1,5 @@
 // ** React Imports
-import { useState, useContext, useEffect } from 'react'
-import { api } from 'src/configs/api'
+import { useState, useContext } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -39,6 +38,9 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useAuth } from 'src/hooks/useAuth'
 import { AuthContext } from 'src/context/AuthContext'
 
+import { fornecedorAuth } from 'src/hooks/fornecedorAuth'
+import { FornecedorContext } from 'src/context/FornecedorContext'
+
 import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
 
@@ -50,9 +52,6 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Demo Imports
 import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
-import { toast } from 'react-hot-toast'
-import Logo from 'src/components/Defaults/Logo'
-import Router from 'next/router'
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)(({ theme }) => ({
@@ -122,13 +121,10 @@ const defaultValues = {
 const FornecedorPage = ({ units }) => {
     const [rememberMe, setRememberMe] = useState(true)
     const [showPassword, setShowPassword] = useState(false)
-    const [codeCNPJ, setCodeCNPJ] = useState(null)
-    const router = Router
-    const currentLink = router.pathname
 
     // ** Hooks
-    const auth = useAuth()
-    const { user } = useContext(AuthContext)
+    // const auth = useAuth()
+    const auth = fornecedorAuth()
 
     const theme = useTheme()
     const bgColors = useBgColor()
@@ -151,47 +147,15 @@ const FornecedorPage = ({ units }) => {
 
     const onSubmit = data => {
         const { cnpj, password } = data
-        console.log('login fornecedor', cnpj, password)
-        auth.loginFornecedor({ cnpj, password, rememberMe }, error => {
+        auth.login({ cnpj, password, rememberMe }, () => {
             setError('cnpj', {
                 type: 'manual',
                 message: 'CNPJ e/ou senha inválidos!'
             })
-            if (error && error.response && error.response.status === 401) {
-                toast.error('CNPJ e/ou senha inválidos!')
-            }
         })
     }
-
     const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
 
-    // UnidadeID e CNPJ criptografados / CNPJ esta com mascara de apenas numeros
-    const unidadeIDRouter = router.query.u
-    const cnpjRouter = router.query.c
-
-    const setAcessLink = async (unidadeID, cnpj) => {
-        const data = {
-            unidadeID,
-            cnpj
-        }
-        await api.post(`/login-fornecedor/setAcessLink`, { data })
-    }
-
-    // Validar se o CNPJ esta na tabela fabrica_fornecedor
-    const validationExistCNPJ = e => {
-        setCodeCNPJ(null)
-        if (e.target.value.length === 18 && validationCNPJ(e.target.value)) {
-            api.post(`/login-fornecedor/validationCNPJ`, { cnpj: e.target.value }).then(response => {
-                setCodeCNPJ(response.status)
-            })
-        }
-    }
-
-    useEffect(() => {
-        if (unidadeIDRouter && cnpjRouter) {
-            setAcessLink(unidadeIDRouter, cnpjRouter)
-        }
-    }, [[unidadeIDRouter, cnpjRouter]])
     return (
         <>
             <Box className='content-right'>
@@ -205,19 +169,13 @@ const FornecedorPage = ({ units }) => {
                             justifyContent: 'center'
                         }}
                     >
-                        <img src='/images/storyset/loginFornecedor.svg' style={{ height: '100vh', width: '65%' }} />
-                        <img
-                            alt='mask'
-                            src='https://demos.pixinvent.com/materialize-nextjs-admin-template/demo-3/images/pages/misc-mask-light.png'
-                            className='css-84vgca'
-                            style={{
-                                position: 'absolute',
-                                zIndex: '-1',
-                                bottom: '0',
-                                left: '0',
-                                width: '100%'
-                            }}
-                        />
+                        <LoginIllustrationWrapper>
+                            <LoginIllustration
+                                alt='login-illustration'
+                                src={`/images/pages/${imageSource}-${theme.palette.mode}.png`}
+                            />
+                        </LoginIllustrationWrapper>
+                        <FooterIllustrationsV2 />
                     </Box>
                 ) : null}
                 <RightWrapper
@@ -244,11 +202,91 @@ const FornecedorPage = ({ units }) => {
                                     justifyContent: 'center'
                                 }}
                             >
-                                {/* Logo do sistema GED */}
-                                <Logo />
+                                <svg
+                                    width={47}
+                                    fill='none'
+                                    height={26}
+                                    viewBox='0 0 268 150'
+                                    xmlns='http://www.w3.org/2000/svg'
+                                >
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fill={theme.palette.primary.main}
+                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 195.571 0)'
+                                    />
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fillOpacity='0.4'
+                                        fill='url(#paint0_linear_7821_79167)'
+                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 196.084 0)'
+                                    />
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fill={theme.palette.primary.main}
+                                        transform='matrix(0.865206 0.501417 -0.498585 0.866841 173.147 0)'
+                                    />
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fill={theme.palette.primary.main}
+                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 94.1973 0)'
+                                    />
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fillOpacity='0.4'
+                                        fill='url(#paint1_linear_7821_79167)'
+                                        transform='matrix(-0.865206 0.501417 0.498585 0.866841 94.1973 0)'
+                                    />
+                                    <rect
+                                        rx='25.1443'
+                                        width='50.2886'
+                                        height='143.953'
+                                        fill={theme.palette.primary.main}
+                                        transform='matrix(0.865206 0.501417 -0.498585 0.866841 71.7728 0)'
+                                    />
+                                    <defs>
+                                        <linearGradient
+                                            y1='0'
+                                            x1='25.1443'
+                                            x2='25.1443'
+                                            y2='143.953'
+                                            id='paint0_linear_7821_79167'
+                                            gradientUnits='userSpaceOnUse'
+                                        >
+                                            <stop />
+                                            <stop offset='1' stopOpacity='0' />
+                                        </linearGradient>
+                                        <linearGradient
+                                            y1='0'
+                                            x1='25.1443'
+                                            x2='25.1443'
+                                            y2='143.953'
+                                            id='paint1_linear_7821_79167'
+                                            gradientUnits='userSpaceOnUse'
+                                        >
+                                            <stop />
+                                            <stop offset='1' stopOpacity='0' />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <Typography
+                                    variant='h6'
+                                    sx={{ ml: 2, lineHeight: 1, fontWeight: 700, fontSize: '1.5rem !important' }}
+                                >
+                                    {themeConfig.templateName}
+                                </Typography>
                             </Box>
                             <Box sx={{ mb: 6 }}>
-                                <TypographyStyled variant='h4'>{`Bem-vindo Fornecedor`}</TypographyStyled>
+                                <TypographyStyled variant='h4'>{`Bem vindo Fornecedor`}</TypographyStyled>
                                 <Typography variant='body2'>Digite seu CNPJ e senha para começar</Typography>
                             </Box>
 
@@ -264,17 +302,10 @@ const FornecedorPage = ({ units }) => {
                                                 label='CNPJ'
                                                 value={cnpjMask(value ?? '')}
                                                 onBlur={onBlur}
-                                                onChange={e => {
-                                                    onChange(e)
-                                                    validationExistCNPJ(e)
-                                                }}
+                                                onChange={onChange}
                                                 error={Boolean(errors.cnpj)}
                                                 placeholder='00.000.000/0000-00'
-                                                inputProps={{
-                                                    maxLength: 18,
-                                                    type: 'tel', // define o tipo de entrada como 'tel'
-                                                    inputMode: 'numeric' // define o inputMode como 'numeric'
-                                                }}
+                                                inputProps={{ maxLength: 18 }}
                                             />
                                         )}
                                     />
@@ -349,49 +380,21 @@ const FornecedorPage = ({ units }) => {
                                     <Typography
                                         variant='body2'
                                         component={Link}
-                                        href='/esqueceu-sua-senha?type=fornecedor'
+                                        href='/forgot-password'
                                         sx={{ color: 'primary.main', textDecoration: 'none' }}
                                     >
                                         Esqueceu sua senha?
                                     </Typography>
                                 </Box>
-                                <Button
-                                    fullWidth
-                                    size='large'
-                                    type='submit'
-                                    variant='contained'
-                                    sx={{ mb: 4 }}
-                                    disabled={!codeCNPJ || codeCNPJ == 202 || codeCNPJ == 201}
-                                >
+                                <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
                                     Entrar
                                 </Button>
-                                {/* Verifica se o CNPJ existe na tabela fornecedor_fabrica e mostra mensagem de acordo*/}
-                                {codeCNPJ && codeCNPJ == 202 ? (
-                                    <Alert severity='warning'>
-                                        Antes de realizar o cadastro, é necessário que uma fábrica habilite o seu CNPJ
-                                        como um fornecedor.
-                                    </Alert>
-                                ) : codeCNPJ == 201 ? (
-                                    <Alert severity='warning'>
-                                        É necessário fazer o cadastro para que você possa acessar o sistema.{'  '}
-                                        <Typography
-                                            href='/registro'
-                                            component={Link}
-                                            sx={{ color: 'primary.main', textDecoration: 'none' }}
-                                        >
-                                            Registre-se
-                                        </Typography>
-                                    </Alert>
-                                ) : (
-                                    ''
-                                )}
                                 <Box
                                     sx={{
                                         display: 'flex',
                                         alignItems: 'center',
                                         flexWrap: 'wrap',
-                                        justifyContent: 'center',
-                                        mt: 4
+                                        justifyContent: 'center'
                                     }}
                                 >
                                     <Typography sx={{ mr: 2, color: 'text.secondary' }}>
@@ -403,24 +406,6 @@ const FornecedorPage = ({ units }) => {
                                         sx={{ color: 'primary.main', textDecoration: 'none' }}
                                     >
                                         Registre-se
-                                    </Typography>
-                                </Box>
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        flexWrap: 'wrap',
-                                        justifyContent: 'center',
-                                        marginTop: '1rem'
-                                    }}
-                                >
-                                    <Typography sx={{ mr: 2, color: 'text.secondary' }}>É uma fábrica?</Typography>
-                                    <Typography
-                                        href='/login'
-                                        component={Link}
-                                        sx={{ color: 'primary.main', textDecoration: 'none' }}
-                                    >
-                                        Login
                                     </Typography>
                                 </Box>
                             </form>

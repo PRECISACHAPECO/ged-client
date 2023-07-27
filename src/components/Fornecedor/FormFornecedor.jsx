@@ -1,35 +1,22 @@
 // import * as React from 'react'
-import { useState, useEffect, useContext, useRef, use } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import axios from 'axios'
-import upload from 'src/icon/Upload'
-
-//* Default Form Components
-import Fields from 'src/components/Defaults/Formularios/Fields'
-import Input from 'src/components/Form/Input'
-import CheckList from 'src/components/Defaults/Formularios/CheckList'
-import Block from 'src/components/Defaults/Formularios/Block'
-import CardAnexo from 'src/components/Anexos/CardAnexo'
 
 import ReportFornecedor from 'src/components/Reports/Formularios/Fornecedor'
 
 import {
-    Alert,
     Autocomplete,
     Box,
-    Button,
     Card,
     CardContent,
-    CardHeader,
     FormControl,
     FormControlLabel,
     Grid,
     ListItem,
     ListItemButton,
     Radio,
-    RadioGroup,
     TextField,
     Typography
 } from '@mui/material'
@@ -41,16 +28,11 @@ import { ParametersContext } from 'src/context/ParametersContext'
 import { RouteContext } from 'src/context/RouteContext'
 import { AuthContext } from 'src/context/AuthContext'
 import Loading from 'src/components/Loading'
-import { toastMessage, formType, statusDefault, dateConfig } from 'src/configs/defaultConfigs'
-import { formatDate } from 'src/configs/conversions'
+import { toastMessage } from 'src/configs/defaultConfigs'
 import toast from 'react-hot-toast'
 import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
-import DialogFormConclusion from '../Defaults/Dialogs/DialogFormConclusion'
-
-// ** Custom Components
-import CustomChip from 'src/@core/components/mui/chip'
 
 // Date
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -58,44 +40,21 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br' // import locale
-import DialogForm from '../Defaults/Dialogs/Dialog'
-import DialogFormStatus from '../Defaults/Dialogs/DialogFormStatus'
-import Upload from 'src/icon/Upload'
 
 const FormFornecedor = ({ id }) => {
     const { user, loggedUnity } = useContext(AuthContext)
-    const [isLoading, setLoading] = useState(false) //? loading de carregamento da página
-    const [isLoadingSave, setLoadingSave] = useState(false) //? dependencia do useEffect pra atualizar a página após salvar
-    const [validateForm, setValidateForm] = useState(false) //? Se true, valida campos obrigatórios
+    const { setTitle } = useContext(ParametersContext)
+    const [isLoading, setLoading] = useState(true)
 
-    const [fieldsState, setFields] = useState([])
+    const [fields, setFields] = useState([])
     const [data, setData] = useState(null)
-    const [categorias, setCategorias] = useState([])
     const [atividades, setAtividades] = useState([])
     const [sistemasQualidade, setSistemasQualidade] = useState([])
-    const [grupoAnexo, setGrupoAnexo] = useState([])
-    const [allBlocks, setAllBlocks] = useState([])
-    const [blocks, setBlocks] = useState([])
+    const [blocos, setBlocos] = useState([])
     const [info, setInfo] = useState('')
-    const [openModal, setOpenModal] = useState(false)
-    const [unidade, setUnidade] = useState(null)
-    const [status, setStatus] = useState(null)
-    const [statusEdit, setStatusEdit] = useState(false)
-    const [openModalStatus, setOpenModalStatus] = useState(false)
-    const [hasFormPending, setHasFormPending] = useState(true) //? Tem pendencia no formulário (já vinculado em formulário de recebimento, não altera mais o status)
-    const [listErrors, setListErrors] = useState({ status: false, errors: [] })
-    const [copiedDataContext, setCopiedDataContext] = useState(false)
-    const [arrAnexoRemoved, setArrAnexoRemoved] = useState([])
 
-    const [canEdit, setCanEdit] = useState({
-        status: false,
-        message: 'Você não tem permissões',
-        messageType: 'info'
-    })
-
-    //! Se perder Id, copia do localstorage
-    const { setTitle, setStorageId, getStorageId } = useContext(ParametersContext)
     const router = Router
+<<<<<<< HEAD
     const { setId } = useContext(RouteContext)
     // if (!id) id = getStorageId()
     // useEffect(() => {
@@ -104,22 +63,32 @@ const FormFornecedor = ({ id }) => {
 
     const type = id && id > 0 ? 'edit' : 'new'
     const staticUrl = router.pathname
+=======
+    const { id } = router.query
+    const staticUrl = backRoute(router.pathname) // Url sem ID
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
 
     const { settings } = useContext(SettingsContext)
+    const mode = settings.mode
+
+    // criar validação DINAMICA com reduce no Yup, varrendo campos fields e validando os valores vindos em defaultValues
+    const defaultValues =
+        data &&
+        fields.reduce((defaultValues, field) => {
+            defaultValues[field.nomeColuna] = data[field.nomeColuna]
+            return defaultValues
+        }, {})
 
     const {
-        watch,
         register,
         reset,
         control,
-        getValues,
-        clearErrors,
         setValue,
-        setError,
         handleSubmit,
         formState: { errors }
     } = useForm()
 
+<<<<<<< HEAD
     // const initializeValues = values => {
     //     // Seta itens no formulário
     //     values?.blocos?.map((block, indexBlock) => {
@@ -131,70 +100,22 @@ const FormFornecedor = ({ id }) => {
     //     })
     //     setValue()
     // }
+=======
+    console.log('errors: ', errors)
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
 
-    const verifyFormPending = async () => {
+    const onSubmit = async data => {
+        console.log('onSubmit: ', data)
         try {
-            const parFormularioID = 1
-            await api.post(`/formularios/fornecedor/verifyFormPending/${id}`, { parFormularioID }).then(response => {
-                setHasFormPending(response.data) //! true/false
-            })
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    //* Reabre o formulário pro fornecedor alterar novamente se ainda nao estiver vinculado com recebimento
-    const changeFormStatus = async status => {
-        const data = {
-            status: status,
-            auth: {
-                usuarioID: user.usuarioID,
-                papelID: user.papelID,
-                unidadeID: loggedUnity.unidadeID
-            }
-        }
-
-        try {
-            setLoadingSave(true)
-            await api.post(`${staticUrl}/changeFormStatus/${id}`, data).then(response => {
+            await api.put(`${staticUrl}/${id}`, data).then(response => {
                 toast.success(toastMessage.successUpdate)
-                setLoadingSave(false)
             })
         } catch (error) {
             console.log(error)
         }
     }
 
-    const updateFormStatus = async () => {
-        const data = {
-            status: {
-                edit: statusEdit, // true/false
-                status: info.status
-            },
-            auth: {
-                usuarioID: user.usuarioID,
-                papelID: user.papelID,
-                unidadeID: loggedUnity.unidadeID
-            }
-        }
-
-        if (statusEdit) {
-            try {
-                setLoadingSave(true)
-                await api.post(`${staticUrl}/updateFormStatus/${id}`, data).then(response => {
-                    toast.success(toastMessage.successUpdate)
-                    setLoadingSave(false)
-                })
-            } catch (error) {
-                console.log(error)
-            }
-        } else {
-            toast.error('Não há dados a serem atualizados!')
-        }
-    }
-
-    //* Altera status do formulário (aprovado, aprovado parcial, reprovado)
-    const handleChangeFormStatus = event => {
+    const handleRadioChange = event => {
         const newValue = event.target.value
 
         const newInfo = {
@@ -225,15 +146,22 @@ const FormFornecedor = ({ id }) => {
     const dataReports = [
         {
             id: 1,
+<<<<<<< HEAD
             title: 'Formulário do fornecedor',
             titleButton: 'Imprimir',
             component: <ReportFornecedor params={{ id: id }} />,
             route: '/relatorio/fornecedor/dadosFornecedor',
             papelID: user.papelID,
+=======
+            name: 'Fornecedor',
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
             identification: '01',
+            route: 'relatorio/fornecedor',
             params: {
-                fornecedorID: id
+                fornecedorID: id,
+                unidadeID: loggedUnity.unidadeID
             }
+<<<<<<< HEAD
         }
     ]
 
@@ -422,199 +350,74 @@ const FormFornecedor = ({ id }) => {
         type == 'edit' ? getData() : noPermissions()
         verifyFormPending()
     }, [id, isLoadingSave])
+=======
+        },
+        {
+            id: 2,
+            name: 'Recepção',
+            identification: '02',
+            route: '/relatorio/recepcao'
+        },
+        {
+            id: 3,
+            name: 'Ficha de Matrícula',
+            identification: '03',
+            route: '/'
+        },
+        {
+            id: 4,
+            name: 'Ficha de Nacionalidade',
+            identification: '04',
+            route: '/'
+        }
+    ]
 
     useEffect(() => {
-        checkErrors()
-    }, [])
+        setTitle('Formulário do Fornecedor')
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
 
-    // Mostra toast se o formulário foi copiado de "MEUS DADOS"
-    useEffect(() => {
-        if (copiedDataContext) {
-            toast.success('Dados copiados com sucesso!')
+        const getData = () => {
+            api.get(`${staticUrl}/${loggedUnity.unidadeID}`, { headers: { 'function-name': 'getData' } }).then(
+                response => {
+                    console.log('getData: ', response.data)
+                    setFields(response.data.fields)
+                    setData(response.data.data)
+                    setAtividades(response.data.atividades)
+                    setSistemasQualidade(response.data.sistemasQualidade)
+                    setBlocos(response.data.blocos)
+                    setInfo(response.data.info)
+                    setLoading(false)
+                }
+            )
         }
-    }, [copiedDataContext])
-
-    // Quando selecionar um arquivo, o arquivo é adicionado ao array de anexos
-    const handleFileSelect = (event, item) => {
-        const selectedFile = event.target.files[0]
-        console.log('🚀 ~ selectedFile:', selectedFile)
-
-        // Atualiza o objeto anexo com o arquivo selecionado
-        const updatedItem = {
-            ...item,
-            anexo: {
-                exist: true,
-                path: null,
-                file: selectedFile,
-                nome: selectedFile.name,
-                type: selectedFile.type,
-                size: selectedFile.size,
-                time: selectedFile.lastModified
-            }
-        }
-
-        // Atualiza estado grupoAnexo com o item atualizado
-        const updatedGrupoAnexo = grupoAnexo.map(grupo => {
-            if (grupo.grupoAnexoID == item.grupoanexoID) {
-                return {
-                    ...grupo,
-                    itens: grupo.itens.map(item => {
-                        if (item.grupoanexoitemID == updatedItem.grupoanexoitemID) {
-                            console.log('encontrou item')
-                            return updatedItem
-                        }
-                        return item
-                    })
-                }
-            }
-            return grupo
-        })
-        setGrupoAnexo(updatedGrupoAnexo)
-
-        toast.success('Anexo adicionado, salve para concluir!')
-    }
-
-    // Envia os arquivos de anexo para o backend
-    const enviarPDFsParaBackend = async () => {
-        const formData = new FormData()
-
-        formData.append(`usuarioID`, user.usuarioID)
-        formData.append(`unidadeID`, loggedUnity.unidadeID)
-
-        let index = 0
-        grupoAnexo.forEach((grupo, grupoIndex) => {
-            // grupo
-            grupo.itens.forEach((item, itemIndex) => {
-                // itens
-                if (item.anexo && item.anexo.file) {
-                    formData.append(`pdfFiles`, item.anexo.file)
-                    formData.append(`titulo[${index}]`, item.anexo.nome)
-                    formData.append(`grupoanexoitemID[${index}]`, item.grupoanexoitemID)
-                    //
-                    index++
-                }
-            })
-        })
-
-        //? Envia array de anexos a serem removidos
-        arrAnexoRemoved.forEach((item, index) => {
-            formData.append(`arrAnexoRemoved[${index}]`, item)
-        })
-
-        await api.post(`/formularios/fornecedor/saveAnexo/${id}`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        })
-    }
-
-    // Remove um anexo do array de anexos
-    const handleRemoveAnexo = item => {
-        // Array que envia pro backend deletar
-        setArrAnexoRemoved([...arrAnexoRemoved, item.grupoanexoitemID])
-
-        // Atualiza estado com setGrupoAnexo, removendo objeto de anexo
-        const updatedGrupoAnexo = grupoAnexo.map(grupo => {
-            if (grupo.grupoAnexoID == item.grupoanexoID) {
-                return {
-                    ...grupo,
-                    itens: grupo.itens.map(row => {
-                        if (row.grupoanexoitemID == item.grupoanexoitemID) {
-                            return {
-                                ...item,
-                                anexo: null
-                            }
-                        }
-                        return row
-                    })
-                }
-            }
-            return grupo
-        })
-        setGrupoAnexo(updatedGrupoAnexo)
-
-        toast.success('Anexo pré-removido, salve para concluir!')
-    }
+        getData()
+    }, [onSubmit])
 
     return (
         <>
             {isLoading ? (
                 <Loading />
-            ) : fieldsState ? (
-                <form
-                    onSubmit={handleSubmit(data => {
-                        canEdit.status ? onSubmit(data, false) : updateFormStatus()
-                    })}
-                >
-                    {/* Mensagem de que não possui nenhum bloco */}
-                    {blocks && blocks.length === 0 && (
-                        <Alert severity='warning' sx={{ mb: 2 }}>
-                            Não há nenhum bloco disponível para as categorias selecionadas!
-                        </Alert>
-                    )}
-                    {!canEdit.status && (
-                        <Alert severity={canEdit.messageType} sx={{ mb: 2 }}>
-                            {canEdit.message}
-                        </Alert>
-                    )}
-
+            ) : (
+                <form onSubmit={handleSubmit(onSubmit)}>
                     {/* Card Header */}
                     <Card>
                         <FormHeader
                             btnCancel
-                            btnSave={user.papelID == 2 && info.status < 40}
-                            btnSend={
-                                (user.papelID == 1 && info.status >= 40) || (user.papelID == 2 && info.status < 40)
-                            }
-                            disabledSend={blocks.length === 0 ? true : false}
-                            disabledSubmit={blocks.length === 0 ? true : false}
-                            disabledPrint={blocks.length === 0 ? true : false}
+                            btnSave
                             btnPrint
                             dataReports={dataReports}
                             handleSubmit={() => handleSubmit(onSubmit)}
-                            handleSend={handleSendForm}
                             title='Fornecedor'
+<<<<<<< HEAD
                             btnStatus
                             handleBtnStatus={() => setOpenModalStatus(true)}
                             type={type}
+=======
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
                         />
-
                         <CardContent>
-                            {unidade && (
-                                <Box sx={{ mb: 4 }}>
-                                    <input
-                                        type='hidden'
-                                        value={unidade.unidadeID}
-                                        name='unidadeID'
-                                        {...register(`unidadeID`)}
-                                    />
-
-                                    <Grid container spacing={4}>
-                                        <Grid item xs={12} md={6}>
-                                            <Typography variant='caption'>Fábrica:</Typography>
-                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                                                {unidade.nomeFantasia}
-                                            </Typography>
-                                        </Grid>
-
-                                        <Grid item xs={12} md={6}>
-                                            {status && (
-                                                <Box display='flex' alignItems='center' justifyContent='flex-end'>
-                                                    <CustomChip
-                                                        size='small'
-                                                        skin='light'
-                                                        color={status.color}
-                                                        label={status.title}
-                                                        sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
-                                                    />
-                                                </Box>
-                                            )}
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                            )}
-
                             {/* Header */}
+<<<<<<< HEAD
                             <Fields
                                 fields={fieldsState}
                                 register={register}
@@ -627,45 +430,161 @@ const FormFornecedor = ({ id }) => {
                             />
 
                             {/* Categorias, Atividades e Sistemas de Qualidade */}
+=======
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
                             <Grid container spacing={4}>
-                                {/* Categorias */}
-                                <Grid item xs={12} md={4}>
-                                    <CheckList
-                                        title='Categorias'
-                                        values={categorias}
-                                        name='categorias'
-                                        changeCategory={changeCategory}
-                                        register={register}
-                                        disabled={!canEdit.status}
-                                    />
-                                </Grid>
+                                {fields &&
+                                    fields.map((field, index) => (
+                                        <Grid key={index} item xs={12} md={3}>
+                                            <FormControl fullWidth>
+                                                {/* Date */}
+                                                {field && field.tipo == 'date' && (
+                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                        <DatePicker
+                                                            label='Selecione uma data'
+                                                            locale={dayjs.locale('pt-br')}
+                                                            format='DD/MM/YYYY'
+                                                            defaultValue={dayjs(new Date())}
+                                                            renderInput={params => (
+                                                                <TextField
+                                                                    {...params}
+                                                                    variant='outlined'
+                                                                    name={`header.${field.nomeColuna}`}
+                                                                    {...register(`header.${field.nomeColuna}`, {
+                                                                        required: !!field.obrigatorio
+                                                                    })}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </LocalizationProvider>
+                                                )}
+                                                {/* Textfield */}
+                                                {field && field.tipo == 'string' && (
+                                                    <TextField
+                                                        defaultValue={defaultValues[field.nomeColuna] ?? ''}
+                                                        label={field.nomeCampo}
+                                                        placeholder={field.nomeCampo}
+                                                        name={`header.${field.nomeColuna}`}
+                                                        aria-describedby='validation-schema-nome'
+                                                        error={errors?.header?.[field.nomeColuna] ? true : false}
+                                                        {...register(`header.${field.nomeColuna}`, {
+                                                            required: !!field.obrigatorio
+                                                        })}
+                                                        // Validações
+                                                        onChange={e => {
+                                                            field.nomeColuna == 'cnpj'
+                                                                ? (e.target.value = cnpjMask(e.target.value))
+                                                                : field.nomeColuna == 'cep'
+                                                                ? ((e.target.value = cepMask(e.target.value)),
+                                                                  getAddressByCep(e.target.value))
+                                                                : field.nomeColuna == 'telefone'
+                                                                ? (e.target.value = cellPhoneMask(e.target.value))
+                                                                : field.nomeColuna == 'estado'
+                                                                ? (e.target.value = ufMask(e.target.value))
+                                                                : (e.target.value = e.target.value)
+                                                        }}
+                                                        // inputProps com maxLength 18 se field.nomeColuna == 'cnpj
+                                                        inputProps={
+                                                            // inputProps validando maxLength pra cnpj, cep e telefone baseado no field.nomeColuna
+                                                            field.nomeColuna == 'cnpj'
+                                                                ? { maxLength: 18 }
+                                                                : field.nomeColuna == 'cep'
+                                                                ? { maxLength: 9 }
+                                                                : field.nomeColuna == 'telefone'
+                                                                ? { maxLength: 15 }
+                                                                : field.nomeColuna == 'estado'
+                                                                ? { maxLength: 2 }
+                                                                : {}
+                                                        }
+                                                    />
+                                                )}
+                                            </FormControl>
+                                        </Grid>
+                                    ))}
+                            </Grid>
 
+                            {/* Atividades e Sistemas de Qualidade */}
+                            <Grid container spacing={4}>
                                 {/* Atividades */}
                                 <Grid item xs={12} md={4}>
-                                    <CheckList
-                                        title='Atividades'
-                                        values={atividades}
-                                        name='atividades'
-                                        register={register}
-                                        disabled={!canEdit.status}
-                                    />
+                                    <ListItem disablePadding>
+                                        <ListItemButton>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                Atividades
+                                            </Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                    {atividades &&
+                                        atividades.map((atividade, indexAtividade) => (
+                                            <ListItem key={indexAtividade} disablePadding>
+                                                <ListItemButton>
+                                                    <input
+                                                        type='hidden'
+                                                        name={`atividades.[${indexAtividade}].atividadeID`}
+                                                        defaultValue={atividade.atividadeID}
+                                                        {...register(`atividades.[${indexAtividade}].atividadeID`)}
+                                                    />
+
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                name={`atividades[${indexAtividade}].checked`}
+                                                                {...register(`atividades[${indexAtividade}].checked`)}
+                                                                defaultChecked={atividade.checked == 1 ? true : false}
+                                                            />
+                                                        }
+                                                        label={atividade.nome}
+                                                    />
+                                                </ListItemButton>
+                                            </ListItem>
+                                        ))}
                                 </Grid>
 
                                 {/* Sistemas de Qualidade */}
                                 <Grid item xs={12} md={4}>
-                                    <CheckList
-                                        title='Sistema de Qualidade'
-                                        values={sistemasQualidade}
-                                        name='sistemasQualidade'
-                                        register={register}
-                                        disabled={!canEdit.status}
-                                    />
+                                    <ListItem disablePadding>
+                                        <ListItemButton>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                Sistemas de Qualidade
+                                            </Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                    {sistemasQualidade &&
+                                        sistemasQualidade.map((sistemaQualidade, indexSistemaQualidade) => (
+                                            <ListItem key={indexSistemaQualidade} disablePadding>
+                                                <ListItemButton>
+                                                    <input
+                                                        type='hidden'
+                                                        name={`sistemasQualidade.[${indexSistemaQualidade}].sistemaQualidadeID`}
+                                                        defaultValue={sistemaQualidade.sistemaQualidadeID}
+                                                        {...register(
+                                                            `sistemasQualidade.[${indexSistemaQualidade}].sistemaQualidadeID`
+                                                        )}
+                                                    />
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                name={`sistemasQualidade[${indexSistemaQualidade}].checked`}
+                                                                {...register(
+                                                                    `sistemasQualidade[${indexSistemaQualidade}].checked`
+                                                                )}
+                                                                defaultChecked={
+                                                                    sistemaQualidade.checked == 1 ? true : false
+                                                                }
+                                                            />
+                                                        }
+                                                        label={sistemaQualidade.nome}
+                                                    />
+                                                </ListItemButton>
+                                            </ListItem>
+                                        ))}
                                 </Grid>
                             </Grid>
                         </CardContent>
                     </Card>
 
                     {/* Blocos */}
+<<<<<<< HEAD
                     {blocks &&
                         blocks.map((bloco, indexBloco) => (
                             <Block
@@ -680,17 +599,182 @@ const FormFornecedor = ({ id }) => {
                                 disabled={!canEdit.status}
                             />
                         ))}
+=======
+                    {blocos &&
+                        blocos.map((bloco, indexBloco) => (
+                            <Card key={indexBloco} sx={{ mt: 4 }}>
+                                <CardContent>
+                                    <Grid container>
+                                        {/* Hidden do parFornecedorBlocoID */}
+                                        <input
+                                            type='hidden'
+                                            name={`blocos[${indexBloco}].parFornecedorBlocoID`}
+                                            defaultValue={bloco.parFornecedorBlocoID}
+                                            {...register(`blocos[${indexBloco}].parFornecedorBlocoID`)}
+                                        />
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
 
-                    {/* Grupo de anexos */}
-                    {grupoAnexo &&
-                        grupoAnexo.map((grupo, indexGrupo) => (
-                            <CardAnexo
-                                key={indexGrupo}
-                                grupo={grupo}
-                                indexGrupo={indexGrupo}
-                                handleFileSelect={handleFileSelect}
-                                handleRemoveAnexo={handleRemoveAnexo}
-                            />
+                                        <Grid item xs={12} md={12}>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                {bloco.nome}
+                                            </Typography>
+                                        </Grid>
+
+                                        {/* Itens */}
+                                        {bloco.itens &&
+                                            bloco.itens.map((item, indexItem) => (
+                                                <>
+                                                    <Grid key={indexItem} container spacing={4} sx={{ mb: 4 }}>
+                                                        {/* Hidden do itemID */}
+                                                        <input
+                                                            type='hidden'
+                                                            name={`blocos[${indexBloco}].itens[${indexItem}].itemID`}
+                                                            defaultValue={item.itemID}
+                                                            {...register(
+                                                                `blocos[${indexBloco}].itens[${indexItem}].itemID`
+                                                            )}
+                                                        />
+
+                                                        {/* Descrição do item */}
+                                                        <Grid
+                                                            item
+                                                            xs={12}
+                                                            md={6}
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '10px'
+                                                            }}
+                                                        >
+                                                            <Icon
+                                                                icon={'line-md:circle-to-confirm-circle-transition'}
+                                                                style={{
+                                                                    color: item.resposta ? 'green' : 'gray',
+                                                                    fontSize: '20px'
+                                                                }}
+                                                            />
+
+                                                            {item.ordem + ' - ' + item.nome}
+                                                        </Grid>
+
+                                                        {/* Alternativas de respostas */}
+                                                        <Grid item xs={12} md={3}>
+                                                            {/* Tipo de alternativa  */}
+                                                            <input
+                                                                type='hidden'
+                                                                name={`blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`}
+                                                                defaultValue={item.alternativa}
+                                                                {...register(
+                                                                    `blocos[${indexBloco}].itens[${indexItem}].tipoAlternativa`
+                                                                )}
+                                                            />
+
+                                                            <FormControl fullWidth>
+                                                                {/* +1 que umaopção pra selecionar (Select) */}
+                                                                {item.alternativas && item.alternativas.length > 1 && (
+                                                                    <Autocomplete
+                                                                        options={item.alternativas}
+                                                                        defaultValue={
+                                                                            item.resposta
+                                                                                ? { nome: item?.resposta }
+                                                                                : { nome: '' }
+                                                                        }
+                                                                        id='autocomplete-outlined'
+                                                                        getOptionLabel={option => option.nome}
+                                                                        onChange={(event, value) => {
+                                                                            setValue(
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].respostaID`,
+                                                                                value?.alternativaID
+                                                                            )
+                                                                        }}
+                                                                        renderInput={params => (
+                                                                            <TextField
+                                                                                {...params}
+                                                                                name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                                label='Selecione uma resposta'
+                                                                                placeholder='Selecione uma resposta'
+                                                                                {...register(
+                                                                                    `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                                )}
+                                                                            />
+                                                                        )}
+                                                                    />
+                                                                )}
+
+                                                                {/* Data */}
+                                                                {item.alternativas.length == 0 &&
+                                                                    item.alternativa == 'Data' && (
+                                                                        <LocalizationProvider
+                                                                            dateAdapter={AdapterDayjs}
+                                                                        >
+                                                                            <DatePicker
+                                                                                label='Selecione uma data'
+                                                                                locale={dayjs.locale('pt-br')}
+                                                                                format='DD/MM/YYYY'
+                                                                                defaultValue={
+                                                                                    item.resposta
+                                                                                        ? dayjs(new Date(item.resposta))
+                                                                                        : ''
+                                                                                }
+                                                                                onChange={newValue => {
+                                                                                    setValue(
+                                                                                        `blocos[${indexBloco}].itens[${indexItem}].resposta`,
+                                                                                        newValue
+                                                                                    )
+                                                                                }}
+                                                                                renderInput={params => (
+                                                                                    <TextField
+                                                                                        {...params}
+                                                                                        variant='outlined'
+                                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                                        {...register(
+                                                                                            `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                                        )}
+                                                                                    />
+                                                                                )}
+                                                                            />
+                                                                        </LocalizationProvider>
+                                                                    )}
+
+                                                                {/* Dissertativa */}
+                                                                {item.alternativas.length == 0 &&
+                                                                    item.alternativa == 'Dissertativa' && (
+                                                                        <TextField
+                                                                            multiline
+                                                                            label='Descreva a resposta'
+                                                                            placeholder='Descreva a resposta'
+                                                                            name={`blocos[${indexBloco}].itens[${indexItem}].resposta`}
+                                                                            defaultValue={item.resposta ?? ''}
+                                                                            {...register(
+                                                                                `blocos[${indexBloco}].itens[${indexItem}].resposta`
+                                                                            )}
+                                                                        />
+                                                                    )}
+                                                            </FormControl>
+                                                        </Grid>
+
+                                                        {/* Obs */}
+                                                        {item && item.obs == 1 && (
+                                                            <Grid item xs={12} md={3}>
+                                                                <FormControl fullWidth>
+                                                                    <TextField
+                                                                        label='Observação'
+                                                                        placeholder='Observação'
+                                                                        name={`blocos[${indexBloco}].itens[${indexItem}].observacao`}
+                                                                        defaultValue={item.observacao ?? ''}
+                                                                        {...register(
+                                                                            `blocos[${indexBloco}].itens[${indexItem}].observacao`
+                                                                        )}
+                                                                    />
+                                                                </FormControl>
+                                                            </Grid>
+                                                        )}
+                                                    </Grid>
+                                                </>
+                                            ))}
+                                    </Grid>
+                                </CardContent>
+                            </Card>
                         ))}
 
                     {/* Observação do formulário */}
@@ -702,55 +786,21 @@ const FormFornecedor = ({ id }) => {
                                         <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
                                             Observações (campo de uso exclusivo da validadora)
                                         </Typography>
-                                        {/* <Input
-                                            title='Observação (opcional)'
-                                            name='obs'
+                                        <TextField
                                             multiline
                                             rows={4}
-                                            value={info.obs}
-                                            disabled={!canEdit.status}
-                                            register={register}
-                                        /> */}
+                                            label='Observação (opcional)'
+                                            placeholder='Observação (opcional)'
+                                            name='obs'
+                                            defaultValue={info.obs ?? ''}
+                                            {...register('obs')}
+                                        />
                                     </FormControl>
                                 </Grid>
                             </Grid>
                         </CardContent>
                     </Card>
                 </form>
-            ) : null}
-
-            {/* Dialog de confirmação de envio */}
-            <DialogFormConclusion
-                openModal={openModal}
-                handleClose={() => {
-                    setOpenModal(false), setValidateForm(false)
-                }}
-                title='Concluir Formulário'
-                text={`Deseja realmente concluir este formulário?`}
-                info={info}
-                btnCancel
-                btnConfirm
-                btnConfirmColor='primary'
-                conclusionForm={conclusionForm}
-                listErrors={listErrors}
-            />
-
-            {/* Dialog pra alterar status do formulário (se formulário estiver concluído e fábrica queira reabrir pro preenchimento do fornecedor) */}
-            {openModalStatus && (
-                <DialogFormStatus
-                    id={id}
-                    parFormularioID={1} // Fornecedor
-                    formStatus={info.status}
-                    hasFormPending={hasFormPending}
-                    canChangeStatus={user.papelID == 1 && !hasFormPending && info.status > 30}
-                    openModal={openModalStatus}
-                    handleClose={() => setOpenModalStatus(false)}
-                    title='Histórico do Formulário'
-                    text={`Listagem do histórico das movimentações do formulário ${id} do Fornecedor.`}
-                    btnCancel
-                    btnConfirm
-                    handleSubmit={changeFormStatus}
-                />
             )}
         </>
     )

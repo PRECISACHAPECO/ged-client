@@ -8,31 +8,41 @@ import Layout from 'src/@core/layouts/Layout'
 // import VerticalNavItems from 'src/navigation/vertical'
 import VerticalNavItems from 'src/components/DynamicMenu' // Custom dynamic component for menu
 
-
+console.log("🚀 ~ ====>:", VerticalNavItems)
 import HorizontalNavItems from 'src/navigation/horizontal'
+
+// ** Component Import
+// Uncomment the below line (according to the layout type) when using server-side menu
+// import ServerSideVerticalNavItems from './components/vertical/ServerSideNavItems'
+// import ServerSideHorizontalNavItems from './components/horizontal/ServerSideNavItems'
 
 import VerticalAppBarContent from './components/vertical/AppBarContent'
 import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
-import { AuthContext } from 'src/context/AuthContext'
-import { useContext } from 'react'
-import { Alert, Button, Snackbar, Typography } from '@mui/material'
 
 const UserLayout = ({ children, contentHeightFixed }) => {
-
     // ** Hooks
     const { settings, saveSettings } = useSettings()
-    const { newVersionAvailable, setNewVersionAvailable, setOpenModalUpdate, openModalUpdate, latestVersionState, setLatestVersionState } = useContext(AuthContext)
-    const mode = settings.mode
-    console.log("🚀 ~ mode:", mode)
 
+    // ** Vars for server side navigation
+    // const { menuItems: verticalMenuItems } = ServerSideVerticalNavItems()
+    // const { menuItems: horizontalMenuItems } = ServerSideHorizontalNavItems()
+    /**
+     *  The below variable will hide the current layout menu at given screen size.
+     *  The menu will be accessible from the Hamburger icon only (Vertical Overlay Menu).
+     *  You can change the screen size from which you want to hide the current layout menu.
+     *  Please refer useMediaQuery() hook: https://mui.com/material-ui/react-use-media-query/,
+     *  to know more about what values can be passed to this hook.
+     *  ! Do not change this value unless you know what you are doing. It can break the template.
+     */
     const hidden = useMediaQuery(theme => theme.breakpoints.down('lg'))
     if (hidden && settings.layout === 'horizontal') {
         settings.layout = 'vertical'
     }
 
+<<<<<<< HEAD
     //! Atualiza a versão do sistema, da reload na página e salva no localStorage
     const ClickUpdateAcept = () => {
         localStorage.setItem('latestVersion', newVersionAvailable.version)
@@ -48,6 +58,8 @@ const UserLayout = ({ children, contentHeightFixed }) => {
         setOpenModalUpdate(false)
     };
 
+=======
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
     return (
         <Layout
             hidden={hidden}
@@ -57,6 +69,9 @@ const UserLayout = ({ children, contentHeightFixed }) => {
             verticalLayoutProps={{
                 navMenu: {
                     navItems: VerticalNavItems()
+
+                    // Uncomment the below line when using server-side menu in vertical layout and comment the above line
+                    // navItems: verticalMenuItems
                 },
                 appBar: {
                     content: props => (
@@ -73,6 +88,9 @@ const UserLayout = ({ children, contentHeightFixed }) => {
                 horizontalLayoutProps: {
                     navMenu: {
                         navItems: HorizontalNavItems()
+
+                        // Uncomment the below line when using server-side menu in horizontal layout and comment the above line
+                        // navItems: horizontalMenuItems
                     },
                     appBar: {
                         content: () => <HorizontalAppBarContent settings={settings} saveSettings={saveSettings} />
@@ -81,54 +99,6 @@ const UserLayout = ({ children, contentHeightFixed }) => {
             })}
         >
             {children}
-            {
-                //! Mostra se tiver uma nova versão do sistema 
-            }
-            {
-                newVersionAvailable.status == true && (
-                    <Snackbar
-                        open={openModalUpdate}
-                        onClose={handleClose}
-                        autoHideDuration={null}
-                    >
-                        <Alert
-                            sx={{ display: 'flex', alignItems: 'center', backgroundColor: '#303033' }}
-                            elevation={3}
-                            variant='filled'
-                            onClose={handleClose}
-                        // severity='secondary'
-                        >
-                            Nova versão disponível, deseja atualizar para {newVersionAvailable.version} ?
-                            <Button color="primary" variant='contained' size="small" onClick={ClickUpdateAcept} sx={{ ml: 4 }}>
-                                Atualizar
-                            </Button>
-                        </Alert>
-                    </Snackbar>
-                )
-            }
-
-            {
-                //! Mostra a versão atual do sistema
-            }
-            {
-                latestVersionState && (
-                    <Typography
-                        component={'span'}
-                        variant={'caption'}
-                        color={'textSecondary'}
-                        style={{
-                            position: "fixed",
-                            bottom: "14px",
-                            left: "2%",
-                            color: mode === 'light' || mode === 'semi-dark' ? '#757575' : '#bdbdbd',
-                            zIndex: 999999999
-                        }}
-                    >
-                        v {latestVersionState}
-                    </Typography>
-
-                )
-            }
         </Layout>
     )
 }

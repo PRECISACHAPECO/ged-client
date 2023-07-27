@@ -1,32 +1,29 @@
 import Router from 'next/router'
-import { useState, useContext, useEffect } from 'react'
+import { useState, useContext } from 'react'
 
-import { CardContent, Button, Box, Tooltip } from '@mui/material'
+import { CardContent, Button, Box } from '@mui/material'
 import Link from 'next/link'
 import Icon from 'src/@core/components/icon'
 import { backRoute } from 'src/configs/defaultConfigs'
 import MenuReports from './MenuReports'
 import { AuthContext } from 'src/context/AuthContext'
+<<<<<<< HEAD
 import { ParametersContext } from 'src/context/ParametersContext'
 import { RouteContext } from 'src/context/RouteContext'
 import Fab from '@mui/material/Fab'
 import LayoutReport from 'src/components/Reports/Layout'
+=======
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
 
 const FormHeader = ({
     btnCancel,
     btnSave,
-    btnSend,
-    btnStatus,
     handleSubmit,
-    disabledSubmit,
-    handleSend,
-    disabledSend,
-    handleBtnStatus,
     btnDelete,
     onclickDelete,
     btnPrint,
-    disabledPrint,
     disabled,
+<<<<<<< HEAD
     dataReports,
     generateReport,
     type
@@ -35,17 +32,24 @@ const FormHeader = ({
     const { user, routes } = useContext(AuthContext)
     const { setId } = useContext(RouteContext)
     const [isVisible, setIsVisible] = useState(false)
+=======
+    generateReport,
+    dataReports
+}) => {
+    const router = Router
+    const { routes } = useContext(AuthContext)
+    const dynamicRoute = router.pathname.split('/').slice(0, -1).join('/')
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
     const [anchorEl, setAnchorEl] = useState(null)
-
     const open = Boolean(anchorEl)
     const handleClick = event => {
         setAnchorEl(event.currentTarget)
     }
-
     const handleClose = () => {
         setAnchorEl(null)
     }
 
+<<<<<<< HEAD
     //? Função que volta ao topo
     const backToTop = () => {
         window.scrollTo({
@@ -124,6 +128,8 @@ const FormHeader = ({
         return () => window.removeEventListener('scroll', toggleVisibility)
     }, [])
 
+=======
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
     return (
         <>
             <CardContent sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -155,19 +161,6 @@ const FormHeader = ({
                             Excluir
                         </Button>
                     )}
-
-                    {btnStatus && (
-                        <Button
-                            type='button'
-                            onClick={handleBtnStatus}
-                            variant='outlined'
-                            color='primary'
-                            size='medium'
-                            startIcon={<Icon icon='fluent:status-12-filled' />}
-                        >
-                            Status
-                        </Button>
-                    )}
                 </Box>
 
                 <Box sx={{ display: 'flex', gap: '8px' }}>
@@ -176,7 +169,7 @@ const FormHeader = ({
                         <Button
                             id='fade-button'
                             color='primary'
-                            disabled={disabled || disabledPrint}
+                            disabled={disabled}
                             variant='outlined'
                             size='medium'
                             type='button'
@@ -191,16 +184,15 @@ const FormHeader = ({
                     )}
                     {/* Imprimir com +1 opção (dropdown) */}
                     {btnPrint && dataReports.length > 1 && (
-                        <Box>
+                        <>
                             <Button
                                 id='fade-button'
                                 onClick={handleClick}
                                 color='primary'
-                                disabled={disabled || disabledPrint}
+                                disabled={disabled}
                                 variant='outlined'
                                 size='medium'
                                 type='button'
-                                sx={{ mr: 0 }}
                                 startIcon={<Icon icon='material-symbols:print' />}
                             >
                                 Imprimir
@@ -212,7 +204,7 @@ const FormHeader = ({
                                 open={open}
                                 anchorEl={anchorEl}
                             />
-                        </Box>
+                        </>
                     )}
 
                     {btnSave && routes.find(route => route.rota === currentUrl && route.editar) && (
@@ -222,12 +214,13 @@ const FormHeader = ({
                             variant='outlined'
                             size='medium'
                             color='primary'
-                            disabled={disabled || disabledSubmit}
+                            disabled={disabled}
                             startIcon={<Icon icon='material-symbols:save' />}
                         >
                             Salvar
                         </Button>
                     )}
+<<<<<<< HEAD
 
                     {/* Fornecedor concluir formulário e envia pra fábrica avaliar */}
                     {btnSend && (
@@ -287,6 +280,8 @@ const FormHeader = ({
                             )
                         })}
                     </div>
+=======
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
                 </Box>
             </CardContent>
         </>

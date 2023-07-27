@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, Fragment, useContext } from 'react'
+import { useState, Fragment } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -13,15 +13,18 @@ import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+<<<<<<< HEAD
 import { AuthContext } from 'src/context/AuthContext'
 import { ParametersContext } from 'src/context/ParametersContext'
+=======
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
 
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
 // ** Context
-import { useAuth, user } from 'src/hooks/useAuth'
+import { useAuth } from 'src/hooks/useAuth'
 
 // ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({
@@ -35,8 +38,11 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 const UserDropdown = props => {
     // ** Props
     const { settings } = props
+<<<<<<< HEAD
     const { user } = useContext(AuthContext)
     const { setId } = useContext(ParametersContext)
+=======
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
 
     // ** States
     const [anchorEl, setAnchorEl] = useState(null)
@@ -79,7 +85,6 @@ const UserDropdown = props => {
         handleDropdownClose()
     }
 
-
     return (
         <Fragment>
             <Badge
@@ -93,10 +98,10 @@ const UserDropdown = props => {
                 }}
             >
                 <Avatar
-                    alt={user.nome}
+                    alt='John Doe'
                     onClick={handleDropdownOpen}
                     sx={{ width: 40, height: 40 }}
-                    src={user.imagem}
+                    src='/images/avatars/1.png'
                 />
             </Badge>
             <Menu
@@ -119,30 +124,66 @@ const UserDropdown = props => {
                         >
                             <Avatar
                                 alt='John Doe'
-                                src={user.imagem}
+                                src='/images/avatars/1.png'
                                 sx={{ width: '2.5rem', height: '2.5rem' }}
                             />
                         </Badge>
                         <Box sx={{ display: 'flex', ml: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
-                            <Typography sx={{ fontWeight: 600 }}>{user.nome}</Typography>
+                            <Typography sx={{ fontWeight: 600 }}>John Doe</Typography>
                             <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
-                                {user.profissao}
+                                Admin
                             </Typography>
                         </Box>
                     </Box>
                 </Box>
                 <Divider sx={{ mt: '0 !important' }} />
                 <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+<<<<<<< HEAD
                     <Box sx={styles}
                         onClick={() => {
                             handleDropdownClose(user.papelID === 1 ? `/configuracoes/usuario` : `/meus-dados`)
                             setId(user.usuarioID)
                         }}>
 
+=======
+                    <Box sx={styles}>
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
                         <Icon icon='mdi:account-outline' />
                         Meus Dados
                     </Box>
                 </MenuItem>
+                <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+                    <Box sx={styles}>
+                        <Icon icon='mdi:email-outline' />
+                        Inbox
+                    </Box>
+                </MenuItem>
+                <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+                    <Box sx={styles}>
+                        <Icon icon='mdi:message-outline' />
+                        Chat
+                    </Box>
+                </MenuItem>
+                <Divider />
+                <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+                    <Box sx={styles}>
+                        <Icon icon='mdi:cog-outline' />
+                        Configurações
+                    </Box>
+                </MenuItem>
+                <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+                    <Box sx={styles}>
+                        <Icon icon='mdi:currency-usd' />
+                        Pricing
+                    </Box>
+                </MenuItem>
+                <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+                    <Box sx={styles}>
+                        <Icon icon='mdi:help-circle-outline' />
+                        FAQ
+                    </Box>
+                </MenuItem>
+                <Divider />
                 <MenuItem
                     onClick={handleLogout}
                     sx={{ py: 2, '& svg': { mr: 2, fontSize: '1.375rem', color: 'text.primary' } }}
@@ -150,9 +191,8 @@ const UserDropdown = props => {
                     <Icon icon='mdi:logout-variant' />
                     Sair
                 </MenuItem>
-
             </Menu>
-        </Fragment >
+        </Fragment>
     )
 }
 

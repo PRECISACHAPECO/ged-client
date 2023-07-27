@@ -23,9 +23,9 @@ const defaultProvider = {
     register: () => Promise.resolve()
 }
 
-const AuthContext = createContext(defaultProvider)
+const FornecedorContext = createContext(defaultProvider)
 
-const AuthProvider = ({ children }) => {
+const FornecedorProvider = ({ children }) => {
     // ** States
     const [user, setUser] = useState(defaultProvider.user)
     const [loading, setLoading] = useState(defaultProvider.loading)
@@ -46,18 +46,12 @@ const AuthProvider = ({ children }) => {
     const router = useRouter()
     useEffect(() => {
         const initAuth = async () => {
-            console.log("🚀 ~ staticUrl:", staticUrl)
-
             setCurrentRoute(router.pathname)
 
             const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)
             if (storedToken) {
                 setLoading(true)
                 const data = JSON.parse(window.localStorage.getItem('userData'))
-<<<<<<< HEAD
-
-=======
->>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
                 setUnitsUser(JSON.parse(window.localStorage.getItem('userUnits')))
                 setLoggedUnity(JSON.parse(window.localStorage.getItem('loggedUnity')))
                 setRoutes(JSON.parse(window.localStorage.getItem('routes')))
@@ -87,45 +81,30 @@ const AuthProvider = ({ children }) => {
             }
         }
         initAuth()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-<<<<<<< HEAD
-    //* Login da fabrica (CPF)
-=======
->>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
     const handleLogin = (params, errorCallback) => {
-        api.post('/login', params).then(async response => {
-            setUnitsUser(response.data.unidades)
-            localStorage.setItem('userUnits', JSON.stringify(response.data.unidades))
+        console.log('handle login do fornecedor...')
+        api.post('/login-fornecedor', params).then(async response => {
 
-            // Verifica nº de unidades vinculadas ao usuário tentando logar
-            if (response.status === 202 && params.verifyUnits) { // +1 unidade, modal pra selecionar unidade antes de logar
-                setOpenModalSelectUnits(true)
-                setUserAux(response.data.userData)
-            } else {                      // 1 unidade, loga direto
-                setOpenModalSelectUnits(false)
-                params.rememberMe
-                    ? window.localStorage.setItem(authConfig.storageTokenKeyName, response.data.accessToken)
-                    : null
-                const returnUrl = router.query.returnUr
-                setUser({ ...response.data.userData })
+            params.rememberMe
+                ? window.localStorage.setItem(authConfig.storageTokenKeyName, response.data.accessToken)
+                : null
+            const returnUrl = router.query.returnUr
+            setUser({ ...response.data.userData })
 
-                // Verifica se usuário tem apenas uma unidade vinculada
-                if (response.data.unidades.length == 1) {
-                    setLoggedUnity(response.data.unidades[0])
-                    localStorage.setItem('loggedUnity', JSON.stringify(response.data.unidades[0]))
-                    getMenu(response.data.unidades[0].papelID)
-                    // Recebe usuário e unidade e seta rotas de acordo com o perfil
-                    getRoutes(response.data.userData.usuarioID, response.data.unidades[0].unidadeID, response.data.userData.admin, response.data.unidades[0].papelID)
-                }
+            getMenu(response.data.unidades[0].papelID)
+            // Recebe usuário e unidade e seta rotas de acordo com o perfil
+            getRoutes(response.data.userData.usuarioID, response.data.unidades[0].unidadeID, response.data.userData.admin, response.data.unidades[0].papelID)
 
-                params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
-                const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
-                router.replace(redirectURL)
-            }
+            params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
+            const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+            router.replace(redirectURL)
+
         }).catch(err => {
             if (err?.response?.status === 400) {
-                toast.error('CPF ou senha inválidos!')
+                toast.error('CNPJ ou senha inválidos!')
             }
             if (errorCallback) errorCallback(err)
         })
@@ -139,7 +118,7 @@ const AuthProvider = ({ children }) => {
         window.localStorage.removeItem('routes')
         window.localStorage.removeItem('menu')
         window.localStorage.removeItem(authConfig.storageTokenKeyName)
-        router.push('/login')
+        router.push('/fornecedor')
     }
 
     const handleRegister = (params, errorCallback) => {
@@ -156,7 +135,7 @@ const AuthProvider = ({ children }) => {
     }
 
     const getMenu = (papelID) => {
-        console.log('Obtem menu....')
+        console.log('Obtem menu: ', papelID)
         api.get(`/login?papelID=${papelID}`, { headers: { 'function-name': 'getMenu' } }).then(response => {
             setMenu(response.data)
             localStorage.setItem('menu', JSON.stringify(response.data))
@@ -219,7 +198,7 @@ const AuthProvider = ({ children }) => {
         register: handleRegister,
     }
 
-    return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>
+    return <FornecedorContext.Provider value={values}>{children}</FornecedorContext.Provider>
 }
 
-export { AuthContext, AuthProvider }
+export { FornecedorContext, FornecedorProvider }

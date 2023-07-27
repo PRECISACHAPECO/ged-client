@@ -33,6 +33,15 @@ const Produtos = () => {
     }
 
     useEffect(() => {
+<<<<<<< HEAD
+=======
+        const getList = async () => {
+            await api.post(currentLink, { unidadeID: loggedUnity.unidadeID }).then(response => {
+                setResult(response.data)
+                setTitle('Produtos')
+            })
+        }
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
         getList()
     }, [id])
 

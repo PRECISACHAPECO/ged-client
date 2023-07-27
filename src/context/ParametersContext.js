@@ -1,47 +1,17 @@
 import { createContext, useState } from 'react'
+<<<<<<< HEAD
 
+=======
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
 
 const ParametersContext = createContext({})
 
 const ParametersProvider = ({ children }) => {
     const [title, setTitle] = useState('Home')
-    const [pageSize, setPageSize] = useState(10)
-    const [searchText, setSearchText] = useState('')
-    const [filteredData, setFilteredData] = useState([])
-    const [data, setData] = useState([])
-
-    //* Função para filtrar os dados da tabela
-    const handleSearch = searchValue => {
-
-        setSearchText(searchValue)
-        const searchWords = searchValue.toLowerCase().split(' ').filter(word => word !== '')
-
-        const filteredRows = data.filter(row => {
-            return searchWords.every(word => {
-                return Object.keys(row).some(field => {
-                    console.log("valor digitado", field)
-                    return row[field].toString().toLowerCase().indexOf(word) !== -1
-                })
-            })
-        })
-        if (searchValue.length && filteredRows.length > 0) {
-            setFilteredData(filteredRows)
-        } else {
-            setFilteredData([])
-        }
-    }
-
-    // Funções para guardar ids dinamicos no localStorage
-    const setStorageId = (id) => {
-        localStorage.setItem('dynamicId', JSON.stringify(id))
-    }
-    const getStorageId = () => {
-        const id = JSON.parse(localStorage.getItem('dynamicId'))
-        return id
-    }
 
     const values = {
         title,
+<<<<<<< HEAD
         setTitle,
         handleSearch,
         pageSize,
@@ -54,6 +24,9 @@ const ParametersProvider = ({ children }) => {
         setData,
         setStorageId,
         getStorageId
+=======
+        setTitle
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
     }
 
     return <ParametersContext.Provider value={values}>{children}</ParametersContext.Provider>

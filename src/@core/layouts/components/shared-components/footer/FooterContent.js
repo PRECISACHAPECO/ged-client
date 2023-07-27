@@ -9,7 +9,7 @@ const FooterContent = () => {
     const hidden = useMediaQuery(theme => theme.breakpoints.down('md'))
 
     return (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'end' }} className='no-print'>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'end' }}>
             <Typography sx={{ mr: 2 }}>
                 {`© ${new Date().getFullYear()}, por `}
                 <Link target='_blank' href='https://sisprecisa.com.br/'>

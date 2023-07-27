@@ -32,6 +32,7 @@ import Spinner from 'src/@core/components/spinner'
 
 // ** Contexts
 import { AuthProvider } from 'src/context/AuthContext'
+import { FornecedorProvider } from 'src/context/FornecedorContext'
 import { ParametersProvider } from 'src/context/ParametersContext'
 import { RouteProvider } from 'src/context/RouteContext'
 import { SettingsConsumer, SettingsProvider } from 'src/@core/context/settingsContext'
@@ -54,7 +55,6 @@ import 'src/iconify-bundle/icons-bundle-react'
 
 // ** Global css styles
 import '../../styles/globals.css'
-import { useEffect } from 'react'
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -98,7 +98,7 @@ const App = props => {
     return (
         <CacheProvider value={emotionCache}>
             <Head>
-                <title className='print-no-title'>{`${themeConfig.templateName}`}</title>
+                <title>{`${themeConfig.templateName}`}</title>
                 <meta
                     name='description'
                     content={`${themeConfig.templateName} – Material Design React Admin Dashboard Template – is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.`}
@@ -106,8 +106,13 @@ const App = props => {
                 <meta name='keywords' content='Material Design, MUI, Admin Template, React Admin Template' />
                 <meta name='viewport' content='initial-scale=1, width=device-width' />
             </Head>
+<<<<<<< HEAD
             <RouteProvider>
                 <ParametersProvider>
+=======
+            <ParametersProvider>
+                <FornecedorProvider>
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
                     <AuthProvider>
                         <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
                             <SettingsConsumer>
@@ -133,8 +138,13 @@ const App = props => {
                             </SettingsConsumer>
                         </SettingsProvider>
                     </AuthProvider>
+<<<<<<< HEAD
                 </ParametersProvider>
             </RouteProvider>
+=======
+                </FornecedorProvider>
+            </ParametersProvider>
+>>>>>>> afef836c6b2da3ee5ba0e1f1b1b30329afc2227b
         </CacheProvider>
     )
 }

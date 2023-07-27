@@ -12,7 +12,6 @@ function cnpjMask(cnpj) {
     return cnpj
 }
 
-
 // Mascara para CPF
 function cpfMask(cpf) {
     if (cpf) {
@@ -24,18 +23,6 @@ function cpfMask(cpf) {
 
     return cpf
 }
-
-function rgMask(rg) {
-    if (rg) {
-        rg = rg.replace(/\D/g, ''); // remove caracteres não numéricos
-        rg = rg.replace(/(\d{2})(\d)/, '$1.$2'); // adiciona ponto após os dois primeiros dígitos
-        rg = rg.replace(/(\d{3})(\d)/, '$1.$2'); // adiciona ponto após os três primeiros dígitos
-        rg = rg.replace(/(\d{3})(\d)/, '$1-$2'); // adiciona traço após os três primeiros dígitos
-    }
-    return rg;
-}
-
-
 
 // Mascara telefone celular
 function cellPhoneMask(cellPhone) {
@@ -62,4 +49,4 @@ function ufMask(uf) {
     return uf;
 }
 
-export { cnpjMask, cellPhoneMask, cepMask, ufMask, cpfMask, rgMask }
+export { cnpjMask, cellPhoneMask, cepMask, ufMask, cpfMask }

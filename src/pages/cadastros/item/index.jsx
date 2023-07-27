@@ -24,14 +24,13 @@ const Item = () => {
     const { setTitle } = useContext(ParametersContext)
     const { id } = useContext(RouteContext)
 
-    const getList = async () => {
-        await api.get(currentLink).then(response => {
-            setResult(response.data)
-            setTitle('Item')
-        })
-    }
-
     useEffect(() => {
+        const getList = async () => {
+            await api.get(currentLink).then(response => {
+                setResult(response.data)
+                setTitle('Item')
+            })
+        }
         getList()
     }, [id])
 

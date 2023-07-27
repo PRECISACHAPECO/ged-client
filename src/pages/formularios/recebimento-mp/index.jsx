@@ -22,45 +22,41 @@ const RecebimentoMp = () => {
     const { setTitle } = useContext(ParametersContext)
     const { id } = useContext(RouteContext)
 
-    const getList = async () => {
-        await api.get(`${currentLink}/getList/${loggedUnity.unidadeID}`).then(response => {
-            setResult(response.data)
-            setTitle('Recebimento de MP')
-        })
-    }
-
     useEffect(() => {
+        const getList = async () => {
+            await api
+                .get(currentLink + '/' + loggedUnity.unidadeID, { headers: { 'function-name': 'getList' } })
+                .then(response => {
+                    setResult(response.data)
+                    setTitle('Recebimento de MP')
+                })
+        }
         getList()
     }, [id])
 
     const arrColumns = [
         {
-            headerName: 'ID',
+            title: 'ID',
             field: 'id',
             size: 0.1
         },
         {
-            headerName: 'Data',
+            title: 'Data',
             field: 'data',
-            size: 0.1
-        },
-        {
-            headerName: 'Fornecedor',
-            field: 'fornecedor',
             size: 0.2
         },
         {
-            headerName: 'CNPJ Fornecedor',
-            field: 'cnpj',
+            title: 'Transportador',
+            field: 'transportador',
             size: 0.3
         },
         {
-            headerName: 'Total de Produtos',
-            field: 'totalProdutos',
+            title: 'Operação',
+            field: 'tipoOperacao',
             size: 0.2
         },
         {
-            headerName: 'Status',
+            title: 'Status',
             field: 'status',
             size: 0.2
         }
