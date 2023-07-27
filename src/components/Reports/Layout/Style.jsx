@@ -1,29 +1,4 @@
 import { StyleSheet } from '@react-pdf/renderer'
-// import { Font } from '@react-pdf/renderer'
-// import InterBold from './fonts/Inter-Bold.ttf'
-// import PoppinsBold from './fonts/Poppins-Bold.ttf'
-// import PoppinsRegular from './fonts/Poppins-Regular.ttf'
-// import InterRegular from './fonts/Inter-Regular.ttf'
-
-//? Inter
-// Font.register({
-//     family: 'InterRegular',
-//     src: InterRegular
-// })
-// Font.register({
-//     family: 'InterBold',
-//     src: InterBold
-// })
-
-// //? Poppins
-// Font.register({
-//     family: 'PoppinsRegular',
-//     src: PoppinsRegular
-// })
-// Font.register({
-//     family: 'PoppinsBold',
-//     src: PoppinsBold
-// })
 
 export const styles = StyleSheet.create({
     page: {
@@ -33,9 +8,7 @@ export const styles = StyleSheet.create({
         paddingTop: 15,
         paddingBottom: 30
     },
-    title: {
-        // fontFamily: 'InterBold'
-    },
+    title: {},
 
     header: {
         position: 'fixed',
@@ -73,7 +46,6 @@ export const styles = StyleSheet.create({
     // Text / Title
     blockTitle: {
         paddingVertical: 5
-        // fontFamily: 'InterBold'
     },
     containerFields: {
         display: 'flex',
@@ -126,7 +98,6 @@ export const styles = StyleSheet.create({
         borderTopLeftRadius: 2,
         borderTopRightRadius: 2,
         borderLeft: '1px solid #ddd'
-        // fontFamily: 'InterBold'
     },
     tableTitlecolumn: {
         padding: 8

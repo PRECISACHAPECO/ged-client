@@ -46,6 +46,7 @@ import { Checkbox } from '@mui/material'
 import { SettingsContext } from 'src/@core/context/settingsContext'
 import { cnpjMask, cellPhoneMask, cepMask, ufMask } from 'src/configs/masks'
 import DialogFormConclusion from '../Defaults/Dialogs/DialogFormConclusion'
+import ReportFornecedor from 'src/components/Reports/Formularios/Fornecedor'
 
 // ** Custom Components
 import CustomChip from 'src/@core/components/mui/chip'
@@ -222,30 +223,15 @@ const FormFornecedor = ({ id }) => {
     const dataReports = [
         {
             id: 1,
-            name: 'Formulário do fornecedor',
-            component: 'Fornecedor',
+            title: 'Formulário do fornecedor',
+            titleButton: 'Imprimir',
+            component: <ReportFornecedor params={{ id: id }} />,
             route: '/relatorio/fornecedor/dadosFornecedor',
             papelID: user.papelID,
             identification: '01',
             params: {
                 fornecedorID: id
             }
-        },
-        {
-            id: 2,
-            name: 'Teste relatório1',
-            component: 'Fornecedor',
-            route: '/relatorio/fornecedor/dadosFornecedor/teste',
-            papelID: user.papelID,
-            identification: '02'
-        },
-        {
-            id: 3,
-            name: 'Teste relatório2',
-            component: 'Fornecedor',
-            route: '/relatorio/fornecedor/dadosFornecedor/teste2',
-            papelID: user.papelID,
-            identification: '03'
         }
     ]
 

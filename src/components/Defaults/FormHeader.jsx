@@ -10,6 +10,7 @@ import { AuthContext } from 'src/context/AuthContext'
 import { ParametersContext } from 'src/context/ParametersContext'
 import { RouteContext } from 'src/context/RouteContext'
 import Fab from '@mui/material/Fab'
+import LayoutReport from 'src/components/Reports/Layout'
 
 const FormHeader = ({
     btnCancel,
@@ -174,10 +175,6 @@ const FormHeader = ({
                     {btnPrint && dataReports.length === 1 && (
                         <Button
                             id='fade-button'
-                            aria-controls={open ? 'fade-menu' : undefined}
-                            aria-haspopup='true'
-                            aria-expanded={open ? 'true' : undefined}
-                            // onClick={() => generateReport(dataReports[0])}
                             color='primary'
                             disabled={disabled || disabledPrint}
                             variant='outlined'
@@ -185,7 +182,11 @@ const FormHeader = ({
                             type='button'
                             startIcon={<Icon icon='material-symbols:print' />}
                         >
-                            Imprimir
+                            <LayoutReport
+                                titleButton={dataReports[0].titleButton}
+                                title={dataReports[0].title}
+                                content={dataReports[0].component}
+                            />
                         </Button>
                     )}
                     {/* Imprimir com +1 opção (dropdown) */}
@@ -193,9 +194,6 @@ const FormHeader = ({
                         <Box>
                             <Button
                                 id='fade-button'
-                                aria-controls={open ? 'fade-menu' : undefined}
-                                aria-haspopup='true'
-                                aria-expanded={open ? 'true' : undefined}
                                 onClick={handleClick}
                                 color='primary'
                                 disabled={disabled || disabledPrint}
@@ -208,7 +206,6 @@ const FormHeader = ({
                                 Imprimir
                             </Button>
                             <MenuReports
-                                generateReport={generateReport}
                                 dataReports={dataReports}
                                 handleClick={handleClick}
                                 handleClose={handleClose}
