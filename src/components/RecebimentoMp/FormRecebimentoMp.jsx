@@ -91,19 +91,8 @@ const FormRecebimentoMp = ({ id }) => {
     //! Se perder Id, copia do localstorage
     const { setTitle, setStorageId, getStorageId } = useContext(ParametersContext)
     const router = Router
-<<<<<<< HEAD
-    const { id } = router.query
-    if (!id) id = getStorageId()
-    useEffect(() => {
-        setStorageId(id)
-    }, [])
-
-    const staticUrl = backRoute(router.pathname) // Url sem ID
-    const type = formType(router.pathname) // Verifica se é novo ou edição
-=======
     const type = id && id > 0 ? 'edit' : 'new'
     const staticUrl = router.pathname
->>>>>>> 775e144a93fcabce34b30f3c016004f6865b09b2
 
     const {
         trigger,

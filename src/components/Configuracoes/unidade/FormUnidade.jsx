@@ -1,13 +1,9 @@
 import Router from 'next/router'
 import { useEffect, useState, useContext } from 'react'
 import { api } from 'src/configs/api'
-<<<<<<< HEAD
-import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
-=======
 import { ParametersContext } from 'src/context/ParametersContext'
 import { RouteContext } from 'src/context/RouteContext'
 import { Card, CardContent, Grid, Typography } from '@mui/material'
->>>>>>> 775e144a93fcabce34b30f3c016004f6865b09b2
 import { useForm } from 'react-hook-form'
 import Loading from 'src/components/Loading'
 import toast from 'react-hot-toast'

@@ -17,9 +17,6 @@ const Fields = ({ register, errors, setValue, fields, values, disabled, control,
     const router = Router
     const staticUrl = backRoute(router.pathname)
 
-<<<<<<< HEAD
-    console.log('🚀 ~ watchRegistroEstabelecimento:', watchRegistroEstabelecimento)
-=======
     const itializeValues = () => {
         //? Inicializa os valores do formulário
         fields?.map((field, index) => {
@@ -38,34 +35,10 @@ const Fields = ({ register, errors, setValue, fields, values, disabled, control,
                     } else {
                         setValue(`header.${field.nomeColuna}`, values?.[field.nomeColuna])
                     }
->>>>>>> 775e144a93fcabce34b30f3c016004f6865b09b2
-
-    // const itializeValues = () => {
-    //     //? Inicializa os valores do formulário
-    //     fields?.map((field, index) => {
-    //         if (field.tipo == 'int') {
-    //             setValue(`header.${field.tabela}`, values?.[field.tabela] ? values?.[field.tabela] : null)
-    //         } else {
-    //             if (field.tipo == 'date') {
-    //                 setDateFormat('dataPassado', field?.nomeColuna, values?.[field?.nomeColuna], 365)
-    //             } else {
-    //                 if (staticUrl == '/formularios/fornecedor' && user.papelID == 2) {
-    //                     const result =
-    //                         values?.[field.nomeColuna] === null && loggedUnity?.[field.nomeColuna]
-    //                             ? (setCopiedDataContext(true), loggedUnity?.[field.nomeColuna])
-    //                             : values?.[field.nomeColuna]
-    //                     setValue(`header.${field.nomeColuna}`, result)
-    //                 } else {
-    //                     setValue(`header.${field.nomeColuna}`, values?.[field.nomeColuna])
-    //                 }
-
-    //                 console.log('nome da coluna', field.nomeColuna)
-    //                 console.log('valor do campo', values?.[field.nomeColuna])
-    //             }
-    //         }
-    //     })
-    //     setWatchRegistroEstabelecimento(values?.registroestabelecimento ? values?.registroestabelecimento?.id : null)
-    // }
+                }
+            }
+        })
+    }
 
     const setDateFormat = (type, name, value, numDays) => {
         const newDate = new Date(value)
